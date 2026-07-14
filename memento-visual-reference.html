@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MEMENTO — Visual Reference · Cattura per Cinematic AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#060606;
+    --panel:#0d0d0f;
+    --panel-2:#111114;
+    --line:#1d1d21;
+    --line-2:#26262b;
+    --txt:#ededed;
+    --txt-2:#8b8b90;
+    --txt-3:#5c5c61;
+    --accent:#ff7950;
+    --accent-dim:#7a3c28;
+    --radius:10px;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--void);color:var(--txt);
+    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+  body{overscroll-behavior:none}
+
+  .app{
+    display:grid;height:100dvh;
+    grid-template-columns:312px 1fr;
+    grid-template-rows:auto 1fr;
+    grid-template-areas:"top top" "panel main";
+  }
+
+  /* ---------- Topbar ---------- */
+  .top{grid-area:top;display:flex;align-items:center;gap:16px;
+    padding:14px 22px;border-bottom:1px solid var(--line);background:var(--void)}
+  .brand{display:flex;align-items:baseline;gap:8px;font-weight:800;letter-spacing:.14em;font-size:13px}
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;translate:0 -1px}
+  .brand small{color:var(--txt-3);font-weight:600;letter-spacing:.14em}
+  .top .title{margin-left:auto;text-align:right}
+  .top .title b{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .top .title span{font-size:10.5px;color:var(--txt-3);letter-spacing:.16em;text-transform:uppercase;font-family:var(--mono)}
+
+  /* ---------- Left panel ---------- */
+  .panel{grid-area:panel;border-right:1px solid var(--line);background:var(--panel);
+    display:flex;flex-direction:column;min-height:0}
+  .cats{display:flex;flex-direction:column;padding:16px 14px 6px;gap:3px}
+  .cat{appearance:none;border:0;background:transparent;color:var(--txt-2);
+    text-align:left;padding:9px 12px;border-radius:8px;cursor:pointer;
+    font-size:12px;font-weight:600;letter-spacing:.02em;display:flex;align-items:center;gap:10px;
+    transition:background .18s var(--ease),color .18s var(--ease)}
+  .cat .idx{font-family:var(--mono);font-size:10px;color:var(--txt-3);letter-spacing:0}
+  .cat:hover{background:var(--panel-2);color:var(--txt)}
+  .cat[aria-selected="true"]{background:var(--panel-2);color:var(--txt)}
+  .cat[aria-selected="true"] .idx{color:var(--accent)}
+
+  .list{flex:1;min-height:0;overflow-y:auto;padding:8px 14px 22px;
+    border-top:1px solid var(--line);margin-top:8px}
+  .list::-webkit-scrollbar{width:9px}
+  .list::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:9px;border:3px solid var(--panel)}
+  .fx{appearance:none;width:100%;border:1px solid transparent;background:transparent;color:var(--txt-2);
+    text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;margin-top:2px;
+    font-size:12.5px;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    transition:background .16s var(--ease),color .16s var(--ease),border-color .16s var(--ease)}
+  .fx:hover{background:var(--panel-2);color:var(--txt)}
+  .fx[aria-current="true"]{background:#17130f;border-color:var(--accent-dim);color:var(--txt)}
+  .fx .tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--txt-3);padding:2px 6px;border:1px solid var(--line-2);border-radius:5px;flex:none}
+  .fx[aria-current="true"] .tag{color:var(--accent);border-color:var(--accent-dim)}
+
+  /* ---------- Main / stage ---------- */
+  .main{grid-area:main;min-width:0;min-height:0;display:flex;flex-direction:column;
+    padding:22px;gap:16px;overflow:hidden}
+  .stage{position:relative;width:100%;aspect-ratio:2.39/1;margin:0 auto;
+    background:radial-gradient(120% 140% at 62% 42%,#0a0a0b 0%,#040404 70%);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none;
+    max-height:min(58dvh,calc(100vw*0.42))}
+  .stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+  .layer{position:absolute;inset:0;pointer-events:none}
+  #bgBokeh{filter:blur(14px)}
+  .disc{position:absolute;border-radius:50%;opacity:0;
+    background:radial-gradient(circle at 38% 34%,rgba(255,255,255,.28),transparent 60%),var(--accent);
+    transition:opacity .35s var(--ease),width .35s var(--ease),height .35s var(--ease)}
+  .disc.w{background:radial-gradient(circle at 38% 34%,rgba(255,255,255,.5),transparent 62%),#cfcfd4}
+  #grain{opacity:.05;mix-blend-mode:soft-light}
+  #vignette{background:radial-gradient(130% 130% at 50% 46%,transparent 52%,rgba(0,0,0,.72) 100%)}
+  #flash{background:#0c0c0d;opacity:0}
+  /* composition overlay */
+  #comp{opacity:0;transition:opacity .25s var(--ease)}
+  #comp.on{opacity:1}
+  #comp line{stroke:rgba(255,255,255,.22);stroke-width:.4}
+  #comp .cross{stroke:var(--accent);stroke-width:.5;stroke-dasharray:2 2}
+  #comp .neg{fill:rgba(255,121,80,.08);stroke:var(--accent);stroke-width:.5}
+  #comp text{fill:var(--accent);font-family:var(--mono);font-size:3px;letter-spacing:.1em}
+  #comp .g{display:none}
+  #comp .g.show{display:block}
+  /* A/B frame label */
+  .fkey{position:absolute;top:12px;left:14px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.18em;color:var(--txt-2);opacity:0;transition:opacity .3s var(--ease);
+    padding:4px 9px;border:1px solid var(--line-2);border-radius:6px;background:rgba(6,6,6,.6)}
+  .fkey.on{opacity:1}
+  .fkey b{color:var(--accent)}
+  .stagehint{position:absolute;bottom:12px;right:14px;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.1em;color:var(--txt-3);text-transform:uppercase}
+
+  /* ---------- Dock ---------- */
+  .dock{flex:1;min-height:0;display:grid;grid-template-columns:1.15fr .85fr;gap:22px;
+    padding-top:2px}
+  .dock .info{min-width:0}
+  .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 8px}
+  .fxname{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 14px;line-height:1.05}
+  .row{display:flex;gap:10px;margin-bottom:11px}
+  .row .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--txt-3);flex:none;width:96px;padding-top:2px}
+  .row .v{font-size:13.5px;line-height:1.5;color:var(--txt-2)}
+  .row.gen .k{color:var(--accent-dim)}
+  .row.gen .v{color:var(--txt)}
+
+  .controls{border-left:1px solid var(--line);padding-left:22px;display:flex;flex-direction:column;gap:16px}
+  .ctl-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--txt-3);display:flex;justify-content:space-between;align-items:baseline}
+  .ctl-label .val{color:var(--accent);font-size:12px;letter-spacing:.04em}
+  .sldwrap{display:none;flex-direction:column;gap:9px}
+  .sldwrap.on{display:flex}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;
+    background:var(--line-2);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:var(--accent);border:3px solid var(--void);box-shadow:0 0 0 1px var(--accent-dim)}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--void)}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--accent-dim)}
+
+  .seg{display:none;gap:6px;flex-wrap:wrap}
+  .seg.on{display:flex}
+  .seg button{appearance:none;border:1px solid var(--line-2);background:transparent;color:var(--txt-2);
+    padding:7px 11px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+    transition:all .15s var(--ease)}
+  .seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17130f}
+
+  .play{display:none;align-items:center;justify-content:center;gap:9px;
+    appearance:none;border:1px solid var(--accent-dim);background:#140f0b;color:var(--accent);
+    padding:12px 18px;border-radius:9px;font-size:12.5px;font-weight:700;letter-spacing:.02em;
+    cursor:pointer;font-family:inherit;transition:all .16s var(--ease);width:100%}
+  .play.on{display:flex}
+  .play:hover{background:#1c130c;border-color:var(--accent)}
+  .play:active{scale:.98}
+  .play svg{width:13px;height:13px}
+  .ctl-empty{color:var(--txt-3);font-size:12px;font-style:italic}
+
+  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    html,body{overflow:auto}
+    .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;
+      grid-template-areas:"top" "main" "panel";height:auto;min-height:100dvh}
+    .main{padding:16px;order:0}
+    .stage{max-height:none;aspect-ratio:16/9}
+    .dock{grid-template-columns:1fr;gap:16px}
+    .controls{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:16px}
+    .fxname{font-size:22px}
+    .panel{border-right:0;border-top:1px solid var(--line)}
+    .cats{flex-direction:row;overflow-x:auto;padding:12px 14px;gap:6px}
+    .cat{flex:none;background:var(--panel-2)}
+    .list{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line);padding:14px}
+    .fx{width:auto;margin:0}
+    .top .title{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">MEMENTO<span class="dot"></span><small>STUDIO</small></div>
+    <div class="title">
+      <b>Visual Reference — Cattura per Cinematic AI</b>
+      <span>Rev. 01 · guida di ripresa</span>
+    </div>
+  </header>
+
+  <aside class="panel">
+    <div class="cats" id="cats" role="tablist" aria-label="Categorie"></div>
+    <div class="list" id="list" role="listbox" aria-label="Effetti"></div>
+  </aside>
+
+  <main class="main">
+    <div class="stage" id="stage">
+      <div class="layer" id="bgBokeh"></div>
+      <canvas id="cv"></canvas>
+      <div class="layer" id="fgBokeh"></div>
+      <div class="layer" id="grain">
+        <svg width="100%" height="100%"><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#gr)"/></svg>
+      </div>
+      <svg class="layer" id="comp" viewBox="0 0 239 100" preserveAspectRatio="none">
+        <g class="g" data-g="thirds"><line x1="79.6" y1="0" x2="79.6" y2="100"/><line x1="159.3" y1="0" x2="159.3" y2="100"/><line x1="0" y1="33.3" x2="239" y2="33.3"/><line x1="0" y1="66.6" x2="239" y2="66.6"/></g>
+        <g class="g" data-g="center"><line class="cross" x1="119.5" y1="0" x2="119.5" y2="100"/><line class="cross" x1="0" y1="50" x2="239" y2="50"/></g>
+        <g class="g" data-g="neg"><rect class="neg" x="168" y="60" width="60" height="32" rx="2"/><text x="171" y="72">AREA BADGE</text></g>
+        <g class="g" data-g="head"><line x1="0" y1="20" x2="239" y2="20"/><text x="4" y="17">HEADROOM</text></g>
+      </svg>
+      <div class="layer" id="vignette"></div>
+      <div class="layer" id="flash"></div>
+      <div class="fkey" id="fkey"></div>
+      <div class="stagehint" id="hint">soggetto neutro · void</div>
+    </div>
+
+    <div class="dock">
+      <div class="info">
+        <p class="eyebrow" id="eyebrow">Ottica</p>
+        <h1 class="fxname" id="fxname">—</h1>
+        <div class="row"><div class="k">Cosa fa</div><div class="v" id="cosa"></div></div>
+        <div class="row gen"><div class="k">→ Generazione</div><div class="v" id="gen"></div></div>
+      </div>
+      <div class="controls">
+        <div class="sldwrap" id="sldwrap">
+          <div class="ctl-label"><span id="sldlabel">Parametro</span><span class="val" id="sldval"></span></div>
+          <input type="range" id="sld" min="0" max="100" value="50">
+        </div>
+        <div class="seg" id="seg" role="group" aria-label="Composizione"></div>
+        <button class="play" id="play">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span id="playlabel">Riproduci</span>
+        </button>
+        <div class="ctl-empty" id="ctlempty" style="display:none">Nessun parametro — osserva il soggetto.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------------- Scene ---------------- */
+const stage = document.getElementById("stage");
+const canvas = document.getElementById("cv");
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene = new THREE.Scene();
+
+const DEF = {z:4.2, focal:50, rimAngle:112, amb:0.55, key:0.42, rim:3.2, subY:-0.6, bump:0.006};
+const S = 18; // half of 36mm sensor for fov calc
+function fovFromFocal(f){ return 2*Math.atan(S/f)*180/Math.PI; }
+const camera = new THREE.PerspectiveCamera(fovFromFocal(DEF.focal), 2.39, 0.1, 100);
+camera.position.set(0,0,DEF.z);
+const target = new THREE.Vector3(0,0,0);
+
+// procedural matte-graphite bump
+function noiseTex(){
+  const c=document.createElement("canvas"); c.width=c.height=256; const x=c.getContext("2d");
+  const im=x.createImageData(256,256);
+  for(let i=0;i<im.data.length;i+=4){ const v=200+Math.random()*55; im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=255; }
+  x.putImageData(im,0,0); const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(3,3); return t;
+}
+const bump = noiseTex();
+
+// neutral subject: manual capsule (cylinder + 2 spheres) — bulletproof in r128
+const mat = new THREE.MeshStandardMaterial({color:0x171819, roughness:0.52, metalness:0.55, bumpMap:bump, bumpScale:DEF.bump});
+const subject = new THREE.Group();
+const R=0.56, H=1.15;
+const cyl=new THREE.Mesh(new THREE.CylinderGeometry(R,R,H,64,1,true),mat);
+const capT=new THREE.Mesh(new THREE.SphereGeometry(R,64,32,0,Math.PI*2,0,Math.PI/2),mat); capT.position.y=H/2;
+const capB=new THREE.Mesh(new THREE.SphereGeometry(R,64,32,0,Math.PI*2,Math.PI/2,Math.PI/2),mat); capB.position.y=-H/2;
+subject.add(cyl,capT,capB);
+subject.rotation.y=DEF.subY;
+subject.rotation.z=0.13;
+scene.add(subject);
+
+// faint parallax motes (behind subject)
+const motes = new THREE.Group();
+(function(){
+  const g=new THREE.BufferGeometry(); const n=50, pos=[];
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, r=6+Math.random()*4, y=(Math.random()-0.5)*7;
+    pos.push(Math.cos(a)*r,y,-Math.abs(Math.sin(a)*r)-2); }
+  g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+  motes.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xff7950,size:0.055,transparent:true,opacity:0.32})));
+  const g2=g.clone(); motes.add(new THREE.Points(g2,new THREE.PointsMaterial({color:0xffffff,size:0.04,transparent:true,opacity:0.22})));
+})();
+scene.add(motes);
+
+// lights
+const amb = new THREE.AmbientLight(0x0b0b0e, DEF.amb);
+const key = new THREE.DirectionalLight(0x2a2d38, DEF.key); key.position.set(-3,2,4);
+const rim = new THREE.PointLight(0xff7950, DEF.rim, 30, 1.6);
+const fill = new THREE.DirectionalLight(0x141822, 0.0); fill.position.set(2,-1,3);
+scene.add(amb,key,rim,fill);
+const RR=3.4;
+function setRimAngle(deg){ const a=deg*Math.PI/180; rim.position.set(RR*Math.sin(a),1.3,RR*Math.cos(a)); }
+setRimAngle(DEF.rimAngle);
+
+/* ---------------- Overlay layers ---------------- */
+const bgBokeh=document.getElementById("bgBokeh"), fgBokeh=document.getElementById("fgBokeh");
+function makeDiscs(host,n){ const arr=[]; for(let i=0;i<n;i++){ const d=document.createElement("div"); d.className="disc"+(Math.random()<0.25?" w":"");
+  d.dataset.x=(Math.random()*100).toFixed(1); d.dataset.y=(Math.random()*100).toFixed(1); d.dataset.s=(0.5+Math.random()).toFixed(2);
+  host.appendChild(d); arr.push(d);} return arr; }
+const bgD=makeDiscs(bgBokeh,16), fgD=makeDiscs(fgBokeh,11);
+function placeDiscs(arr,size,op){ arr.forEach(d=>{ const s=size*d.dataset.s; d.style.width=s+"px"; d.style.height=s+"px";
+  d.style.left="calc("+d.dataset.x+"% - "+s/2+"px)"; d.style.top="calc("+d.dataset.y+"% - "+s/2+"px)"; d.style.opacity=op; }); }
+function hideDiscs(arr){ arr.forEach(d=>d.style.opacity=0); }
+
+const comp=document.getElementById("comp"), fkey=document.getElementById("fkey"),
+      flash=document.getElementById("flash"), hint=document.getElementById("hint");
+function setComp(which){ comp.classList.toggle("on", !!which);
+  comp.querySelectorAll(".g").forEach(g=>g.classList.toggle("show", g.dataset.g===which)); }
+function setFilter(v){ canvas.style.filter=v||"none"; }
+
+/* ---------------- Animation runner ---------------- */
+let anim=null, idle=true;
+function easeIO(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function makeAnim(dur, fn, opts){ opts=opts||{}; let start=null;
+  return { update(now){ if(start===null)start=now; let t=(now-start)/dur;
+    if(t>=1){ if(opts.loop){ start=now; fn((t%1)); return false; } fn(1); if(opts.onEnd)opts.onEnd(); return true; }
+    fn(opts.linear?t:easeIO(t)); return false; } }; }
+
+function updateProj(f){ camera.fov=fovFromFocal(f); camera.updateProjectionMatrix(); }
+
+function resetScene(){
+  anim=null;
+  camera.position.set(0,0,DEF.z); target.set(0,0,0); updateProj(DEF.focal);
+  amb.intensity=DEF.amb; key.intensity=DEF.key; rim.intensity=DEF.rim; rim.color.set(0xff7950);
+  fill.intensity=0; setRimAngle(DEF.rimAngle);
+  subject.rotation.set(0,DEF.subY,0.13); subject.scale.set(1,1,1); mat.bumpScale=DEF.bump;
+  motes.visible=true;
+  hideDiscs(bgD); hideDiscs(fgD); setComp(null);
+  fkey.classList.remove("on"); flash.style.opacity=0; setFilter("none");
+}
+
+let t0=performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  if(anim){ if(anim.update(now)) anim=null; }
+  else if(idle && !REDUCED){
+    const e=(now-t0)/1000;
+    subject.rotation.y = DEF.subY + Math.sin(e*0.35)*0.05;
+    subject.position.y = Math.sin(e*0.5)*0.015;
+  }
+  camera.lookAt(target);
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(loop);
+
+function resize(){ const w=stage.clientWidth, h=stage.clientHeight; renderer.setSize(w,h,false);
+  camera.aspect=w/h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage); resize();
+
+/* ---------------- Effects data ---------------- */
+// slider:{label,min,max,val,step,fmt(v),apply(v)}  seg:{opts:[{id,label}],val,apply(id)}
+// play:{label,dur,run(t),loop,onStart}
+const GROUPS=[
+  {id:"ottica",label:"Ottica"},
+  {id:"luce",label:"Luce"},
+  {id:"movimento",label:"Movimento"},
+  {id:"frame",label:"Frame logic"},
+  {id:"montaggio",label:"Montaggio"},
+];
+
+const FX=[
+/* ---- OTTICA ---- */
+{g:"ottica",tag:"slider",name:"Lunghezza focale",
+ cosa:"Cambia compressione e resa prospettica. Il tele appiattisce e isola il soggetto; il grandangolo esagera la profondità e distorce i bordi.",
+ gen:"≈50mm è la focale più stabile in generazione. I grandangoli spinti tendono a deformarsi in interpolazione.",
+ setup:()=>{motes.visible=true;},
+ slider:{label:"Focale",min:24,max:135,val:50,step:1,fmt:v=>v+" mm",apply:v=>updateProj(v)}},
+
+{g:"ottica",tag:"slider",name:"Profondità di campo",
+ cosa:"L'apertura decide quanto sfondo resta a fuoco. Aperto = soggetto isolato su sfondo cremoso; chiuso = tutto nitido.",
+ gen:"Se lo sfondo-bokeh è protagonista, giralo reale: l'AI lo reinventa e non combacia mai col tuo obiettivo.",
+ setup:()=>{motes.visible=false;},
+ slider:{label:"Apertura",min:14,max:110,val:22,step:1,fmt:v=>"ƒ/"+(v/10).toFixed(1),apply:v=>{
+   const f=v/10; const open=1-Math.min(1,(f-1.4)/9.6); // 1 open .. 0 closed
+   placeDiscs(bgD, lerp(6,58,open), lerp(0.12,0.9,open));
+   setFilter(open>0.75?"blur("+((open-0.75)*4).toFixed(1)+"px)":"none");
+ }}},
+
+{g:"ottica",tag:"play",name:"Rack focus",
+ cosa:"Sposta il fuoco da un piano all'altro dentro la stessa inquadratura, guidando l'occhio.",
+ gen:"Ottima coppia start/end: fuoco davanti → fuoco sul soggetto dà a Kling un movimento leggibile e pulito.",
+ setup:()=>{motes.visible=false; placeDiscs(fgD,42,0.85);},
+ play:{label:"Esegui pull",dur:2600,run:t=>{ setFilter("blur("+lerp(7,0,t).toFixed(1)+"px)");
+   placeDiscs(fgD,42, lerp(0.85,0.85,t)); fgBokeh.style.filter="blur("+lerp(1,10,t)+"px)"; },
+   onEnd:()=>{fgBokeh.style.filter="";}}},
+
+{g:"ottica",tag:"slider",name:"Bokeh",
+ cosa:"La forma delle luci sfocate fuori fuoco. Dischi tondi e puliti = ottica di qualità; a limone/nervosi = ottica economica.",
+ gen:"La forma del bokeh generato è casuale. Se è un elemento chiave dell'inquadratura, catturalo in ripresa.",
+ setup:()=>{motes.visible=false;},
+ slider:{label:"Dimensione",min:0,max:100,val:45,step:1,fmt:v=>v+"%",apply:v=>{
+   placeDiscs(fgD, lerp(10,64,v/100), 0.8); fgBokeh.style.filter="blur("+lerp(2,7,v/100)+"px)"; }}},
+
+{g:"ottica",tag:"slider",name:"Macro / texture",
+ cosa:"Vicinissimo al soggetto: emerge la microstruttura della superficie, il vero carattere del materiale.",
+ gen:"I tuoi hero di texture (la pinza Medesy) vanno girati reali — è dettaglio che l'AI non ricostruisce fedele.",
+ setup:()=>{motes.visible=false;},
+ slider:{label:"Avvicinamento",min:0,max:100,val:0,step:1,fmt:v=>v+"%",apply:v=>{
+   camera.position.z=lerp(DEF.z,1.75,v/100); mat.bumpScale=lerp(DEF.bump,0.03,v/100); }}},
+
+/* ---- LUCE ---- */
+{g:"luce",tag:"slider",name:"Rim light — direzione",
+ cosa:"Il taglio di luce che stacca il soggetto dal nero. Da destra è la firma dello studio.",
+ gen:"Tieni la direzione coerente in tutte le plate: l'AI eredita la posizione della luce dai tuoi frame.",
+ slider:{label:"Angolo",min:0,max:360,val:112,step:1,fmt:v=>v+"°",apply:v=>setRimAngle(v)}},
+
+{g:"luce",tag:"slider",name:"Dura vs morbida",
+ cosa:"Sorgente piccola = ombre nette e alto contrasto. Sorgente grande = transizioni morbide e avvolgenti.",
+ gen:"Luce piatta e neutra sulle plate lascia più libertà di rigenerazione; luce già drammatica blocca il look.",
+ slider:{label:"Morbidezza",min:0,max:100,val:15,step:1,fmt:v=>v<40?"dura":v<70?"media":"morbida",apply:v=>{
+   const s=v/100; rim.intensity=lerp(3.6,1.7,s); amb.intensity=lerp(0.35,1.5,s);
+   key.intensity=lerp(0.4,0.9,s); fill.intensity=lerp(0,0.5,s); }}},
+
+{g:"luce",tag:"slider",name:"Falloff / void",
+ cosa:"Quanto in fretta la luce cade nel nero. È ciò che crea la 'Rim-Lit Void' dello studio.",
+ gen:"Nero pieno intorno al soggetto = area pulita dove innestare il badge o far respirare la generazione.",
+ slider:{label:"Caduta nel nero",min:0,max:100,val:70,step:1,fmt:v=>v+"%",apply:v=>{
+   const s=v/100; amb.intensity=lerp(1.2,0.12,s); rim.intensity=lerp(2.6,3.4,s); }}},
+
+/* ---- MOVIMENTO ---- */
+{g:"movimento",tag:"play",name:"Push-in (dolly avanti)",
+ cosa:"La camera avanza verso il soggetto: tensione crescente, prospettiva invariata.",
+ gen:"Movimento facile per l'i2v: piccola variazione di scala tra frame A e B, nessuna deriva laterale.",
+ play:{label:"Esegui push-in",dur:2600,run:t=>{ camera.position.z=lerp(DEF.z,2.5,t); }}},
+
+{g:"movimento",tag:"play",name:"Truck / carrello laterale",
+ cosa:"La camera scorre di lato mantenendo il soggetto in campo: nasce la parallasse tra soggetto e sfondo.",
+ gen:"La parallasse è un forte indizio di profondità: aiuta l'AI a costruire il volume 3D della scena.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Esegui carrello",dur:3200,run:t=>{ camera.position.x=lerp(-1.5,1.5,Math.sin(t*Math.PI)); }}},
+
+{g:"movimento",tag:"play",name:"Orbita",
+ cosa:"La camera gira intorno al soggetto rivelandone progressivamente i volumi.",
+ gen:"Delta ampio tra A e B: usa passi piccoli o l'AI allucina i lati che non ha mai visto.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Orbita continua",dur:8000,loop:true,linear:true,run:t=>{ const a=t*Math.PI*2;
+   camera.position.set(Math.sin(a)*DEF.z,0.35,Math.cos(a)*DEF.z); }}},
+
+{g:"movimento",tag:"play",name:"Pan / Tilt",
+ cosa:"Rotazione della camera sul posto — orizzontale (pan) o verticale (tilt). La camera non si sposta: nessuna parallasse.",
+ gen:"Senza parallasse l'AI ha meno indizi di profondità: buono per movimenti d'atmosfera, non per rivelare forma.",
+ play:{label:"Esegui pan + tilt",dur:4200,run:t=>{ if(t<0.5){ target.x=lerp(-1.4,1.4,easeIO(t*2)); target.y=0; }
+   else { target.x=0; target.y=lerp(-1,1,easeIO((t-0.5)*2)); } }}},
+
+{g:"movimento",tag:"play",name:"Dolly zoom (vertigo)",
+ cosa:"Zoom e carrello in direzioni opposte: il soggetto resta identico mentre lo spazio dietro si dilata o comprime.",
+ gen:"Effetto difficile da generare pulito: meglio costruirlo come coppia start/end molto controllata, non lasciarlo all'AI.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Esegui vertigo",dur:3600,run:t=>{ const f=lerp(28,95,Math.sin(t*Math.PI));
+   updateProj(f); camera.position.z=DEF.z*f/DEF.focal; }}},
+
+/* ---- FRAME ---- */
+{g:"frame",tag:"play",name:"Frame A → Frame B",
+ cosa:"Il cuore di Kling: da due soli fotogrammi, l'AI inventa tutto ciò che sta in mezzo.",
+ gen:"Soggetto condiviso, cambiamento controllato. Troppo delta = allucinazione; troppo poco = movimento morto.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Interpola A→B",dur:4200,run:t=>{
+   const A={z:4.9,f:44,ry:-1.15}, B={z:3.2,f:52,ry:0.25};
+   if(t<0.18){ camera.position.z=A.z; updateProj(A.f); subject.rotation.y=A.ry; fkey.classList.add("on"); fkey.innerHTML="FRAME <b>A</b>"; }
+   else if(t>0.82){ camera.position.z=B.z; updateProj(B.f); subject.rotation.y=B.ry; fkey.innerHTML="FRAME <b>B</b>"; }
+   else { const k=(t-0.18)/0.64; camera.position.z=lerp(A.z,B.z,k); updateProj(lerp(A.f,B.f,k)); subject.rotation.y=lerp(A.ry,B.ry,k);
+     fkey.innerHTML="<b>↔</b> interpolazione"; }
+ },onEnd:()=>fkey.classList.remove("on")}},
+
+{g:"frame",tag:"seg",name:"Composizione",
+ cosa:"Dove collochi il soggetto nel quadro: regola dei terzi, centrato, spazio negativo, headroom.",
+ gen:"Il soggetto centrato deriva meno in interpolazione. Lo spazio negativo è dove poi entra il badge MEDESY.",
+ seg:{opts:[{id:"thirds",label:"Terzi"},{id:"center",label:"Centrato"},{id:"neg",label:"Spazio negativo"},{id:"head",label:"Headroom"}],
+   val:"center",apply:id=>setComp(id)}},
+
+/* ---- MONTAGGIO ---- */
+{g:"montaggio",tag:"play",name:"Match cut",
+ cosa:"Due inquadrature diverse legate da forma o movimento condiviso: il taglio sparisce all'occhio.",
+ gen:"Fai combaciare silhouette e posizione tra fine-clip A e inizio-clip B per un match invisibile in edit.",
+ play:{label:"Esegui match cut",dur:2600,run:t=>{ if(t<0.5){ subject.rotation.y=lerp(-0.6,-0.05,easeIO(t*2)); }
+   else { flash.style.opacity=0; subject.rotation.y=lerp(0.05,0.6,easeIO((t-0.5)*2)); subject.scale.setScalar(lerp(1.25,1,easeIO((t-0.5)*2))); }
+   flash.style.opacity = t>0.46&&t<0.54 ? 1 : 0; }}},
+
+{g:"montaggio",tag:"play",name:"Smear / motion blur",
+ cosa:"La scia di movimento tra due pose. Dà energia ed elasticità ai cambi rapidi.",
+ gen:"Utile in transizione sul drop (~17:12): la sfocatura nasconde i salti di generazione tra un take e l'altro.",
+ play:{label:"Esegui smear",dur:1600,run:t=>{ const b=Math.sin(t*Math.PI); setFilter("blur("+(b*14).toFixed(1)+"px)");
+   subject.rotation.y=lerp(-0.7,0.5,t); },onEnd:()=>setFilter("none")}},
+
+{g:"montaggio",tag:"play",name:"Whip pan",
+ cosa:"Panoramica velocissima: tutto diventa scia orizzontale, poi si ricompone sulla scena nuova.",
+ gen:"Transizione naturale tra due generazioni distinte: la sfocatura copre completamente la giunzione.",
+ play:{label:"Esegui whip",dur:1400,run:t=>{ const b=Math.sin(t*Math.PI); setFilter("blur("+(b*20).toFixed(1)+"px)");
+   target.x=lerp(-2.4,2.4,t); flash.style.opacity=b*0.25; },onEnd:()=>{setFilter("none");}}},
+
+{g:"montaggio",tag:"play",name:"Reveal dal buio",
+ cosa:"Il soggetto emerge dal nero mentre la luce sale progressivamente.",
+ gen:"Parti da un frame quasi nero come 'A': la rivelazione è un semplice delta di luce, facile da interpolare.",
+ play:{label:"Esegui reveal",dur:3200,run:t=>{ amb.intensity=lerp(0.02,0.5,t); rim.intensity=lerp(0.1,3.4,easeIO(t));
+   subject.rotation.y=lerp(-0.9,-0.4,t); }}},
+
+{g:"montaggio",tag:"play",name:"Morph",
+ cosa:"Una forma si trasforma con continuità in un'altra, senza tagli.",
+ gen:"L'AI gestisce bene i morph a soggetto singolo: mantieni massa e centro coerenti tra frame A e B.",
+ play:{label:"Esegui morph",dur:3000,run:t=>{ const s=Math.sin(t*Math.PI);
+   subject.scale.set(lerp(1,1.5,s),lerp(1,0.62,s),lerp(1,1.5,s)); subject.rotation.y=DEF.subY+t*Math.PI*0.6;
+   rim.color.setHSL(lerp(0.045,0.02,s),0.9,0.55); }}},
+];
+
+/* ---------------- UI wiring ---------------- */
+const catsEl=document.getElementById("cats"), listEl=document.getElementById("list");
+const eyebrow=document.getElementById("eyebrow"), fxname=document.getElementById("fxname"),
+      cosaEl=document.getElementById("cosa"), genEl=document.getElementById("gen");
+const sldwrap=document.getElementById("sldwrap"), sld=document.getElementById("sld"),
+      sldlabel=document.getElementById("sldlabel"), sldval=document.getElementById("sldval");
+const segEl=document.getElementById("seg"), playBtn=document.getElementById("play"),
+      playlabel=document.getElementById("playlabel"), ctlempty=document.getElementById("ctlempty");
+
+let activeCat=GROUPS[0].id, activeFx=null, curSlider=null, curPlay=null;
+
+GROUPS.forEach((grp,i)=>{ const b=document.createElement("button"); b.className="cat"; b.setAttribute("role","tab");
+  b.innerHTML='<span class="idx">'+String(i+1).padStart(2,"0")+'</span>'+grp.label;
+  b.onclick=()=>{ activeCat=grp.id; renderCats(); renderList(); const first=FX.find(f=>f.g===grp.id); if(first) selectFx(first); };
+  catsEl.appendChild(b); });
+function renderCats(){ [...catsEl.children].forEach((b,i)=>b.setAttribute("aria-selected", GROUPS[i].id===activeCat)); }
+
+function renderList(){ listEl.innerHTML="";
+  FX.filter(f=>f.g===activeCat).forEach(f=>{ const b=document.createElement("button"); b.className="fx"; b.setAttribute("role","option");
+    const tagtxt = f.tag==="slider"?"live":f.tag==="seg"?"vista":"clip";
+    b.innerHTML='<span>'+f.name+'</span><span class="tag">'+tagtxt+'</span>';
+    b.onclick=()=>selectFx(f); f._btn=b; listEl.appendChild(b); }); markList(); }
+function markList(){ [...listEl.children].forEach(b=>b.setAttribute("aria-current", b===(activeFx&&activeFx._btn))); }
+
+function selectFx(f){
+  activeFx=f; idle=false; resetScene();
+  eyebrow.textContent=GROUPS.find(g=>g.id===f.g).label;
+  fxname.textContent=f.name; cosaEl.textContent=f.cosa; genEl.textContent=f.gen;
+  if(f.setup) f.setup();
+  // reset controls
+  sldwrap.classList.remove("on"); segEl.classList.remove("on"); playBtn.classList.remove("on"); ctlempty.style.display="none";
+  curSlider=null; curPlay=null;
+
+  if(f.slider){ curSlider=f.slider; sldwrap.classList.add("on"); sldlabel.textContent=f.slider.label;
+    sld.min=f.slider.min; sld.max=f.slider.max; sld.step=f.slider.step||1; sld.value=f.slider.val;
+    applySlider(f.slider.val); }
+  if(f.seg){ segEl.classList.add("on"); segEl.innerHTML="";
+    f.seg.opts.forEach(o=>{ const b=document.createElement("button"); b.textContent=o.label;
+      b.setAttribute("aria-pressed", o.id===f.seg.val);
+      b.onclick=()=>{ f.seg.val=o.id; [...segEl.children].forEach(x=>x.setAttribute("aria-pressed", x===b)); f.seg.apply(o.id); };
+      segEl.appendChild(b); }); f.seg.apply(f.seg.val); }
+  if(f.play){ curPlay=f.play; playBtn.classList.add("on"); playlabel.textContent=f.play.label;
+    if(!REDUCED) runPlay(); } // autoplay clip on select (movement is the point)
+  if(!f.slider && !f.seg && !f.play){ ctlempty.style.display="block"; }
+  markList();
+  hint.textContent = f.tag==="clip" ? "premi riproduci" : f.tag==="vista" ? "seleziona griglia" : "trascina lo slider";
+}
+
+function applySlider(v){ curSlider.apply(+v); sldval.textContent=curSlider.fmt(+v); }
+sld.addEventListener("input",e=>{ if(curSlider){ idle=false; anim=null; applySlider(e.target.value);} });
+
+function runPlay(){ if(!curPlay) return; if(curPlay.setup) curPlay.setup();
+  anim=makeAnim(curPlay.dur, curPlay.run, {loop:curPlay.loop, linear:curPlay.linear, onEnd:curPlay.onEnd}); }
+playBtn.addEventListener("click",runPlay);
+
+/* init */
+renderCats(); renderList(); selectFx(FX[0]);
+})();
+</script>
+</body>
+</html>
