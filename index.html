@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MEMENTO — Visual Reference · Cattura per Cinematic AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#060606;
+    --panel:#0d0d0f;
+    --panel-2:#111114;
+    --line:#1d1d21;
+    --line-2:#26262b;
+    --txt:#ededed;
+    --txt-2:#8b8b90;
+    --txt-3:#5c5c61;
+    --accent:#ff7950;
+    --accent-dim:#7a3c28;
+    --radius:10px;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--void);color:var(--txt);
+    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+  body{overscroll-behavior:none}
+
+  .app{
+    display:grid;height:100dvh;
+    grid-template-columns:312px 1fr;
+    grid-template-rows:auto 1fr;
+    grid-template-areas:"top top" "panel main";
+  }
+
+  /* ---------- Topbar ---------- */
+  .top{grid-area:top;display:flex;align-items:center;gap:16px;
+    padding:14px 22px;border-bottom:1px solid var(--line);background:var(--void)}
+  .brand{display:flex;align-items:baseline;gap:8px;font-weight:800;letter-spacing:.14em;font-size:13px}
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;translate:0 -1px}
+  .brand small{color:var(--txt-3);font-weight:600;letter-spacing:.14em}
+  .top .title{margin-left:auto;text-align:right}
+  .top .title b{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .top .title span{font-size:10.5px;color:var(--txt-3);letter-spacing:.16em;text-transform:uppercase;font-family:var(--mono)}
+
+  /* ---------- Left panel ---------- */
+  .panel{grid-area:panel;border-right:1px solid var(--line);background:var(--panel);
+    display:flex;flex-direction:column;min-height:0}
+  .cats{display:flex;flex-direction:column;padding:16px 14px 6px;gap:3px}
+  .cat{appearance:none;border:0;background:transparent;color:var(--txt-2);
+    text-align:left;padding:9px 12px;border-radius:8px;cursor:pointer;
+    font-size:12px;font-weight:600;letter-spacing:.02em;display:flex;align-items:center;gap:10px;
+    transition:background .18s var(--ease),color .18s var(--ease)}
+  .cat .idx{font-family:var(--mono);font-size:10px;color:var(--txt-3);letter-spacing:0}
+  .cat:hover{background:var(--panel-2);color:var(--txt)}
+  .cat[aria-selected="true"]{background:var(--panel-2);color:var(--txt)}
+  .cat[aria-selected="true"] .idx{color:var(--accent)}
+
+  .list{flex:1;min-height:0;overflow-y:auto;padding:8px 14px 22px;
+    border-top:1px solid var(--line);margin-top:8px}
+  .list::-webkit-scrollbar{width:9px}
+  .list::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:9px;border:3px solid var(--panel)}
+  .fx{appearance:none;width:100%;border:1px solid transparent;background:transparent;color:var(--txt-2);
+    text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;margin-top:2px;
+    font-size:12.5px;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    transition:background .16s var(--ease),color .16s var(--ease),border-color .16s var(--ease)}
+  .fx:hover{background:var(--panel-2);color:var(--txt)}
+  .fx[aria-current="true"]{background:#17130f;border-color:var(--accent-dim);color:var(--txt)}
+  .fx .tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--txt-3);padding:2px 6px;border:1px solid var(--line-2);border-radius:5px;flex:none}
+  .fx[aria-current="true"] .tag{color:var(--accent);border-color:var(--accent-dim)}
+
+  /* ---------- Main / stage ---------- */
+  .main{grid-area:main;min-width:0;min-height:0;display:flex;flex-direction:column;
+    padding:22px;gap:16px;overflow:hidden}
+  .stage{position:relative;width:100%;aspect-ratio:2.39/1;margin:0 auto;
+    background:radial-gradient(120% 140% at 62% 42%,#0a0a0b 0%,#040404 70%);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none;
+    max-height:min(58dvh,calc(100vw*0.42))}
+  .stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+  .layer{position:absolute;inset:0;pointer-events:none}
+  #bgBokeh{filter:blur(14px)}
+  .disc{position:absolute;border-radius:50%;opacity:0;
+    background:radial-gradient(circle at 38% 34%,rgba(255,255,255,.28),transparent 60%),var(--accent);
+    transition:opacity .35s var(--ease),width .35s var(--ease),height .35s var(--ease)}
+  .disc.w{background:radial-gradient(circle at 38% 34%,rgba(255,255,255,.5),transparent 62%),#cfcfd4}
+  #grain{opacity:.05;mix-blend-mode:soft-light}
+  #vignette{background:radial-gradient(130% 130% at 50% 46%,transparent 52%,rgba(0,0,0,.72) 100%)}
+  #flash{background:#0c0c0d;opacity:0}
+  /* composition overlay */
+  #comp{opacity:0;transition:opacity .25s var(--ease)}
+  #comp.on{opacity:1}
+  #comp line{stroke:rgba(255,255,255,.22);stroke-width:.4}
+  #comp .cross{stroke:var(--accent);stroke-width:.5;stroke-dasharray:2 2}
+  #comp .neg{fill:rgba(255,121,80,.08);stroke:var(--accent);stroke-width:.5}
+  #comp text{fill:var(--accent);font-family:var(--mono);font-size:3px;letter-spacing:.1em}
+  #comp .g{display:none}
+  #comp .g.show{display:block}
+  /* A/B frame label */
+  .fkey{position:absolute;top:12px;left:14px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.18em;color:var(--txt-2);opacity:0;transition:opacity .3s var(--ease);
+    padding:4px 9px;border:1px solid var(--line-2);border-radius:6px;background:rgba(6,6,6,.6)}
+  .fkey.on{opacity:1}
+  .fkey b{color:var(--accent)}
+  .stagehint{position:absolute;bottom:12px;right:14px;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.1em;color:var(--txt-3);text-transform:uppercase}
+
+  /* ---------- Dock ---------- */
+  .dock{flex:1;min-height:0;display:grid;grid-template-columns:1.15fr .85fr;gap:22px;
+    padding-top:2px}
+  .dock .info{min-width:0}
+  .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 8px}
+  .fxname{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 14px;line-height:1.05}
+  .row{display:flex;gap:10px;margin-bottom:11px}
+  .row .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--txt-3);flex:none;width:96px;padding-top:2px}
+  .row .v{font-size:13.5px;line-height:1.5;color:var(--txt-2)}
+  .row.gen .k{color:var(--accent-dim)}
+  .row.gen .v{color:var(--txt)}
+
+  .controls{border-left:1px solid var(--line);padding-left:22px;display:flex;flex-direction:column;gap:16px}
+  .ctl-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--txt-3);display:flex;justify-content:space-between;align-items:baseline}
+  .ctl-label .val{color:var(--accent);font-size:12px;letter-spacing:.04em}
+  .sldwrap{display:none;flex-direction:column;gap:9px}
+  .sldwrap.on{display:flex}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;
+    background:var(--line-2);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:var(--accent);border:3px solid var(--void);box-shadow:0 0 0 1px var(--accent-dim)}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--void)}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--accent-dim)}
+
+  .seg{display:none;gap:6px;flex-wrap:wrap}
+  .seg.on{display:flex}
+  .seg button{appearance:none;border:1px solid var(--line-2);background:transparent;color:var(--txt-2);
+    padding:7px 11px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+    transition:all .15s var(--ease)}
+  .seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17130f}
+
+  .play{display:none;align-items:center;justify-content:center;gap:9px;
+    appearance:none;border:1px solid var(--accent-dim);background:#140f0b;color:var(--accent);
+    padding:12px 18px;border-radius:9px;font-size:12.5px;font-weight:700;letter-spacing:.02em;
+    cursor:pointer;font-family:inherit;transition:all .16s var(--ease);width:100%}
+  .play.on{display:flex}
+  .play:hover{background:#1c130c;border-color:var(--accent)}
+  .play:active{scale:.98}
+  .play svg{width:13px;height:13px}
+  .ctl-empty{color:var(--txt-3);font-size:12px;font-style:italic}
+
+  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    html,body{overflow:auto}
+    .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;
+      grid-template-areas:"top" "main" "panel";height:auto;min-height:100dvh}
+    .main{padding:16px;order:0}
+    .stage{max-height:none;aspect-ratio:16/9}
+    .dock{grid-template-columns:1fr;gap:16px}
+    .controls{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:16px}
+    .fxname{font-size:22px}
+    .panel{border-right:0;border-top:1px solid var(--line)}
+    .cats{flex-direction:row;overflow-x:auto;padding:12px 14px;gap:6px}
+    .cat{flex:none;background:var(--panel-2)}
+    .list{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line);padding:14px}
+    .fx{width:auto;margin:0}
+    .top .title{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+
+  /* ---------- Mode switch ---------- */
+  .modeswitch{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;padding:3px;margin-left:20px}
+  .modeswitch button{appearance:none;border:0;background:transparent;color:var(--txt-2);
+    padding:7px 14px;border-radius:6px;font:600 12px/1 "Inter",sans-serif;cursor:pointer;
+    letter-spacing:.01em;transition:all .16s var(--ease);display:flex;align-items:center;gap:7px}
+  .modeswitch button[aria-pressed="true"]{background:var(--panel-2);color:var(--txt);box-shadow:inset 0 0 0 1px var(--line-2)}
+  .modeswitch button[aria-pressed="true"] .d{color:var(--accent)}
+  .modeswitch .d{color:var(--txt-3);font-size:11px}
+
+  /* ---------- Glossary ---------- */
+  .glossary{grid-column:1 / -1;grid-row:2;min-height:0;overflow-y:auto;display:none;background:var(--void)}
+  .app.gloss .panel,.app.gloss .main{display:none}
+  .app.gloss .glossary{display:block}
+  .glossary::-webkit-scrollbar{width:11px}
+  .glossary::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:11px;border:3px solid var(--void)}
+  .ghead{position:sticky;top:0;z-index:5;background:linear-gradient(var(--void) 76%,rgba(6,6,6,.6));
+    backdrop-filter:blur(6px);padding:22px 30px 15px;display:flex;flex-wrap:wrap;align-items:center;gap:13px}
+  .gsearch-wrap{position:relative;flex:1;min-width:220px;max-width:440px}
+  .gsearch-wrap svg{position:absolute;left:13px;top:50%;translate:0 -50%;width:15px;height:15px;color:var(--txt-3);pointer-events:none}
+  #gsearch{width:100%;background:var(--panel);border:1px solid var(--line-2);border-radius:9px;color:var(--txt);
+    font:500 13px "Inter",sans-serif;padding:11px 14px 11px 38px;outline:none;transition:border-color .16s var(--ease)}
+  #gsearch::placeholder{color:var(--txt-3)}
+  #gsearch:focus{border-color:var(--accent-dim)}
+  #gsearch::-webkit-search-cancel-button{filter:invert(.5)}
+  .gcount{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-3);margin-left:auto}
+  .gchips{display:flex;flex-wrap:wrap;gap:6px;width:100%;order:3}
+  .gchips button{appearance:none;border:1px solid var(--line-2);background:transparent;color:var(--txt-2);
+    padding:6px 11px;border-radius:20px;font:600 11px "Inter",sans-serif;cursor:pointer;transition:all .15s var(--ease)}
+  .gchips button:hover{color:var(--txt);border-color:var(--txt-3)}
+  .gchips button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17130f}
+  .gbody{padding:8px 30px 60px}
+  .gcat-sec{margin-bottom:34px}
+  .gcat{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt);
+    margin:0 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+  .gcat span{font-family:var(--mono);font-size:10px;color:var(--txt-3);font-weight:500;letter-spacing:0}
+  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:11px}
+  .gcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+    transition:border-color .16s var(--ease),transform .16s var(--ease)}
+  .gcard:hover{border-color:var(--line-2);transform:translateY(-1px)}
+  .gt{font-size:13.5px;font-weight:600;color:var(--txt);margin-bottom:5px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .gen{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--accent);font-weight:500}
+  .gd{font-size:12.5px;line-height:1.5;color:var(--txt-2)}
+  .gcat-sec.hide,.gcard.hide{display:none}
+  .gempty{color:var(--txt-3);font-size:13px;padding:6px 30px 40px;display:none}
+  .gempty.on{display:block}
+  @media (max-width:900px){
+    .glossary{grid-column:1;grid-row:auto;overflow:visible}
+    .modeswitch{margin-left:auto}
+    .ghead{padding:16px 16px 12px}
+    .gbody{padding:8px 16px 50px}
+    .gempty{padding:6px 16px 40px}
+    .gcount{margin-left:0}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">MEMENTO<span class="dot"></span><small>STUDIO</small></div>
+    <div class="modeswitch" role="group" aria-label="Vista">
+      <button id="mBench" aria-pressed="true"><span class="d">◐</span>Banco ottico</button>
+      <button id="mGloss" aria-pressed="false"><span class="d">≡</span>Glossario</button>
+    </div>
+    <div class="title">
+      <b>Visual Reference — Cattura per Cinematic AI</b>
+      <span>Rev. 01 · guida di ripresa</span>
+    </div>
+  </header>
+
+  <aside class="panel">
+    <div class="cats" id="cats" role="tablist" aria-label="Categorie"></div>
+    <div class="list" id="list" role="listbox" aria-label="Effetti"></div>
+  </aside>
+
+  <main class="main">
+    <div class="stage" id="stage">
+      <div class="layer" id="bgBokeh"></div>
+      <canvas id="cv"></canvas>
+      <div class="layer" id="fgBokeh"></div>
+      <div class="layer" id="grain">
+        <svg width="100%" height="100%"><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#gr)"/></svg>
+      </div>
+      <svg class="layer" id="comp" viewBox="0 0 239 100" preserveAspectRatio="none">
+        <g class="g" data-g="thirds"><line x1="79.6" y1="0" x2="79.6" y2="100"/><line x1="159.3" y1="0" x2="159.3" y2="100"/><line x1="0" y1="33.3" x2="239" y2="33.3"/><line x1="0" y1="66.6" x2="239" y2="66.6"/></g>
+        <g class="g" data-g="center"><line class="cross" x1="119.5" y1="0" x2="119.5" y2="100"/><line class="cross" x1="0" y1="50" x2="239" y2="50"/></g>
+        <g class="g" data-g="neg"><rect class="neg" x="168" y="60" width="60" height="32" rx="2"/><text x="171" y="72">AREA BADGE</text></g>
+        <g class="g" data-g="head"><line x1="0" y1="20" x2="239" y2="20"/><text x="4" y="17">HEADROOM</text></g>
+      </svg>
+      <div class="layer" id="vignette"></div>
+      <div class="layer" id="flash"></div>
+      <div class="fkey" id="fkey"></div>
+      <div class="stagehint" id="hint">soggetto neutro · void</div>
+    </div>
+
+    <div class="dock">
+      <div class="info">
+        <p class="eyebrow" id="eyebrow">Ottica</p>
+        <h1 class="fxname" id="fxname">—</h1>
+        <div class="row"><div class="k">Cosa fa</div><div class="v" id="cosa"></div></div>
+        <div class="row gen"><div class="k">→ Generazione</div><div class="v" id="gen"></div></div>
+      </div>
+      <div class="controls">
+        <div class="sldwrap" id="sldwrap">
+          <div class="ctl-label"><span id="sldlabel">Parametro</span><span class="val" id="sldval"></span></div>
+          <input type="range" id="sld" min="0" max="100" value="50">
+        </div>
+        <div class="seg" id="seg" role="group" aria-label="Composizione"></div>
+        <button class="play" id="play">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span id="playlabel">Riproduci</span>
+        </button>
+        <div class="ctl-empty" id="ctlempty" style="display:none">Nessun parametro — osserva il soggetto.</div>
+      </div>
+    </div>
+  </main>
+
+  <section class="glossary" id="glossary" aria-label="Glossario">
+    <div class="ghead">
+      <div class="gsearch-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="gsearch" type="search" placeholder="Cerca un termine — italiano o inglese…" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="gcount" id="gcount"></div>
+      <div class="gchips" id="gchips"></div>
+    </div>
+    <div class="gbody" id="gbody"></div>
+    <div class="gempty" id="gempty">Nessun termine trovato.</div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------------- Scene ---------------- */
+const stage = document.getElementById("stage");
+const canvas = document.getElementById("cv");
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene = new THREE.Scene();
+
+const DEF = {z:4.2, focal:50, rimAngle:112, amb:0.55, key:0.42, rim:3.2, subY:-0.6, bump:0.006};
+const S = 18; // half of 36mm sensor for fov calc
+function fovFromFocal(f){ return 2*Math.atan(S/f)*180/Math.PI; }
+const camera = new THREE.PerspectiveCamera(fovFromFocal(DEF.focal), 2.39, 0.1, 100);
+camera.position.set(0,0,DEF.z);
+const target = new THREE.Vector3(0,0,0);
+
+// procedural matte-graphite bump
+function noiseTex(){
+  const c=document.createElement("canvas"); c.width=c.height=256; const x=c.getContext("2d");
+  const im=x.createImageData(256,256);
+  for(let i=0;i<im.data.length;i+=4){ const v=200+Math.random()*55; im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=255; }
+  x.putImageData(im,0,0); const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(3,3); return t;
+}
+const bump = noiseTex();
+
+// neutral subject: manual capsule (cylinder + 2 spheres) — bulletproof in r128
+const mat = new THREE.MeshStandardMaterial({color:0x171819, roughness:0.52, metalness:0.55, bumpMap:bump, bumpScale:DEF.bump});
+const subject = new THREE.Group();
+const R=0.56, H=1.15;
+const cyl=new THREE.Mesh(new THREE.CylinderGeometry(R,R,H,64,1,true),mat);
+const capT=new THREE.Mesh(new THREE.SphereGeometry(R,64,32,0,Math.PI*2,0,Math.PI/2),mat); capT.position.y=H/2;
+const capB=new THREE.Mesh(new THREE.SphereGeometry(R,64,32,0,Math.PI*2,Math.PI/2,Math.PI/2),mat); capB.position.y=-H/2;
+subject.add(cyl,capT,capB);
+subject.rotation.y=DEF.subY;
+subject.rotation.z=0.13;
+scene.add(subject);
+
+// faint parallax motes (behind subject)
+const motes = new THREE.Group();
+(function(){
+  const g=new THREE.BufferGeometry(); const n=50, pos=[];
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, r=6+Math.random()*4, y=(Math.random()-0.5)*7;
+    pos.push(Math.cos(a)*r,y,-Math.abs(Math.sin(a)*r)-2); }
+  g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+  motes.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xff7950,size:0.055,transparent:true,opacity:0.32})));
+  const g2=g.clone(); motes.add(new THREE.Points(g2,new THREE.PointsMaterial({color:0xffffff,size:0.04,transparent:true,opacity:0.22})));
+})();
+scene.add(motes);
+
+// lights
+const amb = new THREE.AmbientLight(0x0b0b0e, DEF.amb);
+const key = new THREE.DirectionalLight(0x2a2d38, DEF.key); key.position.set(-3,2,4);
+const rim = new THREE.PointLight(0xff7950, DEF.rim, 30, 1.6);
+const fill = new THREE.DirectionalLight(0x141822, 0.0); fill.position.set(2,-1,3);
+scene.add(amb,key,rim,fill);
+const RR=3.4;
+function setRimAngle(deg){ const a=deg*Math.PI/180; rim.position.set(RR*Math.sin(a),1.3,RR*Math.cos(a)); }
+setRimAngle(DEF.rimAngle);
+
+/* ---------------- Overlay layers ---------------- */
+const bgBokeh=document.getElementById("bgBokeh"), fgBokeh=document.getElementById("fgBokeh");
+function makeDiscs(host,n){ const arr=[]; for(let i=0;i<n;i++){ const d=document.createElement("div"); d.className="disc"+(Math.random()<0.25?" w":"");
+  d.dataset.x=(Math.random()*100).toFixed(1); d.dataset.y=(Math.random()*100).toFixed(1); d.dataset.s=(0.5+Math.random()).toFixed(2);
+  host.appendChild(d); arr.push(d);} return arr; }
+const bgD=makeDiscs(bgBokeh,16), fgD=makeDiscs(fgBokeh,11);
+function placeDiscs(arr,size,op){ arr.forEach(d=>{ const s=size*d.dataset.s; d.style.width=s+"px"; d.style.height=s+"px";
+  d.style.left="calc("+d.dataset.x+"% - "+s/2+"px)"; d.style.top="calc("+d.dataset.y+"% - "+s/2+"px)"; d.style.opacity=op; }); }
+function hideDiscs(arr){ arr.forEach(d=>d.style.opacity=0); }
+
+const comp=document.getElementById("comp"), fkey=document.getElementById("fkey"),
+      flash=document.getElementById("flash"), hint=document.getElementById("hint");
+function setComp(which){ comp.classList.toggle("on", !!which);
+  comp.querySelectorAll(".g").forEach(g=>g.classList.toggle("show", g.dataset.g===which)); }
+function setFilter(v){ canvas.style.filter=v||"none"; }
+
+/* ---------------- Animation runner ---------------- */
+let anim=null, idle=true;
+function easeIO(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function makeAnim(dur, fn, opts){ opts=opts||{}; let start=null;
+  return { update(now){ if(start===null)start=now; let t=(now-start)/dur;
+    if(t>=1){ if(opts.loop){ start=now; fn((t%1)); return false; } fn(1); if(opts.onEnd)opts.onEnd(); return true; }
+    fn(opts.linear?t:easeIO(t)); return false; } }; }
+
+function updateProj(f){ camera.fov=fovFromFocal(f); camera.updateProjectionMatrix(); }
+
+function resetScene(){
+  anim=null;
+  camera.position.set(0,0,DEF.z); target.set(0,0,0); updateProj(DEF.focal);
+  amb.intensity=DEF.amb; key.intensity=DEF.key; rim.intensity=DEF.rim; rim.color.set(0xff7950);
+  fill.intensity=0; setRimAngle(DEF.rimAngle);
+  subject.rotation.set(0,DEF.subY,0.13); subject.scale.set(1,1,1); mat.bumpScale=DEF.bump;
+  motes.visible=true;
+  hideDiscs(bgD); hideDiscs(fgD); setComp(null);
+  fkey.classList.remove("on"); flash.style.opacity=0; setFilter("none");
+}
+
+let t0=performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  if(window.__glossOpen){ return; }
+  if(anim){ if(anim.update(now)) anim=null; }
+  else if(idle && !REDUCED){
+    const e=(now-t0)/1000;
+    subject.rotation.y = DEF.subY + Math.sin(e*0.35)*0.05;
+    subject.position.y = Math.sin(e*0.5)*0.015;
+  }
+  camera.lookAt(target);
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(loop);
+
+function resize(){ const w=stage.clientWidth, h=stage.clientHeight; renderer.setSize(w,h,false);
+  camera.aspect=w/h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage); resize();
+
+/* ---------------- Effects data ---------------- */
+// slider:{label,min,max,val,step,fmt(v),apply(v)}  seg:{opts:[{id,label}],val,apply(id)}
+// play:{label,dur,run(t),loop,onStart}
+const GROUPS=[
+  {id:"ottica",label:"Ottica"},
+  {id:"luce",label:"Luce"},
+  {id:"movimento",label:"Movimento"},
+  {id:"frame",label:"Frame logic"},
+  {id:"montaggio",label:"Montaggio"},
+];
+
+const FX=[
+/* ---- OTTICA ---- */
+{g:"ottica",tag:"slider",name:"Lunghezza focale",
+ cosa:"Cambia compressione e resa prospettica. Il tele appiattisce e isola il soggetto; il grandangolo esagera la profondità e distorce i bordi.",
+ gen:"≈50mm è la focale più stabile in generazione. I grandangoli spinti tendono a deformarsi in interpolazione.",
+ setup:()=>{motes.visible=true;},
+ slider:{label:"Focale",min:24,max:135,val:50,step:1,fmt:v=>v+" mm",apply:v=>updateProj(v)}},
+
+{g:"ottica",tag:"slider",name:"Profondità di campo",
+ cosa:"L'apertura decide quanto sfondo resta a fuoco. Aperto = soggetto isolato su sfondo cremoso; chiuso = tutto nitido.",
+ gen:"Se lo sfondo-bokeh è protagonista, giralo reale: l'AI lo reinventa e non combacia mai col tuo obiettivo.",
+ setup:()=>{motes.visible=false;},
+ slider:{label:"Apertura",min:14,max:110,val:22,step:1,fmt:v=>"ƒ/"+(v/10).toFixed(1),apply:v=>{
+   const f=v/10; const open=1-Math.min(1,(f-1.4)/9.6); // 1 open .. 0 closed
+   placeDiscs(bgD, lerp(6,58,open), lerp(0.12,0.9,open));
+   setFilter(open>0.75?"blur("+((open-0.75)*4).toFixed(1)+"px)":"none");
+ }}},
+
+{g:"ottica",tag:"play",name:"Rack focus",
+ cosa:"Sposta il fuoco da un piano all'altro dentro la stessa inquadratura, guidando l'occhio.",
+ gen:"Ottima coppia start/end: fuoco davanti → fuoco sul soggetto dà a Kling un movimento leggibile e pulito.",
+ setup:()=>{motes.visible=false; placeDiscs(fgD,42,0.85);},
+ play:{label:"Esegui pull",dur:2600,run:t=>{ setFilter("blur("+lerp(7,0,t).toFixed(1)+"px)");
+   placeDiscs(fgD,42, lerp(0.85,0.85,t)); fgBokeh.style.filter="blur("+lerp(1,10,t)+"px)"; },
+   onEnd:()=>{fgBokeh.style.filter="";}}},
+
+{g:"ottica",tag:"slider",name:"Bokeh",
+ cosa:"La forma delle luci sfocate fuori fuoco. Dischi tondi e puliti = ottica di qualità; a limone/nervosi = ottica economica.",
+ gen:"La forma del bokeh generato è casuale. Se è un elemento chiave dell'inquadratura, catturalo in ripresa.",
+ setup:()=>{motes.visible=false;},
+ slider:{label:"Dimensione",min:0,max:100,val:45,step:1,fmt:v=>v+"%",apply:v=>{
+   placeDiscs(fgD, lerp(10,64,v/100), 0.8); fgBokeh.style.filter="blur("+lerp(2,7,v/100)+"px)"; }}},
+
+{g:"ottica",tag:"slider",name:"Macro / texture",
+ cosa:"Vicinissimo al soggetto: emerge la microstruttura della superficie, il vero carattere del materiale.",
+ gen:"I tuoi hero di texture (la pinza Medesy) vanno girati reali — è dettaglio che l'AI non ricostruisce fedele.",
+ setup:()=>{motes.visible=false;},
+ slider:{label:"Avvicinamento",min:0,max:100,val:0,step:1,fmt:v=>v+"%",apply:v=>{
+   camera.position.z=lerp(DEF.z,1.75,v/100); mat.bumpScale=lerp(DEF.bump,0.03,v/100); }}},
+
+/* ---- LUCE ---- */
+{g:"luce",tag:"slider",name:"Rim light — direzione",
+ cosa:"Il taglio di luce che stacca il soggetto dal nero. Da destra è la firma dello studio.",
+ gen:"Tieni la direzione coerente in tutte le plate: l'AI eredita la posizione della luce dai tuoi frame.",
+ slider:{label:"Angolo",min:0,max:360,val:112,step:1,fmt:v=>v+"°",apply:v=>setRimAngle(v)}},
+
+{g:"luce",tag:"slider",name:"Dura vs morbida",
+ cosa:"Sorgente piccola = ombre nette e alto contrasto. Sorgente grande = transizioni morbide e avvolgenti.",
+ gen:"Luce piatta e neutra sulle plate lascia più libertà di rigenerazione; luce già drammatica blocca il look.",
+ slider:{label:"Morbidezza",min:0,max:100,val:15,step:1,fmt:v=>v<40?"dura":v<70?"media":"morbida",apply:v=>{
+   const s=v/100; rim.intensity=lerp(3.6,1.7,s); amb.intensity=lerp(0.35,1.5,s);
+   key.intensity=lerp(0.4,0.9,s); fill.intensity=lerp(0,0.5,s); }}},
+
+{g:"luce",tag:"slider",name:"Falloff / void",
+ cosa:"Quanto in fretta la luce cade nel nero. È ciò che crea la 'Rim-Lit Void' dello studio.",
+ gen:"Nero pieno intorno al soggetto = area pulita dove innestare il badge o far respirare la generazione.",
+ slider:{label:"Caduta nel nero",min:0,max:100,val:70,step:1,fmt:v=>v+"%",apply:v=>{
+   const s=v/100; amb.intensity=lerp(1.2,0.12,s); rim.intensity=lerp(2.6,3.4,s); }}},
+
+/* ---- MOVIMENTO ---- */
+{g:"movimento",tag:"play",name:"Push-in (dolly avanti)",
+ cosa:"La camera avanza verso il soggetto: tensione crescente, prospettiva invariata.",
+ gen:"Movimento facile per l'i2v: piccola variazione di scala tra frame A e B, nessuna deriva laterale.",
+ play:{label:"Esegui push-in",dur:2600,run:t=>{ camera.position.z=lerp(DEF.z,2.5,t); }}},
+
+{g:"movimento",tag:"play",name:"Truck / carrello laterale",
+ cosa:"La camera scorre di lato mantenendo il soggetto in campo: nasce la parallasse tra soggetto e sfondo.",
+ gen:"La parallasse è un forte indizio di profondità: aiuta l'AI a costruire il volume 3D della scena.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Esegui carrello",dur:3200,run:t=>{ camera.position.x=lerp(-1.5,1.5,Math.sin(t*Math.PI)); }}},
+
+{g:"movimento",tag:"play",name:"Orbita",
+ cosa:"La camera gira intorno al soggetto rivelandone progressivamente i volumi.",
+ gen:"Delta ampio tra A e B: usa passi piccoli o l'AI allucina i lati che non ha mai visto.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Orbita continua",dur:8000,loop:true,linear:true,run:t=>{ const a=t*Math.PI*2;
+   camera.position.set(Math.sin(a)*DEF.z,0.35,Math.cos(a)*DEF.z); }}},
+
+{g:"movimento",tag:"play",name:"Pan / Tilt",
+ cosa:"Rotazione della camera sul posto — orizzontale (pan) o verticale (tilt). La camera non si sposta: nessuna parallasse.",
+ gen:"Senza parallasse l'AI ha meno indizi di profondità: buono per movimenti d'atmosfera, non per rivelare forma.",
+ play:{label:"Esegui pan + tilt",dur:4200,run:t=>{ if(t<0.5){ target.x=lerp(-1.4,1.4,easeIO(t*2)); target.y=0; }
+   else { target.x=0; target.y=lerp(-1,1,easeIO((t-0.5)*2)); } }}},
+
+{g:"movimento",tag:"play",name:"Dolly zoom (vertigo)",
+ cosa:"Zoom e carrello in direzioni opposte: il soggetto resta identico mentre lo spazio dietro si dilata o comprime.",
+ gen:"Effetto difficile da generare pulito: meglio costruirlo come coppia start/end molto controllata, non lasciarlo all'AI.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Esegui vertigo",dur:3600,run:t=>{ const f=lerp(28,95,Math.sin(t*Math.PI));
+   updateProj(f); camera.position.z=DEF.z*f/DEF.focal; }}},
+
+/* ---- FRAME ---- */
+{g:"frame",tag:"play",name:"Frame A → Frame B",
+ cosa:"Il cuore di Kling: da due soli fotogrammi, l'AI inventa tutto ciò che sta in mezzo.",
+ gen:"Soggetto condiviso, cambiamento controllato. Troppo delta = allucinazione; troppo poco = movimento morto.",
+ setup:()=>{motes.visible=true;},
+ play:{label:"Interpola A→B",dur:4200,run:t=>{
+   const A={z:4.9,f:44,ry:-1.15}, B={z:3.2,f:52,ry:0.25};
+   if(t<0.18){ camera.position.z=A.z; updateProj(A.f); subject.rotation.y=A.ry; fkey.classList.add("on"); fkey.innerHTML="FRAME <b>A</b>"; }
+   else if(t>0.82){ camera.position.z=B.z; updateProj(B.f); subject.rotation.y=B.ry; fkey.innerHTML="FRAME <b>B</b>"; }
+   else { const k=(t-0.18)/0.64; camera.position.z=lerp(A.z,B.z,k); updateProj(lerp(A.f,B.f,k)); subject.rotation.y=lerp(A.ry,B.ry,k);
+     fkey.innerHTML="<b>↔</b> interpolazione"; }
+ },onEnd:()=>fkey.classList.remove("on")}},
+
+{g:"frame",tag:"seg",name:"Composizione",
+ cosa:"Dove collochi il soggetto nel quadro: regola dei terzi, centrato, spazio negativo, headroom.",
+ gen:"Il soggetto centrato deriva meno in interpolazione. Lo spazio negativo è dove poi entra il badge MEDESY.",
+ seg:{opts:[{id:"thirds",label:"Terzi"},{id:"center",label:"Centrato"},{id:"neg",label:"Spazio negativo"},{id:"head",label:"Headroom"}],
+   val:"center",apply:id=>setComp(id)}},
+
+/* ---- MONTAGGIO ---- */
+{g:"montaggio",tag:"play",name:"Match cut",
+ cosa:"Due inquadrature diverse legate da forma o movimento condiviso: il taglio sparisce all'occhio.",
+ gen:"Fai combaciare silhouette e posizione tra fine-clip A e inizio-clip B per un match invisibile in edit.",
+ play:{label:"Esegui match cut",dur:2600,run:t=>{ if(t<0.5){ subject.rotation.y=lerp(-0.6,-0.05,easeIO(t*2)); }
+   else { flash.style.opacity=0; subject.rotation.y=lerp(0.05,0.6,easeIO((t-0.5)*2)); subject.scale.setScalar(lerp(1.25,1,easeIO((t-0.5)*2))); }
+   flash.style.opacity = t>0.46&&t<0.54 ? 1 : 0; }}},
+
+{g:"montaggio",tag:"play",name:"Smear / motion blur",
+ cosa:"La scia di movimento tra due pose. Dà energia ed elasticità ai cambi rapidi.",
+ gen:"Utile in transizione sul drop (~17:12): la sfocatura nasconde i salti di generazione tra un take e l'altro.",
+ play:{label:"Esegui smear",dur:1600,run:t=>{ const b=Math.sin(t*Math.PI); setFilter("blur("+(b*14).toFixed(1)+"px)");
+   subject.rotation.y=lerp(-0.7,0.5,t); },onEnd:()=>setFilter("none")}},
+
+{g:"montaggio",tag:"play",name:"Whip pan",
+ cosa:"Panoramica velocissima: tutto diventa scia orizzontale, poi si ricompone sulla scena nuova.",
+ gen:"Transizione naturale tra due generazioni distinte: la sfocatura copre completamente la giunzione.",
+ play:{label:"Esegui whip",dur:1400,run:t=>{ const b=Math.sin(t*Math.PI); setFilter("blur("+(b*20).toFixed(1)+"px)");
+   target.x=lerp(-2.4,2.4,t); flash.style.opacity=b*0.25; },onEnd:()=>{setFilter("none");}}},
+
+{g:"montaggio",tag:"play",name:"Reveal dal buio",
+ cosa:"Il soggetto emerge dal nero mentre la luce sale progressivamente.",
+ gen:"Parti da un frame quasi nero come 'A': la rivelazione è un semplice delta di luce, facile da interpolare.",
+ play:{label:"Esegui reveal",dur:3200,run:t=>{ amb.intensity=lerp(0.02,0.5,t); rim.intensity=lerp(0.1,3.4,easeIO(t));
+   subject.rotation.y=lerp(-0.9,-0.4,t); }}},
+
+{g:"montaggio",tag:"play",name:"Morph",
+ cosa:"Una forma si trasforma con continuità in un'altra, senza tagli.",
+ gen:"L'AI gestisce bene i morph a soggetto singolo: mantieni massa e centro coerenti tra frame A e B.",
+ play:{label:"Esegui morph",dur:3000,run:t=>{ const s=Math.sin(t*Math.PI);
+   subject.scale.set(lerp(1,1.5,s),lerp(1,0.62,s),lerp(1,1.5,s)); subject.rotation.y=DEF.subY+t*Math.PI*0.6;
+   rim.color.setHSL(lerp(0.045,0.02,s),0.9,0.55); }}},
+];
+
+/* ---------------- UI wiring ---------------- */
+const catsEl=document.getElementById("cats"), listEl=document.getElementById("list");
+const eyebrow=document.getElementById("eyebrow"), fxname=document.getElementById("fxname"),
+      cosaEl=document.getElementById("cosa"), genEl=document.getElementById("gen");
+const sldwrap=document.getElementById("sldwrap"), sld=document.getElementById("sld"),
+      sldlabel=document.getElementById("sldlabel"), sldval=document.getElementById("sldval");
+const segEl=document.getElementById("seg"), playBtn=document.getElementById("play"),
+      playlabel=document.getElementById("playlabel"), ctlempty=document.getElementById("ctlempty");
+
+let activeCat=GROUPS[0].id, activeFx=null, curSlider=null, curPlay=null;
+
+GROUPS.forEach((grp,i)=>{ const b=document.createElement("button"); b.className="cat"; b.setAttribute("role","tab");
+  b.innerHTML='<span class="idx">'+String(i+1).padStart(2,"0")+'</span>'+grp.label;
+  b.onclick=()=>{ activeCat=grp.id; renderCats(); renderList(); const first=FX.find(f=>f.g===grp.id); if(first) selectFx(first); };
+  catsEl.appendChild(b); });
+function renderCats(){ [...catsEl.children].forEach((b,i)=>b.setAttribute("aria-selected", GROUPS[i].id===activeCat)); }
+
+function renderList(){ listEl.innerHTML="";
+  FX.filter(f=>f.g===activeCat).forEach(f=>{ const b=document.createElement("button"); b.className="fx"; b.setAttribute("role","option");
+    const tagtxt = f.tag==="slider"?"live":f.tag==="seg"?"vista":"clip";
+    b.innerHTML='<span>'+f.name+'</span><span class="tag">'+tagtxt+'</span>';
+    b.onclick=()=>selectFx(f); f._btn=b; listEl.appendChild(b); }); markList(); }
+function markList(){ [...listEl.children].forEach(b=>b.setAttribute("aria-current", b===(activeFx&&activeFx._btn))); }
+
+function selectFx(f){
+  activeFx=f; idle=false; resetScene();
+  eyebrow.textContent=GROUPS.find(g=>g.id===f.g).label;
+  fxname.textContent=f.name; cosaEl.textContent=f.cosa; genEl.textContent=f.gen;
+  if(f.setup) f.setup();
+  // reset controls
+  sldwrap.classList.remove("on"); segEl.classList.remove("on"); playBtn.classList.remove("on"); ctlempty.style.display="none";
+  curSlider=null; curPlay=null;
+
+  if(f.slider){ curSlider=f.slider; sldwrap.classList.add("on"); sldlabel.textContent=f.slider.label;
+    sld.min=f.slider.min; sld.max=f.slider.max; sld.step=f.slider.step||1; sld.value=f.slider.val;
+    applySlider(f.slider.val); }
+  if(f.seg){ segEl.classList.add("on"); segEl.innerHTML="";
+    f.seg.opts.forEach(o=>{ const b=document.createElement("button"); b.textContent=o.label;
+      b.setAttribute("aria-pressed", o.id===f.seg.val);
+      b.onclick=()=>{ f.seg.val=o.id; [...segEl.children].forEach(x=>x.setAttribute("aria-pressed", x===b)); f.seg.apply(o.id); };
+      segEl.appendChild(b); }); f.seg.apply(f.seg.val); }
+  if(f.play){ curPlay=f.play; playBtn.classList.add("on"); playlabel.textContent=f.play.label;
+    if(!REDUCED) runPlay(); } // autoplay clip on select (movement is the point)
+  if(!f.slider && !f.seg && !f.play){ ctlempty.style.display="block"; }
+  markList();
+  hint.textContent = f.tag==="clip" ? "premi riproduci" : f.tag==="vista" ? "seleziona griglia" : "trascina lo slider";
+}
+
+function applySlider(v){ curSlider.apply(+v); sldval.textContent=curSlider.fmt(+v); }
+sld.addEventListener("input",e=>{ if(curSlider){ idle=false; anim=null; applySlider(e.target.value);} });
+
+function runPlay(){ if(!curPlay) return; if(curPlay.setup) curPlay.setup();
+  anim=makeAnim(curPlay.dur, curPlay.run, {loop:curPlay.loop, linear:curPlay.linear, onEnd:curPlay.onEnd}); }
+playBtn.addEventListener("click",runPlay);
+
+/* init */
+renderCats(); renderList(); selectFx(FX[0]);
+})();
+</script>
+<script>
+(function(){
+"use strict";
+const CATS=["Montaggio","VFX","CGI / 3D","Morphing & Interpolazione","Blending & Compositing",
+  "Composizione","Color","Camera / Ottica","SFX & Suono","Pipeline AI"];
+
+// [categoria, termine, sinonimo EN che sentirai sul set, definizione]
+const G=[
+/* MONTAGGIO */
+["Montaggio","Stacco","cut",`Passaggio netto da un'inquadratura all'altra, senza transizione. L'unità base del montaggio.`],
+["Montaggio","Jump cut","",`Stacco tra due inquadrature quasi identiche: crea un salto temporale volutamente visibile.`],
+["Montaggio","Match cut","",`Stacco che lega due scene tramite forma, movimento o composizione condivisa: il taglio sparisce.`],
+["Montaggio","Match on action","cut on action",`Lo stacco avviene durante un movimento, che prosegue senza interruzione nell'inquadratura dopo.`],
+["Montaggio","J-cut","",`L'audio della scena successiva entra prima delle sue immagini.`],
+["Montaggio","L-cut","",`L'audio della scena precedente prosegue sopra le immagini della successiva.`],
+["Montaggio","Stacco d'appoggio","cutaway",`Breve inquadratura di dettaglio che si allontana dall'azione principale per poi tornarci.`],
+["Montaggio","Montaggio alternato","cross-cutting",`Alterna due azioni parallele per costruire tensione o confronto.`],
+["Montaggio","Dissolvenza incrociata","cross dissolve",`Una scena sfuma dentro l'altra sovrapponendosi per un istante.`],
+["Montaggio","Fade in / out","",`Apertura o chiusura graduale da/verso il nero (o il bianco).`],
+["Montaggio","Rampa di velocità","speed ramp",`Cambio di velocità dentro la stessa inquadratura, es. da normale a slow-motion.`],
+["Montaggio","Time remap","",`Rimappatura della velocità dei fotogrammi lungo la clip, in modo non lineare.`],
+["Montaggio","Fermo immagine","freeze frame",`Blocco su un singolo fotogramma mentre il tempo si ferma.`],
+["Montaggio","B-roll","",`Materiale di contorno usato per coprire tagli o arricchire il racconto.`],
+["Montaggio","Ritmo","pacing",`La velocità percepita del montaggio, guidata dalla durata dei singoli tagli.`],
+["Montaggio","Sync al beat","beat sync",`Tagliare a tempo di musica, allineando gli stacchi ai colpi del brano.`],
+["Montaggio","Drop","",`Il momento di massima energia del brano dove parte la sequenza clou (nel vostro edit ~17:12).`],
+["Montaggio","Raccordo","continuity",`Coerenza di posizione, luce e direzione tra un'inquadratura e la successiva.`],
+
+/* VFX */
+["VFX","Compositing","",`Fondere più elementi — riprese, CGI, matte — in un'unica immagine credibile.`],
+["VFX","Rotoscoping","roto",`Ritagliare a mano il contorno di un soggetto fotogramma per fotogramma.`],
+["VFX","Keying","chroma key",`Eliminare uno sfondo di colore uniforme (green screen) per isolare il soggetto.`],
+["VFX","Matte","",`Maschera che definisce quali parti dell'immagine sono visibili e quali nascoste.`],
+["VFX","Matte painting","",`Sfondo dipinto/digitale che estende o sostituisce completamente l'ambiente.`],
+["VFX","Motion tracking","tracking",`Seguire il movimento di un punto per agganciarvi altri elementi.`],
+["VFX","Match-move","camera tracking",`Ricostruire in 3D il movimento della camera reale per integrarci la CGI.`],
+["VFX","Clean plate","",`Ripresa 'pulita' della scena senza il soggetto, usata come base per le cancellazioni.`],
+["VFX","Cleanup","paint-out",`Rimuovere elementi indesiderati — cavi, rig, riflessi — dall'immagine.`],
+["VFX","Rig removal","",`Cancellare i supporti fisici (aste, sostegni) presenti in ripresa.`],
+["VFX","Set extension","",`Ampliare digitalmente un set reale oltre i suoi limiti fisici.`],
+["VFX","Canale alpha","alpha channel",`Il canale che memorizza la trasparenza di un'immagine.`],
+["VFX","Despill","",`Togliere lo sversamento di verde del green screen sui bordi del soggetto.`],
+["VFX","Digital double","",`Copia 3D di un oggetto o persona, per sostituirlo in scene difficili o impossibili.`],
+["VFX","Render pass","AOV",`Livelli separati di un render — colore, ombre, riflessi — ricombinati in compositing.`],
+
+/* CGI / 3D */
+["CGI / 3D","Mesh","",`La geometria di un modello 3D, fatta di vertici, spigoli e facce.`],
+["CGI / 3D","Topologia","topology",`Come sono disposti i poligoni sulla superficie; una buona topologia deforma in modo pulito.`],
+["CGI / 3D","Poligono","poly / face",`La faccia elementare della mesh; l'insieme dei poligoni forma la superficie.`],
+["CGI / 3D","UV mapping","",`'Srotolare' la superficie 3D su un piano 2D per poterci applicare le texture.`],
+["CGI / 3D","Texture","",`Immagine applicata alla superficie per darle colore, dettaglio o rilievo apparente.`],
+["CGI / 3D","PBR","physically based rendering",`Resa fisicamente accurata: la superficie reagisce alla luce come nel mondo reale.`],
+["CGI / 3D","Albedo","base color",`Il colore puro del materiale, privo di luci e ombre.`],
+["CGI / 3D","Roughness","",`Quanto la superficie è ruvida o lucida; controlla la nitidezza dei riflessi.`],
+["CGI / 3D","Metalness","",`Definisce se un materiale si comporta da metallo oppure no.`],
+["CGI / 3D","Normal map","",`Texture che simula dettaglio in rilievo senza aggiungere geometria reale.`],
+["CGI / 3D","Bump / Displacement","",`Bump finge il rilievo con la luce; displacement sposta davvero la geometria.`],
+["CGI / 3D","Ambient occlusion","AO",`Ombreggiatura di contatto negli incavi e nelle giunzioni tra superfici.`],
+["CGI / 3D","HDRI","",`Immagine ambientale a 360° usata per illuminare e riflettere realisticamente la scena.`],
+["CGI / 3D","Global illumination","GI",`Calcolo del rimbalzo indiretto della luce tra le superfici.`],
+["CGI / 3D","Ray / Path tracing","",`Rendering che simula il percorso reale dei raggi di luce per massimo realismo.`],
+["CGI / 3D","Subsurface scattering","SSS",`La luce che penetra e si diffonde dentro materiali translucidi (pelle, cera, marmo).`],
+["CGI / 3D","Shader","material",`Il programma che definisce come una superficie appare sotto la luce.`],
+["CGI / 3D","Rigging","",`Costruire lo 'scheletro' di controlli che permette di animare un modello.`],
+["CGI / 3D","Baking","",`Precalcolare luci o dettagli dentro una texture per alleggerire il render.`],
+["CGI / 3D","Retopology","",`Ricostruire una mesh pulita a partire da un modello denso, es. da sculpting.`],
+["CGI / 3D","Simulazione","sim",`Calcolo fisico automatico di tessuti, fluidi, particelle o corpi rigidi.`],
+["CGI / 3D","Particle system","",`Sistema che genera e anima migliaia di elementi: polvere, scintille, fumo.`],
+["CGI / 3D","Volumetrics","VDB",`Dati volumetrici per fumo, nebbia e nuvole con densità e spessore reali.`],
+["CGI / 3D","Wireframe","",`Vista della sola struttura a fil di ferro del modello.`],
+["CGI / 3D","Procedurale","procedural",`Contenuto generato da regole o nodi, anziché costruito a mano.`],
+
+/* MORPHING & INTERPOLAZIONE */
+["Morphing & Interpolazione","Morphing","",`Trasformare con continuità una forma in un'altra, senza stacco.`],
+["Morphing & Interpolazione","Blend shape","shape key",`Pose memorizzate di una mesh che si mescolano tra loro per animare o morphare.`],
+["Morphing & Interpolazione","Warp","mesh warp",`Deformare l'immagine o la mesh spostandone i punti di controllo.`],
+["Morphing & Interpolazione","Optical flow","",`Analisi del movimento pixel-per-pixel; base di molte interpolazioni e slow-motion.`],
+["Morphing & Interpolazione","Interpolazione","interpolation",`Generare i valori intermedi tra due stati noti. È il principio esatto di Kling (A→B).`],
+["Morphing & Interpolazione","Keyframe","",`Fotogramma chiave che fissa un valore; il software calcola tutti quelli in mezzo.`],
+["Morphing & Interpolazione","In-between","tween",`I fotogrammi intermedi generati automaticamente tra due keyframe.`],
+["Morphing & Interpolazione","Lerp / Slerp","",`Interpolazione lineare / sferica tra due valori o due rotazioni.`],
+["Morphing & Interpolazione","Frame blending","",`Fondere fotogrammi adiacenti per morbidezza o per rallentamenti.`],
+["Morphing & Interpolazione","Frame interpolation","",`Creare fotogrammi nuovi tra quelli esistenti — il cuore dello start/end frame AI.`],
+["Morphing & Interpolazione","Onion skinning","",`Vedere in trasparenza i fotogrammi vicini per animare con coerenza.`],
+
+/* BLENDING & COMPOSITING */
+["Blending & Compositing","Blend mode","metodo di fusione",`Il modo in cui due livelli si combinano matematicamente.`],
+["Blending & Compositing","Multiply","",`Scurisce moltiplicando i valori; utile per ombre e per incastrare elementi.`],
+["Blending & Compositing","Screen","",`Schiarisce; ideale per luci, bagliori e fumo su fondo scuro.`],
+["Blending & Compositing","Overlay","",`Aumenta il contrasto combinando multiply e screen in un colpo solo.`],
+["Blending & Compositing","Add","linear dodge",`Somma i valori luminosi; perfetto per luci additive e flare.`],
+["Blending & Compositing","Soft light","",`Contrasto morbido, come una luce diffusa proiettata sul livello sotto.`],
+["Blending & Compositing","Maschera","mask",`Definisce esattamente dove un livello è visibile o trasparente.`],
+["Blending & Compositing","Luma matte","",`Usare la luminosità di un livello come maschera di un altro.`],
+["Blending & Compositing","Feather","",`Ammorbidire il bordo di una maschera o di una selezione.`],
+["Blending & Compositing","Opacità","opacity",`Quanto un livello è trasparente rispetto a quello sottostante.`],
+["Blending & Compositing","Premultiply","",`Come il colore è combinato con l'alpha ai bordi; evita aloni scuri o chiari.`],
+
+/* COMPOSIZIONE */
+["Composizione","Regola dei terzi","rule of thirds",`Dividere il quadro in terzi e posizionare il soggetto sulle linee o sugli incroci.`],
+["Composizione","Sezione aurea","golden ratio",`Proporzione classica usata per una composizione naturalmente armoniosa.`],
+["Composizione","Linee guida","leading lines",`Linee della scena che guidano lo sguardo verso il soggetto.`],
+["Composizione","Spazio negativo","negative space",`Il vuoto attorno al soggetto: dà respiro e spazio (es. per il badge).`],
+["Composizione","Headroom","",`Lo spazio lasciato sopra la testa o la cima del soggetto.`],
+["Composizione","Lead room","nose room",`Spazio davanti alla direzione di sguardo o di movimento del soggetto.`],
+["Composizione","Simmetria / Equilibrio","balance",`Come è distribuito il peso visivo all'interno del quadro.`],
+["Composizione","Piani di profondità","fore/mid/background",`Primo piano, piano medio e sfondo che costruiscono la profondità della scena.`],
+["Composizione","Aspect ratio","",`La proporzione del quadro: 16:9, 2.39:1 cinematografico, 9:16 verticale.`],
+["Composizione","Safe area","",`La zona sicura entro cui tenere gli elementi importanti dell'inquadratura.`],
+["Composizione","Eyeline","",`La direzione dello sguardo del soggetto, da rispettare nei raccordi.`],
+["Composizione","Cornice nella cornice","frame in frame",`Incorniciare il soggetto con elementi presenti nella scena.`],
+
+/* COLOR */
+["Color","Correzione colore","color correction",`Portare l'immagine a una base neutra e coerente: bilanciamento, esposizione, contrasto.`],
+["Color","Color grading","grade",`Dare il look creativo finale con colore e contrasto: è l'atmosfera del pezzo.`],
+["Color","Bilanciamento del bianco","white balance",`Regolare il bianco perché non tenda al caldo o al freddo.`],
+["Color","Esposizione","exposure",`La luminosità complessiva dell'immagine.`],
+["Color","Contrasto","contrast",`La distanza tra le zone più chiare e le più scure.`],
+["Color","Lift / Gamma / Gain","",`Controllo separato di ombre / mezzitoni / alte luci.`],
+["Color","Curve","curves",`Strumento per rimodellare tono e colore con la massima precisione.`],
+["Color","Saturazione","saturation",`L'intensità complessiva dei colori.`],
+["Color","Vibrance","",`Aumenta la saturazione dei colori spenti risparmiando quelli già vividi.`],
+["Color","Tonalità","hue",`La posizione di un colore sulla ruota cromatica.`],
+["Color","HSL qualifier","",`Isolare un singolo colore per tonalità/saturazione/luminosità e modificarlo.`],
+["Color","LUT","",`Tabella che rimappa i colori applicando un intero look in un colpo solo.`],
+["Color","Log","",`Profilo di ripresa piatto che conserva più informazione per il grading.`],
+["Color","Spazio colore","color space / gamut",`La gamma di colori disponibili in un dato standard (es. Rec.709 per gli schermi).`],
+["Color","Crush / Roll-off","",`Schiacciare i neri / addolcire il passaggio verso le alte luci.`],
+["Color","Shot matching","",`Uniformare il colore tra inquadrature diverse della stessa scena.`],
+["Color","Scope","waveform / vectorscope",`Strumenti tecnici per leggere oggettivamente luminosità e colore.`],
+["Color","Banding","",`Gradini visibili in una sfumatura, causati da poca profondità di colore.`],
+
+/* CAMERA / OTTICA */
+["Camera / Ottica","Lunghezza focale","focal length",`Determina compressione e campo visivo. Provala dal vivo nel Banco ottico.`],
+["Camera / Ottica","Apertura","f-stop",`Quanto è aperto il diaframma; controlla la luce e la profondità di campo.`],
+["Camera / Ottica","Profondità di campo","depth of field",`La fascia a fuoco davanti e dietro il soggetto.`],
+["Camera / Ottica","Bokeh","",`La resa delle luci sfocate fuori fuoco; la forma rivela la qualità dell'ottica.`],
+["Camera / Ottica","Rack focus","focus pull",`Spostare il fuoco da un piano all'altro dentro la stessa inquadratura.`],
+["Camera / Ottica","Prime / Zoom","",`Obiettivo a focale fissa / a focale variabile.`],
+["Camera / Ottica","Anamorfico","anamorphic",`Ottica che comprime l'immagine dando flare orizzontali e bokeh ovali.`],
+["Camera / Ottica","Distorsione","distortion",`Curvatura delle linee ai bordi, tipica dei grandangoli spinti.`],
+["Camera / Ottica","Rim / Key / Fill","",`Luce di taglio / luce principale / luce di riempimento.`],
+["Camera / Ottica","Luce motivata","motivated light",`Luce che sembra provenire da una fonte reale presente nella scena.`],
+["Camera / Ottica","Falloff","",`La rapidità con cui la luce cade nel buio; crea la Rim-Lit Void.`],
+["Camera / Ottica","ISO / Shutter","",`Sensibilità / tempo di esposizione: con l'apertura formano il triangolo espositivo.`],
+["Camera / Ottica","Gimbal / Handheld","",`Ripresa stabilizzata / ripresa a mano libera.`],
+["Camera / Ottica","Parallasse","parallax",`Lo scorrere diverso dei piani quando la camera si muove lateralmente: indica profondità.`],
+["Camera / Ottica","Frame rate","fps",`Fotogrammi al secondo; determina fluidità e possibilità di slow-motion.`],
+
+/* SFX & SUONO */
+["SFX & Suono","Effetti pratici","practical FX",`Effetti reali realizzati in ripresa: fumo, scintille, pioggia, rotture.`],
+["SFX & Suono","Atmosfere","haze / fog",`Foschia sospesa in aria che rende visibili i raggi e aggiunge profondità.`],
+["SFX & Suono","Lens flare","",`Bagliori e riflessi generati dalla luce che colpisce direttamente l'obiettivo.`],
+["SFX & Suono","Light leak","",`Infiltrazioni di luce sul bordo del fotogramma, look analogico.`],
+["SFX & Suono","Bloom / Glow","",`Alone luminoso morbido attorno alle alte luci.`],
+["SFX & Suono","Grana","grain",`Texture fine che imita la pellicola e toglie l'aspetto troppo pulito del digitale.`],
+["SFX & Suono","Halation","",`Alone rossastro attorno alle luci forti, firma tipica della pellicola.`],
+["SFX & Suono","Aberrazione cromatica","chromatic aberration",`Frange di colore ai bordi ad alto contrasto.`],
+["SFX & Suono","Vignettatura","vignette",`Scurimento graduale ai bordi del fotogramma che concentra l'occhio al centro.`],
+["SFX & Suono","Sound design","",`La costruzione del paesaggio sonoro non musicale.`],
+["SFX & Suono","Foley","",`Rumori registrati ad hoc — passi, oggetti — sincronizzati alle immagini.`],
+["SFX & Suono","Score","",`La musica composta o scelta per accompagnare il montato.`],
+["SFX & Suono","Riser","",`Suono in crescendo che costruisce tensione verso un evento, es. il drop.`],
+["SFX & Suono","Impact","hit",`Colpo sonoro secco che accenta uno stacco o l'ingresso del logo.`],
+["SFX & Suono","Whoosh","",`Suono di passaggio abbinato a whip pan e smear per le transizioni.`],
+["SFX & Suono","Sub drop","",`Caduta di bassa frequenza che dà peso e fisicità al drop.`],
+
+/* PIPELINE AI */
+["Pipeline AI","i2v","image-to-video",`Generare un video partendo da un'immagine di riferimento.`],
+["Pipeline AI","t2v","text-to-video",`Generare un video dal solo prompt testuale, senza immagine di partenza.`],
+["Pipeline AI","Start / End frame","",`I due fotogrammi che guidano l'interpolazione: il cuore del workflow Kling.`],
+["Pipeline AI","Interpolazione AI","",`L'AI inventa tutti i fotogrammi tra lo start e l'end frame.`],
+["Pipeline AI","Prompt","",`Le istruzioni testuali che descrivono cosa e come generare.`],
+["Pipeline AI","Seed","",`Numero che fissa la casualità; stesso seed = risultato ripetibile.`],
+["Pipeline AI","Take","generazione",`Un singolo tentativo di output (su Kling ~7–8 crediti l'uno).`],
+["Pipeline AI","Plate di riferimento","reference plate",`La ripresa reale del cliente usata come base della generazione.`],
+["Pipeline AI","Composite plate","",`Montaggio in Photoshop delle plate che alimenta la generazione Kling.`],
+["Pipeline AI","Coerenza temporale","temporal coherence",`Quanto l'output resta stabile nel tempo, senza saltellare tra un frame e l'altro.`],
+["Pipeline AI","Allucinazione","hallucination",`Quando l'AI inventa dettagli errati o incoerenti — spesso per troppo delta tra i frame.`],
+["Pipeline AI","Sfarfallio","flicker",`Variazioni indesiderate di luce o dettaglio tra fotogrammi consecutivi.`],
+["Pipeline AI","Upscale","",`Aumentare la risoluzione dell'output cercando di mantenere il dettaglio.`],
+["Pipeline AI","Denoise / Steps","",`Quanti passaggi l'AI compie per 'pulire' e definire progressivamente l'immagine.`],
+];
+
+const gbody=document.getElementById("gbody"), gchips=document.getElementById("gchips"),
+      gcount=document.getElementById("gcount"), gsearch=document.getElementById("gsearch"),
+      gempty=document.getElementById("gempty");
+let activeCat="Tutti";
+
+// build sections (textContent everywhere — safe with &, /, accents)
+CATS.forEach(cat=>{
+  const items=G.filter(x=>x[0]===cat); if(!items.length) return;
+  const sec=document.createElement("div"); sec.className="gcat-sec"; sec.dataset.cat=cat;
+  const h=document.createElement("h2"); h.className="gcat"; h.textContent=cat+" ";
+  const cs=document.createElement("span"); cs.textContent=items.length; h.appendChild(cs); sec.appendChild(h);
+  const grid=document.createElement("div"); grid.className="ggrid";
+  items.forEach(x=>{
+    const card=document.createElement("div"); card.className="gcard"; card.dataset.cat=cat;
+    card.dataset.s=(x[1]+" "+(x[2]||"")+" "+x[3]).toLowerCase();
+    const gt=document.createElement("div"); gt.className="gt"; gt.textContent=x[1];
+    if(x[2]){ gt.appendChild(document.createTextNode(" ")); const en=document.createElement("span"); en.className="gen"; en.textContent=x[2]; gt.appendChild(en); }
+    const gd=document.createElement("div"); gd.className="gd"; gd.textContent=x[3];
+    card.appendChild(gt); card.appendChild(gd); grid.appendChild(card);
+  });
+  sec.appendChild(grid); gbody.appendChild(sec);
+});
+
+// filter chips
+["Tutti"].concat(CATS).forEach(cat=>{
+  const b=document.createElement("button"); b.textContent=cat; b.setAttribute("aria-pressed", cat==="Tutti");
+  b.onclick=()=>{ activeCat=cat; [...gchips.children].forEach(x=>x.setAttribute("aria-pressed", x===b)); filter(); };
+  gchips.appendChild(b);
+});
+
+function filter(){
+  const q=gsearch.value.trim().toLowerCase(); let vis=0;
+  document.querySelectorAll(".gcat-sec").forEach(sec=>{
+    const catOk = activeCat==="Tutti" || sec.dataset.cat===activeCat; let secVis=0;
+    sec.querySelectorAll(".gcard").forEach(card=>{
+      const ok = catOk && (!q || card.dataset.s.indexOf(q)>-1);
+      card.classList.toggle("hide", !ok); if(ok){ secVis++; vis++; }
+    });
+    sec.classList.toggle("hide", secVis===0);
+    const cnt=sec.querySelector(".gcat span"); if(cnt) cnt.textContent=secVis;
+  });
+  gcount.textContent=vis+" termini";
+  gempty.classList.toggle("on", vis===0);
+}
+gsearch.addEventListener("input",filter);
+filter();
+
+// mode switch
+const app=document.querySelector(".app"), mB=document.getElementById("mBench"), mG=document.getElementById("mGloss");
+function setMode(gloss){
+  app.classList.toggle("gloss", gloss); window.__glossOpen=gloss;
+  mB.setAttribute("aria-pressed", !gloss); mG.setAttribute("aria-pressed", gloss);
+  if(gloss){ document.getElementById("glossary").scrollTop=0; setTimeout(()=>gsearch.focus(),60); }
+}
+mB.onclick=()=>setMode(false); mG.onclick=()=>setMode(true);
+})();
+</script>
+</body>
+</html>
