@@ -157,17 +157,28 @@
   @media (max-width:900px){
     html,body{overflow:auto}
     .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;
-      grid-template-areas:"top" "main" "panel";height:auto;min-height:100dvh}
-    .main{padding:16px;order:0}
-    .stage{max-height:none;aspect-ratio:16/9}
-    .dock{grid-template-columns:1fr;gap:16px}
-    .controls{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:16px}
-    .fxname{font-size:22px}
-    .panel{border-right:0;border-top:1px solid var(--line)}
-    .cats{flex-direction:row;overflow-x:auto;padding:12px 14px;gap:6px}
-    .cat{flex:none;background:var(--panel-2)}
-    .list{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line);padding:14px}
-    .fx{width:auto;margin:0}
+      grid-template-areas:"top" "panel" "main";height:auto;min-height:100dvh}
+    .top{padding:12px 16px}
+    .brand{font-size:12px}
+    .panel{border-right:0;border-bottom:1px solid var(--line);background:var(--panel)}
+    .cats{flex-direction:row;overflow-x:auto;padding:11px 14px;gap:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .cats::-webkit-scrollbar{display:none}
+    .cat{flex:none;background:var(--panel-2);padding:9px 13px}
+    .list{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:7px;border-top:1px solid var(--line);
+      padding:12px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .list::-webkit-scrollbar{display:none}
+    .fx{flex:none;width:auto;margin:0;padding:10px 13px}
+    .main{padding:14px 16px 26px;gap:14px}
+    .stage{max-height:none;aspect-ratio:16/10}
+    .dock{grid-template-columns:1fr;gap:14px}
+    .fxname{font-size:20px;margin-bottom:11px}
+    .row{margin-bottom:9px}
+    .row .k{width:82px}
+    .controls{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:15px;gap:15px}
+    input[type=range]{height:4px}
+    input[type=range]::-webkit-slider-thumb{width:20px;height:20px}
+    input[type=range]::-moz-range-thumb{width:16px;height:16px}
+    .play{padding:14px 18px}
     .top .title{display:none}
   }
   @media (prefers-reduced-motion:reduce){
@@ -205,28 +216,63 @@
     padding:6px 11px;border-radius:20px;font:600 11px "Inter",sans-serif;cursor:pointer;transition:all .15s var(--ease)}
   .gchips button:hover{color:var(--txt);border-color:var(--txt-3)}
   .gchips button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17130f}
-  .gbody{padding:8px 30px 60px}
-  .gcat-sec{margin-bottom:34px}
-  .gcat{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt);
-    margin:0 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
-  .gcat span{font-family:var(--mono);font-size:10px;color:var(--txt-3);font-weight:500;letter-spacing:0}
-  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:11px}
-  .gcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+  .gbody{padding:8px 30px 70px}
+  /* macro domain */
+  .gdom{margin-bottom:40px}
+  .gdom-h{display:flex;align-items:center;gap:11px;margin:0 0 6px;padding-bottom:11px;
+    border-bottom:1px solid var(--line-2)}
+  .gdom-h .n{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.06em;flex:none}
+  .gdom-h h2{font-size:15px;font-weight:800;letter-spacing:.02em;color:var(--txt);margin:0}
+  .gdom-h .c{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);letter-spacing:.1em;margin-left:auto;flex:none}
+  .gdom-d{font-size:12px;color:var(--txt-3);line-height:1.5;margin:9px 0 18px;max-width:660px}
+  /* subcategory */
+  .gsub{margin-bottom:22px}
+  .gsub-h{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--txt-2);margin:0 0 10px;display:flex;align-items:center;gap:9px}
+  .gsub-h::after{content:"";flex:1;height:1px;background:var(--line)}
+  .gsub-h b{color:var(--txt-3);font-weight:500;letter-spacing:.04em}
+  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:10px}
+  .gcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px;
+    display:flex;gap:13px;align-items:flex-start;
     transition:border-color .16s var(--ease),transform .16s var(--ease)}
   .gcard:hover{border-color:var(--line-2);transform:translateY(-1px)}
-  .gt{font-size:13.5px;font-weight:600;color:var(--txt);margin-bottom:5px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-  .gen{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--accent);font-weight:500}
-  .gd{font-size:12.5px;line-height:1.5;color:var(--txt-2)}
-  .gcat-sec.hide,.gcard.hide{display:none}
+  .gcard .txt{min-width:0;flex:1}
+  /* micro-diagram */
+  .gfig{flex:none;width:60px;height:60px;border:1px solid var(--line-2);border-radius:7px;
+    background:#08080a;overflow:hidden}
+  .gfig svg{display:block;width:100%;height:100%}
+  .gfig .s{fill:#1f2024}                     /* solid shape  */
+  .gfig .o{fill:none;stroke:#3a3b41;stroke-width:1.4}  /* outline      */
+  .gfig .a{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round}
+  .gfig .af{fill:var(--accent)}
+  .gfig .dim{fill:none;stroke:#3a3b41;stroke-width:1;stroke-dasharray:2 2}
+  .gfig .lbl{fill:var(--txt-3);font-family:var(--mono);font-size:7px}
+  .gt{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:4px;
+    display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;line-height:1.3}
+  .gen{font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--accent);font-weight:500}
+  .gd{font-size:12px;line-height:1.5;color:var(--txt-2)}
+  .gdom.hide,.gsub.hide,.gcard.hide{display:none}
   .gempty{color:var(--txt-3);font-size:13px;padding:6px 30px 40px;display:none}
   .gempty.on{display:block}
   @media (max-width:900px){
     .glossary{grid-column:1;grid-row:auto;overflow:visible}
-    .modeswitch{margin-left:auto}
-    .ghead{padding:16px 16px 12px}
-    .gbody{padding:8px 16px 50px}
+    .modeswitch{margin-left:0;flex:none}
+    .modeswitch button{padding:8px 12px;font-size:11.5px}
+    .top{flex-wrap:wrap;gap:10px}
+    .ghead{padding:14px 16px 11px;gap:10px;
+      background:linear-gradient(var(--void) 80%,rgba(6,6,6,.75))}
+    .gsearch-wrap{max-width:none;min-width:0;flex:1 1 100%;order:1}
+    #gsearch{font-size:16px;padding:12px 14px 12px 38px} /* 16px = no iOS zoom */
+    .gcount{margin-left:0;order:2;flex:1 1 100%}
+    .gchips{order:3;flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;
+      scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -16px;padding-left:16px;padding-right:16px}
+    .gchips::-webkit-scrollbar{display:none}
+    .gchips button{flex:none;padding:8px 13px}
+    .gbody{padding:8px 16px 56px}
+    .gdom{margin-bottom:30px}
+    .gdom-d{margin:8px 0 15px}
+    .ggrid{grid-template-columns:1fr;gap:9px}
     .gempty{padding:6px 16px 40px}
-    .gcount{margin-left:0}
   }
 </style>
 </head>
@@ -643,227 +689,446 @@ renderCats(); renderList(); selectFx(FX[0]);
 <script>
 (function(){
 "use strict";
-const CATS=["Montaggio","VFX","CGI / 3D","Morphing & Interpolazione","Blending & Compositing",
-  "Composizione","Color","Camera / Ottica","SFX & Suono","Pipeline AI"];
 
-// [categoria, termine, sinonimo EN che sentirai sul set, definizione]
-const G=[
-/* MONTAGGIO */
-["Montaggio","Stacco","cut",`Passaggio netto da un'inquadratura all'altra, senza transizione. L'unità base del montaggio.`],
-["Montaggio","Jump cut","",`Stacco tra due inquadrature quasi identiche: crea un salto temporale volutamente visibile.`],
-["Montaggio","Match cut","",`Stacco che lega due scene tramite forma, movimento o composizione condivisa: il taglio sparisce.`],
-["Montaggio","Match on action","cut on action",`Lo stacco avviene durante un movimento, che prosegue senza interruzione nell'inquadratura dopo.`],
-["Montaggio","J-cut","",`L'audio della scena successiva entra prima delle sue immagini.`],
-["Montaggio","L-cut","",`L'audio della scena precedente prosegue sopra le immagini della successiva.`],
-["Montaggio","Stacco d'appoggio","cutaway",`Breve inquadratura di dettaglio che si allontana dall'azione principale per poi tornarci.`],
-["Montaggio","Montaggio alternato","cross-cutting",`Alterna due azioni parallele per costruire tensione o confronto.`],
-["Montaggio","Dissolvenza incrociata","cross dissolve",`Una scena sfuma dentro l'altra sovrapponendosi per un istante.`],
-["Montaggio","Fade in / out","",`Apertura o chiusura graduale da/verso il nero (o il bianco).`],
-["Montaggio","Rampa di velocità","speed ramp",`Cambio di velocità dentro la stessa inquadratura, es. da normale a slow-motion.`],
-["Montaggio","Time remap","",`Rimappatura della velocità dei fotogrammi lungo la clip, in modo non lineare.`],
-["Montaggio","Fermo immagine","freeze frame",`Blocco su un singolo fotogramma mentre il tempo si ferma.`],
-["Montaggio","B-roll","",`Materiale di contorno usato per coprire tagli o arricchire il racconto.`],
-["Montaggio","Ritmo","pacing",`La velocità percepita del montaggio, guidata dalla durata dei singoli tagli.`],
-["Montaggio","Sync al beat","beat sync",`Tagliare a tempo di musica, allineando gli stacchi ai colpi del brano.`],
-["Montaggio","Drop","",`Il momento di massima energia del brano dove parte la sequenza clou (nel vostro edit ~17:12).`],
-["Montaggio","Raccordo","continuity",`Coerenza di posizione, luce e direzione tra un'inquadratura e la successiva.`],
+/* ============ MICRO-DIAGRAM LIBRARY ============
+   60x60 viewBox. classes: .s solid  .o outline  .a accent stroke  .af accent fill
+   .dim dashed guide  .lbl mono label                                          */
+const D={};
+const svg=s=>'<svg viewBox="0 0 60 60">'+s+'</svg>';
 
-/* VFX */
-["VFX","Compositing","",`Fondere più elementi — riprese, CGI, matte — in un'unica immagine credibile.`],
-["VFX","Rotoscoping","roto",`Ritagliare a mano il contorno di un soggetto fotogramma per fotogramma.`],
-["VFX","Keying","chroma key",`Eliminare uno sfondo di colore uniforme (green screen) per isolare il soggetto.`],
-["VFX","Matte","",`Maschera che definisce quali parti dell'immagine sono visibili e quali nascoste.`],
-["VFX","Matte painting","",`Sfondo dipinto/digitale che estende o sostituisce completamente l'ambiente.`],
-["VFX","Motion tracking","tracking",`Seguire il movimento di un punto per agganciarvi altri elementi.`],
-["VFX","Match-move","camera tracking",`Ricostruire in 3D il movimento della camera reale per integrarci la CGI.`],
-["VFX","Clean plate","",`Ripresa 'pulita' della scena senza il soggetto, usata come base per le cancellazioni.`],
-["VFX","Cleanup","paint-out",`Rimuovere elementi indesiderati — cavi, rig, riflessi — dall'immagine.`],
-["VFX","Rig removal","",`Cancellare i supporti fisici (aste, sostegni) presenti in ripresa.`],
-["VFX","Set extension","",`Ampliare digitalmente un set reale oltre i suoi limiti fisici.`],
-["VFX","Canale alpha","alpha channel",`Il canale che memorizza la trasparenza di un'immagine.`],
-["VFX","Despill","",`Togliere lo sversamento di verde del green screen sui bordi del soggetto.`],
-["VFX","Digital double","",`Copia 3D di un oggetto o persona, per sostituirlo in scene difficili o impossibili.`],
-["VFX","Render pass","AOV",`Livelli separati di un render — colore, ombre, riflessi — ricombinati in compositing.`],
+/* — geometry / 3d — */
+D.mesh    = svg('<path class="o" d="M30 8 52 21v26L30 60 8 47V21z"/><path class="a" d="M30 8v26M30 34l22 13M30 34 8 47"/>');
+D.topology= svg('<path class="o" d="M10 18h40v28H10z"/><path class="o" d="M20 18v28M30 18v28M40 18v28M10 27h40M10 37h40"/><path class="a" d="M30 27h10v10H30z"/>');
+D.poly    = svg('<path class="s" d="M30 12 48 25 41 46H19l-7-21z"/><path class="a" d="M30 12 48 25 41 46H19l-7-21z"/>');
+D.sculpt  = svg('<path class="s" d="M14 44c0-14 6-24 16-24s16 10 16 24z"/><path class="a" d="M18 40c2-9 6-14 12-14s10 5 12 14"/><path class="dim" d="M12 48h36"/>');
+D.retopo  = svg('<path class="o" d="M14 44c0-14 6-24 16-24s16 10 16 24z"/><path class="a" d="M22 44V25M30 44V20M38 44v-19M17 32h26M15 38h30"/>');
+D.wire    = svg('<path class="o" d="M30 10 50 22v24L30 58 10 46V22z"/><path class="o" d="M10 22h40M10 46h40M30 10v48"/>');
+D.proc    = svg('<rect class="o" x="8" y="14" width="14" height="10" rx="2"/><rect class="o" x="8" y="36" width="14" height="10" rx="2"/><rect class="af" x="38" y="25" width="14" height="10" rx="2"/><path class="a" d="M22 19h8v11h8M22 41h8V30"/>');
 
-/* CGI / 3D */
-["CGI / 3D","Mesh","",`La geometria di un modello 3D, fatta di vertici, spigoli e facce.`],
-["CGI / 3D","Topologia","topology",`Come sono disposti i poligoni sulla superficie; una buona topologia deforma in modo pulito.`],
-["CGI / 3D","Poligono","poly / face",`La faccia elementare della mesh; l'insieme dei poligoni forma la superficie.`],
-["CGI / 3D","UV mapping","",`'Srotolare' la superficie 3D su un piano 2D per poterci applicare le texture.`],
-["CGI / 3D","Texture","",`Immagine applicata alla superficie per darle colore, dettaglio o rilievo apparente.`],
-["CGI / 3D","PBR","physically based rendering",`Resa fisicamente accurata: la superficie reagisce alla luce come nel mondo reale.`],
-["CGI / 3D","Albedo","base color",`Il colore puro del materiale, privo di luci e ombre.`],
-["CGI / 3D","Roughness","",`Quanto la superficie è ruvida o lucida; controlla la nitidezza dei riflessi.`],
-["CGI / 3D","Metalness","",`Definisce se un materiale si comporta da metallo oppure no.`],
-["CGI / 3D","Normal map","",`Texture che simula dettaglio in rilievo senza aggiungere geometria reale.`],
-["CGI / 3D","Bump / Displacement","",`Bump finge il rilievo con la luce; displacement sposta davvero la geometria.`],
-["CGI / 3D","Ambient occlusion","AO",`Ombreggiatura di contatto negli incavi e nelle giunzioni tra superfici.`],
-["CGI / 3D","HDRI","",`Immagine ambientale a 360° usata per illuminare e riflettere realisticamente la scena.`],
-["CGI / 3D","Global illumination","GI",`Calcolo del rimbalzo indiretto della luce tra le superfici.`],
-["CGI / 3D","Ray / Path tracing","",`Rendering che simula il percorso reale dei raggi di luce per massimo realismo.`],
-["CGI / 3D","Subsurface scattering","SSS",`La luce che penetra e si diffonde dentro materiali translucidi (pelle, cera, marmo).`],
-["CGI / 3D","Shader","material",`Il programma che definisce come una superficie appare sotto la luce.`],
-["CGI / 3D","Rigging","",`Costruire lo 'scheletro' di controlli che permette di animare un modello.`],
-["CGI / 3D","Baking","",`Precalcolare luci o dettagli dentro una texture per alleggerire il render.`],
-["CGI / 3D","Retopology","",`Ricostruire una mesh pulita a partire da un modello denso, es. da sculpting.`],
-["CGI / 3D","Simulazione","sim",`Calcolo fisico automatico di tessuti, fluidi, particelle o corpi rigidi.`],
-["CGI / 3D","Particle system","",`Sistema che genera e anima migliaia di elementi: polvere, scintille, fumo.`],
-["CGI / 3D","Volumetrics","VDB",`Dati volumetrici per fumo, nebbia e nuvole con densità e spessore reali.`],
-["CGI / 3D","Wireframe","",`Vista della sola struttura a fil di ferro del modello.`],
-["CGI / 3D","Procedurale","procedural",`Contenuto generato da regole o nodi, anziché costruito a mano.`],
+/* — texture / shading — */
+D.uv      = svg('<path class="o" d="M12 10h16v16H12zM32 10h16v16H32zM12 30h16v16H12z"/><path class="a" d="M32 30h16v16H32z"/><path class="dim" d="M28 18h4M20 26v4"/>');
+D.texture = svg('<rect class="o" x="10" y="14" width="40" height="32" rx="2"/><path class="a" d="M10 22h40M10 30h40M10 38h40M22 14v32M36 14v32" opacity=".45"/>');
+D.albedo  = svg('<circle class="af" cx="30" cy="30" r="16"/>');
+D.rough   = svg('<circle class="s" cx="30" cy="30" r="16"/><circle class="o" cx="30" cy="30" r="16"/><path class="a" d="M20 22c4 3 4 5 0 8s-4 5 0 8"/><path class="a" d="M30 20c4 3 4 5 0 8s-4 5 0 8" opacity=".6"/><path class="a" d="M40 22c4 3 4 5 0 8s-4 5 0 8" opacity=".3"/>');
+D.metal   = svg('<circle class="s" cx="30" cy="30" r="16"/><circle class="o" cx="30" cy="30" r="16"/><path class="af" d="M22 40c0-10 5-18 12-22 3 8 2 18-4 24z" opacity=".8"/>');
+D.normal  = svg('<rect class="o" x="10" y="30" width="40" height="16" rx="1"/><path class="a" d="M18 30v-9M30 30v-13M42 30v-9"/><path class="af" d="M18 19l-2.5 4h5zM30 15l-2.5 4h5zM42 19l-2.5 4h5z"/>');
+D.bump    = svg('<path class="o" d="M10 40h40"/><path class="a" d="M10 40c5 0 5-10 10-10s5 10 10 10 5-12 10-12 5 12 10 12"/>');
+D.ao      = svg('<rect class="s" x="10" y="14" width="18" height="32"/><rect class="s" x="32" y="26" width="18" height="20"/><path class="a" d="M28 46c0-8 2-14 4-18" opacity=".9"/><path class="dim" d="M10 46h40"/>');
+D.sss     = svg('<circle class="o" cx="30" cy="30" r="15"/><path class="a" d="M8 30h10"/><path class="af" d="M30 15a15 15 0 0 1 0 30 15 15 0 0 0 0-30z" opacity=".55"/><path class="a" d="M42 30h10" opacity=".5"/>');
+D.shader  = svg('<circle class="s" cx="30" cy="32" r="14"/><circle class="o" cx="30" cy="32" r="14"/><path class="af" d="M24 24a14 14 0 0 1 9-3 14 14 0 0 0-9 3z"/><circle class="a" cx="25" cy="26" r="3"/>');
+D.bake    = svg('<rect class="o" x="10" y="14" width="18" height="32" rx="2"/><rect class="af" x="32" y="14" width="18" height="32" rx="2" opacity=".75"/><path class="a" d="M28 30h4"/>');
 
-/* MORPHING & INTERPOLAZIONE */
-["Morphing & Interpolazione","Morphing","",`Trasformare con continuità una forma in un'altra, senza stacco.`],
-["Morphing & Interpolazione","Blend shape","shape key",`Pose memorizzate di una mesh che si mescolano tra loro per animare o morphare.`],
-["Morphing & Interpolazione","Warp","mesh warp",`Deformare l'immagine o la mesh spostandone i punti di controllo.`],
-["Morphing & Interpolazione","Optical flow","",`Analisi del movimento pixel-per-pixel; base di molte interpolazioni e slow-motion.`],
-["Morphing & Interpolazione","Interpolazione","interpolation",`Generare i valori intermedi tra due stati noti. È il principio esatto di Kling (A→B).`],
-["Morphing & Interpolazione","Keyframe","",`Fotogramma chiave che fissa un valore; il software calcola tutti quelli in mezzo.`],
-["Morphing & Interpolazione","In-between","tween",`I fotogrammi intermedi generati automaticamente tra due keyframe.`],
-["Morphing & Interpolazione","Lerp / Slerp","",`Interpolazione lineare / sferica tra due valori o due rotazioni.`],
-["Morphing & Interpolazione","Frame blending","",`Fondere fotogrammi adiacenti per morbidezza o per rallentamenti.`],
-["Morphing & Interpolazione","Frame interpolation","",`Creare fotogrammi nuovi tra quelli esistenti — il cuore dello start/end frame AI.`],
-["Morphing & Interpolazione","Onion skinning","",`Vedere in trasparenza i fotogrammi vicini per animare con coerenza.`],
+/* — light / render — */
+D.hdri    = svg('<circle class="o" cx="30" cy="30" r="18"/><path class="o" d="M30 12v36M12 30h36"/><path class="a" d="M30 12a18 18 0 0 1 0 36" opacity=".8"/><path class="dim" d="M17 17a18 18 0 0 0 26 26"/>');
+D.gi      = svg('<circle class="af" cx="15" cy="15" r="4"/><path class="a" d="M18 18l12 12"/><path class="a" d="M30 30l14-6M30 30l-6 14" opacity=".55"/><path class="o" d="M10 46h40"/>');
+D.ray     = svg('<circle class="af" cx="12" cy="14" r="3"/><path class="a" d="M14 16l14 14"/><path class="a" d="M28 30l16 8"/><circle class="s" cx="30" cy="34" r="7"/><circle class="o" cx="30" cy="34" r="7"/>');
+D.pass    = svg('<rect class="o" x="8" y="10" width="34" height="22" rx="2"/><rect class="o" x="14" y="19" width="34" height="22" rx="2"/><rect class="af" x="20" y="28" width="34" height="22" rx="2" opacity=".55"/>');
+D.particle= svg('<circle class="af" cx="18" cy="42" r="2.5"/><circle class="af" cx="27" cy="33" r="2" opacity=".8"/><circle class="af" cx="35" cy="24" r="1.6" opacity=".6"/><circle class="af" cx="43" cy="16" r="1.2" opacity=".4"/><path class="dim" d="M16 46c8-6 18-18 30-32"/>');
+D.volume  = svg('<path class="a" d="M14 40c4-8 10-6 12-12s10-8 14-2 8 4 6 14z" opacity=".8"/><path class="o" d="M10 46h40"/>');
+D.sim     = svg('<circle class="o" cx="30" cy="18" r="6"/><path class="a" d="M30 24c-8 6-12 12-12 22"/><path class="a" d="M30 24c8 6 12 12 12 22" opacity=".5"/><path class="dim" d="M10 46h40"/>');
+D.rig     = svg('<circle class="af" cx="30" cy="12" r="4"/><path class="a" d="M30 16v18M30 22l-10 8M30 22l10 8M30 34l-8 14M30 34l8 14"/><circle class="af" cx="20" cy="30" r="2.5"/><circle class="af" cx="40" cy="30" r="2.5"/>');
 
-/* BLENDING & COMPOSITING */
-["Blending & Compositing","Blend mode","metodo di fusione",`Il modo in cui due livelli si combinano matematicamente.`],
-["Blending & Compositing","Multiply","",`Scurisce moltiplicando i valori; utile per ombre e per incastrare elementi.`],
-["Blending & Compositing","Screen","",`Schiarisce; ideale per luci, bagliori e fumo su fondo scuro.`],
-["Blending & Compositing","Overlay","",`Aumenta il contrasto combinando multiply e screen in un colpo solo.`],
-["Blending & Compositing","Add","linear dodge",`Somma i valori luminosi; perfetto per luci additive e flare.`],
-["Blending & Compositing","Soft light","",`Contrasto morbido, come una luce diffusa proiettata sul livello sotto.`],
-["Blending & Compositing","Maschera","mask",`Definisce esattamente dove un livello è visibile o trasparente.`],
-["Blending & Compositing","Luma matte","",`Usare la luminosità di un livello come maschera di un altro.`],
-["Blending & Compositing","Feather","",`Ammorbidire il bordo di una maschera o di una selezione.`],
-["Blending & Compositing","Opacità","opacity",`Quanto un livello è trasparente rispetto a quello sottostante.`],
-["Blending & Compositing","Premultiply","",`Come il colore è combinato con l'alpha ai bordi; evita aloni scuri o chiari.`],
+/* — camera / optics — */
+D.focal   = svg('<path class="af" d="M12 30l14-11v22z"/><path class="a" d="M26 22l22-8v32l-22-8z" fill="none"/><path class="dim" d="M12 30h36"/>');
+D.aperture= svg('<circle class="o" cx="30" cy="30" r="17"/><path class="a" d="M30 13l10 17-10 17-10-17z"/><circle class="af" cx="30" cy="30" r="5"/>');
+D.dof     = svg('<circle class="af" cx="30" cy="30" r="6"/><circle class="a" cx="14" cy="30" r="5" opacity=".35"/><circle class="a" cx="46" cy="30" r="5" opacity=".35"/><path class="dim" d="M22 14v32M38 14v32"/>');
+D.bokeh   = svg('<circle class="af" cx="20" cy="24" r="8" opacity=".55"/><circle class="af" cx="38" cy="34" r="11" opacity=".35"/><circle class="af" cx="42" cy="18" r="5" opacity=".7"/>');
+D.rack    = svg('<circle class="a" cx="18" cy="30" r="7" opacity=".3"/><circle class="af" cx="42" cy="30" r="7"/><path class="a" d="M26 30h8"/><path class="af" d="M34 30l-4-2.5v5z"/>');
+D.anamo   = svg('<ellipse class="af" cx="30" cy="30" rx="16" ry="7" opacity=".5"/><path class="a" d="M8 30h44"/>');
+D.distort = svg('<path class="o" d="M12 14c12 4 24 4 36 0M12 46c12-4 24-4 36 0"/><path class="a" d="M12 14v32M48 14v32"/><path class="dim" d="M30 16v28"/>');
+D.rimlight= svg('<circle class="s" cx="28" cy="30" r="14"/><path class="a" d="M40 20a14 14 0 0 1 0 20" stroke-width="2.6"/><path class="af" d="M50 24h4M50 30h6M50 36h4" opacity=".7"/>');
+D.falloff = svg('<defs><linearGradient id="fo" x1="0" x2="1"><stop offset="0" stop-color="#ff7950"/><stop offset="1" stop-color="#ff7950" stop-opacity="0"/></linearGradient></defs><rect x="10" y="20" width="40" height="20" fill="url(#fo)"/><path class="dim" d="M10 44h40"/>');
+D.parallax= svg('<rect class="af" x="22" y="24" width="16" height="16" rx="2"/><rect class="o" x="8" y="16" width="8" height="8"/><rect class="o" x="44" y="16" width="8" height="8"/><path class="a" d="M14 48h32" opacity=".5"/><path class="af" d="M46 48l-4-2.5v5z"/>');
+D.fps     = svg('<rect class="o" x="8" y="22" width="12" height="16" rx="1"/><rect class="o" x="24" y="22" width="12" height="16" rx="1"/><rect class="af" x="40" y="22" width="12" height="16" rx="1" opacity=".8"/>');
 
-/* COMPOSIZIONE */
-["Composizione","Regola dei terzi","rule of thirds",`Dividere il quadro in terzi e posizionare il soggetto sulle linee o sugli incroci.`],
-["Composizione","Sezione aurea","golden ratio",`Proporzione classica usata per una composizione naturalmente armoniosa.`],
-["Composizione","Linee guida","leading lines",`Linee della scena che guidano lo sguardo verso il soggetto.`],
-["Composizione","Spazio negativo","negative space",`Il vuoto attorno al soggetto: dà respiro e spazio (es. per il badge).`],
-["Composizione","Headroom","",`Lo spazio lasciato sopra la testa o la cima del soggetto.`],
-["Composizione","Lead room","nose room",`Spazio davanti alla direzione di sguardo o di movimento del soggetto.`],
-["Composizione","Simmetria / Equilibrio","balance",`Come è distribuito il peso visivo all'interno del quadro.`],
-["Composizione","Piani di profondità","fore/mid/background",`Primo piano, piano medio e sfondo che costruiscono la profondità della scena.`],
-["Composizione","Aspect ratio","",`La proporzione del quadro: 16:9, 2.39:1 cinematografico, 9:16 verticale.`],
-["Composizione","Safe area","",`La zona sicura entro cui tenere gli elementi importanti dell'inquadratura.`],
-["Composizione","Eyeline","",`La direzione dello sguardo del soggetto, da rispettare nei raccordi.`],
-["Composizione","Cornice nella cornice","frame in frame",`Incorniciare il soggetto con elementi presenti nella scena.`],
+/* — composition — */
+D.thirds  = svg('<rect class="o" x="6" y="14" width="48" height="32"/><path class="dim" d="M22 14v32M38 14v32M6 24.7h48M6 35.3h48"/><circle class="af" cx="38" cy="24.7" r="3"/>');
+D.golden  = svg('<rect class="o" x="6" y="14" width="48" height="32"/><path class="a" d="M54 46A32 32 0 0 0 22 14"/><path class="dim" d="M22 14v32"/>');
+D.leading = svg('<rect class="o" x="6" y="14" width="48" height="32"/><path class="a" d="M8 46L30 26M52 46L30 26"/><circle class="af" cx="30" cy="26" r="3.5"/>');
+D.negspace= svg('<rect class="o" x="6" y="14" width="48" height="32"/><circle class="af" cx="18" cy="30" r="7"/><rect x="30" y="20" width="20" height="20" fill="#ff7950" opacity=".12" stroke="#ff7950" stroke-width="1" stroke-dasharray="2 2"/>');
+D.headroom= svg('<rect class="o" x="6" y="14" width="48" height="32"/><path class="dim" d="M6 24h48"/><circle class="s" cx="30" cy="34" r="8"/><circle class="o" cx="30" cy="34" r="8"/><path class="a" d="M30 24v-4M30 26l-2-3h4z"/>');
+D.leadroom= svg('<rect class="o" x="6" y="14" width="48" height="32"/><circle class="s" cx="20" cy="30" r="7"/><circle class="o" cx="20" cy="30" r="7"/><path class="a" d="M29 30h18"/><path class="af" d="M47 30l-4-2.5v5z"/>');
+D.balance = svg('<rect class="o" x="6" y="14" width="48" height="32"/><path class="dim" d="M30 14v32"/><circle class="af" cx="18" cy="30" r="6"/><circle class="af" cx="42" cy="30" r="6"/>');
+D.depth   = svg('<rect class="o" x="6" y="14" width="48" height="32"/><path class="a" d="M6 42h48" opacity=".9"/><path class="a" d="M12 34h36" opacity=".5"/><path class="a" d="M18 26h24" opacity=".25"/>');
+D.aspect  = svg('<rect class="o" x="4" y="20" width="52" height="21.8"/><rect class="dim" x="9" y="16" width="42" height="28"/><text class="lbl" x="5" y="52">2.39 : 1</text>');
+D.safe    = svg('<rect class="o" x="6" y="14" width="48" height="32"/><rect x="12" y="19" width="36" height="22" fill="none" stroke="#ff7950" stroke-width="1" stroke-dasharray="2 2"/>');
+D.eyeline = svg('<circle class="s" cx="20" cy="30" r="8"/><circle class="o" cx="20" cy="30" r="8"/><circle class="af" cx="24" cy="28" r="2"/><path class="a" d="M30 27h18" stroke-dasharray="3 2"/>');
+D.frameinf= svg('<rect class="o" x="6" y="14" width="48" height="32"/><rect class="a" x="18" y="21" width="24" height="18"/><circle class="af" cx="30" cy="30" r="4"/>');
 
-/* COLOR */
-["Color","Correzione colore","color correction",`Portare l'immagine a una base neutra e coerente: bilanciamento, esposizione, contrasto.`],
-["Color","Color grading","grade",`Dare il look creativo finale con colore e contrasto: è l'atmosfera del pezzo.`],
-["Color","Bilanciamento del bianco","white balance",`Regolare il bianco perché non tenda al caldo o al freddo.`],
-["Color","Esposizione","exposure",`La luminosità complessiva dell'immagine.`],
-["Color","Contrasto","contrast",`La distanza tra le zone più chiare e le più scure.`],
-["Color","Lift / Gamma / Gain","",`Controllo separato di ombre / mezzitoni / alte luci.`],
-["Color","Curve","curves",`Strumento per rimodellare tono e colore con la massima precisione.`],
-["Color","Saturazione","saturation",`L'intensità complessiva dei colori.`],
-["Color","Vibrance","",`Aumenta la saturazione dei colori spenti risparmiando quelli già vividi.`],
-["Color","Tonalità","hue",`La posizione di un colore sulla ruota cromatica.`],
-["Color","HSL qualifier","",`Isolare un singolo colore per tonalità/saturazione/luminosità e modificarlo.`],
-["Color","LUT","",`Tabella che rimappa i colori applicando un intero look in un colpo solo.`],
-["Color","Log","",`Profilo di ripresa piatto che conserva più informazione per il grading.`],
-["Color","Spazio colore","color space / gamut",`La gamma di colori disponibili in un dato standard (es. Rec.709 per gli schermi).`],
-["Color","Crush / Roll-off","",`Schiacciare i neri / addolcire il passaggio verso le alte luci.`],
-["Color","Shot matching","",`Uniformare il colore tra inquadrature diverse della stessa scena.`],
-["Color","Scope","waveform / vectorscope",`Strumenti tecnici per leggere oggettivamente luminosità e colore.`],
-["Color","Banding","",`Gradini visibili in una sfumatura, causati da poca profondità di colore.`],
+/* — editing — */
+D.cut     = svg('<rect class="o" x="6" y="20" width="20" height="20" rx="2"/><rect class="o" x="34" y="20" width="20" height="20" rx="2"/><path class="a" d="M30 12v36"/>');
+D.jump    = svg('<rect class="o" x="6" y="20" width="20" height="20" rx="2"/><rect class="o" x="34" y="20" width="20" height="20" rx="2"/><circle class="af" cx="14" cy="30" r="4"/><circle class="af" cx="46" cy="30" r="4"/><path class="a" d="M30 12v36" stroke-dasharray="3 3"/>');
+D.match   = svg('<rect class="o" x="6" y="20" width="20" height="20" rx="2"/><rect class="o" x="34" y="20" width="20" height="20" rx="2"/><circle class="af" cx="16" cy="30" r="6"/><circle class="af" cx="44" cy="30" r="6"/><path class="a" d="M30 12v36" opacity=".4"/>');
+D.action  = svg('<rect class="o" x="6" y="20" width="20" height="20" rx="2"/><rect class="o" x="34" y="20" width="20" height="20" rx="2"/><path class="a" d="M10 34l8-8M38 26l8-8"/><path class="a" d="M30 12v36" opacity=".4"/>');
+D.jcut    = svg('<rect class="o" x="6" y="14" width="22" height="12" rx="1"/><rect class="o" x="32" y="14" width="22" height="12" rx="1"/><rect class="af" x="20" y="32" width="34" height="12" rx="1" opacity=".7"/><path class="a" d="M30 10v38" opacity=".5"/>');
+D.lcut    = svg('<rect class="o" x="6" y="14" width="22" height="12" rx="1"/><rect class="o" x="32" y="14" width="22" height="12" rx="1"/><rect class="af" x="6" y="32" width="34" height="12" rx="1" opacity=".7"/><path class="a" d="M30 10v38" opacity=".5"/>');
+D.cutaway = svg('<rect class="o" x="4" y="20" width="16" height="20" rx="2"/><rect class="af" x="22" y="20" width="16" height="20" rx="2" opacity=".55"/><rect class="o" x="40" y="20" width="16" height="20" rx="2"/>');
+D.crosscut= svg('<rect class="o" x="4" y="12" width="16" height="14" rx="2"/><rect class="af" x="22" y="12" width="16" height="14" rx="2" opacity=".5"/><rect class="o" x="40" y="12" width="16" height="14" rx="2"/><rect class="af" x="4" y="34" width="16" height="14" rx="2" opacity=".5"/><rect class="o" x="22" y="34" width="16" height="14" rx="2"/><rect class="af" x="40" y="34" width="16" height="14" rx="2" opacity=".5"/>');
+D.dissolve= svg('<defs><linearGradient id="dz" x1="0" x2="1"><stop offset="0" stop-color="#1f2024"/><stop offset="1" stop-color="#ff7950"/></linearGradient></defs><rect x="8" y="20" width="44" height="20" rx="2" fill="url(#dz)"/>');
+D.fade    = svg('<defs><linearGradient id="fd" x1="0" x2="1"><stop offset="0" stop-color="#060606"/><stop offset="1" stop-color="#ff7950"/></linearGradient></defs><rect x="8" y="20" width="44" height="20" rx="2" fill="url(#fd)"/>');
+D.ramp    = svg('<path class="o" d="M8 44h44"/><path class="a" d="M8 44c10 0 12-24 22-24s12 24 22 24"/><circle class="af" cx="30" cy="20" r="2.5"/>');
+D.remap   = svg('<path class="dim" d="M8 44h44M8 44V16"/><path class="a" d="M8 40c8 0 6-16 14-16s6 16 14 16 8-20 16-20"/>');
+D.freeze  = svg('<rect class="o" x="10" y="18" width="40" height="24" rx="2"/><path class="a" d="M25 24v12M35 24v12" stroke-width="3"/>');
+D.broll   = svg('<rect class="o" x="6" y="18" width="22" height="24" rx="2"/><rect class="af" x="32" y="18" width="10" height="10" rx="1" opacity=".6"/><rect class="af" x="32" y="32" width="10" height="10" rx="1" opacity=".4"/><rect class="af" x="46" y="18" width="8" height="24" rx="1" opacity=".3"/>');
+D.pacing  = svg('<rect class="af" x="6" y="22" width="14" height="16" rx="1" opacity=".8"/><rect class="af" x="23" y="22" width="9" height="16" rx="1" opacity=".8"/><rect class="af" x="35" y="22" width="6" height="16" rx="1" opacity=".8"/><rect class="af" x="44" y="22" width="4" height="16" rx="1" opacity=".8"/><rect class="af" x="51" y="22" width="3" height="16" rx="1" opacity=".8"/>');
+D.beat    = svg('<path class="dim" d="M6 44h48"/><path class="a" d="M12 44V26M24 44V16M36 44v-18M48 44V16"/><circle class="af" cx="24" cy="16" r="2.5"/><circle class="af" cx="48" cy="16" r="2.5"/>');
+D.drop    = svg('<path class="a" d="M6 34c6 0 8-4 14-4s6 4 10 4"/><path class="a" d="M30 34l4-18 4 18" stroke-width="2.4"/><path class="a" d="M38 34c6 0 8 6 14 6"/><circle class="af" cx="34" cy="16" r="3"/>');
+D.continu = svg('<rect class="o" x="6" y="20" width="20" height="20" rx="2"/><rect class="o" x="34" y="20" width="20" height="20" rx="2"/><path class="a" d="M12 36h8M40 36h8"/><circle class="af" cx="16" cy="27" r="3"/><circle class="af" cx="44" cy="27" r="3"/>');
 
-/* CAMERA / OTTICA */
-["Camera / Ottica","Lunghezza focale","focal length",`Determina compressione e campo visivo. Provala dal vivo nel Banco ottico.`],
-["Camera / Ottica","Apertura","f-stop",`Quanto è aperto il diaframma; controlla la luce e la profondità di campo.`],
-["Camera / Ottica","Profondità di campo","depth of field",`La fascia a fuoco davanti e dietro il soggetto.`],
-["Camera / Ottica","Bokeh","",`La resa delle luci sfocate fuori fuoco; la forma rivela la qualità dell'ottica.`],
-["Camera / Ottica","Rack focus","focus pull",`Spostare il fuoco da un piano all'altro dentro la stessa inquadratura.`],
-["Camera / Ottica","Prime / Zoom","",`Obiettivo a focale fissa / a focale variabile.`],
-["Camera / Ottica","Anamorfico","anamorphic",`Ottica che comprime l'immagine dando flare orizzontali e bokeh ovali.`],
-["Camera / Ottica","Distorsione","distortion",`Curvatura delle linee ai bordi, tipica dei grandangoli spinti.`],
-["Camera / Ottica","Rim / Key / Fill","",`Luce di taglio / luce principale / luce di riempimento.`],
-["Camera / Ottica","Luce motivata","motivated light",`Luce che sembra provenire da una fonte reale presente nella scena.`],
-["Camera / Ottica","Falloff","",`La rapidità con cui la luce cade nel buio; crea la Rim-Lit Void.`],
-["Camera / Ottica","ISO / Shutter","",`Sensibilità / tempo di esposizione: con l'apertura formano il triangolo espositivo.`],
-["Camera / Ottica","Gimbal / Handheld","",`Ripresa stabilizzata / ripresa a mano libera.`],
-["Camera / Ottica","Parallasse","parallax",`Lo scorrere diverso dei piani quando la camera si muove lateralmente: indica profondità.`],
-["Camera / Ottica","Frame rate","fps",`Fotogrammi al secondo; determina fluidità e possibilità di slow-motion.`],
+/* — vfx / comp — */
+D.comp    = svg('<rect class="o" x="8" y="12" width="30" height="20" rx="2"/><rect class="o" x="14" y="20" width="30" height="20" rx="2"/><rect class="af" x="20" y="28" width="30" height="20" rx="2" opacity=".6"/>');
+D.roto    = svg('<circle class="s" cx="30" cy="30" r="13"/><path class="a" d="M30 17a13 13 0 1 1 0 26 13 13 0 0 1 0-26" stroke-dasharray="3 2"/><circle class="af" cx="30" cy="17" r="2"/><circle class="af" cx="43" cy="30" r="2"/><circle class="af" cx="30" cy="43" r="2"/><circle class="af" cx="17" cy="30" r="2"/>');
+D.key     = svg('<rect x="8" y="14" width="44" height="32" rx="2" fill="#1f2024"/><circle class="af" cx="30" cy="30" r="10"/><path class="a" d="M8 14h44v32H8z" opacity=".4"/>');
+D.matte   = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><circle fill="#fff" cx="30" cy="30" r="11" opacity=".9"/>');
+D.mattep  = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><path class="a" d="M8 38l10-10 8 8 10-14 16 16"/><circle class="af" cx="42" cy="22" r="3"/>');
+D.track   = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><path class="a" d="M16 40c8-4 14-14 28-20" stroke-dasharray="3 2"/><rect class="a" x="38" y="15" width="10" height="10"/><circle class="af" cx="43" cy="20" r="2"/>');
+D.matchmv = svg('<path class="af" d="M8 34l8-6v12z"/><path class="a" d="M16 30h10" stroke-dasharray="2 2"/><path class="o" d="M30 20 46 28v16l-16 8-16-8"  opacity=".5"/><circle class="af" cx="38" cy="32" r="2"/><circle class="af" cx="30" cy="44" r="2"/>');
+D.plate   = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><path class="dim" d="M8 38h44"/>');
+D.cleanup = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><path class="a" d="M18 24l24 12M42 24 18 36" opacity=".35"/><circle cx="30" cy="30" r="9" fill="#08080a"/><circle class="a" cx="30" cy="30" r="9" stroke-dasharray="3 2"/>');
+D.setext  = svg('<rect class="s" x="8" y="26" width="18" height="20"/><rect class="o" x="8" y="26" width="18" height="20"/><path class="a" d="M28 46V18h10v28M40 46V28h10v18" stroke-dasharray="3 2"/>');
+D.alpha   = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><path d="M8 14h11v11H8zM30 14h11v11H30zM19 25h11v11H19zM41 25h11v11H41zM8 36h11v10H8zM30 36h11v10H30z" fill="#1f2024"/><circle class="af" cx="30" cy="30" r="8"/>');
+D.despill = svg('<circle class="s" cx="30" cy="30" r="13"/><path class="a" d="M30 17a13 13 0 1 1 0 26" stroke-width="2.4"/><path class="dim" d="M46 20l6-4M46 40l6 4"/>');
+D.digidbl = svg('<circle class="s" cx="20" cy="30" r="11"/><circle class="o" cx="20" cy="30" r="11"/><path class="a" d="M40 30 30 24v12z" opacity=".8"/><path class="o" d="M40 20l12 6v14l-12 6-12-6V26z" opacity=".5"/>');
 
-/* SFX & SUONO */
-["SFX & Suono","Effetti pratici","practical FX",`Effetti reali realizzati in ripresa: fumo, scintille, pioggia, rotture.`],
-["SFX & Suono","Atmosfere","haze / fog",`Foschia sospesa in aria che rende visibili i raggi e aggiunge profondità.`],
-["SFX & Suono","Lens flare","",`Bagliori e riflessi generati dalla luce che colpisce direttamente l'obiettivo.`],
-["SFX & Suono","Light leak","",`Infiltrazioni di luce sul bordo del fotogramma, look analogico.`],
-["SFX & Suono","Bloom / Glow","",`Alone luminoso morbido attorno alle alte luci.`],
-["SFX & Suono","Grana","grain",`Texture fine che imita la pellicola e toglie l'aspetto troppo pulito del digitale.`],
-["SFX & Suono","Halation","",`Alone rossastro attorno alle luci forti, firma tipica della pellicola.`],
-["SFX & Suono","Aberrazione cromatica","chromatic aberration",`Frange di colore ai bordi ad alto contrasto.`],
-["SFX & Suono","Vignettatura","vignette",`Scurimento graduale ai bordi del fotogramma che concentra l'occhio al centro.`],
-["SFX & Suono","Sound design","",`La costruzione del paesaggio sonoro non musicale.`],
-["SFX & Suono","Foley","",`Rumori registrati ad hoc — passi, oggetti — sincronizzati alle immagini.`],
-["SFX & Suono","Score","",`La musica composta o scelta per accompagnare il montato.`],
-["SFX & Suono","Riser","",`Suono in crescendo che costruisce tensione verso un evento, es. il drop.`],
-["SFX & Suono","Impact","hit",`Colpo sonoro secco che accenta uno stacco o l'ingresso del logo.`],
-["SFX & Suono","Whoosh","",`Suono di passaggio abbinato a whip pan e smear per le transizioni.`],
-["SFX & Suono","Sub drop","",`Caduta di bassa frequenza che dà peso e fisicità al drop.`],
+/* — blending — */
+D.blend   = svg('<circle class="af" cx="24" cy="30" r="12" opacity=".65"/><circle class="a" cx="36" cy="30" r="12" fill="#1f2024" fill-opacity=".7"/>');
+D.multiply= svg('<rect x="12" y="16" width="24" height="24" fill="#3a3b41"/><rect x="24" y="24" width="24" height="24" fill="#ff7950" opacity=".55"/><rect x="24" y="24" width="12" height="16" fill="#0b0b0c"/>');
+D.screen  = svg('<rect x="12" y="16" width="24" height="24" fill="#1f2024"/><rect x="24" y="24" width="24" height="24" fill="#ff7950" opacity=".5"/><rect x="24" y="24" width="12" height="16" fill="#ff9e7d"/>');
+D.overlay = svg('<rect x="10" y="18" width="40" height="24" fill="#1f2024"/><rect x="10" y="18" width="20" height="24" fill="#0a0a0b"/><rect x="30" y="18" width="20" height="24" fill="#ff7950" opacity=".85"/>');
+D.add     = svg('<circle class="af" cx="24" cy="30" r="11" opacity=".6"/><circle class="af" cx="36" cy="30" r="11" opacity=".6"/><path class="a" d="M30 22v16M22 30h16" opacity=".9"/>');
+D.softl   = svg('<defs><radialGradient id="sl"><stop offset="0" stop-color="#ff7950" stop-opacity=".8"/><stop offset="1" stop-color="#ff7950" stop-opacity="0"/></radialGradient></defs><rect x="10" y="18" width="40" height="24" fill="#1f2024"/><circle cx="30" cy="30" r="18" fill="url(#sl)"/>');
+D.mask    = svg('<rect class="af" x="10" y="16" width="40" height="28" rx="2" opacity=".7"/><path d="M10 16h20v28H10z" fill="#08080a"/><path class="a" d="M30 16v28" stroke-dasharray="3 2"/>');
+D.luma    = svg('<defs><linearGradient id="lm" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient></defs><rect x="10" y="16" width="40" height="12" fill="url(#lm)"/><rect x="10" y="32" width="40" height="12" fill="#ff7950"/><rect x="30" y="32" width="20" height="12" fill="#08080a" opacity=".85"/>');
+D.feather = svg('<defs><radialGradient id="ft"><stop offset=".4" stop-color="#ff7950"/><stop offset="1" stop-color="#ff7950" stop-opacity="0"/></radialGradient></defs><circle cx="30" cy="30" r="18" fill="url(#ft)"/>');
+D.opacity = svg('<rect class="af" x="8" y="20" width="14" height="20" opacity="1"/><rect class="af" x="24" y="20" width="14" height="20" opacity=".55"/><rect class="af" x="40" y="20" width="14" height="20" opacity=".2"/>');
+D.premul  = svg('<circle class="af" cx="30" cy="30" r="12"/><circle class="a" cx="30" cy="30" r="12" stroke-width="3" opacity=".35"/><path class="dim" d="M30 8v8M30 44v8"/>');
 
-/* PIPELINE AI */
-["Pipeline AI","i2v","image-to-video",`Generare un video partendo da un'immagine di riferimento.`],
-["Pipeline AI","t2v","text-to-video",`Generare un video dal solo prompt testuale, senza immagine di partenza.`],
-["Pipeline AI","Start / End frame","",`I due fotogrammi che guidano l'interpolazione: il cuore del workflow Kling.`],
-["Pipeline AI","Interpolazione AI","",`L'AI inventa tutti i fotogrammi tra lo start e l'end frame.`],
-["Pipeline AI","Prompt","",`Le istruzioni testuali che descrivono cosa e come generare.`],
-["Pipeline AI","Seed","",`Numero che fissa la casualità; stesso seed = risultato ripetibile.`],
-["Pipeline AI","Take","generazione",`Un singolo tentativo di output (su Kling ~7–8 crediti l'uno).`],
-["Pipeline AI","Plate di riferimento","reference plate",`La ripresa reale del cliente usata come base della generazione.`],
-["Pipeline AI","Composite plate","",`Montaggio in Photoshop delle plate che alimenta la generazione Kling.`],
-["Pipeline AI","Coerenza temporale","temporal coherence",`Quanto l'output resta stabile nel tempo, senza saltellare tra un frame e l'altro.`],
-["Pipeline AI","Allucinazione","hallucination",`Quando l'AI inventa dettagli errati o incoerenti — spesso per troppo delta tra i frame.`],
-["Pipeline AI","Sfarfallio","flicker",`Variazioni indesiderate di luce o dettaglio tra fotogrammi consecutivi.`],
-["Pipeline AI","Upscale","",`Aumentare la risoluzione dell'output cercando di mantenere il dettaglio.`],
-["Pipeline AI","Denoise / Steps","",`Quanti passaggi l'AI compie per 'pulire' e definire progressivamente l'immagine.`],
+/* — morph / interpolation — */
+D.morph   = svg('<rect class="o" x="8" y="22" width="16" height="16"/><circle class="af" cx="46" cy="30" r="8"/><path class="a" d="M28 30h12" stroke-dasharray="3 2"/><path class="af" d="M40 30l-4-2.5v5z"/>');
+D.blendsh = svg('<path class="o" d="M12 40c0-10 4-16 10-16s10 6 10 16z"/><path class="a" d="M28 40c0-14 6-22 12-22s10 8 10 22" opacity=".6"/><path class="dim" d="M8 44h44"/>');
+D.warp    = svg('<path class="o" d="M10 16h40v28H10z" opacity=".4"/><path class="a" d="M10 16c14 6 26-6 40 0v28c-14-6-26 6-40 0z"/><circle class="af" cx="30" cy="13" r="2"/><circle class="af" cx="30" cy="47" r="2"/>');
+D.flow    = svg('<path class="a" d="M10 20c8 4 8 12 16 12M10 30c10 2 12 8 20 6M10 40c8-2 12-8 20-6" opacity=".7"/><path class="af" d="M32 32l-5-2.5v5zM30 36l-5-2.5v5zM30 34l-5-2.5v5z" opacity=".7"/><circle class="af" cx="44" cy="30" r="6"/>');
+D.interp  = svg('<circle class="af" cx="12" cy="34" r="5"/><circle class="af" cx="48" cy="22" r="5"/><circle class="a" cx="24" cy="30" r="3.5" opacity=".45"/><circle class="a" cx="36" cy="26" r="3.5" opacity=".45"/><path class="dim" d="M12 34L48 22"/>');
+D.keyframe= svg('<path class="dim" d="M8 44h44"/><path class="af" d="M16 24l5 6-5 6-5-6zM44 18l5 6-5 6-5-6z"/><path class="a" d="M16 30c10 0 18-6 28-6" opacity=".6"/>');
+D.tween   = svg('<path class="af" d="M12 30l4 5-4 5-4-5zM48 20l4 5-4 5-4-5z"/><circle class="a" cx="24" cy="31" r="2.5" opacity=".4"/><circle class="a" cx="30" cy="29" r="2.5" opacity=".4"/><circle class="a" cx="38" cy="27" r="2.5" opacity=".4"/>');
+D.lerp    = svg('<path class="dim" d="M8 44h44M8 44V14"/><path class="a" d="M10 42L46 18"/><circle class="af" cx="10" cy="42" r="3"/><circle class="af" cx="46" cy="18" r="3"/>');
+D.frameb  = svg('<rect class="o" x="8" y="20" width="18" height="20" rx="1"/><rect class="af" x="21" y="20" width="18" height="20" rx="1" opacity=".45"/><rect class="o" x="34" y="20" width="18" height="20" rx="1"/>');
+D.frameint= svg('<rect class="o" x="6" y="20" width="14" height="20" rx="1"/><rect class="a" x="23" y="20" width="14" height="20" rx="1" stroke-dasharray="3 2" fill="none"/><rect class="o" x="40" y="20" width="14" height="20" rx="1"/><text class="lbl" x="26" y="52">AI</text>');
+D.onion   = svg('<circle class="a" cx="20" cy="30" r="9" opacity=".22"/><circle class="a" cx="26" cy="30" r="9" opacity=".4"/><circle class="af" cx="34" cy="30" r="9"/>');
+
+/* — color — */
+D.cc      = svg('<circle class="o" cx="30" cy="30" r="16"/><path class="af" d="M30 14a16 16 0 0 1 0 32z" opacity=".6"/><path class="dim" d="M30 10v40"/>');
+D.grade   = svg('<defs><linearGradient id="gd2" x1="0" x2="1"><stop offset="0" stop-color="#2a3a52"/><stop offset="1" stop-color="#ff7950"/></linearGradient></defs><rect x="8" y="18" width="44" height="24" rx="2" fill="url(#gd2)"/>');
+D.wb      = svg('<circle class="o" cx="30" cy="30" r="15"/><path d="M30 15a15 15 0 0 0 0 30z" fill="#4a7ab8" opacity=".75"/><path d="M30 15a15 15 0 0 1 0 30z" fill="#ff9e5e" opacity=".75"/>');
+D.exposure= svg('<circle class="af" cx="30" cy="30" r="8"/><path class="a" d="M30 14v-5M30 51v-5M14 30H9M51 30h-5M19 19l-4-4M45 45l-4-4M41 19l4-4M15 45l4-4"/>');
+D.contrast= svg('<circle class="o" cx="30" cy="30" r="15"/><path d="M30 15a15 15 0 0 1 0 30z" fill="#ff7950"/>');
+D.lgg     = svg('<rect class="af" x="8" y="34" width="12" height="10" opacity=".35"/><rect class="af" x="24" y="26" width="12" height="18" opacity=".65"/><rect class="af" x="40" y="16" width="12" height="28"/>');
+D.curves  = svg('<rect class="dim" x="8" y="12" width="44" height="34"/><path class="a" d="M8 46c14 0 16-34 44-34"/><circle class="af" cx="22" cy="34" r="2.5"/><circle class="af" cx="38" cy="20" r="2.5"/>');
+D.satur   = svg('<circle cx="18" cy="30" r="9" fill="#5a5a5e"/><circle cx="30" cy="30" r="9" fill="#c06a4e"/><circle cx="42" cy="30" r="9" fill="#ff7950"/>');
+D.vibr    = svg('<circle cx="20" cy="30" r="10" fill="#ff7950"/><circle cx="40" cy="30" r="10" fill="#7a5a4e"/><path class="a" d="M40 20v20" opacity=".5"/>');
+D.hue     = svg('<circle class="o" cx="30" cy="30" r="15"/><path d="M30 30 45 30A15 15 0 0 1 37 43z" fill="#ff7950"/><path d="M30 30 37 43A15 15 0 0 1 21 41z" fill="#4a7ab8" opacity=".8"/><path class="a" d="M30 30l14-8"/>');
+D.hsl     = svg('<circle class="o" cx="30" cy="30" r="15"/><path class="af" d="M30 30l13-6a15 15 0 0 1-3 15z" opacity=".85"/><path class="dim" d="M30 30l13-6M30 30l10 9"/>');
+D.lut     = svg('<rect class="o" x="8" y="18" width="18" height="24" rx="2"/><rect class="af" x="34" y="18" width="18" height="24" rx="2" opacity=".8"/><path class="a" d="M26 30h8"/><path class="af" d="M34 30l-4-2.5v5z"/>');
+D.log     = svg('<defs><linearGradient id="lg2" x1="0" x2="1"><stop offset="0" stop-color="#4a4a4e"/><stop offset="1" stop-color="#8a8a8e"/></linearGradient></defs><rect x="8" y="18" width="20" height="24" rx="2" fill="url(#lg2)"/><rect class="af" x="34" y="18" width="18" height="24" rx="2"/><path class="a" d="M28 30h6"/>');
+D.cspace  = svg('<path class="o" d="M30 12 48 42H12z"/><path class="a" d="M30 20 42 39H18z"/><circle class="af" cx="30" cy="32" r="2.5"/>');
+D.crush   = svg('<path class="dim" d="M8 44h44M8 44V14"/><path class="a" d="M8 44h10c14 0 20-30 34-30"/><circle class="af" cx="18" cy="44" r="2.5"/>');
+D.shotm   = svg('<rect x="8" y="20" width="20" height="20" rx="2" fill="#ff7950" opacity=".8"/><rect x="32" y="20" width="20" height="20" rx="2" fill="#ff7950" opacity=".8"/><path class="a" d="M30 14v32" opacity=".4"/>');
+D.scope   = svg('<rect class="dim" x="8" y="14" width="44" height="30"/><path class="a" d="M12 40c4-14 8 4 12-10s6 12 10-4 6 10 10 2"/><path class="dim" d="M8 22h44M8 36h44"/>');
+D.banding = svg('<rect x="8" y="20" width="9" height="22" fill="#3a2a24"/><rect x="17" y="20" width="9" height="22" fill="#6a4234"/><rect x="26" y="20" width="9" height="22" fill="#9a5a44"/><rect x="35" y="20" width="9" height="22" fill="#cf6a4a"/><rect x="44" y="20" width="9" height="22" fill="#ff7950"/>');
+
+/* — sfx — */
+D.practical= svg('<circle class="af" cx="30" cy="34" r="5"/><path class="a" d="M30 24v-6M22 28l-4-4M38 28l4-4M18 36h-6M48 36h-6" opacity=".8"/>');
+D.haze    = svg('<path class="a" d="M10 24h40M14 32h36M10 40h40" opacity=".45"/><path class="af" d="M30 12l-8 34h16z" opacity=".3"/><circle class="af" cx="30" cy="12" r="3"/>');
+D.flare   = svg('<circle class="af" cx="22" cy="26" r="5"/><path class="a" d="M6 26h44M22 8v36" opacity=".5"/><circle class="af" cx="34" cy="34" r="4" opacity=".35"/><circle class="af" cx="42" cy="40" r="3" opacity=".22"/>');
+D.leak    = svg('<defs><linearGradient id="ll" x1="0" x2="1"><stop offset="0" stop-color="#ff7950"/><stop offset="1" stop-color="#ff7950" stop-opacity="0"/></linearGradient></defs><rect class="o" x="8" y="16" width="44" height="28" rx="2"/><rect x="8" y="16" width="22" height="28" fill="url(#ll)" opacity=".8"/>');
+D.bloom   = svg('<defs><radialGradient id="bl"><stop offset=".25" stop-color="#ffd9c8"/><stop offset=".5" stop-color="#ff7950" stop-opacity=".55"/><stop offset="1" stop-color="#ff7950" stop-opacity="0"/></radialGradient></defs><circle cx="30" cy="30" r="20" fill="url(#bl)"/>');
+D.grain   = svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><g fill="#8b8b90"><circle cx="14" cy="20" r=".9"/><circle cx="22" cy="26" r=".8"/><circle cx="30" cy="18" r="1"/><circle cx="38" cy="30" r=".8"/><circle cx="46" cy="22" r=".9"/><circle cx="18" cy="36" r=".9"/><circle cx="26" cy="40" r=".8"/><circle cx="34" cy="34" r="1"/><circle cx="42" cy="42" r=".8"/><circle cx="48" cy="36" r=".9"/><circle cx="12" cy="30" r=".8"/><circle cx="36" cy="24" r=".7"/></g>');
+D.halation= svg('<circle cx="30" cy="30" r="11" fill="#ff7950" opacity=".22"/><circle cx="30" cy="30" r="7" fill="#ffe3d6"/>');
+D.chroma  = svg('<circle cx="27" cy="30" r="11" fill="#4a7ab8" opacity=".55"/><circle cx="33" cy="30" r="11" fill="#ff7950" opacity=".55"/>');
+D.vignette= svg('<defs><radialGradient id="vg"><stop offset=".45" stop-color="#ff7950" stop-opacity="0"/><stop offset="1" stop-color="#000"/></radialGradient></defs><rect x="8" y="16" width="44" height="28" fill="#ff7950" opacity=".5"/><rect x="8" y="16" width="44" height="28" fill="url(#vg)"/>');
+D.sound   = svg('<path class="a" d="M12 30v0M18 24v12M24 20v20M30 16v28M36 22v16M42 26v8M48 29v2" stroke-width="2"/>');
+D.foley   = svg('<path class="af" d="M18 40c-3 0-5-2-5-5s2-5 5-5h4v10z"/><path class="a" d="M22 30l10-8v26l-10-8"/><path class="a" d="M38 26a8 8 0 0 1 0 12" opacity=".6"/>');
+D.score   = svg('<path class="a" d="M22 42V18l18-4v24"/><circle class="af" cx="18" cy="42" r="4"/><circle class="af" cx="36" cy="38" r="4"/>');
+D.riser   = svg('<path class="a" d="M10 44c14 0 22-6 26-16s8-12 14-12"/><path class="af" d="M50 16l-5 4h8z" opacity=".8"/><path class="dim" d="M10 44h44"/>');
+D.impact  = svg('<path class="af" d="M30 10l5 14 14-4-10 10 10 10-14-4-5 14-5-14-14 4 10-10-10-10 14 4z"/>');
+D.whoosh  = svg('<path class="a" d="M8 22c14 0 26 3 40 8M10 30c12 0 22 2 36 6M14 38c10 0 18 1 30 4" opacity=".7"/><path class="af" d="M48 30l-6-3.5v7z"/>');
+D.subdrop = svg('<path class="a" d="M10 18c6 0 8 4 12 8s6 12 12 14 10 4 16 4"/><path class="af" d="M50 44l-5-4v8z" opacity=".7"/><path class="dim" d="M10 44h44"/>');
+
+/* — ai pipeline — */
+D.i2v     = svg('<rect class="o" x="6" y="20" width="16" height="20" rx="2"/><circle class="af" cx="14" cy="30" r="4"/><path class="a" d="M26 30h8"/><path class="af" d="M34 30l-4-2.5v5z"/><rect class="a" x="38" y="20" width="16" height="20" rx="2" fill="none"/><path class="af" d="M44 26l6 4-6 4z"/>');
+D.t2v     = svg('<path class="a" d="M8 24h14M8 30h10M8 36h14" stroke-width="1.4"/><path class="a" d="M26 30h8"/><path class="af" d="M34 30l-4-2.5v5z"/><rect class="a" x="38" y="20" width="16" height="20" rx="2" fill="none"/><path class="af" d="M44 26l6 4-6 4z"/>');
+D.startend= svg('<rect class="af" x="4" y="20" width="14" height="20" rx="1"/><rect class="af" x="42" y="20" width="14" height="20" rx="1"/><rect class="a" x="21" y="22" width="8" height="16" rx="1" fill="none" stroke-dasharray="2 2"/><rect class="a" x="31" y="22" width="8" height="16" rx="1" fill="none" stroke-dasharray="2 2"/><text class="lbl" x="6" y="52">A</text><text class="lbl" x="48" y="52">B</text>');
+D.aiinterp= svg('<rect class="af" x="6" y="22" width="10" height="16" rx="1"/><rect class="af" x="44" y="22" width="10" height="16" rx="1"/><path class="a" d="M18 30h24" stroke-dasharray="2 2"/><circle class="a" cx="24" cy="30" r="2.5"/><circle class="a" cx="30" cy="30" r="2.5"/><circle class="a" cx="36" cy="30" r="2.5"/>');
+D.prompt  = svg('<rect class="o" x="8" y="20" width="44" height="20" rx="3"/><path class="a" d="M14 27h20M14 33h12"/><path class="af" d="M40 26v8"/>');
+D.seed    = svg('<circle class="o" cx="30" cy="30" r="15"/><text class="lbl" x="18" y="34" style="font-size:11px">7391</text>');
+D.take    = svg('<rect class="o" x="6" y="18" width="14" height="24" rx="2"/><rect class="o" x="23" y="18" width="14" height="24" rx="2"/><rect class="af" x="40" y="18" width="14" height="24" rx="2" opacity=".8"/><path class="a" d="M45 46h4" opacity=".6"/>');
+D.refplate= svg('<rect class="o" x="8" y="14" width="44" height="32" rx="2"/><circle class="af" cx="30" cy="30" r="8" opacity=".7"/><text class="lbl" x="10" y="52">REF</text>');
+D.compplate=svg('<rect class="o" x="6" y="12" width="30" height="20" rx="2"/><rect class="o" x="16" y="20" width="30" height="20" rx="2"/><rect class="af" x="24" y="28" width="30" height="20" rx="2" opacity=".6"/><path class="a" d="M24 28h30v20H24z" fill="none"/>');
+D.temporal= svg('<rect class="af" x="6" y="22" width="10" height="16" rx="1" opacity=".9"/><rect class="af" x="19" y="22" width="10" height="16" rx="1" opacity=".9"/><rect class="af" x="32" y="22" width="10" height="16" rx="1" opacity=".9"/><rect class="af" x="45" y="22" width="10" height="16" rx="1" opacity=".9"/><path class="a" d="M6 44h49" opacity=".5"/>');
+D.halluc  = svg('<rect class="af" x="6" y="22" width="10" height="16" rx="1"/><rect class="a" x="20" y="19" width="10" height="16" rx="1" fill="none" stroke-dasharray="2 2"/><rect class="a" x="32" y="25" width="10" height="16" rx="1" fill="none" stroke-dasharray="2 2" opacity=".6"/><rect class="af" x="45" y="22" width="10" height="16" rx="1"/><path class="a" d="M22 14l3 4h-6z"/>');
+D.flicker = svg('<rect class="af" x="6" y="22" width="10" height="16" rx="1" opacity="1"/><rect class="af" x="19" y="22" width="10" height="16" rx="1" opacity=".3"/><rect class="af" x="32" y="22" width="10" height="16" rx="1" opacity=".9"/><rect class="af" x="45" y="22" width="10" height="16" rx="1" opacity=".25"/>');
+D.upscale = svg('<rect class="o" x="8" y="22" width="14" height="14" rx="1"/><path class="a" d="M26 30h8"/><path class="af" d="M34 30l-4-2.5v5z"/><rect class="a" x="36" y="14" width="18" height="30" rx="1" fill="none"/>');
+D.steps   = svg('<circle class="a" cx="13" cy="30" r="7" opacity=".22"/><circle class="a" cx="27" cy="30" r="7" opacity=".5"/><circle class="a" cx="41" cy="30" r="7" opacity=".78"/><circle class="af" cx="52" cy="30" r="5"/>');
+
+/* ============ DATA ============
+   DOMAINS: [id, titolo, descrizione]
+   G rows:  [dominio, sottocategoria, termine, EN, definizione, chiaveDiagramma]     */
+const DOMAINS=[
+ ["3d","3D / CGI","Tutto ciò che viene costruito e calcolato al computer: la geometria, i materiali che la vestono, la luce che la colpisce e il calcolo finale che la trasforma in immagine."],
+ ["camera","Camera & Ottica","Le scelte fisiche dietro la macchina: che obiettivo, quanta luce, cosa resta a fuoco. È il dominio in cui lavora il fotografo."],
+ ["comp","Composizione","Dove metti le cose dentro il quadro, e perché. Vale identico in ripresa, in 3D e in generazione."],
+ ["edit","Montaggio","Come le inquadrature si susseguono e con che ritmo. Il dominio in cui il materiale diventa racconto."],
+ ["vfx","VFX & Compositing","Fondere elementi di origine diversa — ripresa, CGI, matte — in un'immagine unica e credibile."],
+ ["morph","Morphing & Interpolazione","Come si passa con continuità da uno stato all'altro. È il principio matematico esatto su cui lavora Kling."],
+ ["color","Color","Correzione tecnica prima, look creativo poi. Il dominio che decide l'atmosfera finale del pezzo."],
+ ["sfx","SFX & Suono","Effetti pratici, imperfezioni ottiche e tutto il livello sonoro che dà peso alle immagini."],
+ ["ai","Pipeline AI","Il vocabolario specifico del nostro workflow: come nasce, si guida e si controlla una generazione."],
 ];
 
+const G=[
+/* ===== 3D / CGI ===== */
+["3d","Modeling","Mesh","",`La geometria di un modello 3D: vertici, spigoli e facce. È lo scheletro di ogni oggetto.`,"mesh"],
+["3d","Modeling","Poligono","poly / face",`La faccia elementare della mesh. Il loro insieme forma la superficie visibile.`,"poly"],
+["3d","Modeling","Topologia","topology",`Come sono disposti i poligoni. Una buona topologia deforma pulito e si texturizza senza stiramenti.`,"topology"],
+["3d","Modeling","Wireframe","",`La vista della sola struttura a fil di ferro, senza superfici.`,"wire"],
+["3d","Modeling","Modellazione procedurale","procedural",`Geometria generata da regole o nodi anziché costruita a mano — il tuo terreno da Blueprints.`,"proc"],
+["3d","Sculpting","Sculpting","",`Modellare come fosse creta digitale, spingendo e tirando la superficie: forme organiche e dettaglio fine.`,"sculpt"],
+["3d","Sculpting","Retopology","retopo",`Ricostruire una mesh pulita e leggera sopra uno sculpt denso, per renderlo animabile e utilizzabile.`,"retopo"],
+["3d","Texturing","UV mapping","unwrap",`'Srotolare' la superficie 3D su un piano 2D per poterci applicare le texture senza deformazioni.`,"uv"],
+["3d","Texturing","Texture","",`Immagine applicata alla superficie per darle colore, dettaglio o rilievo apparente.`,"texture"],
+["3d","Texturing","Normal map","",`Texture che simula rilievo reagendo alla luce, senza aggiungere un solo poligono.`,"normal"],
+["3d","Texturing","Bump / Displacement","",`Bump finge il rilievo con la luce. Displacement sposta davvero la geometria: più pesante, più vero.`,"bump"],
+["3d","Texturing","Baking","",`Precalcolare luce o dettaglio dentro una texture per alleggerire drasticamente il render.`,"bake"],
+["3d","Shading","Shader","material",`Il programma che definisce come una superficie appare sotto la luce.`,"shader"],
+["3d","Shading","PBR","physically based rendering",`Resa fisicamente accurata: il materiale reagisce alla luce come farebbe nel mondo reale.`,"metal"],
+["3d","Shading","Albedo","base color",`Il colore puro del materiale, privo di qualsiasi luce o ombra.`,"albedo"],
+["3d","Shading","Roughness","",`Quanto la superficie è ruvida o lucida. Controlla la nitidezza dei riflessi — il vostro graphite è ~0.5.`,"rough"],
+["3d","Shading","Metalness","",`Definisce se il materiale si comporta da metallo oppure no. Non esistono vie di mezzo fisiche.`,"metal"],
+["3d","Shading","Subsurface scattering","SSS",`La luce penetra e si diffonde dentro materiali translucidi: pelle, cera, marmo, latte.`,"sss"],
+["3d","Rigging","Rigging","",`Costruire lo 'scheletro' di controlli che permette di animare un modello.`,"rig"],
+["3d","Rigging","Simulazione","sim",`Calcolo fisico automatico di tessuti, fluidi, particelle o corpi rigidi.`,"sim"],
+["3d","Lighting & Render","HDRI","",`Immagine ambientale a 360° che illumina e si riflette sulla scena in modo realistico.`,"hdri"],
+["3d","Lighting & Render","Global illumination","GI",`Il calcolo del rimbalzo indiretto della luce tra le superfici. Senza, tutto sembra finto.`,"gi"],
+["3d","Lighting & Render","Ray / Path tracing","",`Rendering che simula il percorso reale dei raggi di luce. Lento ma fotorealistico.`,"ray"],
+["3d","Lighting & Render","Ambient occlusion","AO",`Ombreggiatura di contatto negli incavi e nelle giunzioni tra superfici.`,"ao"],
+["3d","Lighting & Render","Render pass","AOV",`Livelli separati di un render — colore, ombre, riflessi — ricombinati poi in compositing.`,"pass"],
+["3d","Lighting & Render","Particle system","",`Sistema che genera e anima migliaia di elementi: polvere, scintille, fumo.`,"particle"],
+["3d","Lighting & Render","Volumetrics","VDB",`Dati volumetrici per fumo, nebbia e nuvole con densità e spessore reali.`,"volume"],
+
+/* ===== CAMERA & OTTICA ===== */
+["camera","Ottica","Lunghezza focale","focal length",`Determina compressione e campo visivo. Provala dal vivo nel Banco ottico.`,"focal"],
+["camera","Ottica","Apertura","f-stop",`Quanto è aperto il diaframma: controlla insieme la luce che entra e la profondità di campo.`,"aperture"],
+["camera","Ottica","Prime / Zoom","",`Obiettivo a focale fissa (più nitido e luminoso) o a focale variabile (più versatile).`,"focal"],
+["camera","Ottica","Anamorfico","anamorphic",`Ottica che comprime l'immagine: dà flare orizzontali e bokeh ovali, la firma del cinema.`,"anamo"],
+["camera","Ottica","Distorsione","distortion",`Curvatura delle linee ai bordi, tipica dei grandangoli spinti. L'AI la gestisce male.`,"distort"],
+["camera","Fuoco","Profondità di campo","depth of field",`La fascia a fuoco davanti e dietro il soggetto.`,"dof"],
+["camera","Fuoco","Bokeh","",`La resa delle luci sfocate fuori fuoco. La forma rivela la qualità dell'obiettivo.`,"bokeh"],
+["camera","Fuoco","Rack focus","focus pull",`Spostare il fuoco da un piano all'altro dentro la stessa inquadratura.`,"rack"],
+["camera","Luce","Rim / Key / Fill","",`Luce di taglio che stacca dal fondo / luce principale / luce di riempimento delle ombre.`,"rimlight"],
+["camera","Luce","Luce motivata","motivated light",`Luce che sembra provenire da una fonte reale presente nella scena.`,"rimlight"],
+["camera","Luce","Falloff","",`La rapidità con cui la luce cade nel buio. È esattamente ciò che crea la Rim-Lit Void.`,"falloff"],
+["camera","Esposizione","ISO / Shutter","",`Sensibilità del sensore / tempo di esposizione. Con l'apertura formano il triangolo espositivo.`,"exposure"],
+["camera","Esposizione","Frame rate","fps",`Fotogrammi al secondo. Determina fluidità e possibilità di slow-motion.`,"fps"],
+["camera","Movimento","Parallasse","parallax",`I piani scorrono a velocità diverse quando la camera trasla: è l'indizio di profondità più forte.`,"parallax"],
+["camera","Movimento","Gimbal / Handheld","",`Ripresa stabilizzata / ripresa a mano libera, con la sua vibrazione naturale.`,"fps"],
+
+/* ===== COMPOSIZIONE ===== */
+["comp","Griglie","Regola dei terzi","rule of thirds",`Dividere il quadro in terzi e posizionare il soggetto sulle linee o sugli incroci.`,"thirds"],
+["comp","Griglie","Sezione aurea","golden ratio",`Proporzione classica per una composizione naturalmente armoniosa.`,"golden"],
+["comp","Griglie","Simmetria / Equilibrio","balance",`Come è distribuito il peso visivo dentro il quadro.`,"balance"],
+["comp","Spazio","Spazio negativo","negative space",`Il vuoto attorno al soggetto: dà respiro e lascia posto (es. al badge MEDESY).`,"negspace"],
+["comp","Spazio","Headroom","",`Lo spazio lasciato sopra la testa o la cima del soggetto.`,"headroom"],
+["comp","Spazio","Lead room","nose room",`Spazio davanti alla direzione di sguardo o di movimento del soggetto.`,"leadroom"],
+["comp","Spazio","Safe area","",`La zona sicura entro cui tenere gli elementi importanti dell'inquadratura.`,"safe"],
+["comp","Guida dello sguardo","Linee guida","leading lines",`Linee della scena che accompagnano l'occhio verso il soggetto.`,"leading"],
+["comp","Guida dello sguardo","Cornice nella cornice","frame in frame",`Incorniciare il soggetto con elementi presenti nella scena stessa.`,"frameinf"],
+["comp","Guida dello sguardo","Eyeline","",`La direzione dello sguardo del soggetto, da rispettare nei raccordi.`,"eyeline"],
+["comp","Profondità & Formato","Piani di profondità","fore/mid/background",`Primo piano, piano medio e sfondo: i tre strati che costruiscono lo spazio.`,"depth"],
+["comp","Profondità & Formato","Aspect ratio","",`La proporzione del quadro: 16:9, 2.39:1 cinematografico, 9:16 verticale.`,"aspect"],
+
+/* ===== MONTAGGIO ===== */
+["edit","Tagli","Stacco","cut",`Passaggio netto da un'inquadratura all'altra. L'unità base del montaggio.`,"cut"],
+["edit","Tagli","Jump cut","",`Stacco tra due inquadrature quasi identiche: crea un salto temporale volutamente visibile.`,"jump"],
+["edit","Tagli","Match cut","",`Stacco che lega due scene per forma o movimento condiviso: il taglio sparisce all'occhio.`,"match"],
+["edit","Tagli","Match on action","cut on action",`Lo stacco cade dentro un movimento, che prosegue senza interruzione nell'inquadratura dopo.`,"action"],
+["edit","Tagli","Stacco d'appoggio","cutaway",`Breve dettaglio che si allontana dall'azione principale per poi tornarci.`,"cutaway"],
+["edit","Tagli","Montaggio alternato","cross-cutting",`Alterna due azioni parallele per costruire tensione o confronto.`,"crosscut"],
+["edit","Tagli","Raccordo","continuity",`Coerenza di posizione, luce e direzione tra un'inquadratura e la successiva.`,"continu"],
+["edit","Transizioni","Dissolvenza incrociata","cross dissolve",`Una scena sfuma dentro l'altra sovrapponendosi per un istante.`,"dissolve"],
+["edit","Transizioni","Fade in / out","",`Apertura o chiusura graduale da (o verso) il nero.`,"fade"],
+["edit","Tempo","Rampa di velocità","speed ramp",`Cambio di velocità dentro la stessa inquadratura: da normale a slow-motion e ritorno.`,"ramp"],
+["edit","Tempo","Time remap","",`Rimappatura non lineare della velocità lungo tutta la clip.`,"remap"],
+["edit","Tempo","Fermo immagine","freeze frame",`Blocco su un singolo fotogramma mentre il tempo si ferma.`,"freeze"],
+["edit","Ritmo","Ritmo","pacing",`La velocità percepita del montato, guidata dalla durata dei singoli tagli.`,"pacing"],
+["edit","Ritmo","Sync al beat","beat sync",`Tagliare a tempo di musica, allineando gli stacchi ai colpi del brano.`,"beat"],
+["edit","Ritmo","Drop","",`Il picco di energia del brano dove parte la sequenza clou — nel vostro edit ~17:12.`,"drop"],
+["edit","Suono nel montaggio","J-cut","",`L'audio della scena successiva entra prima delle sue immagini.`,"jcut"],
+["edit","Suono nel montaggio","L-cut","",`L'audio della scena precedente prosegue sopra le immagini della successiva.`,"lcut"],
+["edit","Materiale","B-roll","",`Materiale di contorno usato per coprire tagli o arricchire il racconto.`,"broll"],
+
+/* ===== VFX ===== */
+["vfx","Compositing","Compositing","comp",`Fondere più elementi — riprese, CGI, matte — in un'unica immagine credibile.`,"comp"],
+["vfx","Compositing","Canale alpha","alpha channel",`Il canale che memorizza la trasparenza di un'immagine.`,"alpha"],
+["vfx","Compositing","Premultiply","",`Come il colore è combinato con l'alpha ai bordi. Sbagliarlo dà aloni scuri o chiari.`,"premul"],
+["vfx","Isolare il soggetto","Rotoscoping","roto",`Ritagliare a mano il contorno di un soggetto, fotogramma per fotogramma.`,"roto"],
+["vfx","Isolare il soggetto","Keying","chroma key",`Eliminare uno sfondo di colore uniforme (green screen) per isolare il soggetto.`,"key"],
+["vfx","Isolare il soggetto","Despill","",`Togliere lo sversamento di verde del green screen sui bordi del soggetto.`,"despill"],
+["vfx","Isolare il soggetto","Matte","",`Maschera che definisce quali parti dell'immagine sono visibili e quali nascoste.`,"matte"],
+["vfx","Tracking","Motion tracking","tracking",`Seguire il movimento di un punto per agganciarvi altri elementi.`,"track"],
+["vfx","Tracking","Match-move","camera tracking",`Ricostruire in 3D il movimento della camera reale per integrarci la CGI.`,"matchmv"],
+["vfx","Intervento sull'immagine","Clean plate","",`Ripresa 'pulita' della scena senza il soggetto, base per le cancellazioni.`,"plate"],
+["vfx","Intervento sull'immagine","Cleanup","paint-out",`Rimuovere elementi indesiderati: cavi, rig, riflessi, marchi.`,"cleanup"],
+["vfx","Intervento sull'immagine","Rig removal","",`Cancellare i supporti fisici — aste, sostegni — presenti in ripresa.`,"cleanup"],
+["vfx","Costruire l'ambiente","Matte painting","",`Sfondo dipinto o digitale che estende o sostituisce completamente l'ambiente.`,"mattep"],
+["vfx","Costruire l'ambiente","Set extension","",`Ampliare digitalmente un set reale oltre i suoi limiti fisici.`,"setext"],
+["vfx","Costruire l'ambiente","Digital double","",`Copia 3D di un oggetto o persona, per le scene difficili o impossibili.`,"digidbl"],
+["vfx","Blending","Blend mode","metodo di fusione",`Il modo in cui due livelli si combinano matematicamente tra loro.`,"blend"],
+["vfx","Blending","Multiply","",`Scurisce moltiplicando i valori. Utile per ombre e per incastrare elementi nel fondo.`,"multiply"],
+["vfx","Blending","Screen","",`Schiarisce. Ideale per luci, bagliori e fumo su fondo scuro — il vostro void.`,"screen"],
+["vfx","Blending","Overlay","",`Aumenta il contrasto combinando multiply e screen in un colpo solo.`,"overlay"],
+["vfx","Blending","Add","linear dodge",`Somma i valori luminosi. Perfetto per luci additive e flare.`,"add"],
+["vfx","Blending","Soft light","",`Contrasto morbido, come una luce diffusa proiettata sul livello sotto.`,"softl"],
+["vfx","Maschere","Maschera","mask",`Definisce esattamente dove un livello è visibile o trasparente.`,"mask"],
+["vfx","Maschere","Luma matte","",`Usare la luminosità di un livello come maschera di un altro.`,"luma"],
+["vfx","Maschere","Feather","",`Ammorbidire il bordo di una maschera o di una selezione.`,"feather"],
+["vfx","Maschere","Opacità","opacity",`Quanto un livello è trasparente rispetto a quello sottostante.`,"opacity"],
+
+/* ===== MORPHING ===== */
+["morph","Trasformazione","Morphing","",`Trasformare con continuità una forma in un'altra, senza stacco.`,"morph"],
+["morph","Trasformazione","Blend shape","shape key",`Pose memorizzate di una mesh che si mescolano tra loro per animare o morphare.`,"blendsh"],
+["morph","Trasformazione","Warp","mesh warp",`Deformare immagine o mesh spostandone i punti di controllo.`,"warp"],
+["morph","Analisi del movimento","Optical flow","",`Analisi del movimento pixel per pixel. Base di molte interpolazioni e slow-motion.`,"flow"],
+["morph","Analisi del movimento","Frame blending","",`Fondere fotogrammi adiacenti per morbidezza o per rallentare.`,"frameb"],
+["morph","Principio","Interpolazione","interpolation",`Generare i valori intermedi tra due stati noti. È il principio esatto di Kling (A→B).`,"interp"],
+["morph","Principio","Lerp / Slerp","",`Interpolazione lineare / sferica tra due valori o due rotazioni.`,"lerp"],
+["morph","Animazione","Keyframe","",`Fotogramma chiave che fissa un valore. Il software calcola tutti quelli in mezzo.`,"keyframe"],
+["morph","Animazione","In-between","tween",`I fotogrammi intermedi generati automaticamente tra due keyframe.`,"tween"],
+["morph","Animazione","Frame interpolation","",`Creare fotogrammi nuovi tra quelli esistenti: il cuore dello start/end frame AI.`,"frameint"],
+["morph","Animazione","Onion skinning","",`Vedere in trasparenza i fotogrammi vicini per animare con coerenza.`,"onion"],
+
+/* ===== COLOR ===== */
+["color","Correzione","Correzione colore","color correction",`Portare l'immagine a una base neutra e coerente: bilanciamento, esposizione, contrasto.`,"cc"],
+["color","Correzione","Bilanciamento del bianco","white balance",`Regolare il bianco perché non tenda al caldo o al freddo.`,"wb"],
+["color","Correzione","Esposizione","exposure",`La luminosità complessiva dell'immagine.`,"exposure"],
+["color","Correzione","Contrasto","contrast",`La distanza tra le zone più chiare e le più scure.`,"contrast"],
+["color","Correzione","Shot matching","",`Uniformare il colore tra inquadrature diverse della stessa scena.`,"shotm"],
+["color","Grading","Color grading","grade",`Dare il look creativo finale con colore e contrasto. È l'atmosfera del pezzo.`,"grade"],
+["color","Grading","LUT","",`Tabella che rimappa i colori applicando un intero look in un colpo solo.`,"lut"],
+["color","Grading","Crush / Roll-off","",`Schiacciare i neri / addolcire il passaggio verso le alte luci.`,"crush"],
+["color","Strumenti","Lift / Gamma / Gain","",`Controllo separato di ombre / mezzitoni / alte luci.`,"lgg"],
+["color","Strumenti","Curve","curves",`Rimodellare tono e colore con la massima precisione.`,"curves"],
+["color","Strumenti","HSL qualifier","",`Isolare un singolo colore per tonalità/saturazione/luminosità e modificarlo.`,"hsl"],
+["color","Strumenti","Scope","waveform / vectorscope",`Strumenti per leggere oggettivamente luminosità e colore, senza fidarsi dell'occhio.`,"scope"],
+["color","Proprietà del colore","Tonalità","hue",`La posizione di un colore sulla ruota cromatica.`,"hue"],
+["color","Proprietà del colore","Saturazione","saturation",`L'intensità complessiva dei colori.`,"satur"],
+["color","Proprietà del colore","Vibrance","",`Alza la saturazione dei colori spenti risparmiando quelli già vividi.`,"vibr"],
+["color","Tecnica","Log","",`Profilo di ripresa piatto che conserva più informazione per il grading.`,"log"],
+["color","Tecnica","Spazio colore","color space / gamut",`La gamma di colori disponibili in un dato standard, es. Rec.709 per gli schermi.`,"cspace"],
+["color","Tecnica","Banding","",`Gradini visibili in una sfumatura, causati da poca profondità di colore.`,"banding"],
+
+/* ===== SFX ===== */
+["sfx","Effetti in ripresa","Effetti pratici","practical FX",`Effetti reali realizzati sul set: fumo, scintille, pioggia, rotture.`,"practical"],
+["sfx","Effetti in ripresa","Atmosfere","haze / fog",`Foschia sospesa che rende visibili i raggi e aggiunge profondità all'aria.`,"haze"],
+["sfx","Imperfezioni ottiche","Lens flare","",`Bagliori generati dalla luce che colpisce direttamente l'obiettivo.`,"flare"],
+["sfx","Imperfezioni ottiche","Light leak","",`Infiltrazioni di luce sul bordo del fotogramma: look analogico.`,"leak"],
+["sfx","Imperfezioni ottiche","Bloom / Glow","",`Alone luminoso morbido attorno alle alte luci.`,"bloom"],
+["sfx","Imperfezioni ottiche","Halation","",`Alone rossastro attorno alle luci forti: firma tipica della pellicola.`,"halation"],
+["sfx","Imperfezioni ottiche","Aberrazione cromatica","chromatic aberration",`Frange di colore ai bordi ad alto contrasto.`,"chroma"],
+["sfx","Texture d'immagine","Grana","grain",`Texture fine che imita la pellicola e toglie l'aspetto troppo pulito del digitale.`,"grain"],
+["sfx","Texture d'immagine","Vignettatura","vignette",`Scurimento graduale ai bordi che concentra l'occhio al centro.`,"vignette"],
+["sfx","Suono","Sound design","",`La costruzione di tutto il paesaggio sonoro non musicale.`,"sound"],
+["sfx","Suono","Foley","",`Rumori registrati ad hoc — passi, oggetti — sincronizzati alle immagini.`,"foley"],
+["sfx","Suono","Score","",`La musica composta o scelta per accompagnare il montato.`,"score"],
+["sfx","Suono","Riser","",`Suono in crescendo che costruisce tensione verso un evento, es. il drop.`,"riser"],
+["sfx","Suono","Impact","hit",`Colpo sonoro secco che accenta uno stacco o l'ingresso del logo.`,"impact"],
+["sfx","Suono","Whoosh","",`Suono di passaggio, abbinato a whip pan e smear nelle transizioni.`,"whoosh"],
+["sfx","Suono","Sub drop","",`Caduta di bassa frequenza che dà peso fisico al drop.`,"subdrop"],
+
+/* ===== AI ===== */
+["ai","Generazione","i2v","image-to-video",`Generare un video partendo da un'immagine di riferimento.`,"i2v"],
+["ai","Generazione","t2v","text-to-video",`Generare un video dal solo prompt testuale, senza immagine di partenza.`,"t2v"],
+["ai","Generazione","Prompt","",`Le istruzioni testuali che descrivono cosa e come generare.`,"prompt"],
+["ai","Generazione","Seed","",`Numero che fissa la casualità. Stesso seed e stesso prompt = risultato ripetibile.`,"seed"],
+["ai","Generazione","Take","generazione",`Un singolo tentativo di output. Su Kling costa ~7–8 crediti l'uno.`,"take"],
+["ai","Generazione","Denoise / Steps","",`Quanti passaggi l'AI compie per 'pulire' e definire progressivamente l'immagine.`,"steps"],
+["ai","Controllo","Start / End frame","",`I due fotogrammi che guidano l'interpolazione: il cuore del workflow Kling.`,"startend"],
+["ai","Controllo","Interpolazione AI","",`L'AI inventa tutti i fotogrammi tra lo start e l'end frame.`,"aiinterp"],
+["ai","Input","Plate di riferimento","reference plate",`La ripresa reale del cliente usata come base della generazione.`,"refplate"],
+["ai","Input","Composite plate","",`Il montaggio Photoshop delle plate che alimenta la generazione Kling.`,"compplate"],
+["ai","Problemi noti","Coerenza temporale","temporal coherence",`Quanto l'output resta stabile nel tempo, senza saltellare tra un frame e l'altro.`,"temporal"],
+["ai","Problemi noti","Allucinazione","hallucination",`L'AI inventa dettagli errati o incoerenti. Spesso per troppo delta tra frame A e B.`,"halluc"],
+["ai","Problemi noti","Sfarfallio","flicker",`Variazioni indesiderate di luce o dettaglio tra fotogrammi consecutivi.`,"flicker"],
+["ai","Finitura","Upscale","",`Aumentare la risoluzione dell'output cercando di mantenere il dettaglio.`,"upscale"],
+];
+
+/* ============ RENDER ============ */
 const gbody=document.getElementById("gbody"), gchips=document.getElementById("gchips"),
       gcount=document.getElementById("gcount"), gsearch=document.getElementById("gsearch"),
       gempty=document.getElementById("gempty");
-let activeCat="Tutti";
+let activeDom="Tutti";
 
-// build sections (textContent everywhere — safe with &, /, accents)
-CATS.forEach(cat=>{
-  const items=G.filter(x=>x[0]===cat); if(!items.length) return;
-  const sec=document.createElement("div"); sec.className="gcat-sec"; sec.dataset.cat=cat;
-  const h=document.createElement("h2"); h.className="gcat"; h.textContent=cat+" ";
-  const cs=document.createElement("span"); cs.textContent=items.length; h.appendChild(cs); sec.appendChild(h);
-  const grid=document.createElement("div"); grid.className="ggrid";
-  items.forEach(x=>{
-    const card=document.createElement("div"); card.className="gcard"; card.dataset.cat=cat;
-    card.dataset.s=(x[1]+" "+(x[2]||"")+" "+x[3]).toLowerCase();
-    const gt=document.createElement("div"); gt.className="gt"; gt.textContent=x[1];
-    if(x[2]){ gt.appendChild(document.createTextNode(" ")); const en=document.createElement("span"); en.className="gen"; en.textContent=x[2]; gt.appendChild(en); }
-    const gd=document.createElement("div"); gd.className="gd"; gd.textContent=x[3];
-    card.appendChild(gt); card.appendChild(gd); grid.appendChild(card);
+DOMAINS.forEach((dom,di)=>{
+  const rows=G.filter(x=>x[0]===dom[0]); if(!rows.length) return;
+  const sec=document.createElement("div"); sec.className="gdom"; sec.dataset.dom=dom[0];
+
+  const h=document.createElement("div"); h.className="gdom-h";
+  const n=document.createElement("span"); n.className="n"; n.textContent=String(di+1).padStart(2,"0");
+  const t=document.createElement("h2"); t.textContent=dom[1];
+  const c=document.createElement("span"); c.className="c"; c.textContent=rows.length+" termini";
+  h.appendChild(n); h.appendChild(t); h.appendChild(c); sec.appendChild(h);
+
+  const d=document.createElement("p"); d.className="gdom-d"; d.textContent=dom[2]; sec.appendChild(d);
+
+  // group by subcategory, preserving data order
+  const subs=[]; rows.forEach(r=>{ if(subs.indexOf(r[1])<0) subs.push(r[1]); });
+  subs.forEach(sub=>{
+    const items=rows.filter(r=>r[1]===sub);
+    const sw=document.createElement("div"); sw.className="gsub"; sw.dataset.sub=sub;
+    const sh=document.createElement("h3"); sh.className="gsub-h"; sh.textContent=sub;
+    const sb=document.createElement("b"); sb.textContent=items.length; sh.appendChild(sb); sw.appendChild(sh);
+    const grid=document.createElement("div"); grid.className="ggrid";
+    items.forEach(x=>{
+      const card=document.createElement("div"); card.className="gcard";
+      card.dataset.s=(x[2]+" "+(x[3]||"")+" "+x[4]+" "+x[1]).toLowerCase();
+      if(D[x[5]]){ const fig=document.createElement("div"); fig.className="gfig";
+        fig.setAttribute("aria-hidden","true"); fig.innerHTML=D[x[5]]; card.appendChild(fig); }
+      const tx=document.createElement("div"); tx.className="txt";
+      const gt=document.createElement("div"); gt.className="gt"; gt.textContent=x[2];
+      if(x[3]){ const en=document.createElement("span"); en.className="gen"; en.textContent=x[3]; gt.appendChild(en); }
+      const gd=document.createElement("div"); gd.className="gd"; gd.textContent=x[4];
+      tx.appendChild(gt); tx.appendChild(gd); card.appendChild(tx); grid.appendChild(card);
+    });
+    sw.appendChild(grid); sec.appendChild(sw);
   });
-  sec.appendChild(grid); gbody.appendChild(sec);
+  gbody.appendChild(sec);
 });
 
-// filter chips
-["Tutti"].concat(CATS).forEach(cat=>{
-  const b=document.createElement("button"); b.textContent=cat; b.setAttribute("aria-pressed", cat==="Tutti");
-  b.onclick=()=>{ activeCat=cat; [...gchips.children].forEach(x=>x.setAttribute("aria-pressed", x===b)); filter(); };
+// chips = macro domains
+[["Tutti","Tutti"]].concat(DOMAINS.map(d=>[d[0],d[1]])).forEach(pair=>{
+  const b=document.createElement("button"); b.textContent=pair[1];
+  b.setAttribute("aria-pressed", pair[0]==="Tutti");
+  b.onclick=()=>{ activeDom=pair[0]; [...gchips.children].forEach(x=>x.setAttribute("aria-pressed", x===b));
+    filter(); document.getElementById("glossary").scrollTop=0; };
   gchips.appendChild(b);
 });
 
 function filter(){
   const q=gsearch.value.trim().toLowerCase(); let vis=0;
-  document.querySelectorAll(".gcat-sec").forEach(sec=>{
-    const catOk = activeCat==="Tutti" || sec.dataset.cat===activeCat; let secVis=0;
-    sec.querySelectorAll(".gcard").forEach(card=>{
-      const ok = catOk && (!q || card.dataset.s.indexOf(q)>-1);
-      card.classList.toggle("hide", !ok); if(ok){ secVis++; vis++; }
+  document.querySelectorAll(".gdom").forEach(sec=>{
+    const domOk = activeDom==="Tutti" || sec.dataset.dom===activeDom; let domVis=0;
+    sec.querySelectorAll(".gsub").forEach(sw=>{
+      let subVis=0;
+      sw.querySelectorAll(".gcard").forEach(card=>{
+        const ok = domOk && (!q || card.dataset.s.indexOf(q)>-1);
+        card.classList.toggle("hide", !ok); if(ok){ subVis++; }
+      });
+      sw.classList.toggle("hide", subVis===0);
+      const sb=sw.querySelector(".gsub-h b"); if(sb) sb.textContent=subVis;
+      domVis+=subVis;
     });
-    sec.classList.toggle("hide", secVis===0);
-    const cnt=sec.querySelector(".gcat span"); if(cnt) cnt.textContent=secVis;
+    sec.classList.toggle("hide", domVis===0);
+    const dc=sec.querySelector(".gdom-h .c"); if(dc) dc.textContent=domVis+" termini";
+    vis+=domVis;
   });
   gcount.textContent=vis+" termini";
   gempty.classList.toggle("on", vis===0);
@@ -871,12 +1136,13 @@ function filter(){
 gsearch.addEventListener("input",filter);
 filter();
 
-// mode switch
+/* mode switch */
 const app=document.querySelector(".app"), mB=document.getElementById("mBench"), mG=document.getElementById("mGloss");
 function setMode(gloss){
   app.classList.toggle("gloss", gloss); window.__glossOpen=gloss;
   mB.setAttribute("aria-pressed", !gloss); mG.setAttribute("aria-pressed", gloss);
-  if(gloss){ document.getElementById("glossary").scrollTop=0; setTimeout(()=>gsearch.focus(),60); }
+  if(gloss){ document.getElementById("glossary").scrollTop=0;
+    if(matchMedia("(min-width:901px)").matches) setTimeout(()=>gsearch.focus(),60); }
 }
 mB.onclick=()=>setMode(false); mG.onclick=()=>setMode(true);
 })();
