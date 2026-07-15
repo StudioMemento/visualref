@@ -573,6 +573,33 @@
     .trkh{width:52px;font-size:8px;padding:0 7px}
     .scard{flex:0 0 calc(33.333% - 4.7px);width:auto;height:102px}
   }
+
+  /* ---- demo selector above the player ---- */
+  .demobar{display:flex;gap:0;border:1px solid var(--line);border-bottom:0;
+    border-radius:12px 12px 0 0;background:var(--panel);overflow:hidden;flex:none}
+  .demo{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
+    background:transparent;cursor:pointer;padding:13px 10px 12px;
+    display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;
+    transition:background .16s var(--ease)}
+  .demo:last-child{border-right:0}
+  .demo:hover{background:var(--panel-2)}
+  .demo .n{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--txt-3);
+    transition:color .16s var(--ease)}
+  .demo .t{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--txt-3);line-height:1.25;text-align:center;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:color .16s var(--ease)}
+  .demo[aria-selected="true"]{background:var(--panel-2)}
+  .demo[aria-selected="true"] .n{color:var(--accent)}
+  .demo[aria-selected="true"] .t{color:var(--txt)}
+  .demo[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;
+    height:2px;background:var(--accent)}
+  .demobar+.stage{border-radius:0;border-top:0}
+  @media (max-width:900px){
+    .demobar{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .demobar::-webkit-scrollbar{display:none}
+    .demo{flex:0 0 auto;min-width:104px;padding:11px 12px 10px}
+    .demo .t{font-size:10.5px}
+  }
 </style>
 </head>
 <body>
@@ -596,6 +623,8 @@
   </aside>
 
   <main class="main">
+    <div class="demobar" id="demobar" role="tablist" aria-label="Demo"></div>
+
     <div class="stage" id="stage">
       <div class="layer" id="bgBokeh"></div>
       <canvas id="cv"></canvas>
@@ -615,11 +644,6 @@
     </div>
 
     <div class="stagectl" id="stagectl">
-      <div class="sldwrap on" id="navwrap">
-        <div class="ctl-label"><span id="navlabel">Demo</span><span class="val" id="navval"></span></div>
-        <input type="range" id="navsld" min="0" max="1" step="1" value="0">
-        <div class="ticks" id="navticks"></div>
-      </div>
       <div class="sldwrap" id="sldwrap">
         <div class="ctl-label"><span id="sldlabel">Parametro</span><span class="val" id="sldval"></span></div>
         <input type="range" id="sld" min="0" max="100" value="50">
@@ -1093,22 +1117,20 @@ const sldwrap=document.getElementById("sldwrap"), sld=document.getElementById("s
 const segEl=document.getElementById("seg"), playBtn=document.getElementById("play"),
       playlabel=document.getElementById("playlabel"), ctlempty=document.getElementById("ctlempty"),
       ticks=document.getElementById("ticks");
-const navsld=document.getElementById("navsld"), navlabel=document.getElementById("navlabel"),
-      navval=document.getElementById("navval"), navticks=document.getElementById("navticks");
+const demobar=document.getElementById("demobar");
 let navList=[];
 function buildNav(f){
-  const grp=GROUPS.find(g=>g.id===f.g);
   navList=FX.filter(x=>x.g===f.g);
-  const i=navList.indexOf(f);
-  navlabel.textContent=grp.label;
-  navsld.min=0; navsld.max=Math.max(0,navList.length-1); navsld.value=i<0?0:i;
-  navval.textContent=f.name;
-  navticks.innerHTML=navList.map((x,j)=>'<span'+(j===i?' class="on"':'')+'>'+(j+1)+'</span>').join("");
-  navticks.style.display=navList.length>1?"flex":"none";
+  demobar.innerHTML="";
+  navList.forEach((x,i)=>{
+    const b=document.createElement("button"); b.className="demo"; b.type="button";
+    b.setAttribute("aria-selected", x===f);
+    b.innerHTML='<span class="n">'+String(i+1).padStart(2,"0")+'</span>'+
+                '<span class="t">'+x.name+'</span>';
+    b.onclick=()=>{ if(x!==activeFx) selectFx(x); };
+    demobar.appendChild(b);
+  });
 }
-navsld.addEventListener("input",e=>{
-  const f=navList[+e.target.value]; if(f && f!==activeFx) selectFx(f);
-});
 
 let activeFx=null, curSlider=null, curPlay=null;
 const CHEV='<svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 1L6 4L2.5 7"/></svg>';
@@ -1464,19 +1486,25 @@ function makeCanvas(host){
   const cv=document.createElement("canvas"); cv.style.cssText="width:100%;height:100%;display:block";
   host.innerHTML=""; host.appendChild(cv);
   cv._host=host;
+  /* NOTE: assigning cv.width/height WIPES the canvas and resets its context.
+     So resize must only ever happen when the box genuinely changed — otherwise
+     every sizeAll() during a repaint cycle erases what draw() just painted. */
   function size(){
     const r=host.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
-    /* a hidden host reports 0 — keep the last good size instead of collapsing to 2px */
-    if(r.width<4||r.height<4) return;
+    if(r.width<4||r.height<4) return false;          /* hidden: keep last good size */
     const w=Math.round(r.width*d), hh=Math.round(r.height*d);
-    if(cv.width!==w||cv.height!==hh){ cv.width=w; cv.height=hh; }
+    if(cv.width===w && cv.height===hh) return false;  /* unchanged: do NOT touch */
+    cv.width=w; cv.height=hh;
+    return true;                                      /* changed => caller must repaint */
   }
   cv._size=size; CANVASES.push(cv);
-  size(); if(window.ResizeObserver) new ResizeObserver(size).observe(host);
+  size(); if(window.ResizeObserver) new ResizeObserver(()=>{
+    if(size() && window.__repaint) window.__repaint();
+  }).observe(host);
   return cv;
 }
-/* when a view becomes visible its canvases finally have a box — measure then */
-function sizeAll(){ CANVASES.forEach(cv=>cv._size&&cv._size()); }
+/* returns true if any canvas was actually resized (and therefore cleared) */
+function sizeAll(){ let ch=false; CANVASES.forEach(cv=>{ if(cv._size&&cv._size()) ch=true; }); return ch; }
 
 /* ---------------- verdict ---------------- */
 const VERDICT={
@@ -1902,6 +1930,7 @@ function paint(time){
 function tick(now){
   if(view!=="combo" && view!=="comb2"){ running=false; return; }  /* idle when off-screen */
   requestAnimationFrame(tick);
+  sizeAll();                       /* size first — resizing clears the canvas */
   if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
   paint((now-t0)/1000);
 }
@@ -1909,7 +1938,7 @@ function start(){ if(running) return; running=true; requestAnimationFrame(tick);
 
 window.__onView=v=>{
   view=v;
-  /* a just-revealed section has no box until layout runs — measure, paint, then loop */
+  /* a just-revealed section has no box until layout runs: size first, paint after */
   const kick=()=>{ sizeAll(); paint((performance.now()-t0)/1000); };
   kick();
   requestAnimationFrame(()=>{ kick(); requestAnimationFrame(kick); });
