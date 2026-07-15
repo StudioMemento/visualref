@@ -369,11 +369,11 @@
   .cverdict .txt{font-size:13.5px;line-height:1.62;color:var(--txt)}
 
   /* ---------- Sequenza ---------- */
-  .swrap{padding:22px 24px 70px}
+  .swrap{padding:22px 24px 70px;max-width:1500px;margin:0 auto}
   .slead{font-size:14.5px;color:var(--txt-2);line-height:1.6;max-width:720px;margin:0 0 18px}
   .slead b{color:var(--txt);font-weight:600}
-  .sbar{display:flex;align-items:center;gap:9px;margin-bottom:18px;flex-wrap:wrap}
-  .spresets{display:flex;gap:6px;flex-wrap:wrap}
+  .sbar{display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap}
+  .spresets{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
   .stime{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);letter-spacing:.1em;margin-left:auto}
   .stime b{color:var(--accent);font-weight:500}
   /* timeline strip */
@@ -399,7 +399,7 @@
   .sblk:hover .x{opacity:1}
   .sblk .x:hover{background:var(--line-2);color:var(--accent)}
   /* energy curve */
-  .senergy{width:100%;height:56px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+  .senergy{width:100%;height:64px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
     margin-bottom:22px;display:block}
   /* library */
   .slib-h{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
@@ -488,6 +488,10 @@
   .ticks{display:flex;justify-content:space-between;gap:4px;margin-top:2px}
   .ticks span{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--txt-3);
     text-transform:uppercase;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ticks span.on{color:var(--accent);font-weight:700}
+  #navwrap{padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:2px}
+  #navwrap .val{color:var(--txt);font-weight:600;letter-spacing:.02em;text-transform:none;font-size:13px}
+  #navwrap #navlabel{color:var(--accent)}
   .ticks span:first-child{text-align:left}.ticks span:last-child{text-align:right}
   .sldwrap.stepped input[type=range]{background:linear-gradient(var(--line-2),var(--line-2)) no-repeat center/100% 3px}
 
@@ -508,7 +512,7 @@
   .trkh .dot.s{background:var(--accent)}
   .trkh .dot.t{background:#c98a5e}
   .trkh .dot.a{background:#6a90b8}
-  .trkl{flex:1;min-width:0;display:flex;gap:3px;padding:6px;overflow-x:auto;
+  .trkl{flex:1;min-width:0;display:flex;gap:3px;padding:6px;overflow-x:auto;align-items:center;
     scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .trkl::-webkit-scrollbar{display:none}
   .trkl.dragover{background:#17130f;box-shadow:inset 0 0 0 1px var(--accent-dim)}
@@ -540,7 +544,7 @@
   .clip:hover .x{opacity:1}
   .clip .x:hover{color:var(--accent)}
   /* ---- tools ---- */
-  .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:18px 0 26px}
+  .tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0 26px}
   .tool{display:flex;align-items:center;gap:11px;text-align:left;
     border:1px solid var(--line-2);background:var(--panel);border-radius:9px;padding:12px 14px;
     cursor:pointer;color:var(--txt-2);font-family:inherit;
@@ -551,9 +555,11 @@
   .tool b{font-size:12.5px;font-weight:600;color:var(--txt)}
   .tool span{font-size:10.5px;color:var(--txt-3)}
   /* ---- library as draggable app tiles ---- */
-  .slibgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;margin-bottom:18px}
+  .slibgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;margin-bottom:18px;
+    align-items:start}
   .scard{display:flex;flex-direction:column;align-items:center;gap:7px;padding:11px 7px;cursor:grab;
     border:1px solid var(--line);background:var(--panel);border-radius:9px;text-align:center;
+    min-height:0;height:auto;
     transition:border-color .15s var(--ease),transform .15s var(--ease),background .15s var(--ease)}
   .scard:hover{border-color:var(--accent-dim);background:var(--panel-2);transform:translateY(-2px)}
   .scard:active{cursor:grabbing}
@@ -564,7 +570,7 @@
   .scard.open .ds{display:block;font-size:10px;color:var(--txt-3);line-height:1.4;margin-top:2px}
   @media (max-width:900px){
     .cfull{padding:14px 14px 40px}
-    .tools{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+    .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
     .trkh{width:52px;font-size:8px;padding:0 7px}
     .slibgrid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}
   }
@@ -610,6 +616,11 @@
     </div>
 
     <div class="stagectl" id="stagectl">
+      <div class="sldwrap on" id="navwrap">
+        <div class="ctl-label"><span id="navlabel">Demo</span><span class="val" id="navval"></span></div>
+        <input type="range" id="navsld" min="0" max="1" step="1" value="0">
+        <div class="ticks" id="navticks"></div>
+      </div>
       <div class="sldwrap" id="sldwrap">
         <div class="ctl-label"><span id="sldlabel">Parametro</span><span class="val" id="sldval"></span></div>
         <input type="range" id="sld" min="0" max="100" value="50">
@@ -1079,6 +1090,22 @@ const sldwrap=document.getElementById("sldwrap"), sld=document.getElementById("s
 const segEl=document.getElementById("seg"), playBtn=document.getElementById("play"),
       playlabel=document.getElementById("playlabel"), ctlempty=document.getElementById("ctlempty"),
       ticks=document.getElementById("ticks");
+const navsld=document.getElementById("navsld"), navlabel=document.getElementById("navlabel"),
+      navval=document.getElementById("navval"), navticks=document.getElementById("navticks");
+let navList=[];
+function buildNav(f){
+  const grp=GROUPS.find(g=>g.id===f.g);
+  navList=FX.filter(x=>x.g===f.g);
+  const i=navList.indexOf(f);
+  navlabel.textContent=grp.label;
+  navsld.min=0; navsld.max=Math.max(0,navList.length-1); navsld.value=i<0?0:i;
+  navval.textContent=f.name;
+  navticks.innerHTML=navList.map((x,j)=>'<span'+(j===i?' class="on"':'')+'>'+(j+1)+'</span>').join("");
+  navticks.style.display=navList.length>1?"flex":"none";
+}
+navsld.addEventListener("input",e=>{
+  const f=navList[+e.target.value]; if(f && f!==activeFx) selectFx(f);
+});
 
 let activeFx=null, curSlider=null, curPlay=null;
 const CHEV='<svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 1L6 4L2.5 7"/></svg>';
@@ -1155,7 +1182,7 @@ function selectFx(f){
     if(!REDUCED) runPlay();
   }
   if(!f.slider && !f.seg && !f.play){ ctlempty.style.display="block"; }
-  openGroupOf(f); markList();
+  openGroupOf(f); markList(); buildNav(f);
 }
 
 function applySlider(v){ curSlider.apply(+v); sldval.textContent=curSlider.fmt(+v); }
@@ -1498,6 +1525,7 @@ function renderC(){
   notes(cNotes,selC); cVerdict.textContent=verdict(selC);
   cRecipe.innerHTML="RICETTA · "+AXES.map(ax=>"<b>"+optOf(ax.id,selC[ax.id])[1]+"</b>").join(" · ");
   window.__lastComposition=Object.assign({},selC);
+  if(window.__repaint) window.__repaint();
 }
 buildAxes(document.getElementById("cAxes"), selC, renderC);
 document.getElementById("cRand").onclick=()=>{
@@ -1551,6 +1579,7 @@ function renderAB(){
   abRecipe.innerHTML="A → B · <b>"+delta()+"</b> assi in movimento";
   abEdit.innerHTML='Stai modificando: <b style="color:var(--accent)">'+editing+'</b>';
   window.__lastAB={A:Object.assign({},selA),B:Object.assign({},selB)};
+  if(window.__repaint) window.__repaint();
 }
 buildAxes(document.getElementById("abAxes"), selA, ()=>{ renderAB(); });
 function rewireAB(){
@@ -1563,7 +1592,7 @@ function rewireAB(){
 rewireAB();
 abEdit.onclick=()=>{ editing = editing==="A"?"B":"A"; rewireAB(); renderAB(); };
 document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]); syncAxes(document.getElementById("abAxes"),curSel()); renderAB(); };
-document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; };
+document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
 renderAB();
 
 /* ================= VIEW 3 · TIMELINE ================= */
@@ -1845,28 +1874,38 @@ TL=PRESETS.teaser.ids.map(id=>({id:id,img:null,selected:false,dur:B(id)?B(id)[3]
 drawTL();
 
 /* ---------------- animation loop for the canvas previews ---------------- */
-let view="bench", t0=performance.now();
-window.__onView=v=>{ view=v;
-  /* a just-revealed section has no box until layout runs — retry across a few frames */
-  let tries=0;
-  (function retry(){ sizeAll(); if(++tries<8) requestAnimationFrame(retry); })();
-  setTimeout(sizeAll,60); setTimeout(sizeAll,220);
-};
-window.addEventListener("resize",sizeAll);
-function tick(now){
-  requestAnimationFrame(tick);
-  const time=(now-t0)/1000;
+let view="bench", t0=performance.now(), running=false;
+
+/* one explicit paint — safe to call any time, never depends on the loop being alive */
+function paint(time){
   if(view==="combo"){ draw(cvC, selC, params(selC), time); }
   else if(view==="comb2"){
     const pA=params(selA), pB=params(selB);
     draw(cvA, selA, pA, time); draw(cvB, selB, pB, time);
-    if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
     const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
-    const mixSel=Object.assign({}, t<0.5?selA:selB);
-    draw(cvM, mixSel, mixP(pA,pB,t), time);
+    draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time);
   }
 }
-requestAnimationFrame(tick);
+function tick(now){
+  if(view!=="combo" && view!=="comb2"){ running=false; return; }  /* idle when off-screen */
+  requestAnimationFrame(tick);
+  if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
+  paint((now-t0)/1000);
+}
+function start(){ if(running) return; running=true; requestAnimationFrame(tick); }
+
+window.__onView=v=>{
+  view=v;
+  /* a just-revealed section has no box until layout runs — measure, paint, then loop */
+  const kick=()=>{ sizeAll(); paint((performance.now()-t0)/1000); };
+  kick();
+  requestAnimationFrame(()=>{ kick(); requestAnimationFrame(kick); });
+  setTimeout(kick,60); setTimeout(kick,240);
+  start();
+};
+window.addEventListener("resize",()=>{ sizeAll(); paint((performance.now()-t0)/1000); });
+window.__repaint=()=>paint((performance.now()-t0)/1000);
+start();
 })();
 </script>
 <script>
