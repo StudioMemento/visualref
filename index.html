@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MEMENTO — Visual Reference · Cattura per Cinematic AI</title>
+<title>MEMENTO — Visual Reference</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,25 +25,26 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--void);color:var(--txt);
-    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+    overflow:hidden;max-width:100%;overflow-x:hidden}
   body{overscroll-behavior:none}
+  img,svg,canvas{max-width:100%}
 
   .app{
-    display:grid;height:100dvh;
-    grid-template-columns:312px 1fr;
-    grid-template-rows:auto 1fr;
+    display:grid;height:100dvh;width:100%;max-width:100%;
+    grid-template-columns:312px minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr);
     grid-template-areas:"top top" "panel main";
   }
+  .app>*{min-width:0}
 
   /* ---------- Topbar ---------- */
   .top{grid-area:top;display:flex;align-items:center;gap:16px;
     padding:14px 22px;border-bottom:1px solid var(--line);background:var(--void)}
-  .brand{display:flex;align-items:baseline;gap:8px;font-weight:800;letter-spacing:.14em;font-size:13px}
-  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;translate:0 -1px}
-  .brand small{color:var(--txt-3);font-weight:600;letter-spacing:.14em}
-  .top .title{margin-left:auto;text-align:right}
-  .top .title b{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em}
-  .top .title span{font-size:10.5px;color:var(--txt-3);letter-spacing:.16em;text-transform:uppercase;font-family:var(--mono)}
+  .brand{display:flex;align-items:center;flex:none}
+  .brand svg{height:15px;width:auto;display:block;fill:var(--txt)}
+  .brand .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);
+    display:inline-block;margin-left:9px;flex:none}
 
   /* ---------- Left panel ---------- */
   .panel{grid-area:panel;border-right:1px solid var(--line);background:var(--panel);
@@ -155,31 +156,33 @@
 
   /* ---------- Responsive ---------- */
   @media (max-width:900px){
-    html,body{overflow:auto}
-    .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;
-      grid-template-areas:"top" "panel" "main";height:auto;min-height:100dvh}
-    .top{padding:12px 16px}
-    .brand{font-size:12px}
-    .panel{border-right:0;border-bottom:1px solid var(--line);background:var(--panel)}
+    html,body{overflow-x:hidden;overflow-y:auto;width:100%}
+    .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;
+      grid-template-areas:"top" "panel" "main";height:auto;min-height:100dvh;width:100%}
+    .top{padding:12px 14px;gap:10px;flex-wrap:wrap}
+    .brand svg{height:13px}
+    .panel{border-right:0;border-bottom:1px solid var(--line);background:var(--panel);min-width:0;overflow:hidden}
     .cats{flex-direction:row;overflow-x:auto;padding:11px 14px;gap:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .cats::-webkit-scrollbar{display:none}
     .cat{flex:none;background:var(--panel-2);padding:9px 13px}
     .list{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:7px;border-top:1px solid var(--line);
-      padding:12px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+      padding:12px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-top:0}
     .list::-webkit-scrollbar{display:none}
     .fx{flex:none;width:auto;margin:0;padding:10px 13px}
-    .main{padding:14px 16px 26px;gap:14px}
-    .stage{max-height:none;aspect-ratio:16/10}
-    .dock{grid-template-columns:1fr;gap:14px}
+    .main{padding:14px;gap:14px;min-width:0;overflow:hidden}
+    .stage{max-height:none;aspect-ratio:16/10;width:100%;max-width:100%}
+    .stage canvas{max-width:100%}
+    .dock{grid-template-columns:minmax(0,1fr);gap:14px}
+    .dock>*{min-width:0}
     .fxname{font-size:20px;margin-bottom:11px}
     .row{margin-bottom:9px}
-    .row .k{width:82px}
+    .row .k{width:78px}
+    .row .v{font-size:13px}
     .controls{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:15px;gap:15px}
     input[type=range]{height:4px}
     input[type=range]::-webkit-slider-thumb{width:20px;height:20px}
     input[type=range]::-moz-range-thumb{width:16px;height:16px}
     .play{padding:14px 18px}
-    .top .title{display:none}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition-duration:.01ms!important;animation-duration:.01ms!important}
@@ -199,6 +202,10 @@
   .glossary{grid-column:1 / -1;grid-row:2;min-height:0;overflow-y:auto;display:none;background:var(--void)}
   .app.gloss .panel,.app.gloss .main{display:none}
   .app.gloss .glossary{display:block}
+  .app.combo .panel,.app.combo .main{display:none}
+  .app.combo .combo{display:block}
+  .app.seq .panel,.app.seq .main{display:none}
+  .app.seq .seq{display:block}
   .glossary::-webkit-scrollbar{width:11px}
   .glossary::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:11px;border:3px solid var(--void)}
   .ghead{position:sticky;top:0;z-index:5;background:linear-gradient(var(--void) 76%,rgba(6,6,6,.6));
@@ -274,19 +281,150 @@
     .ggrid{grid-template-columns:1fr;gap:9px}
     .gempty{padding:6px 16px 40px}
   }
+  /* ---------- Combinazioni & Sequenza ---------- */
+  .combo,.seq{grid-column:1 / -1;grid-row:2;min-height:0;min-width:0;
+    overflow-y:auto;overflow-x:hidden;display:none;background:var(--void)}
+  .combo::-webkit-scrollbar,.seq::-webkit-scrollbar{width:11px}
+  .combo::-webkit-scrollbar-thumb,.seq::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:11px;border:3px solid var(--void)}
+  .cwrap{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:0;min-height:100%}
+  .cwrap>*{min-width:0}
+  .cleft{padding:22px 24px 60px}
+  .cright{border-left:1px solid var(--line);background:var(--panel);padding:22px 20px 60px;
+    position:sticky;top:0;align-self:start;max-height:100dvh;overflow-y:auto}
+  .cright::-webkit-scrollbar{width:8px}
+  .cright::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:8px;border:2px solid var(--panel)}
+  .clead{font-size:12.5px;color:var(--txt-2);line-height:1.6;max-width:640px;margin:0 0 22px}
+  .clead b{color:var(--txt);font-weight:600}
+
+  /* preview */
+  .cprev{position:relative;width:100%;aspect-ratio:2.39/1;border:1px solid var(--line);border-radius:11px;
+    overflow:hidden;background:#040404;margin-bottom:9px}
+  .cprev svg{display:block;width:100%;height:100%}
+  .cprev-bar{display:flex;align-items:center;gap:9px;margin-bottom:22px;flex-wrap:wrap}
+  .cbtn{appearance:none;border:1px solid var(--line-2);background:var(--panel);color:var(--txt-2);
+    padding:8px 13px;border-radius:8px;font:600 11.5px "Inter",sans-serif;cursor:pointer;
+    display:flex;align-items:center;gap:7px;transition:all .15s var(--ease)}
+  .cbtn:hover{color:var(--txt);border-color:var(--txt-3)}
+  .cbtn.pri{border-color:var(--accent-dim);background:#140f0b;color:var(--accent)}
+  .cbtn.pri:hover{border-color:var(--accent);background:#1c130c}
+  .crecipe{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--txt-3);
+    letter-spacing:.06em;text-align:right;line-height:1.7;max-width:100%;word-break:break-word}
+  .crecipe b{color:var(--accent);font-weight:500}
+
+  /* axis groups */
+  .cgrp{margin-bottom:20px}
+  .cgrp-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--txt-3);margin:0 0 9px;display:flex;align-items:center;gap:8px}
+  .cgrp-h::after{content:"";flex:1;height:1px;background:var(--line)}
+  .copts{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+  .copt{appearance:none;border:1px solid var(--line);background:var(--panel);border-radius:8px;
+    padding:8px 6px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;
+    transition:all .15s var(--ease);color:var(--txt-3);font:600 10px "Inter",sans-serif;text-align:center}
+  .copt:hover{border-color:var(--line-2);color:var(--txt-2)}
+  .copt[aria-pressed="true"]{border-color:var(--accent);background:#17130f;color:var(--accent)}
+  .copt svg{width:100%;height:auto;aspect-ratio:1;display:block}
+  .copt .ic{width:38px;height:38px;flex:none}
+  .copt .ic .s{fill:#1f2024}
+  .copt .ic .o{fill:none;stroke:#3a3b41;stroke-width:1.4}
+  .copt .ic .a{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round}
+  .copt .ic .af{fill:var(--accent)}
+  .copt .ic .dim{fill:none;stroke:#3a3b41;stroke-width:1;stroke-dasharray:2 2}
+
+  /* read-out */
+  .cread h3{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--txt);margin:0 0 12px;padding-bottom:9px;border-bottom:1px solid var(--line-2)}
+  .cnote{margin-bottom:13px}
+  .cnote .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:4px}
+  .cnote .txt{font-size:12px;line-height:1.55;color:var(--txt-2)}
+  .cverdict{border:1px solid var(--accent-dim);background:#120e0b;border-radius:9px;padding:12px 13px;margin-top:16px}
+  .cverdict .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:5px}
+  .cverdict .txt{font-size:12px;line-height:1.55;color:var(--txt)}
+
+  /* ---------- Sequenza ---------- */
+  .swrap{padding:22px 24px 70px}
+  .slead{font-size:12.5px;color:var(--txt-2);line-height:1.6;max-width:660px;margin:0 0 20px}
+  .slead b{color:var(--txt);font-weight:600}
+  .sbar{display:flex;align-items:center;gap:9px;margin-bottom:18px;flex-wrap:wrap}
+  .spresets{display:flex;gap:6px;flex-wrap:wrap}
+  .stime{font-family:var(--mono);font-size:9.5px;color:var(--txt-3);letter-spacing:.1em;margin-left:auto}
+  .stime b{color:var(--accent);font-weight:500}
+  /* timeline strip */
+  .strip{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    background:var(--panel);margin-bottom:8px;min-height:74px}
+  .strip.empty{align-items:center;justify-content:center;color:var(--txt-3);font-size:12px;font-style:italic}
+  .sblk{flex:1 1 0;min-width:0;border-right:1px solid var(--line);position:relative;cursor:grab;
+    display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 4px 8px;
+    transition:background .15s var(--ease)}
+  .sblk:last-child{border-right:0}
+  .sblk:hover{background:var(--panel-2)}
+  .sblk.drag{opacity:.35;cursor:grabbing}
+  .sblk.over{background:#17130f;box-shadow:inset 3px 0 0 var(--accent)}
+  .sblk svg{width:30px;height:30px;flex:none}
+  .sblk .s{fill:#1f2024}.sblk .o{fill:none;stroke:#3a3b41;stroke-width:1.4}
+  .sblk .a{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round}
+  .sblk .af{fill:var(--accent)}.sblk .dim{fill:none;stroke:#3a3b41;stroke-width:1;stroke-dasharray:2 2}
+  .sblk .nm{font-size:8.5px;font-weight:600;color:var(--txt-2);text-align:center;line-height:1.25;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;width:100%}
+  .sblk .x{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:4px;border:0;
+    background:transparent;color:var(--txt-3);cursor:pointer;font-size:12px;line-height:1;padding:0;
+    opacity:0;transition:opacity .15s var(--ease)}
+  .sblk:hover .x{opacity:1}
+  .sblk .x:hover{background:var(--line-2);color:var(--accent)}
+  /* energy curve */
+  .senergy{width:100%;height:56px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+    margin-bottom:22px;display:block}
+  /* library */
+  .slib-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--txt-3);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+  .slib-h::after{content:"";flex:1;height:1px;background:var(--line)}
+  .slib{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px;margin-bottom:22px}
+  .scard{appearance:none;text-align:left;border:1px solid var(--line);background:var(--panel);
+    border-radius:9px;padding:10px 11px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;
+    transition:all .15s var(--ease)}
+  .scard:hover{border-color:var(--accent-dim);background:var(--panel-2);transform:translateY(-1px)}
+  .scard svg{width:32px;height:32px;flex:none;border:1px solid var(--line-2);border-radius:5px;background:#08080a}
+  .scard .s{fill:#1f2024}.scard .o{fill:none;stroke:#3a3b41;stroke-width:1.4}
+  .scard .a{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round}
+  .scard .af{fill:var(--accent)}.scard .dim{fill:none;stroke:#3a3b41;stroke-width:1;stroke-dasharray:2 2}
+  .scard .tx{min-width:0;flex:1}
+  .scard .nm{font-size:11.5px;font-weight:600;color:var(--txt);margin-bottom:2px;line-height:1.25}
+  .scard .ds{font-size:10px;color:var(--txt-3);line-height:1.4}
+  .scard .du{font-family:var(--mono);font-size:8.5px;color:var(--accent);margin-top:3px;letter-spacing:.06em}
+
+  @media (max-width:900px){
+    .combo,.seq{grid-column:1;grid-row:auto;overflow:visible}
+    .cwrap{grid-template-columns:minmax(0,1fr)}
+    .cleft{padding:16px 14px 22px}
+    .cright{border-left:0;border-top:1px solid var(--line);position:static;max-height:none;padding:18px 14px 50px}
+    .clead,.slead{font-size:12px}
+    .cprev{aspect-ratio:16/10}
+    .crecipe{margin-left:0;text-align:left;flex:1 1 100%;order:9}
+    .copts{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:5px}
+    .copt .ic{width:32px;height:32px}
+    .swrap{padding:16px 14px 50px}
+    .strip{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .strip::-webkit-scrollbar{display:none}
+    .sblk{flex:0 0 84px}
+    .sblk .x{opacity:1}
+    .slib{grid-template-columns:minmax(0,1fr);gap:6px}
+    .stime{margin-left:0;flex:1 1 100%}
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand">MEMENTO<span class="dot"></span><small>STUDIO</small></div>
+    <div class="brand" aria-label="Memento Studio">
+      <svg viewBox="0 0 1600 100" role="img" aria-label="MEMENTO"><polygon points="109.14,10.45 109.14,89.55 101.23,81.64 101.23,28.91 69.58,60.55 37.94,28.91 37.94,81.64 30.03,89.55 30.03,10.45 69.58,50"/><polygon points="596.08,10.45 596.08,89.55 588.17,81.64 588.17,28.91 556.52,60.55 524.88,28.91 524.88,81.64 516.97,89.55 516.97,10.45 556.52,50"/><polygon points="1077.74,10.45 1077.74,89.55 1017.09,28.91 1017.09,81.65 1009.18,89.55 1009.18,10.45 1069.84,71.09 1069.84,18.36"/><polygon points="344.7,81.64 352.61,89.55 273.5,89.55 281.41,81.64"/><rect x="297.23" y="46.05" width="31.64" height="7.91"/><polygon points="352.61,10.45 344.7,18.36 281.41,18.36 273.5,10.45"/><polygon points="831.64,81.64 839.55,89.55 760.44,89.55 768.35,81.64"/><rect x="784.17" y="46.05" width="31.64" height="7.91"/><polygon points="839.55,10.45 831.64,18.36 768.35,18.36 760.44,10.45"/><polygon points="1247.38,10.45 1326.49,10.45 1318.57,18.36 1290.88,18.36 1290.88,89.55 1282.98,81.64 1282.98,18.36 1255.29,18.36"/><path d="M1530.42,10.45L1530.42,10.45c-21.85,0-39.56,17.71-39.56,39.55c0,21.85,17.71,39.55,39.55,39.55h0 c21.85,0,39.55-17.7,39.55-39.55C1569.97,28.16,1552.27,10.45,1530.42,10.45z M1530.42,81.65L1530.42,81.65 c-17.47,0-31.64-14.17-31.64-31.65c0-17.47,14.17-31.64,31.64-31.64h0c17.48,0,31.64,14.17,31.64,31.64 C1562.06,67.48,1547.9,81.64,1530.42,81.65z"/></svg>
+      <span class="dot"></span>
+    </div>
     <div class="modeswitch" role="group" aria-label="Vista">
       <button id="mBench" aria-pressed="true"><span class="d">◐</span>Banco ottico</button>
+      <button id="mCombo" aria-pressed="false"><span class="d">⊕</span>Combinazioni</button>
+      <button id="mSeq"   aria-pressed="false"><span class="d">▤</span>Sequenza</button>
       <button id="mGloss" aria-pressed="false"><span class="d">≡</span>Glossario</button>
-    </div>
-    <div class="title">
-      <b>Visual Reference — Cattura per Cinematic AI</b>
-      <span>Rev. 01 · guida di ripresa</span>
     </div>
   </header>
 
@@ -306,7 +444,7 @@
       <svg class="layer" id="comp" viewBox="0 0 239 100" preserveAspectRatio="none">
         <g class="g" data-g="thirds"><line x1="79.6" y1="0" x2="79.6" y2="100"/><line x1="159.3" y1="0" x2="159.3" y2="100"/><line x1="0" y1="33.3" x2="239" y2="33.3"/><line x1="0" y1="66.6" x2="239" y2="66.6"/></g>
         <g class="g" data-g="center"><line class="cross" x1="119.5" y1="0" x2="119.5" y2="100"/><line class="cross" x1="0" y1="50" x2="239" y2="50"/></g>
-        <g class="g" data-g="neg"><rect class="neg" x="168" y="60" width="60" height="32" rx="2"/><text x="171" y="72">AREA BADGE</text></g>
+        <g class="g" data-g="neg"><rect class="neg" x="168" y="60" width="60" height="32" rx="2"/><text x="171" y="72">AREA LOGO</text></g>
         <g class="g" data-g="head"><line x1="0" y1="20" x2="239" y2="20"/><text x="4" y="17">HEADROOM</text></g>
       </svg>
       <div class="layer" id="vignette"></div>
@@ -336,6 +474,50 @@
       </div>
     </div>
   </main>
+
+  <section class="combo" id="combo" aria-label="Combinazioni">
+    <div class="cwrap">
+      <div class="cleft">
+        <p class="clead">Ogni inquadratura è l'incrocio di sei scelte indipendenti. Cambiane una e cambia il peso del prodotto nel quadro. <b>Combinale liberamente</b> e osserva il risultato: la ricetta in alto a destra è la descrizione esatta dello shot, pronta da passare a un collaboratore o da usare come base di prompt.</p>
+        <div class="cprev" id="cprev"></div>
+        <div class="cprev-bar">
+          <button class="cbtn pri" id="cRand">⚄ Combinazione casuale</button>
+          <button class="cbtn" id="cReset">Azzera</button>
+          <div class="crecipe" id="cRecipe"></div>
+        </div>
+        <div id="cAxes"></div>
+      </div>
+      <aside class="cright">
+        <div class="cread">
+          <h3>Lettura dello shot</h3>
+          <div id="cNotes"></div>
+          <div class="cverdict">
+            <div class="lbl">Il prodotto nel frame</div>
+            <div class="txt" id="cVerdict"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="seq" id="seq" aria-label="Sequenza">
+    <div class="swrap">
+      <p class="slead">Una sequenza non è una fila di belle inquadrature: è una <b>curva di energia</b>. Si nasconde il prodotto, lo si rivela per gradi, si arriva al picco, si scende. Componi la tua timeline dalla libreria qui sotto — <b>trascina i blocchi</b> per riordinarli e leggi la curva che ne esce.</p>
+        <div class="sbar">
+          <div class="spresets">
+            <button class="cbtn pri" data-preset="reveal">Preset · Reveal classico</button>
+            <button class="cbtn" data-preset="tech">Preset · Tech / feature</button>
+            <button class="cbtn" data-preset="short">Preset · Short verticale</button>
+          </div>
+          <button class="cbtn" id="sClear">Svuota</button>
+          <div class="stime" id="sTime"></div>
+        </div>
+      <div class="strip empty" id="sStrip">Aggiungi blocchi dalla libreria per iniziare</div>
+      <svg class="senergy" id="sEnergy" viewBox="0 0 800 56" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <h3 class="slib-h">Libreria blocchi</h3>
+      <div class="slib" id="sLib"></div>
+    </div>
+  </section>
 
   <section class="glossary" id="glossary" aria-label="Glossario">
     <div class="ghead">
@@ -503,7 +685,7 @@ const FX=[
 
 {g:"ottica",tag:"play",name:"Rack focus",
  cosa:"Sposta il fuoco da un piano all'altro dentro la stessa inquadratura, guidando l'occhio.",
- gen:"Ottima coppia start/end: fuoco davanti → fuoco sul soggetto dà a Kling un movimento leggibile e pulito.",
+ gen:"Ottima coppia start/end: fuoco davanti → fuoco sul soggetto dà un movimento leggibile e pulito.",
  setup:()=>{motes.visible=false; placeDiscs(fgD,42,0.85);},
  play:{label:"Esegui pull",dur:2600,run:t=>{ setFilter("blur("+lerp(7,0,t).toFixed(1)+"px)");
    placeDiscs(fgD,42, lerp(0.85,0.85,t)); fgBokeh.style.filter="blur("+lerp(1,10,t)+"px)"; },
@@ -518,15 +700,15 @@ const FX=[
 
 {g:"ottica",tag:"slider",name:"Macro / texture",
  cosa:"Vicinissimo al soggetto: emerge la microstruttura della superficie, il vero carattere del materiale.",
- gen:"I tuoi hero di texture (la pinza Medesy) vanno girati reali — è dettaglio che l'AI non ricostruisce fedele.",
+ gen:"Gli hero di texture vanno girati reali: è dettaglio che l'AI non ricostruisce fedelmente.",
  setup:()=>{motes.visible=false;},
  slider:{label:"Avvicinamento",min:0,max:100,val:0,step:1,fmt:v=>v+"%",apply:v=>{
    camera.position.z=lerp(DEF.z,1.75,v/100); mat.bumpScale=lerp(DEF.bump,0.03,v/100); }}},
 
 /* ---- LUCE ---- */
 {g:"luce",tag:"slider",name:"Rim light — direzione",
- cosa:"Il taglio di luce che stacca il soggetto dal nero. Da destra è la firma dello studio.",
- gen:"Tieni la direzione coerente in tutte le plate: l'AI eredita la posizione della luce dai tuoi frame.",
+ cosa:"Il taglio di luce che stacca il soggetto dal nero: lo separa dal fondo senza illuminare la scena.",
+ gen:"Tieni la direzione coerente in tutte le plate: l'AI eredita la posizione della luce dai frame.",
  slider:{label:"Angolo",min:0,max:360,val:112,step:1,fmt:v=>v+"°",apply:v=>setRimAngle(v)}},
 
 {g:"luce",tag:"slider",name:"Dura vs morbida",
@@ -537,8 +719,8 @@ const FX=[
    key.intensity=lerp(0.4,0.9,s); fill.intensity=lerp(0,0.5,s); }}},
 
 {g:"luce",tag:"slider",name:"Falloff / void",
- cosa:"Quanto in fretta la luce cade nel nero. È ciò che crea la 'Rim-Lit Void' dello studio.",
- gen:"Nero pieno intorno al soggetto = area pulita dove innestare il badge o far respirare la generazione.",
+ cosa:"Quanto in fretta la luce cade nel nero: definisce quanto il fondo resta vuoto.",
+ gen:"Nero pieno intorno al soggetto = area pulita dove innestare un logo o far respirare la generazione.",
  slider:{label:"Caduta nel nero",min:0,max:100,val:70,step:1,fmt:v=>v+"%",apply:v=>{
    const s=v/100; amb.intensity=lerp(1.2,0.12,s); rim.intensity=lerp(2.6,3.4,s); }}},
 
@@ -576,7 +758,7 @@ const FX=[
 
 /* ---- FRAME ---- */
 {g:"frame",tag:"play",name:"Frame A → Frame B",
- cosa:"Il cuore di Kling: da due soli fotogrammi, l'AI inventa tutto ciò che sta in mezzo.",
+ cosa:"Il cuore del workflow: da due soli fotogrammi, l'AI inventa tutto ciò che sta in mezzo.",
  gen:"Soggetto condiviso, cambiamento controllato. Troppo delta = allucinazione; troppo poco = movimento morto.",
  setup:()=>{motes.visible=true;},
  play:{label:"Interpola A→B",dur:4200,run:t=>{
@@ -589,21 +771,21 @@ const FX=[
 
 {g:"frame",tag:"seg",name:"Composizione",
  cosa:"Dove collochi il soggetto nel quadro: regola dei terzi, centrato, spazio negativo, headroom.",
- gen:"Il soggetto centrato deriva meno in interpolazione. Lo spazio negativo è dove poi entra il badge MEDESY.",
+ gen:"Il soggetto centrato deriva meno in interpolazione. Lo spazio negativo è dove poi entra il logo.",
  seg:{opts:[{id:"thirds",label:"Terzi"},{id:"center",label:"Centrato"},{id:"neg",label:"Spazio negativo"},{id:"head",label:"Headroom"}],
    val:"center",apply:id=>setComp(id)}},
 
 /* ---- MONTAGGIO ---- */
 {g:"montaggio",tag:"play",name:"Match cut",
  cosa:"Due inquadrature diverse legate da forma o movimento condiviso: il taglio sparisce all'occhio.",
- gen:"Fai combaciare silhouette e posizione tra fine-clip A e inizio-clip B per un match invisibile in edit.",
+ gen:"Fai combaciare silhouette e posizione tra fine-clip A e inizio-clip B per un match invisibile.",
  play:{label:"Esegui match cut",dur:2600,run:t=>{ if(t<0.5){ subject.rotation.y=lerp(-0.6,-0.05,easeIO(t*2)); }
    else { flash.style.opacity=0; subject.rotation.y=lerp(0.05,0.6,easeIO((t-0.5)*2)); subject.scale.setScalar(lerp(1.25,1,easeIO((t-0.5)*2))); }
    flash.style.opacity = t>0.46&&t<0.54 ? 1 : 0; }}},
 
 {g:"montaggio",tag:"play",name:"Smear / motion blur",
  cosa:"La scia di movimento tra due pose. Dà energia ed elasticità ai cambi rapidi.",
- gen:"Utile in transizione sul drop (~17:12): la sfocatura nasconde i salti di generazione tra un take e l'altro.",
+ gen:"Utile in transizione sul drop: la sfocatura nasconde i salti di generazione tra un take e l'altro.",
  play:{label:"Esegui smear",dur:1600,run:t=>{ const b=Math.sin(t*Math.PI); setFilter("blur("+(b*14).toFixed(1)+"px)");
    subject.rotation.y=lerp(-0.7,0.5,t); },onEnd:()=>setFilter("none")}},
 
@@ -684,6 +866,424 @@ playBtn.addEventListener("click",runPlay);
 
 /* init */
 renderCats(); renderList(); selectFx(FX[0]);
+})();
+</script>
+<script>
+/* ================= COMBINAZIONI + SEQUENZA ================= */
+(function(){
+"use strict";
+const ic=s=>'<svg class="ic" viewBox="0 0 40 40">'+s+'</svg>';
+
+/* ---------- AXES ---------- */
+/* id, etichetta gruppo, opzioni:[id,label,icona,nota] */
+const AXES=[
+ {id:"luce",label:"Gioco di luce",opts:[
+  ["rim","Rim laterale",ic('<circle class="s" cx="17" cy="20" r="9"/><path class="a" d="M25 13a9 9 0 0 1 0 14" stroke-width="2.2"/>'),
+   "Un taglio di luce sul bordo separa il prodotto dal fondo senza illuminarlo: resta massa scura con un profilo incandescente."],
+  ["duo","Duo rim",ic('<circle class="s" cx="20" cy="20" r="9"/><path class="a" d="M27 14a9 9 0 0 1 0 12" stroke-width="2"/><path class="a" d="M13 14a9 9 0 0 0 0 12" stroke-width="2" opacity=".55"/>'),
+   "Due tagli opposti scolpiscono il volume da entrambi i lati e lasciano il centro in ombra: la forma si legge, il dettaglio no."],
+  ["top","Luce dall'alto",ic('<path class="a" d="M20 5v6M14 8l2 4M26 8l-2 4"/><circle class="s" cx="20" cy="24" r="8"/><path class="a" d="M14 19a8 8 0 0 1 12 0" stroke-width="2"/>'),
+   "Cade dall'alto e disegna la superficie superiore: fa da luce museale, autorevole e statica."],
+  ["under","Luce dal basso",ic('<circle class="s" cx="20" cy="17" r="8"/><path class="a" d="M14 22a8 8 0 0 0 12 0" stroke-width="2"/><path class="a" d="M20 34v-5M14 31l2-3M26 31l-2-3"/>'),
+   "Innaturale per definizione: l'occhio la registra come minaccia o come tecnologia. Usala consapevolmente."],
+  ["silhou","Controluce",ic('<circle class="s" cx="20" cy="20" r="9"/><circle class="o" cx="20" cy="20" r="9"/><path class="a" d="M20 6v3M20 31v3M34 20h-3M9 20H6M29 11l-2 2M13 27l-2 2M29 29l-2-2M13 13l-2-2"/>'),
+   "Il fondo è luce, il prodotto è nero pieno: resta solo la sagoma. Massima leggibilità della forma, zero materiale."],
+  ["grazing","Radente",ic('<path class="o" d="M6 28h28"/><path class="a" d="M6 24h28" stroke-dasharray="3 2"/><path class="a" d="M10 28c4 0 4-5 8-5s4 5 8 5"/>'),
+   "Sfiora la superficie a filo: ogni micro-rilievo proietta la propria ombra. È la luce che rivela la texture."]]},
+
+ {id:"cam",label:"Gioco di camera",opts:[
+  ["static","Statica",ic('<rect class="o" x="8" y="13" width="24" height="14" rx="2"/><circle class="af" cx="20" cy="20" r="3"/>'),
+   "Nessun movimento: tutta l'attenzione va alla forma e alla luce. Il frame più stabile in generazione."],
+  ["push","Push-in",ic('<rect class="o" x="6" y="11" width="28" height="18" rx="2"/><rect class="a" x="13" y="15" width="14" height="10" rx="1"/><path class="af" d="M20 27l-3-3h6z"/>'),
+   "Avanza lentamente: costruisce tensione senza cambiare prospettiva. Delta piccolo, ottimo per l'interpolazione."],
+  ["orbit","Orbita",ic('<ellipse class="dim" cx="20" cy="20" rx="14" ry="6"/><circle class="s" cx="20" cy="20" r="6"/><circle class="af" cx="34" cy="20" r="2.5"/>'),
+   "Gira attorno al prodotto svelandone i lati: massima informazione volumetrica, ma delta ampio da gestire a passi corti."],
+  ["truck","Carrello",ic('<circle class="s" cx="20" cy="20" r="7"/><rect class="o" x="4" y="10" width="5" height="5"/><rect class="o" x="31" y="10" width="5" height="5"/><path class="a" d="M8 33h24"/><path class="af" d="M32 33l-3-2v4z"/>'),
+   "Trasla di lato: i piani scorrono a velocità diverse e nasce la parallasse. È l'indizio di profondità più forte."],
+  ["crane","Gru / discesa",ic('<path class="a" d="M8 8v12"/><path class="af" d="M8 22l-2.5-4h5z"/><rect class="o" x="14" y="22" width="18" height="10" rx="2"/><circle class="af" cx="23" cy="27" r="2.5"/>'),
+   "Scende o sale rivelando progressivamente: il prodotto entra nel quadro dall'alto, gesto d'apertura per eccellenza."],
+  ["vertigo","Dolly zoom",ic('<circle class="s" cx="20" cy="20" r="6"/><path class="a" d="M6 8l6 6M34 8l-6 6M6 32l6-6M34 32l-6-6"/>'),
+   "Il prodotto resta identico, lo spazio dietro respira. Effetto forte ma difficile da generare pulito: costruiscilo A→B."]]},
+
+ {id:"focus",label:"Gioco di fuoco",opts:[
+  ["deep","Tutto a fuoco",ic('<circle class="af" cx="20" cy="20" r="5"/><circle class="a" cx="8" cy="20" r="3"/><circle class="a" cx="32" cy="20" r="3"/>'),
+   "Nitido dal primo all'ultimo piano: descrittivo, tecnico, catalogo. L'occhio deve trovare il soggetto da solo."],
+  ["shallow","Fuoco ridotto",ic('<circle class="af" cx="20" cy="20" r="6"/><circle class="a" cx="8" cy="20" r="4" opacity=".3"/><circle class="a" cx="32" cy="20" r="4" opacity=".3"/>'),
+   "Solo il prodotto è nitido, tutto il resto si scioglie: la scelta più diretta per imporre una gerarchia."],
+  ["rack","Rack focus",ic('<circle class="a" cx="11" cy="20" r="5" opacity=".3"/><circle class="af" cx="29" cy="20" r="5"/><path class="a" d="M18 20h5"/><path class="af" d="M24 20l-3-2v4z"/>'),
+   "Il fuoco si sposta e trascina l'occhio con sé: rivela il prodotto senza muovere la camera."],
+  ["macro","Macro",ic('<circle class="o" cx="20" cy="20" r="13"/><path class="a" d="M14 20c2-3 4-3 6 0s4 3 6 0"/><circle class="af" cx="20" cy="20" r="2"/>'),
+   "Così vicino che la superficie diventa paesaggio: è l'inquadratura che dimostra la qualità costruttiva."],
+  ["fgblur","Primo piano sfocato",ic('<circle class="af" cx="20" cy="20" r="5"/><circle class="a" cx="9" cy="14" r="6" opacity=".45"/><circle class="a" cx="31" cy="27" r="5" opacity=".45"/>'),
+   "Un elemento sfocato davanti crea profondità e voyeurismo: guardi il prodotto attraverso qualcosa."]]},
+
+ {id:"comp",label:"Gioco di composizione",opts:[
+  ["center","Centrato",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="dim" d="M20 11v18M5 20h30"/><circle class="af" cx="20" cy="20" r="4"/>'),
+   "Frontale e simmetrico: lettura immediata, tono istituzionale. Deriva pochissimo in interpolazione."],
+  ["thirds","Terzi",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="dim" d="M15 11v18M25 11v18M5 17h30M5 23h30"/><circle class="af" cx="25" cy="17" r="3.5"/>'),
+   "Fuori asse: più dinamico, lascia respiro da un lato. Il classico per l'editoriale."],
+  ["neg","Spazio negativo",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="12" cy="20" r="4"/><rect x="21" y="14" width="12" height="12" fill="#ff7950" opacity=".14" stroke="#ff7950" stroke-width="1" stroke-dasharray="2 2"/>'),
+   "Prodotto da un lato, vuoto dall'altro: il vuoto non è sprecato, è dove entrerà logo o claim."],
+  ["extreme","Fuori scala",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="26" cy="26" r="11"/>'),
+   "Il prodotto sfonda il bordo: fa sentire la sua fisicità, l'occhio ne ricostruisce il resto da solo."],
+  ["low","Contre-plongée",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="dim" d="M5 26h30"/><circle class="af" cx="20" cy="19" r="5"/><path class="a" d="M11 29l9-4 9 4"/>'),
+   "Dal basso verso l'alto: il prodotto domina lo spettatore. Il linguaggio del monumento."],
+  ["top","A picco",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="4"/><path class="dim" d="M20 11v3M20 26v3M5 20h3M32 20h3"/>'),
+   "Vista zenitale: annulla la profondità e trasforma il prodotto in grafica. Perfetta per i pattern."]]},
+
+ {id:"pri",label:"Priorità del soggetto",opts:[
+  ["hero","Hero singolo",ic('<circle class="af" cx="20" cy="20" r="8"/>'),
+   "Un solo protagonista, nessuna distrazione: la dichiarazione più semplice e più forte."],
+  ["clone","Hero + cloni",ic('<circle class="af" cx="20" cy="20" r="7"/><circle class="a" cx="8" cy="20" r="4" opacity=".4"/><circle class="a" cx="32" cy="20" r="4" opacity=".4"/>'),
+   "Il protagonista in primo piano, le repliche sfocate dietro: dice 'gamma' senza togliere gerarchia."],
+  ["grid","Pattern geometrico",ic('<circle class="a" cx="10" cy="10" r="3" opacity=".5"/><circle class="a" cx="20" cy="10" r="3" opacity=".5"/><circle class="a" cx="30" cy="10" r="3" opacity=".5"/><circle class="a" cx="10" cy="20" r="3" opacity=".5"/><circle class="af" cx="20" cy="20" r="5"/><circle class="a" cx="30" cy="20" r="3" opacity=".5"/><circle class="a" cx="10" cy="30" r="3" opacity=".5"/><circle class="a" cx="20" cy="30" r="3" opacity=".5"/><circle class="a" cx="30" cy="30" r="3" opacity=".5"/>'),
+   "Griglia regolare con un elemento che rompe lo schema: l'occhio va dove la regola si spezza."],
+  ["spiral","Spirale",ic('<path class="a" d="M20 20c0-6 8-6 8 0s-11 11-16 4-2-16 8-16 15 8 15 14"/><circle class="af" cx="20" cy="20" r="3"/>'),
+   "Le repliche si avvitano verso il centro: la composizione stessa punta il dito sul protagonista."],
+  ["vortex","Vortice",ic('<path class="a" d="M20 8a12 12 0 0 1 11 8M32 24a12 12 0 0 1-20 6M9 22a12 12 0 0 1 5-13" opacity=".7"/><circle class="af" cx="20" cy="20" r="4"/><path class="af" d="M32 15l1 5-5-1z"/>'),
+   "Movimento rotatorio attorno all'hero: energia pura, ottimo sul picco di un montaggio."],
+  ["kaleido","Caleidoscopio",ic('<path class="a" d="M20 6l12 7v14l-12 7-12-7V13z"/><path class="a" d="M20 6v28M8 13l24 14M32 13L8 27" opacity=".45"/><circle class="af" cx="20" cy="20" r="3.5"/>'),
+   "Ripetizione simmetrica su più assi: astrae il prodotto in ornamento. Bellissimo, ma perde leggibilità."],
+  ["multi","Rotazione multiasse",ic('<ellipse class="dim" cx="20" cy="20" rx="14" ry="5"/><ellipse class="dim" cx="20" cy="20" rx="5" ry="14"/><circle class="af" cx="20" cy="20" r="4"/><circle class="a" cx="34" cy="20" r="2"/><circle class="a" cx="20" cy="6" r="2"/>'),
+   "Repliche che ruotano su assi diversi: mostra ogni faccia contemporaneamente. Molto denso, tienilo corto."]]},
+
+ {id:"atmo",label:"Atmosfera",opts:[
+  ["clean","Void pulito",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="5"/>'),
+   "Nero assoluto, nessuna interferenza: chirurgico. Lascia tutta la responsabilità alla forma."],
+  ["haze","Foschia",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="a" d="M8 16h24M8 20h20M8 25h24" opacity=".4"/><circle class="af" cx="20" cy="20" r="5"/>'),
+   "L'aria diventa visibile: i raggi si vedono, lo spazio acquista profondità e il fondo smette di essere piatto."],
+  ["particle","Particelle",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="5"/><circle class="af" cx="10" cy="15" r="1"/><circle class="af" cx="30" cy="24" r="1"/><circle class="af" cx="14" cy="26" r="1"/><circle class="af" cx="28" cy="14" r="1"/>'),
+   "Pulviscolo sospeso: dà scala e vita al vuoto senza rubare la scena."],
+  ["reflect","Superficie riflettente",ic('<rect class="o" x="5" y="8" width="30" height="24"/><circle class="af" cx="20" cy="16" r="5"/><path class="dim" d="M5 21h30"/><circle class="a" cx="20" cy="26" r="5" opacity=".3"/>'),
+   "Il riflesso raddoppia il prodotto e ancora l'oggetto a un piano: smette di fluttuare nel nulla."],
+  ["smoke","Fumo",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="a" d="M9 27c3-6 7-3 9-8s7-6 9-1 5 4 4 9z" opacity=".6"/><circle class="af" cx="20" cy="20" r="4"/>'),
+   "Volume che si muove da sé: riempie il vuoto e nasconde quanto basta perché l'occhio voglia vedere di più."]]}
+];
+
+/* ---------- verdict matrix ---------- */
+const VERDICT={
+ // scoring: how much the product dominates the frame
+ luce:{rim:2,duo:2,top:1,under:1,silhou:3,grazing:2},
+ cam:{static:2,push:3,orbit:2,truck:1,crane:2,vertigo:3},
+ focus:{deep:0,shallow:3,rack:2,macro:3,fgblur:2},
+ comp:{center:3,thirds:1,neg:2,extreme:3,low:3,top:1},
+ pri:{hero:3,clone:2,grid:1,spiral:2,vortex:1,kaleido:0,multi:1},
+ atmo:{clean:3,haze:2,particle:2,reflect:2,smoke:1}
+};
+function verdict(sel){
+  let s=0; Object.keys(sel).forEach(k=>{ s+=(VERDICT[k]&&VERDICT[k][sel[k]])||0; });
+  const max=18;
+  const p=Math.round(s/max*100);
+  if(p>=78) return "Dominante ("+p+"%). Il prodotto è inequivocabilmente il soggetto: nessuna ambiguità su dove guardare. Rischio opposto — può risultare freddo. Un solo elemento d'atmosfera lo riscalda senza indebolirlo.";
+  if(p>=55) return "Protagonista ("+p+"%). Gerarchia chiara, con abbastanza contesto da restare interessante. È la zona giusta per la maggior parte degli shot di prodotto.";
+  if(p>=35) return "Integrato ("+p+"%). Il prodotto convive con lo spazio: bello da vedere, ma l'occhio ha alternative. Funziona come inquadratura d'atmosfera, non come hero.";
+  return "Diluito ("+p+"%). La composizione è più interessante del prodotto. Va bene come stacco breve o come texture di passaggio — non reggerebbe un finale.";
+}
+
+/* ---------- preview renderer ---------- */
+function preview(sel){
+  const W=239,H=100,cx=W/2,cy=H/2;
+  let defs='',bg='',sub='',fg='';
+  const A='#ff7950';
+
+  // ---- atmosphere / background
+  bg+='<rect width="'+W+'" height="'+H+'" fill="#040404"/>';
+  if(sel.atmo==="haze"){
+    defs+='<linearGradient id="hz" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+A+'" stop-opacity=".16"/><stop offset="1" stop-color="'+A+'" stop-opacity="0"/></linearGradient>';
+    bg+='<rect width="'+W+'" height="'+H+'" fill="url(#hz)"/>';
+  }
+  if(sel.atmo==="smoke"){
+    defs+='<radialGradient id="sm"><stop offset="0" stop-color="'+A+'" stop-opacity=".2"/><stop offset="1" stop-color="'+A+'" stop-opacity="0"/></radialGradient>';
+    bg+='<ellipse cx="150" cy="62" rx="70" ry="30" fill="url(#sm)"/><ellipse cx="80" cy="45" rx="50" ry="24" fill="url(#sm)" opacity=".7"/>';
+  }
+  if(sel.atmo==="particle"){
+    for(let i=0;i<26;i++){ const x=(i*97)%W, y=(i*53)%H, r=(i%3)*.3+.4;
+      bg+='<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+A+'" opacity="'+(0.2+(i%4)*0.12).toFixed(2)+'"/>'; }
+  }
+  if(sel.atmo==="reflect"){
+    bg+='<line x1="0" y1="72" x2="'+W+'" y2="72" stroke="#26262b" stroke-width=".6"/>';
+  }
+
+  // ---- subject geometry helper
+  const shape=(x,y,r,fill,op,extra)=>'<ellipse cx="'+x+'" cy="'+y+'" rx="'+r*0.62+'" ry="'+r+'" fill="'+fill+'" opacity="'+op+'"'+(extra||'')+'/>';
+
+  // base position + size from composition
+  let px=cx,py=cy,pr=22;
+  if(sel.comp==="thirds"){px=W*0.66;}
+  if(sel.comp==="neg"){px=W*0.30;}
+  if(sel.comp==="extreme"){px=W*0.62;pr=40;}
+  if(sel.comp==="low"){py=cy+4;pr=26;}
+  if(sel.comp==="top"){pr=19;}
+  if(sel.cam==="push"){pr*=1.18;}
+  if(sel.focus==="macro"){pr*=1.75;}
+  if(sel.cam==="vertigo"){pr*=1.05;}
+
+  // ---- priority / clones (behind hero)
+  const clone=(x,y,r,op)=>shape(x,y,r,"#1a1b1e",op)+'<ellipse cx="'+x+'" cy="'+y+'" rx="'+r*0.62+'" ry="'+r+'" fill="none" stroke="'+A+'" stroke-width=".5" opacity="'+(op*0.5)+'"/>';
+  if(sel.pri==="clone"){ sub+=clone(px-46,py,pr*0.66,.5)+clone(px+46,py,pr*0.66,.5); }
+  if(sel.pri==="grid"){
+    for(let r=0;r<3;r++)for(let c=0;c<7;c++){ const x=26+c*31, y=24+r*26;
+      if(Math.abs(x-px)<18&&Math.abs(y-py)<18) continue;
+      sub+=clone(x,y,7,.42); }
+  }
+  if(sel.pri==="spiral"){
+    for(let i=0;i<11;i++){ const a=i*0.72, rr=6+i*4.4;
+      sub+=clone(px+Math.cos(a)*rr*1.5, py+Math.sin(a)*rr*0.72, 3+i*0.8, .28+i*0.04); }
+  }
+  if(sel.pri==="vortex"){
+    for(let i=0;i<3;i++){ const rr=30+i*17;
+      sub+='<ellipse cx="'+px+'" cy="'+py+'" rx="'+rr*1.4+'" ry="'+rr*0.5+'" fill="none" stroke="'+A+'" stroke-width=".7" opacity="'+(.34-i*0.09)+'" transform="rotate('+(i*22-18)+' '+px+' '+py+')"/>'; }
+    for(let i=0;i<8;i++){ const a=i*0.79;
+      sub+=clone(px+Math.cos(a)*52, py+Math.sin(a)*22, 5, .34); }
+  }
+  if(sel.pri==="kaleido"){
+    for(let i=0;i<6;i++){ const a=i*Math.PI/3;
+      sub+=clone(px+Math.cos(a)*38, py+Math.sin(a)*20, 9, .46); }
+    sub+='<path d="M'+px+' '+(py-32)+'L'+(px+30)+' '+(py-14)+'L'+(px+30)+' '+(py+14)+'L'+px+' '+(py+32)+'L'+(px-30)+' '+(py+14)+'L'+(px-30)+' '+(py-14)+'Z" fill="none" stroke="'+A+'" stroke-width=".5" opacity=".35"/>';
+  }
+  if(sel.pri==="multi"){
+    sub+='<ellipse cx="'+px+'" cy="'+py+'" rx="52" ry="17" fill="none" stroke="#3a3b41" stroke-width=".6" stroke-dasharray="2 2"/>';
+    sub+='<ellipse cx="'+px+'" cy="'+py+'" rx="17" ry="38" fill="none" stroke="#3a3b41" stroke-width=".6" stroke-dasharray="2 2"/>';
+    sub+=clone(px-52,py,8,.45)+clone(px+52,py,8,.45)+clone(px,py-34,8,.35)+clone(px,py+34,8,.35);
+  }
+
+  // ---- hero
+  const heroFill = sel.luce==="silhou" ? "#050506" : "#191a1d";
+  sub+=shape(px,py,pr,heroFill,1);
+
+  // rim light per lighting choice
+  const rimPath=(dir,w,op)=>{
+    const rx=pr*0.62;
+    if(dir==="r") return '<path d="M'+(px+rx*0.15)+' '+(py-pr*0.92)+' A '+rx+' '+pr+' 0 0 1 '+(px+rx*0.15)+' '+(py+pr*0.92)+'" fill="none" stroke="'+A+'" stroke-width="'+w+'" stroke-linecap="round" opacity="'+op+'"/>';
+    if(dir==="l") return '<path d="M'+(px-rx*0.15)+' '+(py-pr*0.92)+' A '+rx+' '+pr+' 0 0 0 '+(px-rx*0.15)+' '+(py+pr*0.92)+'" fill="none" stroke="'+A+'" stroke-width="'+w+'" stroke-linecap="round" opacity="'+op+'"/>';
+    if(dir==="t") return '<path d="M'+(px-rx*0.9)+' '+(py-pr*0.4)+' A '+rx+' '+pr+' 0 0 1 '+(px+rx*0.9)+' '+(py-pr*0.4)+'" fill="none" stroke="'+A+'" stroke-width="'+w+'" stroke-linecap="round" opacity="'+op+'"/>';
+    return '<path d="M'+(px-rx*0.9)+' '+(py+pr*0.4)+' A '+rx+' '+pr+' 0 0 0 '+(px+rx*0.9)+' '+(py+pr*0.4)+'" fill="none" stroke="'+A+'" stroke-width="'+w+'" stroke-linecap="round" opacity="'+op+'"/>';
+  };
+  if(sel.luce==="rim")     sub+=rimPath("r",2.4,1);
+  if(sel.luce==="duo")     sub+=rimPath("r",2,1)+rimPath("l",1.6,.6);
+  if(sel.luce==="top")     sub+=rimPath("t",2.2,.95);
+  if(sel.luce==="under")   sub+=rimPath("b",2.2,.95);
+  if(sel.luce==="grazing"){
+    sub+=rimPath("r",1.4,.7);
+    for(let i=0;i<5;i++){ const yy=py-pr*0.7+i*(pr*0.35);
+      sub+='<path d="M'+(px-pr*0.4)+' '+yy+' q '+(pr*0.4)+' 3 '+(pr*0.8)+' 0" fill="none" stroke="'+A+'" stroke-width=".6" opacity=".5"/>'; }
+  }
+  if(sel.luce==="silhou"){
+    defs+='<radialGradient id="bl2"><stop offset="0" stop-color="'+A+'" stop-opacity=".75"/><stop offset="1" stop-color="'+A+'" stop-opacity="0"/></radialGradient>';
+    bg+='<circle cx="'+px+'" cy="'+py+'" r="46" fill="url(#bl2)"/>';
+    sub=bg.slice(bg.indexOf('<circle cx="'+px))+sub; // ensure glow behind
+  }
+  // reflection
+  if(sel.atmo==="reflect"&&py+pr<72){
+    sub+='<g opacity=".22" transform="translate(0,'+(2*72)+') scale(1,-1)">'+shape(px,py,pr,heroFill,1)+rimPath("r",2,.8)+'</g>';
+  }
+
+  // ---- focus treatment
+  if(sel.focus==="shallow"||sel.focus==="rack"||sel.focus==="fgblur"){
+    defs+='<filter id="bf"><feGaussianBlur stdDeviation="2.4"/></filter>';
+  }
+  if(sel.focus==="fgblur"){
+    fg+='<circle cx="34" cy="76" r="26" fill="'+A+'" opacity=".16" filter="url(#bf)"/>';
+    fg+='<circle cx="208" cy="20" r="20" fill="'+A+'" opacity=".12" filter="url(#bf)"/>';
+  }
+  if(sel.focus==="macro"){
+    fg+='<circle cx="'+px+'" cy="'+py+'" r="'+(pr*0.5)+'" fill="none" stroke="'+A+'" stroke-width=".5" stroke-dasharray="3 2" opacity=".5"/>';
+  }
+  if(sel.focus==="rack"){
+    fg+='<circle cx="40" cy="52" r="13" fill="'+A+'" opacity=".14" filter="url(#bf)"/>';
+    fg+='<path d="M58 52h'+(px-pr*0.62-64)+'" stroke="'+A+'" stroke-width=".6" stroke-dasharray="3 2" opacity=".6"/>';
+  }
+
+  // ---- camera cues
+  if(sel.cam==="push"){
+    fg+='<rect x="'+(px-pr*1.5)+'" y="'+(py-pr*1.25)+'" width="'+(pr*3)+'" height="'+(pr*2.5)+'" fill="none" stroke="'+A+'" stroke-width=".5" stroke-dasharray="3 2" opacity=".55"/>';
+    fg+='<path d="M'+(px)+' '+(py+pr*1.6)+'l-3-4h6z" fill="'+A+'" opacity=".7"/>';
+  }
+  if(sel.cam==="orbit"){
+    fg+='<ellipse cx="'+px+'" cy="'+py+'" rx="'+(pr*2.2)+'" ry="'+(pr*0.7)+'" fill="none" stroke="'+A+'" stroke-width=".5" stroke-dasharray="3 2" opacity=".5"/>';
+    fg+='<circle cx="'+(px+pr*2.2)+'" cy="'+py+'" r="2" fill="'+A+'" opacity=".8"/>';
+  }
+  if(sel.cam==="truck"){
+    fg+='<path d="M40 '+(H-11)+'h160" stroke="'+A+'" stroke-width=".6" opacity=".55"/>';
+    fg+='<path d="M200 '+(H-11)+'l-4-2.5v5z" fill="'+A+'" opacity=".8"/>';
+  }
+  if(sel.cam==="crane"){
+    fg+='<path d="M'+(px)+' 8v'+(py-pr-12)+'" stroke="'+A+'" stroke-width=".6" stroke-dasharray="3 2" opacity=".55"/>';
+    fg+='<path d="M'+px+' '+(py-pr-6)+'l-2.5-4h5z" fill="'+A+'" opacity=".8"/>';
+  }
+  if(sel.cam==="vertigo"){
+    fg+='<path d="M14 14l16 12M225 14l-16 12M14 86l16-12M225 86l-16-12" stroke="'+A+'" stroke-width=".6" opacity=".5"/>';
+  }
+
+  // ---- composition overlays
+  if(sel.comp==="thirds") fg+='<path d="M79.6 0v100M159.3 0v100M0 33.3h239M0 66.6h239" stroke="rgba(255,255,255,.14)" stroke-width=".4"/>';
+  if(sel.comp==="center") fg+='<path d="M119.5 0v100M0 50h239" stroke="'+A+'" stroke-width=".4" stroke-dasharray="2 2" opacity=".45"/>';
+  if(sel.comp==="neg")    fg+='<rect x="152" y="30" width="72" height="42" fill="'+A+'" fill-opacity=".07" stroke="'+A+'" stroke-width=".5" stroke-dasharray="2 2"/><text x="156" y="42" fill="'+A+'" font-family="ui-monospace,monospace" font-size="4" letter-spacing=".1em">AREA LOGO</text>';
+  if(sel.comp==="low")    fg+='<path d="M0 78h239" stroke="rgba(255,255,255,.12)" stroke-width=".4"/>';
+  if(sel.comp==="top")    fg+='<path d="M'+px+' 6v8M'+px+' 86v8M'+(px-38)+' 50h8M'+(px+30)+' 50h8" stroke="'+A+'" stroke-width=".4" opacity=".4"/>';
+
+  // vignette
+  defs+='<radialGradient id="vg2" cx="50%" cy="46%"><stop offset="55%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".7"/></radialGradient>';
+  fg+='<rect width="'+W+'" height="'+H+'" fill="url(#vg2)"/>';
+
+  const blurAttr = (sel.focus==="shallow") ? '' : '';
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice"><defs>'+defs+'</defs>'+bg+sub+fg+'</svg>';
+}
+
+/* ---------- combo wiring ---------- */
+const cAxes=document.getElementById("cAxes"), cPrev=document.getElementById("cprev"),
+      cNotes=document.getElementById("cNotes"), cVerdict=document.getElementById("cVerdict"),
+      cRecipe=document.getElementById("cRecipe");
+const sel={};
+AXES.forEach(ax=>{ sel[ax.id]=ax.opts[0][0]; });
+
+AXES.forEach(ax=>{
+  const g=document.createElement("div"); g.className="cgrp";
+  const h=document.createElement("h3"); h.className="cgrp-h"; h.textContent=ax.label; g.appendChild(h);
+  const o=document.createElement("div"); o.className="copts";
+  ax.opts.forEach(op=>{
+    const b=document.createElement("button"); b.className="copt"; b.type="button";
+    b.setAttribute("aria-pressed", op[0]===sel[ax.id]);
+    b.innerHTML=op[2]; const lb=document.createElement("span"); lb.textContent=op[1]; b.appendChild(lb);
+    b.onclick=()=>{ sel[ax.id]=op[0];
+      [...o.children].forEach(x=>x.setAttribute("aria-pressed", x===b)); render(); };
+    o.appendChild(b);
+  });
+  g.appendChild(o); cAxes.appendChild(g);
+});
+
+function render(){
+  cPrev.innerHTML=preview(sel);
+  cNotes.innerHTML="";
+  AXES.forEach(ax=>{
+    const op=ax.opts.find(o=>o[0]===sel[ax.id]); if(!op) return;
+    const d=document.createElement("div"); d.className="cnote";
+    const l=document.createElement("div"); l.className="lbl"; l.textContent=ax.label+" · "+op[1];
+    const t=document.createElement("div"); t.className="txt"; t.textContent=op[3];
+    d.appendChild(l); d.appendChild(t); cNotes.appendChild(d);
+  });
+  cVerdict.textContent=verdict(sel);
+  cRecipe.innerHTML="RICETTA · "+AXES.map(ax=>{
+    const op=ax.opts.find(o=>o[0]===sel[ax.id]); return "<b>"+op[1]+"</b>"; }).join(" · ");
+}
+document.getElementById("cRand").onclick=()=>{
+  AXES.forEach(ax=>{ sel[ax.id]=ax.opts[Math.floor(Math.random()*ax.opts.length)][0]; });
+  cAxes.querySelectorAll(".cgrp").forEach((g,i)=>{
+    g.querySelectorAll(".copt").forEach((b,j)=>b.setAttribute("aria-pressed", AXES[i].opts[j][0]===sel[AXES[i].id]));
+  });
+  render();
+};
+document.getElementById("cReset").onclick=()=>{
+  AXES.forEach(ax=>{ sel[ax.id]=ax.opts[0][0]; });
+  cAxes.querySelectorAll(".cgrp").forEach((g,i)=>{
+    g.querySelectorAll(".copt").forEach((b,j)=>b.setAttribute("aria-pressed", j===0));
+  });
+  render();
+};
+render();
+
+/* ================= SEQUENZA ================= */
+const sIc=s=>'<svg viewBox="0 0 40 40">'+s+'</svg>';
+/* id, nome, desc, durata(s), energia 0-1, icona */
+const BLOCKS=[
+ ["dark","Penombra totale","Il prodotto è lì ma non si vede: solo un accenno di volume nel nero.",2.5,.08,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse cx="20" cy="21" rx="5" ry="7" fill="#131316"/>')],
+ ["shapereveal","Macro shape reveal","La rim light accende un bordo: emerge una forma, non ancora un oggetto.",3,.22,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse cx="20" cy="21" rx="5" ry="7" fill="#131316"/><path class="a" d="M24 15a7 7 0 0 1 0 12" stroke-width="2"/>')],
+ ["macro","Dettaglio macro","Superficie a tutto quadro: texture, finitura, qualità costruttiva.",2.5,.32,
+  sIc('<circle class="o" cx="20" cy="20" r="12"/><path class="a" d="M13 20c2-3 5-3 7 0s5 3 7 0"/><circle class="af" cx="20" cy="20" r="2"/>')],
+ ["form","Dettaglio forma","Ci si allarga quel tanto che basta per capire la geometria.",2.5,.4,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M20 13l8 5v8l-8 5-8-5v-8z"/>')],
+ ["feature","Dettaglio feature","Il particolare che giustifica il prezzo: meccanismo, giunzione, marchio.",3,.45,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><circle class="a" cx="20" cy="21" r="7"/><path class="af" d="M20 17l1.5 3H25l-2.6 2 1 3.4L20 23.6 16.6 25.4l1-3.4L15 20h3.5z"/>')],
+ ["full","Product full","Prima volta intero nel quadro: il pay-off di tutto il reveal.",3.5,.6,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="20" cy="21" rx="4" ry="7"/>')],
+ ["variant","Variant reveal","Le versioni entrano in scena: gamma, colori, taglie.",3,.55,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="13" cy="21" rx="2.5" ry="5" opacity=".5"/><ellipse class="af" cx="20" cy="21" rx="3" ry="6"/><ellipse class="af" cx="27" cy="21" rx="2.5" ry="5" opacity=".5"/>')],
+ ["exploded","Exploded view","Il prodotto si scompone a mezz'aria: dice ingegneria senza una parola.",3,.5,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="20" cy="21" rx="3" ry="4"/><path class="a" d="M20 14v-2M20 28v2M11 21h-2M29 21h2" opacity=".8"/><ellipse class="a" cx="20" cy="9" rx="3" ry="1.5"/><ellipse class="a" cx="20" cy="33" rx="3" ry="1.5"/>')],
+ ["fx","Effetto speciale","Particelle, energia, morph: il momento puramente emozionale.",2,.75,
+  sIc('<path class="af" d="M20 7l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/><circle class="af" cx="31" cy="12" r="1.5"/><circle class="af" cx="10" cy="28" r="1.5"/>')],
+ ["info","Infografica","Numeri e callout: l'unico blocco che parla alla testa, non alla pancia.",3,.35,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><circle class="af" cx="14" cy="21" r="3"/><path class="a" d="M20 18h11M20 22h8M20 26h11"/>')],
+ ["drop","Drop / hero","Il picco: il prodotto arriva sul colpo di cassa, tutto converge qui.",2.5,1,
+  sIc('<path class="a" d="M6 26c5 0 6-3 10-3s4 3 4 3" opacity=".7"/><path class="a" d="M20 26l3-14 3 14" stroke-width="2.2"/><path class="a" d="M26 26c4 0 5 4 8 4" opacity=".7"/><circle class="af" cx="23" cy="12" r="2.5"/>')],
+ ["pattern","Pattern / vortice","Repliche in movimento: energia grafica pura, ottima dopo il drop.",2,.8,
+  sIc('<circle class="af" cx="20" cy="20" r="3"/><path class="a" d="M20 8a12 12 0 0 1 11 8M31 24a12 12 0 0 1-19 6M9 22a12 12 0 0 1 5-13" opacity=".75"/>')],
+ ["logo","Logo / badge","Il marchio atterra nello spazio negativo lasciato apposta.",2,.45,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><rect class="af" x="13" y="17" width="14" height="7" rx="1"/>')],
+ ["claim","Claim / payoff","Una riga di testo. Se il video ha funzionato, qui non serve altro.",2,.3,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M12 19h16M14 24h12" stroke-width="1.8"/>')],
+ ["outro","Outro / fade","Ritorno al nero: il prodotto se ne va come è arrivato.",2,.12,
+  sIc('<defs><linearGradient id="og" x1="0" x2="1"><stop offset="0" stop-color="#ff7950"/><stop offset="1" stop-color="#060606"/></linearGradient></defs><rect x="6" y="12" width="28" height="17" rx="1" fill="url(#og)"/>')],
+ ["credits","Crediti","Chi ha fatto cosa. Breve, piccolo, fuori dal centro.",2.5,.06,
+  sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M13 17h14M13 20h9M13 23h11M13 26h6" opacity=".6"/>')],
+];
+const PRESETS={
+ reveal:["dark","shapereveal","macro","form","feature","full","fx","drop","logo","outro"],
+ tech:["dark","macro","feature","exploded","info","full","variant","drop","claim","credits"],
+ short:["shapereveal","macro","drop","pattern","full","logo"]
+};
+
+const sStrip=document.getElementById("sStrip"), sLib=document.getElementById("sLib"),
+      sEnergy=document.getElementById("sEnergy"), sTime=document.getElementById("sTime");
+let TL=[];
+const B=id=>BLOCKS.find(b=>b[0]===id);
+
+BLOCKS.forEach(b=>{
+  const c=document.createElement("button"); c.className="scard"; c.type="button";
+  c.innerHTML=b[5]+'<div class="tx"><div class="nm">'+b[1]+'</div><div class="ds">'+b[2]+'</div><div class="du">'+b[3].toFixed(1)+'s</div></div>';
+  c.onclick=()=>{ TL.push(b[0]); drawTL(); };
+  sLib.appendChild(c);
+});
+
+let dragIdx=null;
+function drawTL(){
+  sStrip.innerHTML=""; sStrip.classList.toggle("empty", TL.length===0);
+  if(!TL.length){ sStrip.textContent="Aggiungi blocchi dalla libreria per iniziare"; drawEnergy(); return; }
+  TL.forEach((id,i)=>{
+    const b=B(id); if(!b) return;
+    const d=document.createElement("div"); d.className="sblk"; d.draggable=true; d.dataset.i=i;
+    d.innerHTML=b[5]+'<div class="nm">'+b[1]+'</div><button class="x" aria-label="Rimuovi">×</button>';
+    d.querySelector(".x").onclick=e=>{ e.stopPropagation(); TL.splice(i,1); drawTL(); };
+    d.addEventListener("dragstart",()=>{ dragIdx=i; d.classList.add("drag"); });
+    d.addEventListener("dragend",()=>{ dragIdx=null; d.classList.remove("drag");
+      sStrip.querySelectorAll(".sblk").forEach(x=>x.classList.remove("over")); });
+    d.addEventListener("dragover",e=>{ e.preventDefault(); d.classList.add("over"); });
+    d.addEventListener("dragleave",()=>d.classList.remove("over"));
+    d.addEventListener("drop",e=>{ e.preventDefault();
+      if(dragIdx===null||dragIdx===i) return;
+      const m=TL.splice(dragIdx,1)[0]; TL.splice(i,0,m); drawTL(); });
+    sStrip.appendChild(d);
+  });
+  drawEnergy();
+}
+function drawEnergy(){
+  const W=800,H=56;
+  const tot=TL.reduce((s,id)=>s+(B(id)?B(id)[3]:0),0);
+  sTime.innerHTML="DURATA · <b>"+tot.toFixed(1)+"s</b> · "+TL.length+" blocchi";
+  if(TL.length<2){ sEnergy.innerHTML='<text x="12" y="32" fill="#5c5c61" font-family="ui-monospace,monospace" font-size="9">curva di energia — aggiungi almeno 2 blocchi</text>'; return; }
+  let acc=0; const pts=TL.map(id=>{ const b=B(id); const x=(acc/tot)*W; acc+=b[3];
+    return [x+(b[3]/tot)*W/2, H-6-(b[4]*(H-16))]; });
+  let d='M'+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+  for(let i=1;i<pts.length;i++){ const p=pts[i-1],c=pts[i], mx=(p[0]+c[0])/2;
+    d+=' C'+mx.toFixed(1)+' '+p[1].toFixed(1)+','+mx.toFixed(1)+' '+c[1].toFixed(1)+','+c[0].toFixed(1)+' '+c[1].toFixed(1); }
+  let g='<defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7950" stop-opacity=".28"/><stop offset="1" stop-color="#ff7950" stop-opacity="0"/></linearGradient></defs>';
+  g+='<path d="'+d+' L'+W+' '+H+' L0 '+H+' Z" fill="url(#eg)"/>';
+  g+='<path d="'+d+'" fill="none" stroke="#ff7950" stroke-width="1.6"/>';
+  pts.forEach(p=>{ g+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.2" fill="#ff7950"/>'; });
+  // peak marker
+  let pk=0; TL.forEach((id,i)=>{ if(B(id)[4]>B(TL[pk])[4]) pk=i; });
+  g+='<line x1="'+pts[pk][0].toFixed(1)+'" y1="4" x2="'+pts[pk][0].toFixed(1)+'" y2="'+H+'" stroke="#ff7950" stroke-width=".6" stroke-dasharray="2 2" opacity=".55"/>';
+  g+='<text x="'+(pts[pk][0]+4).toFixed(1)+'" y="11" fill="#ff7950" font-family="ui-monospace,monospace" font-size="7" letter-spacing=".1em">PICCO</text>';
+  sEnergy.innerHTML=g;
+}
+document.querySelectorAll("[data-preset]").forEach(b=>{
+  b.onclick=()=>{ TL=PRESETS[b.dataset.preset].slice();
+    document.querySelectorAll("[data-preset]").forEach(x=>x.classList.toggle("pri",x===b)); drawTL(); };
+});
+document.getElementById("sClear").onclick=()=>{ TL=[]; drawTL(); };
+TL=PRESETS.reveal.slice(); drawTL();
 })();
 </script>
 <script>
@@ -879,7 +1479,7 @@ const DOMAINS=[
  ["comp","Composizione","Dove metti le cose dentro il quadro, e perché. Vale identico in ripresa, in 3D e in generazione."],
  ["edit","Montaggio","Come le inquadrature si susseguono e con che ritmo. Il dominio in cui il materiale diventa racconto."],
  ["vfx","VFX & Compositing","Fondere elementi di origine diversa — ripresa, CGI, matte — in un'immagine unica e credibile."],
- ["morph","Morphing & Interpolazione","Come si passa con continuità da uno stato all'altro. È il principio matematico esatto su cui lavora Kling."],
+ ["morph","Morphing & Interpolazione","Come si passa con continuità da uno stato all'altro. È il principio matematico esatto su cui lavora il modello."],
  ["color","Color","Correzione tecnica prima, look creativo poi. Il dominio che decide l'atmosfera finale del pezzo."],
  ["sfx","SFX & Suono","Effetti pratici, imperfezioni ottiche e tutto il livello sonoro che dà peso alle immagini."],
  ["ai","Pipeline AI","Il vocabolario specifico del nostro workflow: come nasce, si guida e si controlla una generazione."],
@@ -902,7 +1502,7 @@ const G=[
 ["3d","Shading","Shader","material",`Il programma che definisce come una superficie appare sotto la luce.`,"shader"],
 ["3d","Shading","PBR","physically based rendering",`Resa fisicamente accurata: il materiale reagisce alla luce come farebbe nel mondo reale.`,"metal"],
 ["3d","Shading","Albedo","base color",`Il colore puro del materiale, privo di qualsiasi luce o ombra.`,"albedo"],
-["3d","Shading","Roughness","",`Quanto la superficie è ruvida o lucida. Controlla la nitidezza dei riflessi — il vostro graphite è ~0.5.`,"rough"],
+["3d","Shading","Roughness","",`Quanto la superficie è ruvida o lucida. Controlla la nitidezza dei riflessi.`,"rough"],
 ["3d","Shading","Metalness","",`Definisce se il materiale si comporta da metallo oppure no. Non esistono vie di mezzo fisiche.`,"metal"],
 ["3d","Shading","Subsurface scattering","SSS",`La luce penetra e si diffonde dentro materiali translucidi: pelle, cera, marmo, latte.`,"sss"],
 ["3d","Rigging","Rigging","",`Costruire lo 'scheletro' di controlli che permette di animare un modello.`,"rig"],
@@ -926,7 +1526,7 @@ const G=[
 ["camera","Fuoco","Rack focus","focus pull",`Spostare il fuoco da un piano all'altro dentro la stessa inquadratura.`,"rack"],
 ["camera","Luce","Rim / Key / Fill","",`Luce di taglio che stacca dal fondo / luce principale / luce di riempimento delle ombre.`,"rimlight"],
 ["camera","Luce","Luce motivata","motivated light",`Luce che sembra provenire da una fonte reale presente nella scena.`,"rimlight"],
-["camera","Luce","Falloff","",`La rapidità con cui la luce cade nel buio. È esattamente ciò che crea la Rim-Lit Void.`,"falloff"],
+["camera","Luce","Falloff","",`La rapidità con cui la luce cade nel buio: è ciò che crea il fondo nero pieno.`,"falloff"],
 ["camera","Esposizione","ISO / Shutter","",`Sensibilità del sensore / tempo di esposizione. Con l'apertura formano il triangolo espositivo.`,"exposure"],
 ["camera","Esposizione","Frame rate","fps",`Fotogrammi al secondo. Determina fluidità e possibilità di slow-motion.`,"fps"],
 ["camera","Movimento","Parallasse","parallax",`I piani scorrono a velocità diverse quando la camera trasla: è l'indizio di profondità più forte.`,"parallax"],
@@ -936,7 +1536,7 @@ const G=[
 ["comp","Griglie","Regola dei terzi","rule of thirds",`Dividere il quadro in terzi e posizionare il soggetto sulle linee o sugli incroci.`,"thirds"],
 ["comp","Griglie","Sezione aurea","golden ratio",`Proporzione classica per una composizione naturalmente armoniosa.`,"golden"],
 ["comp","Griglie","Simmetria / Equilibrio","balance",`Come è distribuito il peso visivo dentro il quadro.`,"balance"],
-["comp","Spazio","Spazio negativo","negative space",`Il vuoto attorno al soggetto: dà respiro e lascia posto (es. al badge MEDESY).`,"negspace"],
+["comp","Spazio","Spazio negativo","negative space",`Il vuoto attorno al soggetto: dà respiro e lascia posto a logo o testo.`,"negspace"],
 ["comp","Spazio","Headroom","",`Lo spazio lasciato sopra la testa o la cima del soggetto.`,"headroom"],
 ["comp","Spazio","Lead room","nose room",`Spazio davanti alla direzione di sguardo o di movimento del soggetto.`,"leadroom"],
 ["comp","Spazio","Safe area","",`La zona sicura entro cui tenere gli elementi importanti dell'inquadratura.`,"safe"],
@@ -961,7 +1561,7 @@ const G=[
 ["edit","Tempo","Fermo immagine","freeze frame",`Blocco su un singolo fotogramma mentre il tempo si ferma.`,"freeze"],
 ["edit","Ritmo","Ritmo","pacing",`La velocità percepita del montato, guidata dalla durata dei singoli tagli.`,"pacing"],
 ["edit","Ritmo","Sync al beat","beat sync",`Tagliare a tempo di musica, allineando gli stacchi ai colpi del brano.`,"beat"],
-["edit","Ritmo","Drop","",`Il picco di energia del brano dove parte la sequenza clou — nel vostro edit ~17:12.`,"drop"],
+["edit","Ritmo","Drop","",`Il picco di energia del brano dove parte la sequenza clou del montaggio.`,"drop"],
 ["edit","Suono nel montaggio","J-cut","",`L'audio della scena successiva entra prima delle sue immagini.`,"jcut"],
 ["edit","Suono nel montaggio","L-cut","",`L'audio della scena precedente prosegue sopra le immagini della successiva.`,"lcut"],
 ["edit","Materiale","B-roll","",`Materiale di contorno usato per coprire tagli o arricchire il racconto.`,"broll"],
@@ -984,7 +1584,7 @@ const G=[
 ["vfx","Costruire l'ambiente","Digital double","",`Copia 3D di un oggetto o persona, per le scene difficili o impossibili.`,"digidbl"],
 ["vfx","Blending","Blend mode","metodo di fusione",`Il modo in cui due livelli si combinano matematicamente tra loro.`,"blend"],
 ["vfx","Blending","Multiply","",`Scurisce moltiplicando i valori. Utile per ombre e per incastrare elementi nel fondo.`,"multiply"],
-["vfx","Blending","Screen","",`Schiarisce. Ideale per luci, bagliori e fumo su fondo scuro — il vostro void.`,"screen"],
+["vfx","Blending","Screen","",`Schiarisce. Ideale per luci, bagliori e fumo su fondo scuro.`,"screen"],
 ["vfx","Blending","Overlay","",`Aumenta il contrasto combinando multiply e screen in un colpo solo.`,"overlay"],
 ["vfx","Blending","Add","linear dodge",`Somma i valori luminosi. Perfetto per luci additive e flare.`,"add"],
 ["vfx","Blending","Soft light","",`Contrasto morbido, come una luce diffusa proiettata sul livello sotto.`,"softl"],
@@ -999,7 +1599,7 @@ const G=[
 ["morph","Trasformazione","Warp","mesh warp",`Deformare immagine o mesh spostandone i punti di controllo.`,"warp"],
 ["morph","Analisi del movimento","Optical flow","",`Analisi del movimento pixel per pixel. Base di molte interpolazioni e slow-motion.`,"flow"],
 ["morph","Analisi del movimento","Frame blending","",`Fondere fotogrammi adiacenti per morbidezza o per rallentare.`,"frameb"],
-["morph","Principio","Interpolazione","interpolation",`Generare i valori intermedi tra due stati noti. È il principio esatto di Kling (A→B).`,"interp"],
+["morph","Principio","Interpolazione","interpolation",`Generare i valori intermedi tra due stati noti. È il principio esatto dell'interpolazione A→B.`,"interp"],
 ["morph","Principio","Lerp / Slerp","",`Interpolazione lineare / sferica tra due valori o due rotazioni.`,"lerp"],
 ["morph","Animazione","Keyframe","",`Fotogramma chiave che fissa un valore. Il software calcola tutti quelli in mezzo.`,"keyframe"],
 ["morph","Animazione","In-between","tween",`I fotogrammi intermedi generati automaticamente tra due keyframe.`,"tween"],
@@ -1049,12 +1649,12 @@ const G=[
 ["ai","Generazione","t2v","text-to-video",`Generare un video dal solo prompt testuale, senza immagine di partenza.`,"t2v"],
 ["ai","Generazione","Prompt","",`Le istruzioni testuali che descrivono cosa e come generare.`,"prompt"],
 ["ai","Generazione","Seed","",`Numero che fissa la casualità. Stesso seed e stesso prompt = risultato ripetibile.`,"seed"],
-["ai","Generazione","Take","generazione",`Un singolo tentativo di output. Su Kling costa ~7–8 crediti l'uno.`,"take"],
+["ai","Generazione","Take","generazione",`Un singolo tentativo di generazione. Ogni take consuma crediti, quindi si pianifica prima.`,"take"],
 ["ai","Generazione","Denoise / Steps","",`Quanti passaggi l'AI compie per 'pulire' e definire progressivamente l'immagine.`,"steps"],
-["ai","Controllo","Start / End frame","",`I due fotogrammi che guidano l'interpolazione: il cuore del workflow Kling.`,"startend"],
+["ai","Controllo","Start / End frame","",`I due fotogrammi che guidano l'interpolazione: il cuore del workflow start/end frame.`,"startend"],
 ["ai","Controllo","Interpolazione AI","",`L'AI inventa tutti i fotogrammi tra lo start e l'end frame.`,"aiinterp"],
-["ai","Input","Plate di riferimento","reference plate",`La ripresa reale del cliente usata come base della generazione.`,"refplate"],
-["ai","Input","Composite plate","",`Il montaggio Photoshop delle plate che alimenta la generazione Kling.`,"compplate"],
+["ai","Input","Plate di riferimento","reference plate",`La ripresa reale usata come base della generazione.`,"refplate"],
+["ai","Input","Composite plate","",`Il montaggio delle plate in un'unica immagine che alimenta la generazione.`,"compplate"],
 ["ai","Problemi noti","Coerenza temporale","temporal coherence",`Quanto l'output resta stabile nel tempo, senza saltellare tra un frame e l'altro.`,"temporal"],
 ["ai","Problemi noti","Allucinazione","hallucination",`L'AI inventa dettagli errati o incoerenti. Spesso per troppo delta tra frame A e B.`,"halluc"],
 ["ai","Problemi noti","Sfarfallio","flicker",`Variazioni indesiderate di luce o dettaglio tra fotogrammi consecutivi.`,"flicker"],
@@ -1136,15 +1736,24 @@ function filter(){
 gsearch.addEventListener("input",filter);
 filter();
 
-/* mode switch */
-const app=document.querySelector(".app"), mB=document.getElementById("mBench"), mG=document.getElementById("mGloss");
-function setMode(gloss){
-  app.classList.toggle("gloss", gloss); window.__glossOpen=gloss;
-  mB.setAttribute("aria-pressed", !gloss); mG.setAttribute("aria-pressed", gloss);
-  if(gloss){ document.getElementById("glossary").scrollTop=0;
-    if(matchMedia("(min-width:901px)").matches) setTimeout(()=>gsearch.focus(),60); }
+/* mode switch — 4 views */
+const app=document.querySelector(".app");
+const BTN={bench:"mBench",combo:"mCombo",seq:"mSeq",gloss:"mGloss"};
+function setMode(m){
+  app.classList.remove("gloss","combo","seq");
+  if(m!=="bench") app.classList.add(m);
+  window.__glossOpen = (m!=="bench");   // pause 3D render off the bench
+  Object.keys(BTN).forEach(k=>{
+    const b=document.getElementById(BTN[k]); if(b) b.setAttribute("aria-pressed", k===m);
+  });
+  const host = m==="gloss"?"glossary": m==="combo"?"combo": m==="seq"?"seq":null;
+  if(host){ const el=document.getElementById(host); if(el) el.scrollTop=0; }
+  if(m==="gloss" && matchMedia("(min-width:901px)").matches) setTimeout(()=>gsearch.focus(),60);
+  window.scrollTo(0,0);
 }
-mB.onclick=()=>setMode(false); mG.onclick=()=>setMode(true);
+Object.keys(BTN).forEach(k=>{
+  const b=document.getElementById(BTN[k]); if(b) b.onclick=()=>setMode(k);
+});
 })();
 </script>
 </body>
