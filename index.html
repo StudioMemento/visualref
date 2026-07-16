@@ -610,22 +610,40 @@
   }
 
   /* ---- Frame A/B tabs ---- */
-  .abtabs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:0 0 20px;
-    border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
-  .abtab{appearance:none;border:0;border-right:1px solid var(--line);background:transparent;
-    cursor:pointer;padding:14px 16px;display:flex;flex-direction:column;gap:4px;
-    align-items:flex-start;position:relative;text-align:left;font-family:inherit;
-    transition:background .16s var(--ease)}
-  .abtab:last-child{border-right:0}
-  .abtab:hover{background:var(--panel-2)}
-  .abtab .k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--txt-3);font-weight:700;transition:color .16s var(--ease)}
-  .abtab .v{font-size:12px;color:var(--txt-3);transition:color .16s var(--ease)}
-  .abtab[aria-selected="true"]{background:#17130f}
-  .abtab[aria-selected="true"] .k{color:var(--accent)}
-  .abtab[aria-selected="true"] .v{color:var(--txt)}
-  .abtab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;
-    height:2px;background:var(--accent)}
+  /* ---- FRAME · dual A|B columns (no tabs) ---- */
+  .abcols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 26px;align-items:start}
+  .abcol{border:1px solid var(--line);border-radius:11px;background:var(--panel);
+    padding:12px;min-width:0;transition:border-color .16s var(--ease)}
+  .abcol[data-side="A"]{border-color:#2a2118}
+  .abcol[data-side="B"]{border-color:#2a2118}
+  .abcol-h{display:flex;align-items:baseline;gap:9px;margin:0 0 10px;padding-bottom:9px;
+    border-bottom:1px solid var(--line)}
+  .abcol-h .k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--accent);font-weight:700}
+  .abcol-h .v{font-size:11.5px;color:var(--txt-3);min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .abcol .cprev{margin-bottom:12px;border-radius:8px}
+  .abcol .cgrp{margin-bottom:14px}
+  .abcol .cgrp:last-child{margin-bottom:0}
+  .abcol .copts{grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:5px}
+  .abcol .copt{padding:8px 4px 7px;font-size:10.5px;gap:4px}
+  .abcol .copt .ic{width:30px;height:30px}
+  .abcol-tools{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .abcol-tools .cbtn{padding:6px 10px;font-size:10.5px}
+  @media(max-width:900px){
+    .abcols{grid-template-columns:1fr;gap:12px}
+  }
+
+  /* ---- COMP · per-axis lock for selective randomize ---- */
+  .cgrp-h{position:relative}
+  .cgrp-h .lock{appearance:none;border:1px solid var(--line);background:var(--panel);
+    border-radius:6px;cursor:pointer;padding:0;width:24px;height:24px;flex:none;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:var(--txt-3);transition:all .15s var(--ease);margin-left:2px}
+  .cgrp-h .lock:hover{border-color:var(--line-2);color:var(--txt-2)}
+  .cgrp-h .lock[aria-pressed="true"]{border-color:var(--accent);background:#17130f;color:var(--accent)}
+  .cgrp-h .lock svg{width:12px;height:12px;display:block}
+  .cgrp.locked .copts{opacity:.42}
 </style>
 </head>
 <body>
@@ -701,6 +719,7 @@
       <div class="cprev" id="cprev"></div>
       <div class="cprev-bar">
         <button class="cbtn pri" id="cRand">Combinazione casuale</button>
+        <button class="cbtn" id="cRandSel">Casuale selettiva</button>
         <button class="cbtn" id="cReset">Azzera</button>
         <div class="crecipe" id="cRecipe"></div>
       </div>
@@ -719,16 +738,30 @@
       <div class="cprev" id="prevMix"></div>
       <div class="cprev-bar">
         <button class="cbtn pri" id="abPlay">Riproduci A → B</button>
+        <button class="cbtn" id="abRand">Coppia casuale</button>
         <button class="cbtn" id="abCopy">Copia A in B</button>
         <div class="crecipe" id="abRecipe"></div>
       </div>
-      <div class="abtabs" role="tablist" aria-label="Frame">
-        <button class="abtab" id="tabA" role="tab" aria-selected="true">
-          <span class="k">Frame A</span><span class="v" id="tabAv"></span></button>
-        <button class="abtab" id="tabB" role="tab" aria-selected="false">
-          <span class="k">Frame B</span><span class="v" id="tabBv"></span></button>
+      <div class="abcols">
+        <div class="abcol" data-side="A">
+          <div class="abcol-h"><span class="k">Frame A</span><span class="v" id="tabAv"></span></div>
+          <div class="cprev" id="prevA"></div>
+          <div class="abcol-tools">
+            <button class="cbtn" id="aRand">Casuale</button>
+            <button class="cbtn" id="aReset">Azzera</button>
+          </div>
+          <div id="abAxesA"></div>
+        </div>
+        <div class="abcol" data-side="B">
+          <div class="abcol-h"><span class="k">Frame B</span><span class="v" id="tabBv"></span></div>
+          <div class="cprev" id="prevB"></div>
+          <div class="abcol-tools">
+            <button class="cbtn" id="bRand">Casuale</button>
+            <button class="cbtn" id="bReset">Azzera</button>
+          </div>
+          <div id="abAxesB"></div>
+        </div>
       </div>
-      <div id="abAxes"></div>
       <div class="cread">
         <h3>Delta A → B</h3>
         <div class="creadgrid"><div id="abNotes"></div>
@@ -1543,13 +1576,37 @@ function verdict(sel){
   return "Diluito ("+p+"%). La composizione è più interessante del prodotto. Va bene come stacco breve o come texture di passaggio — non reggerebbe un finale.";
 }
 const recipe=sel=>AXES.map(ax=>optOf(ax.id,sel[ax.id])[1]).join(" · ");
+/* randomize sel in place; axes whose id is truthy in `skip` keep their value */
+function randomize(sel, skip){
+  skip=skip||{};
+  AXES.forEach(a=>{ if(skip[a.id]) return;
+    sel[a.id]=a.opts[Math.floor(Math.random()*a.opts.length)][0]; });
+  return sel;
+}
 
 /* ---------------- axis UI builder ---------------- */
-function buildAxes(host, sel, onChange){
+/* opts.locks : if passed, each axis header gets a lock toggle writing into locks[ax.id] */
+function buildAxes(host, sel, onChange, opts){
+  opts=opts||{};
   host.innerHTML="";
   AXES.forEach(ax=>{
-    const g=document.createElement("div"); g.className="cgrp";
-    const hd=document.createElement("h3"); hd.className="cgrp-h"; hd.textContent=ax.label; g.appendChild(hd);
+    const g=document.createElement("div"); g.className="cgrp"; g.dataset.ax=ax.id;
+    const hd=document.createElement("h3"); hd.className="cgrp-h"; hd.textContent=ax.label;
+    if(opts.locks){
+      const lk=document.createElement("button"); lk.className="lock"; lk.type="button";
+      lk.dataset.ax=ax.id;
+      lk.title="Blocca questo asse: la casuale selettiva lo salta";
+      lk.setAttribute("aria-label","Blocca "+ax.label);
+      const paint=()=>{ const on=!!opts.locks[ax.id];
+        lk.setAttribute("aria-pressed",String(on));
+        g.classList.toggle("locked",on);
+        lk.innerHTML=on
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>'; };
+      lk.onclick=()=>{ opts.locks[ax.id]=!opts.locks[ax.id]; paint(); if(opts.onLock) opts.onLock(); };
+      paint(); hd.appendChild(lk);
+    }
+    g.appendChild(hd);
     const o=document.createElement("div"); o.className="copts";
     ax.opts.forEach(op=>{
       const b=document.createElement("button"); b.className="copt"; b.type="button";
@@ -1580,7 +1637,7 @@ function notes(host, sel){
    NOTE: `view`, `paint` and `start` must exist before any renderX() runs, otherwise the
    first render hits the temporal dead zone and the view never paints.              */
 let view="bench", t0=performance.now(), running=false;
-let cvC=null, cvM=null;                     /* assigned by the views below */
+let cvC=null, cvM=null, cvA=null, cvB=null; /* assigned by the views below */
 let selC=null, selA=null, selB=null;
 let abT=0, abPlaying=false;
 
@@ -1590,6 +1647,10 @@ function paint(time){
     const pA=params(selA), pB=params(selB);
     const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
     draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time);
+    /* the two column previews: each frame shown at its own end of the interpolation,
+       so a change to either axis grid is visible immediately without switching tabs */
+    if(cvA) draw(cvA, selA, pA, time);
+    if(cvB) draw(cvB, selB, pB, time);
   }
 }
 function tick(now){
@@ -1622,13 +1683,22 @@ function renderC(){
   window.__lastComposition=Object.assign({},selC);
   if(window.__repaint) window.__repaint();
 }
-buildAxes(document.getElementById("cAxes"), selC, renderC);
+const cLocks={};                       /* axis id -> true = frozen, skipped by selective random */
+const cAxesHost=document.getElementById("cAxes");
+function cSelBtnLabel(){
+  const n=AXES.filter(a=>!cLocks[a.id]).length;
+  const b=document.getElementById("cRandSel");
+  if(b){ b.textContent="Casuale selettiva ("+n+")"; b.disabled=(n===0); }
+}
+buildAxes(cAxesHost, selC, renderC, {locks:cLocks, onLock:cSelBtnLabel});
+cSelBtnLabel();
 document.getElementById("cRand").onclick=()=>{
-  AXES.forEach(a=>selC[a.id]=a.opts[Math.floor(Math.random()*a.opts.length)][0]);
-  syncAxes(document.getElementById("cAxes"),selC); renderC(); };
+  randomize(selC); syncAxes(cAxesHost,selC); renderC(); };
+document.getElementById("cRandSel").onclick=()=>{
+  randomize(selC, cLocks); syncAxes(cAxesHost,selC); renderC(); };
 document.getElementById("cReset").onclick=()=>{
   AXES.forEach(a=>selC[a.id]=a.opts[0][0]);
-  syncAxes(document.getElementById("cAxes"),selC); renderC(); };
+  syncAxes(cAxesHost,selC); renderC(); };
 (function(){ let n=1; AXES.forEach(a=>n*=a.opts.length);
   const el=document.getElementById("cCount"); if(el) el.textContent=n.toLocaleString("it-IT"); })();
 renderC();
@@ -1639,12 +1709,12 @@ selA={}; selB={};
 AXES.forEach(a=>{ selA[a.id]=a.opts[0][0]; selB[a.id]=a.opts[0][0]; });
 selB.cam="push"; selB.comp="extreme";
 cvM=makeCanvas(document.getElementById("prevMix"));
+cvA=makeCanvas(document.getElementById("prevA"));
+cvB=makeCanvas(document.getElementById("prevB"));
 const abNotes=document.getElementById("abNotes"), abVerdict=document.getElementById("abVerdict"),
       abRecipe=document.getElementById("abRecipe");
-const tabA=document.getElementById("tabA"), tabB=document.getElementById("tabB"),
-      tabAv=document.getElementById("tabAv"), tabBv=document.getElementById("tabBv");
-let editing="A";
-const curSel=()=>editing==="A"?selA:selB;
+const tabAv=document.getElementById("tabAv"), tabBv=document.getElementById("tabBv");
+const abHostA=document.getElementById("abAxesA"), abHostB=document.getElementById("abAxesB");
 
 function delta(){ let d=0; AXES.forEach(ax=>{ if(selA[ax.id]!==selB[ax.id]) d++; }); return d; }
 function abVerdictTxt(){
@@ -1672,26 +1742,38 @@ function renderAB(){
   abRecipe.innerHTML="A → B · <b>"+delta()+"</b> assi in movimento";
   tabAv.textContent=optOf("cam",selA.cam)[1]+" · "+optOf("comp",selA.comp)[1];
   tabBv.textContent=optOf("cam",selB.cam)[1]+" · "+optOf("comp",selB.comp)[1];
-  tabA.setAttribute("aria-selected", String(editing==="A"));
-  tabB.setAttribute("aria-selected", String(editing==="B"));
   window.__lastAB={A:Object.assign({},selA),B:Object.assign({},selB)};
   if(window.__repaint) window.__repaint();
 }
-const abHost=document.getElementById("abAxes");
-buildAxes(abHost, selA, renderAB);
-function rewireAB(){
-  abHost.querySelectorAll(".copt").forEach(b=>{
-    b.onclick=()=>{ curSel()[b.dataset.ax]=b.dataset.op; syncAxes(abHost,curSel());
-      abT = editing==="A"?0:1; abPlaying=false; renderAB(); start(); };
+/* Both grids are live at once: editing A parks the mix at t=0 so the change is
+   visible in the big player, editing B parks it at t=1. No tab switching. */
+function onEditA(){ abT=0; abPlaying=false; renderAB(); start(); }
+function onEditB(){ abT=1; abPlaying=false; renderAB(); start(); }
+buildAxes(abHostA, selA, onEditA);
+buildAxes(abHostB, selB, onEditB);
+
+document.getElementById("aRand").onclick=()=>{ randomize(selA); syncAxes(abHostA,selA); onEditA(); };
+document.getElementById("bRand").onclick=()=>{ randomize(selB); syncAxes(abHostB,selB); onEditB(); };
+document.getElementById("aReset").onclick=()=>{ AXES.forEach(a=>selA[a.id]=a.opts[0][0]);
+  syncAxes(abHostA,selA); onEditA(); };
+document.getElementById("bReset").onclick=()=>{ AXES.forEach(a=>selB[a.id]=a.opts[0][0]);
+  syncAxes(abHostB,selB); onEditB(); };
+/* pair random: keep the delta in the workable 2-3 axis band instead of rolling
+   both frames independently (which lands on delta 5-6 almost every time) */
+document.getElementById("abRand").onclick=()=>{
+  randomize(selA);
+  AXES.forEach(a=>selB[a.id]=selA[a.id]);
+  const pool=AXES.slice(), pick=[];
+  while(pick.length<3 && pool.length) pick.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  pick.forEach(ax=>{
+    const others=ax.opts.filter(o=>o[0]!==selA[ax.id]);
+    if(others.length) selB[ax.id]=others[Math.floor(Math.random()*others.length)][0];
   });
-  syncAxes(abHost,curSel());
-}
-rewireAB();
-function setEditing(t){ editing=t; abT=(t==="A"?0:1); abPlaying=false; rewireAB(); renderAB(); start(); }
-tabA.onclick=()=>setEditing("A");
-tabB.onclick=()=>setEditing("B");
+  syncAxes(abHostA,selA); syncAxes(abHostB,selB);
+  abT=0; abPlaying=false; renderAB(); start();
+};
 document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]);
-  syncAxes(abHost,curSel()); renderAB(); };
+  syncAxes(abHostB,selB); renderAB(); start(); };
 document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
 renderAB();
 start();
