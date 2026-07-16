@@ -24,17 +24,17 @@
     --ease:cubic-bezier(.22,.61,.36,1);
   }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:var(--void);color:var(--txt);
+  html{overflow-x:hidden}
+  body{margin:0;background:var(--void);color:var(--txt);
     font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
-    max-width:100%;overflow-x:hidden;overflow-y:auto}
-  body{overscroll-behavior:none}
+    overflow-x:hidden}
   img,svg,canvas{max-width:100%}
 
   .app{
     display:grid;min-height:100dvh;width:100%;max-width:100%;
     grid-template-columns:minmax(0,1fr);
-    grid-template-rows:auto auto auto;
-    grid-template-areas:"top" "panel" "main";
+    grid-template-rows:auto auto;
+    grid-template-areas:"top" "main";
   }
   .app>*{min-width:0}
 
@@ -47,21 +47,19 @@
   .brand svg{height:13px;width:auto;display:block;fill:var(--txt)}
 
   /* ---------- Left panel ---------- */
-  .panel{grid-area:panel;background:var(--void);display:flex;min-height:0;
-    padding:16px 22px 0;justify-content:center}
-  .cats{display:flex;flex-direction:row;gap:0;padding:0;width:100%;max-width:1500px;
-    border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+
+  .selector{border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;
+    background:var(--panel);overflow:hidden;flex:none}
+  .cats{display:flex;flex-direction:row;gap:0;border-bottom:1px solid var(--line)}
   .cat{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
-    background:transparent;cursor:pointer;padding:12px 10px 11px;position:relative;
+    background:transparent;cursor:pointer;padding:11px 10px 10px;position:relative;
     display:flex;align-items:center;justify-content:center;
-    font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
     color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     transition:background .16s var(--ease),color .16s var(--ease)}
   .cat:last-child{border-right:0}
   .cat:hover{background:var(--panel-2);color:var(--txt-2)}
-  .cat[aria-expanded="true"]{background:var(--panel-2);color:var(--txt)}
-  .cat[aria-expanded="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;
-    height:2px;background:var(--accent)}
+  .cat[aria-expanded="true"]{color:var(--accent);background:#17130f}
   .cat .chev{display:none}
   .cat:hover{background:var(--panel-2);color:var(--txt)}
   .cat[aria-expanded="true"]{color:var(--txt)}
@@ -84,7 +82,7 @@
 
   /* ---------- Main / stage ---------- */
   .main{grid-area:main;min-width:0;display:flex;flex-direction:column;
-    padding:14px 22px 60px;gap:0;max-width:1500px;margin:0 auto;width:100%}
+    padding:18px 22px 60px;gap:0;max-width:1500px;margin:0 auto;width:100%}
   .stage{position:relative;width:100%;aspect-ratio:16/9;flex:none;margin:0 auto;
     background:radial-gradient(120% 140% at 62% 42%,#0a0a0b 0%,#040404 70%);
     border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none;
@@ -169,7 +167,7 @@
 
   /* ---------- Responsive ---------- */
   @media (max-width:900px){
-    html,body{overflow-x:hidden;overflow-y:auto;width:100%}
+    html,body{overflow-x:hidden;width:100%}
     .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;
       grid-template-areas:"top" "panel" "main";height:auto;min-height:100dvh;width:100%}
     /* logo centred, nav bar underneath */
@@ -223,10 +221,10 @@
 
   /* ---------- Glossary ---------- */
   .glossary{grid-area:main;min-width:0;overflow-x:hidden;display:none;background:var(--void)}
-  .app.v-gloss .panel,.app.v-gloss .main{display:none}
-  .app.v-combo .panel,.app.v-combo .main{display:none}
-  .app.v-seq .panel,.app.v-seq .main{display:none}
-  .app.v-comb2 .panel,.app.v-comb2 .main{display:none}
+  .app.v-gloss .main{display:none}
+  .app.v-combo .main{display:none}
+  .app.v-seq .main{display:none}
+  .app.v-comb2 .main{display:none}
   .glossary::-webkit-scrollbar{width:11px}
   .glossary::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:11px;border:3px solid var(--void)}
   .ghead{position:sticky;top:0;z-index:5;background:var(--void);
@@ -496,9 +494,10 @@
   /* ---- composizione full ---- */
   .cfull{padding:20px 24px 60px;max-width:1500px;margin:0 auto}
   .cread{margin-top:34px;border-top:1px solid var(--line-2);padding-top:20px}
-  .creadgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start}
-  .creadgrid #cNotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;grid-column:1/-1}
-  .cverdict{grid-column:1/-1}
+  .creadgrid{display:block}
+  .creadgrid #cNotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:auto auto;gap:16px 20px;margin-bottom:18px}
+  #abNotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 20px;margin-bottom:18px}
   /* ---- timeline tracks ---- */
   .tracks{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);margin-bottom:8px}
   .trk{display:flex;align-items:stretch;border-bottom:1px solid var(--line);min-height:76px}
@@ -571,7 +570,11 @@
   .scard .du{font-family:var(--mono);font-size:8.5px;color:var(--txt-3);letter-spacing:.04em;min-height:11px}
   .scard.open{height:auto;min-height:104px}
   .scard.open .ds{display:block;font-size:9.5px;color:var(--txt-3);line-height:1.35;margin-top:3px}
+  @media (max-width:1100px){
+    .creadgrid #cNotes,#abNotes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
   @media (max-width:900px){
+    .creadgrid #cNotes,#abNotes{grid-template-columns:minmax(0,1fr)}
     .cfull{padding:14px 14px 40px}
     .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
     .trkh{width:52px;font-size:8px;padding:0 7px}
@@ -579,8 +582,7 @@
   }
 
   /* ---- demo selector above the player ---- */
-  .demobar{display:flex;gap:0;border:1px solid var(--line);border-bottom:0;
-    border-radius:12px 12px 0 0;background:var(--panel);overflow:hidden;flex:none}
+  .demobar{display:flex;gap:0;background:transparent;overflow:hidden}
   .demo{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
     background:transparent;cursor:pointer;padding:13px 10px 12px;
     display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;
@@ -597,7 +599,7 @@
   .demo[aria-selected="true"] .t{color:var(--txt)}
   .demo[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;
     height:2px;background:var(--accent)}
-  .demobar+.stage{border-radius:0;border-top:0}
+  .selector+.stage{border-radius:0;border-top:0}
   @media (max-width:900px){
     .demobar{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .demobar::-webkit-scrollbar{display:none}
@@ -622,12 +624,13 @@
     <div class="spacer"></div>
   </header>
 
-  <aside class="panel">
-    <div class="cats" id="cats" role="tablist" aria-label="Categorie"></div>
-  </aside>
+
 
   <main class="main">
-    <div class="demobar" id="demobar" role="tablist" aria-label="Demo"></div>
+    <div class="selector">
+      <div class="cats" id="cats" role="tablist" aria-label="Categorie"></div>
+      <div class="demobar" id="demobar" role="tablist" aria-label="Demo"></div>
+    </div>
 
     <div class="stage" id="stage">
       <div class="layer" id="bgBokeh"></div>
