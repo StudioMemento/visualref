@@ -52,14 +52,16 @@
     background:var(--panel);overflow:hidden;flex:none}
   .cats{display:flex;flex-direction:row;gap:0;border-bottom:1px solid var(--line)}
   .cat{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
-    background:transparent;cursor:pointer;padding:11px 10px 10px;position:relative;
+    background:transparent;cursor:pointer;padding:16px 12px 15px;position:relative;
     display:flex;align-items:center;justify-content:center;
-    font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
     color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     transition:background .16s var(--ease),color .16s var(--ease)}
   .cat:last-child{border-right:0}
   .cat:hover{background:var(--panel-2);color:var(--txt-2)}
   .cat[aria-expanded="true"]{color:var(--accent);background:#17130f}
+  .cat[aria-expanded="true"]::before{content:"";position:absolute;left:0;right:0;top:0;
+    height:2px;background:var(--accent)}
   .cat .chev{display:none}
   .cat:hover{background:var(--panel-2);color:var(--txt)}
   .cat[aria-expanded="true"]{color:var(--txt)}
@@ -366,7 +368,7 @@
 
   /* ---------- Sequenza ---------- */
   .swrap{padding:22px 24px 70px;max-width:1500px;margin:0 auto}
-  .slead{font-size:14.5px;color:var(--txt-2);line-height:1.6;max-width:720px;margin:0 0 18px}
+  .slead{font-size:14.5px;color:var(--txt-2);line-height:1.6;max-width:none;margin:0 0 18px}
   .slead b{color:var(--txt);font-weight:600}
   .sbar{display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap}
   .spresets{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
@@ -454,8 +456,8 @@
   .sblk .th svg{width:28px;height:28px}
   .sblk .dur{font-family:var(--mono);font-size:8px;color:var(--txt-3);letter-spacing:.06em;margin-top:2px}
   .sblk.sel{background:#17130f;box-shadow:inset 0 0 0 1px var(--accent)}
-  .sblk.t-trans{flex:0 0 62px;background:#0f0c09}
-  .sblk.t-audio{flex:0 0 74px;background:#0a0d11}
+  .sblk.t-trans{flex:0 0 78px;background:#0f0c09}
+  .sblk.t-audio{flex:0 0 92px;background:#0a0d11}
   .sblk.t-audio .nm,.sblk.t-trans .nm{font-size:7.5px}
   /* ---- recipe ---- */
   .srec{border:1px solid var(--line);border-radius:10px;background:var(--panel);
@@ -500,40 +502,40 @@
   #abNotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 20px;margin-bottom:18px}
   /* ---- timeline tracks ---- */
   .tracks{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);margin-bottom:8px}
-  .trk{display:flex;align-items:stretch;border-bottom:1px solid var(--line);min-height:76px}
+  .trk{display:flex;align-items:stretch;border-bottom:1px solid var(--line);min-height:104px}
   .trk:last-child{border-bottom:0}
-  .trkh{flex:none;width:74px;display:flex;align-items:center;gap:7px;padding:0 11px;
-    font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--txt-3);
+  .trkh{flex:none;width:92px;display:flex;align-items:center;gap:8px;padding:0 13px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--txt-2);font-weight:700;
     background:var(--panel-2);border-right:1px solid var(--line)}
   .trkh .dot{width:6px;height:6px;border-radius:50%;flex:none}
   .trkh .dot.s{background:var(--accent)}
   .trkh .dot.t{background:#c98a5e}
   .trkh .dot.a{background:#6a90b8}
-  .trkl{flex:1;min-width:0;display:flex;gap:3px;padding:6px;overflow-x:auto;align-items:center;
+  .trkl{flex:1;min-width:0;display:flex;gap:5px;padding:9px;overflow-x:auto;align-items:center;
     scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .trkl::-webkit-scrollbar{display:none}
   .trkl.dragover{background:#17130f;box-shadow:inset 0 0 0 1px var(--accent-dim)}
   .trkl:empty::after{content:"trascina qui";font-size:11px;color:var(--txt-3);font-style:italic;
     align-self:center;padding-left:6px}
-  .clip{flex:none;width:88px;border:1px solid var(--line-2);border-radius:7px;background:var(--panel-2);
-    padding:5px;cursor:grab;position:relative;display:flex;flex-direction:column;gap:3px;
+  .clip{flex:none;width:112px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel-2);
+    padding:7px;cursor:grab;position:relative;display:flex;flex-direction:column;gap:5px;
     transition:border-color .15s var(--ease),background .15s var(--ease)}
   .clip:hover{border-color:var(--txt-3)}
   .clip.sel{border-color:var(--accent);background:#17130f}
   .clip.drag{opacity:.35}
   .clip.over{box-shadow:inset 3px 0 0 var(--accent)}
-  .clip .th{height:30px;border-radius:4px;background:#08080a;display:flex;align-items:center;
+  .clip .th{height:44px;border-radius:5px;background:#08080a;display:flex;align-items:center;
     justify-content:center;overflow:hidden}
   .clip .th img{width:100%;height:100%;object-fit:cover}
-  .clip .th svg{width:22px;height:22px}
+  .clip .th svg{width:30px;height:30px}
   .clip .s{fill:#1f2024}.clip .o{fill:none;stroke:#3a3b41;stroke-width:1.4}
   .clip .a{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round}
   .clip .af{fill:var(--accent)}.clip .dim{fill:none;stroke:#3a3b41;stroke-width:1;stroke-dasharray:2 2}
-  .clip .nm{font-size:8px;font-weight:600;color:var(--txt-2);line-height:1.2;
+  .clip .nm{font-size:9.5px;font-weight:600;color:var(--txt-2);line-height:1.25;
     overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .clip .dur{display:flex;align-items:center;gap:2px}
   .clip .dur input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-2);
-    color:var(--accent);font:600 9px "Inter",sans-serif;text-align:center;padding:1px 0;outline:none}
+    color:var(--accent);font:600 11px "Inter",sans-serif;text-align:center;padding:2px 0;outline:none}
   .clip .dur input:focus{border-color:var(--accent)}
   .clip .x{position:absolute;top:2px;right:2px;width:14px;height:14px;border:0;border-radius:3px;
     background:rgba(6,6,6,.8);color:var(--txt-3);cursor:pointer;font-size:11px;line-height:1;padding:0;
@@ -577,20 +579,19 @@
     .creadgrid #cNotes,#abNotes{grid-template-columns:minmax(0,1fr)}
     .cfull{padding:14px 14px 40px}
     .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .trkh{width:52px;font-size:8px;padding:0 7px}
+    .trkh{width:58px;font-size:9px;padding:0 8px}
     .scard{flex:0 0 calc(33.333% - 4.7px);width:auto;height:102px}
   }
 
   /* ---- demo selector above the player ---- */
   .demobar{display:flex;gap:0;background:transparent;overflow:hidden}
   .demo{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
-    background:transparent;cursor:pointer;padding:13px 10px 12px;
+    background:transparent;cursor:pointer;padding:11px 10px 10px;
     display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;
     transition:background .16s var(--ease)}
   .demo:last-child{border-right:0}
   .demo:hover{background:var(--panel-2)}
-  .demo .n{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--txt-3);
-    transition:color .16s var(--ease)}
+  .demo .n{display:none}
   .demo .t{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
     color:var(--txt-3);line-height:1.25;text-align:center;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:color .16s var(--ease)}
@@ -606,6 +607,24 @@
     .demo{flex:0 0 auto;min-width:104px;padding:11px 12px 10px}
     .demo .t{font-size:10.5px}
   }
+
+  /* ---- Frame A/B tabs ---- */
+  .abtabs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:0 0 20px;
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  .abtab{appearance:none;border:0;border-right:1px solid var(--line);background:transparent;
+    cursor:pointer;padding:14px 16px;display:flex;flex-direction:column;gap:4px;
+    align-items:flex-start;position:relative;text-align:left;font-family:inherit;
+    transition:background .16s var(--ease)}
+  .abtab:last-child{border-right:0}
+  .abtab:hover{background:var(--panel-2)}
+  .abtab .k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--txt-3);font-weight:700;transition:color .16s var(--ease)}
+  .abtab .v{font-size:12px;color:var(--txt-3);transition:color .16s var(--ease)}
+  .abtab[aria-selected="true"]{background:#17130f}
+  .abtab[aria-selected="true"] .k{color:var(--accent)}
+  .abtab[aria-selected="true"] .v{color:var(--txt)}
+  .abtab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;
+    height:2px;background:var(--accent)}
 </style>
 </head>
 <body>
@@ -694,32 +713,24 @@
 
   <section class="comb2" id="comb2" aria-label="Frame">
     <div class="cfull">
-      <p class="clead">Due fotogrammi, A e B: l'AI inventa tutto ciò che sta in mezzo.</p>
-      <div class="abrow">
-        <div class="abcell">
-          <div class="ablab">Frame A <span>partenza</span></div>
-          <div class="cprev" id="prevA"></div>
-        </div>
-        <div class="abcell">
-          <div class="ablab">Frame B <span>arrivo</span></div>
-          <div class="cprev" id="prevB"></div>
-        </div>
-      </div>
-      <div class="ablab" style="margin:20px 0 8px">Interpolazione <span>anteprima</span></div>
+      <p class="clead">Due fotogrammi, <b>A</b> e <b>B</b>: l'AI inventa tutto ciò che sta in mezzo.</p>
       <div class="cprev" id="prevMix"></div>
       <div class="cprev-bar">
         <button class="cbtn pri" id="abPlay">Riproduci A → B</button>
-        <button class="cbtn" id="abEdit" data-t="A">Stai modificando: <b style="color:var(--accent)">A</b></button>
         <button class="cbtn" id="abCopy">Copia A in B</button>
         <div class="crecipe" id="abRecipe"></div>
+      </div>
+      <div class="abtabs" role="tablist" aria-label="Frame">
+        <button class="abtab" id="tabA" role="tab" aria-selected="true">
+          <span class="k">Frame A</span><span class="v" id="tabAv"></span></button>
+        <button class="abtab" id="tabB" role="tab" aria-selected="false">
+          <span class="k">Frame B</span><span class="v" id="tabBv"></span></button>
       </div>
       <div id="abAxes"></div>
       <div class="cread">
         <h3>Delta A → B</h3>
-        <div class="creadgrid">
-          <div id="abNotes"></div>
-          <div class="cverdict"><div class="lbl">Generabilità</div><div class="txt" id="abVerdict"></div></div>
-        </div>
+        <div class="creadgrid"><div id="abNotes"></div>
+        <div class="cverdict"><div class="lbl">Generabilità</div><div class="txt" id="abVerdict"></div></div></div>
       </div>
     </div>
   </section>
@@ -1132,8 +1143,7 @@ function buildNav(f){
   navList.forEach((x,i)=>{
     const b=document.createElement("button"); b.className="demo"; b.type="button";
     b.setAttribute("aria-selected", x===f);
-    b.innerHTML='<span class="n">'+String(i+1).padStart(2,"0")+'</span>'+
-                '<span class="t">'+x.name+'</span>';
+    b.innerHTML='<span class="t">'+x.name+'</span>';
     b.onclick=()=>{ if(x!==activeFx) selectFx(x); };
     demobar.appendChild(b);
   });
@@ -1586,22 +1596,20 @@ document.getElementById("cReset").onclick=()=>{
   const el=document.getElementById("cCount"); if(el) el.textContent=n.toLocaleString("it-IT"); })();
 renderC();
 
-/* ================= VIEW 2 · COMBINAZIONE (A→B) ================= */
+/* ================= VIEW 2 · FRAME (A→B) ================= */
+/* Structural clone of VIEW 1: ONE canvas, one axis grid, one readout. */
 const selA={}, selB={};
 AXES.forEach(a=>{ selA[a.id]=a.opts[0][0]; selB[a.id]=a.opts[0][0]; });
 selB.cam="push"; selB.comp="extreme";
-const cvA=makeCanvas(document.getElementById("prevA")),
-      cvB=makeCanvas(document.getElementById("prevB")),
-      cvM=makeCanvas(document.getElementById("prevMix"));
+const cvM=makeCanvas(document.getElementById("prevMix"));
 const abNotes=document.getElementById("abNotes"), abVerdict=document.getElementById("abVerdict"),
-      abRecipe=document.getElementById("abRecipe"), abEdit=document.getElementById("abEdit");
+      abRecipe=document.getElementById("abRecipe");
+const tabA=document.getElementById("tabA"), tabB=document.getElementById("tabB"),
+      tabAv=document.getElementById("tabAv"), tabBv=document.getElementById("tabBv");
 let editing="A", abT=0, abPlaying=false;
 const curSel=()=>editing==="A"?selA:selB;
 
-function delta(){
-  let d=0; AXES.forEach(ax=>{ if(selA[ax.id]!==selB[ax.id]) d++; });
-  return d;
-}
+function delta(){ let d=0; AXES.forEach(ax=>{ if(selA[ax.id]!==selB[ax.id]) d++; }); return d; }
 function abVerdictTxt(){
   const d=delta();
   if(d===0) return "Delta zero. I due frame sono identici: l'AI non ha niente da interpolare e restituirà un fermo immagine. Cambia almeno un asse.";
@@ -1625,21 +1633,28 @@ function renderAB(){
   });
   abVerdict.textContent=abVerdictTxt();
   abRecipe.innerHTML="A → B · <b>"+delta()+"</b> assi in movimento";
-  abEdit.innerHTML='Stai modificando: <b style="color:var(--accent)">'+editing+'</b>';
+  tabAv.textContent=optOf("cam",selA.cam)[1]+" · "+optOf("comp",selA.comp)[1];
+  tabBv.textContent=optOf("cam",selB.cam)[1]+" · "+optOf("comp",selB.comp)[1];
+  tabA.setAttribute("aria-selected", String(editing==="A"));
+  tabB.setAttribute("aria-selected", String(editing==="B"));
   window.__lastAB={A:Object.assign({},selA),B:Object.assign({},selB)};
   if(window.__repaint) window.__repaint();
 }
-buildAxes(document.getElementById("abAxes"), selA, ()=>{ renderAB(); });
+const abHost=document.getElementById("abAxes");
+buildAxes(abHost, selA, renderAB);
 function rewireAB(){
-  const host=document.getElementById("abAxes");
-  host.querySelectorAll(".copt").forEach(b=>{
-    b.onclick=()=>{ curSel()[b.dataset.ax]=b.dataset.op; syncAxes(host,curSel()); renderAB(); };
+  abHost.querySelectorAll(".copt").forEach(b=>{
+    b.onclick=()=>{ curSel()[b.dataset.ax]=b.dataset.op; syncAxes(abHost,curSel());
+      abT = editing==="A"?0:1; abPlaying=false; renderAB(); };
   });
-  syncAxes(host,curSel());
+  syncAxes(abHost,curSel());
 }
 rewireAB();
-abEdit.onclick=()=>{ editing = editing==="A"?"B":"A"; rewireAB(); renderAB(); };
-document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]); syncAxes(document.getElementById("abAxes"),curSel()); renderAB(); };
+function setEditing(t){ editing=t; abT=(t==="A"?0:1); abPlaying=false; rewireAB(); renderAB(); }
+tabA.onclick=()=>setEditing("A");
+tabB.onclick=()=>setEditing("B");
+document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]);
+  syncAxes(abHost,curSel()); renderAB(); };
 document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
 renderAB();
 
@@ -1929,7 +1944,6 @@ function paint(time){
   if(view==="combo"){ draw(cvC, selC, params(selC), time); }
   else if(view==="comb2"){
     const pA=params(selA), pB=params(selB);
-    draw(cvA, selA, pA, time); draw(cvB, selB, pB, time);
     const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
     draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time);
   }
