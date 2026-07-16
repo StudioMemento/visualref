@@ -50,7 +50,7 @@
 
   .selector{border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;
     background:var(--panel);overflow:hidden;flex:none}
-  .cats{display:flex;flex-direction:row;gap:0;border-bottom:1px solid var(--line)}
+  .cats{display:flex;flex-direction:row;gap:0}
   .cat{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
     background:transparent;cursor:pointer;padding:16px 12px 15px;position:relative;
     display:flex;align-items:center;justify-content:center;
@@ -130,7 +130,7 @@
   .row.gen .k{color:var(--txt-3);font-weight:500}
   .row.gen .v{color:var(--txt-2);font-size:15px;font-weight:400}
 
-  .stagectl{flex:none;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;
+  .stagectl{flex:none;border:1px solid var(--line);border-top:1px solid var(--line);border-radius:0 0 12px 12px;
     background:var(--panel);padding:14px 18px;margin-top:-13px;
     display:flex;flex-direction:column;gap:12px}
   .stagectl:empty{display:none}
@@ -584,7 +584,8 @@
   }
 
   /* ---- demo selector above the player ---- */
-  .demobar{display:flex;gap:0;background:transparent;overflow:hidden}
+  .demobar{display:flex;gap:0;background:var(--panel);overflow:hidden;flex:none;
+    border-left:1px solid var(--line);border-right:1px solid var(--line)}
   .demo{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
     background:transparent;cursor:pointer;padding:11px 10px 10px;
     display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;
@@ -598,7 +599,7 @@
   .demo[aria-selected="true"]{background:var(--panel-2)}
   .demo[aria-selected="true"] .n{color:var(--accent)}
   .demo[aria-selected="true"] .t{color:var(--txt)}
-  .demo[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;
+  .demo[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;top:0;
     height:2px;background:var(--accent)}
   .selector+.stage{border-radius:0;border-top:0}
   @media (max-width:900px){
@@ -648,7 +649,6 @@
   <main class="main">
     <div class="selector">
       <div class="cats" id="cats" role="tablist" aria-label="Categorie"></div>
-      <div class="demobar" id="demobar" role="tablist" aria-label="Demo"></div>
     </div>
 
     <div class="stage" id="stage">
@@ -668,6 +668,8 @@
       <div class="layer" id="flash"></div>
       <div class="fkey" id="fkey"></div>
     </div>
+
+    <div class="demobar" id="demobar" role="tablist" aria-label="Demo"></div>
 
     <div class="stagectl" id="stagectl">
       <div class="sldwrap" id="sldwrap">
@@ -1574,9 +1576,44 @@ function notes(host, sel){
     d.appendChild(l); d.appendChild(t); host.appendChild(d); });
 }
 
+/* ---------------- animation loop (declared BEFORE the views that use it) ----------------
+   NOTE: `view`, `paint` and `start` must exist before any renderX() runs, otherwise the
+   first render hits the temporal dead zone and the view never paints.              */
+let view="bench", t0=performance.now(), running=false;
+let cvC=null, cvM=null;                     /* assigned by the views below */
+let selC=null, selA=null, selB=null;
+let abT=0, abPlaying=false;
+
+function paint(time){
+  if(view==="combo" && cvC && selC){ draw(cvC, selC, params(selC), time); }
+  else if(view==="comb2" && cvM && selA && selB){
+    const pA=params(selA), pB=params(selB);
+    const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
+    draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time);
+  }
+}
+function tick(now){
+  if(view!=="combo" && view!=="comb2"){ running=false; return; }
+  requestAnimationFrame(tick);
+  sizeAll();
+  if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
+  paint((now-t0)/1000);
+}
+function start(){ if(running) return; running=true; requestAnimationFrame(tick); }
+window.__repaint=()=>paint((performance.now()-t0)/1000);
+window.__onView=v=>{
+  view=v;
+  const kick=()=>{ sizeAll(); paint((performance.now()-t0)/1000); };
+  kick();
+  requestAnimationFrame(()=>{ kick(); requestAnimationFrame(kick); });
+  setTimeout(kick,60); setTimeout(kick,240);
+  start();
+};
+window.addEventListener("resize",()=>{ sizeAll(); paint((performance.now()-t0)/1000); });
+
 /* ================= VIEW 1 · COMPOSIZIONE ================= */
-const selC={}; AXES.forEach(a=>selC[a.id]=a.opts[0][0]);
-const cvC=makeCanvas(document.getElementById("cprev"));
+selC={}; AXES.forEach(a=>selC[a.id]=a.opts[0][0]);
+cvC=makeCanvas(document.getElementById("cprev"));
 const cNotes=document.getElementById("cNotes"), cVerdict=document.getElementById("cVerdict"),
       cRecipe=document.getElementById("cRecipe");
 function renderC(){
@@ -1598,15 +1635,15 @@ renderC();
 
 /* ================= VIEW 2 · FRAME (A→B) ================= */
 /* Structural clone of VIEW 1: ONE canvas, one axis grid, one readout. */
-const selA={}, selB={};
+selA={}; selB={};
 AXES.forEach(a=>{ selA[a.id]=a.opts[0][0]; selB[a.id]=a.opts[0][0]; });
 selB.cam="push"; selB.comp="extreme";
-const cvM=makeCanvas(document.getElementById("prevMix"));
+cvM=makeCanvas(document.getElementById("prevMix"));
 const abNotes=document.getElementById("abNotes"), abVerdict=document.getElementById("abVerdict"),
       abRecipe=document.getElementById("abRecipe");
 const tabA=document.getElementById("tabA"), tabB=document.getElementById("tabB"),
       tabAv=document.getElementById("tabAv"), tabBv=document.getElementById("tabBv");
-let editing="A", abT=0, abPlaying=false;
+let editing="A";
 const curSel=()=>editing==="A"?selA:selB;
 
 function delta(){ let d=0; AXES.forEach(ax=>{ if(selA[ax.id]!==selB[ax.id]) d++; }); return d; }
@@ -1645,18 +1682,19 @@ buildAxes(abHost, selA, renderAB);
 function rewireAB(){
   abHost.querySelectorAll(".copt").forEach(b=>{
     b.onclick=()=>{ curSel()[b.dataset.ax]=b.dataset.op; syncAxes(abHost,curSel());
-      abT = editing==="A"?0:1; abPlaying=false; renderAB(); };
+      abT = editing==="A"?0:1; abPlaying=false; renderAB(); start(); };
   });
   syncAxes(abHost,curSel());
 }
 rewireAB();
-function setEditing(t){ editing=t; abT=(t==="A"?0:1); abPlaying=false; rewireAB(); renderAB(); }
+function setEditing(t){ editing=t; abT=(t==="A"?0:1); abPlaying=false; rewireAB(); renderAB(); start(); }
 tabA.onclick=()=>setEditing("A");
 tabB.onclick=()=>setEditing("B");
 document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]);
   syncAxes(abHost,curSel()); renderAB(); };
 document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
 renderAB();
+start();
 
 /* ================= VIEW 3 · TIMELINE ================= */
 const sIc=s=>'<svg viewBox="0 0 40 40">'+s+'</svg>';
@@ -1936,39 +1974,6 @@ document.getElementById("sClear").onclick=()=>{ TL=[]; drawTL(); };
 TL=PRESETS.teaser.ids.map(id=>({id:id,img:null,selected:false,dur:B(id)?B(id)[3]:0}));
 drawTL();
 
-/* ---------------- animation loop for the canvas previews ---------------- */
-let view="bench", t0=performance.now(), running=false;
-
-/* one explicit paint — safe to call any time, never depends on the loop being alive */
-function paint(time){
-  if(view==="combo"){ draw(cvC, selC, params(selC), time); }
-  else if(view==="comb2"){
-    const pA=params(selA), pB=params(selB);
-    const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
-    draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time);
-  }
-}
-function tick(now){
-  if(view!=="combo" && view!=="comb2"){ running=false; return; }  /* idle when off-screen */
-  requestAnimationFrame(tick);
-  sizeAll();                       /* size first — resizing clears the canvas */
-  if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
-  paint((now-t0)/1000);
-}
-function start(){ if(running) return; running=true; requestAnimationFrame(tick); }
-
-window.__onView=v=>{
-  view=v;
-  /* a just-revealed section has no box until layout runs: size first, paint after */
-  const kick=()=>{ sizeAll(); paint((performance.now()-t0)/1000); };
-  kick();
-  requestAnimationFrame(()=>{ kick(); requestAnimationFrame(kick); });
-  setTimeout(kick,60); setTimeout(kick,240);
-  start();
-};
-window.addEventListener("resize",()=>{ sizeAll(); paint((performance.now()-t0)/1000); });
-window.__repaint=()=>paint((performance.now()-t0)/1000);
-start();
 })();
 </script>
 <script>
