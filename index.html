@@ -338,6 +338,23 @@
     overflow:hidden;background:#040404;margin-bottom:9px}
   .cprev svg{display:block;width:100%;height:100%}
   .cprev-bar{display:flex;align-items:center;gap:9px;margin-bottom:22px;flex-wrap:wrap}
+
+  /* ---- A ⇄ B scrubber: the timeline of the interpolation the big player
+     is showing. Drag to park it anywhere between the two frames. ---- */
+  .abscrub{display:flex;align-items:center;gap:12px;padding:12px 2px 14px;user-select:none;
+    -webkit-user-select:none;touch-action:none}
+  .abscrub .cap{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--txt-3);
+    width:14px;text-align:center;transition:color .16s var(--ease)}
+  .abscrub .cap.on{color:var(--accent)}
+  .abscrub .track{position:relative;flex:1;height:24px;cursor:ew-resize}
+  .abscrub .track::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;
+    margin-top:-1px;background:var(--line-2);border-radius:1px}
+  .abscrub .fill{position:absolute;left:0;top:50%;height:2px;margin-top:-1px;width:0;
+    background:var(--accent-dim);border-radius:1px;pointer-events:none}
+  .abscrub .head{position:absolute;top:50%;left:0;width:11px;height:11px;
+    margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 9px rgba(255,121,80,.5);pointer-events:none}
+  .abscrub .track:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .cbtn{appearance:none;border:1px solid var(--line-2);background:var(--panel);color:var(--txt-2);
     padding:9px 14px;border-radius:8px;font:600 12.5px "Inter",sans-serif;cursor:pointer;
     letter-spacing:.02em;display:flex;align-items:center;gap:7px;transition:all .15s var(--ease)}
@@ -887,8 +904,13 @@
         </div>
         <div class="cprev" id="prevMix"></div>
       </div>
+      <div class="abscrub" id="abScrub" aria-label="Posizione tra frame A e frame B">
+        <span class="cap" id="abCapA">A</span>
+        <div class="track" id="abTrack"><div class="fill" id="abFill"></div><div class="head" id="abHead"></div></div>
+        <span class="cap" id="abCapB">B</span>
+      </div>
       <div class="cprev-bar">
-        <button class="cbtn pri" id="abPlay">Riproduci A → B</button>
+        <button class="cbtn pri" id="abPlay" aria-pressed="true">Pausa loop</button>
         <button class="cbtn" id="abRand">Coppia casuale</button>
         <button class="cbtn" id="abCopy">Copia A in B</button>
         <div class="crecipe" id="abRecipe"></div>
@@ -1595,14 +1617,32 @@ const ENG=(function(){
     new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7}));
   floor.rotation.x=-Math.PI/2; floor.visible=false;
   scene.add(floor);
-  /* limbo/cyclorama: a quarter-pipe sweep so floor and wall meet with no seam */
+  /* limbo/cyclorama: ONE open surface — floor run, quarter-round cove, back
+     wall — swept along X. The old ExtrudeGeometry was a closed 2-unit-thick
+     shell: its SECOND floor sat 2 units above the ground line (the "rendered
+     twice" doubling) and cut straight through the subject. A single ribbon has
+     nothing to double, and the sweep is big enough (wall at z=-20, floor
+     reaching z=+34, 88 units wide) that camera moves stay inside it. */
+  const COVE_DROP=1.6;                 /* how far the sweep sits below the subject */
   const cove=(function(){
-    const sh=new THREE.Shape();
-    sh.moveTo(0,0); sh.lineTo(26,0); sh.quadraticCurveTo(38,0,38,12); sh.lineTo(38,30);
-    sh.lineTo(36,30); sh.lineTo(36,12); sh.quadraticCurveTo(36,2,26,2); sh.lineTo(0,2);
-    const g=new THREE.ExtrudeGeometry(sh,{depth:60,bevelEnabled:false,curveSegments:16});
-    g.rotateY(Math.PI/2); g.translate(-30,0,26);
-    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x0d0d0f,roughness:0.85,metalness:0.05,side:THREE.DoubleSide}));
+    const R=7, WALLZ=-20, FRONT=34, TOP=30, HW=44;
+    const prof=[[0,FRONT],[0,WALLZ+R]];            /* [y,z]: floor run */
+    for(let i=1;i<=16;i++){ const a=(i/16)*Math.PI/2;
+      prof.push([R-R*Math.cos(a), WALLZ+R-R*Math.sin(a)]); }   /* cove fillet */
+    prof.push([TOP,WALLZ]);                                    /* wall run */
+    const pos=[],uv=[],idx=[];
+    prof.forEach((p,i)=>{ pos.push(-HW,p[0],p[1],  HW,p[0],p[1]);
+      uv.push(0,i/(prof.length-1), 1,i/(prof.length-1)); });
+    for(let i=0;i<prof.length-1;i++){ const a=i*2;
+      idx.push(a,a+1,a+2,  a+1,a+3,a+2); }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+    g.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));
+    g.setIndex(idx); g.computeVertexNormals();
+    /* FrontSide only: if a camera ever does slip past the surface it sees
+       through to the void instead of a solid black wall */
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x121215,
+      roughness:0.92,metalness:0.02,side:THREE.FrontSide}));
     m.visible=false; scene.add(m); return m;
   })();
   /* wall / pedestal / techgrid / horizon / room removed: the brief cut them.
@@ -1747,10 +1787,14 @@ const ENG=(function(){
     const gy=-halfDiag-0.02;
     subject.position.set(0,0,0);
     floor.visible=p.floor>0.5;  floor.position.y=gy;
-    cove.visible=p.cove>0.5;    cove.position.y=gy;
-    /* limbo = floor + cove sweep. The cove already carries its own floor, so
-       showing the flat plane too was what read as a doubled seam. */
+    /* the limbo sits WELL below the subject: the product floats over a clean
+       studio sweep instead of resting against a wall the camera can clip */
+    cove.visible=p.cove>0.5;    cove.position.y=gy-COVE_DROP;
+    /* limbo = the sweep alone. The sweep carries its own floor, so showing the
+       flat plane too was what read as a doubled seam. */
     if(p.cove>0.5) floor.visible=false;
+    /* where the visible ground actually is, for the camera floor-clamp */
+    const groundY = (p.cove>0.5) ? gy-COVE_DROP : (p.floor>0.5 ? gy : null);
     grid.position.y=gy;
     scene.fog=null;
 
@@ -1838,7 +1882,7 @@ const ENG=(function(){
     starNear.material.opacity=0.20*(1-0.6*p.silh);
     stars.rotation.y=0;                 /* the camera moves now, not the world */
     subjWire.visible=false;
-    return {gy:gy};
+    return {gy:gy, groundY:groundY};
   }
 
   /* ---- blit: render off-screen, copy into the target 2D canvas ---- */
@@ -1847,10 +1891,10 @@ const ENG=(function(){
     const W=cv.width,H=cv.height;
     if(W<4||H<4) return;
     const ctx=cv.getContext("2d"); if(!ctx) return;
-    applyScene(p,time,!!opts.work);
+    const env=applyScene(p,time,!!opts.work);
     rig.visible=!!opts.work;
     grid.visible=!!opts.work; axesH.visible=!!opts.work;
-    const r=rigAt(p,time);
+    let r=rigAt(p,time);
     if(opts.work){
       /* work viewport: free orbit camera, everything else drawn as a rig */
       const o=opts.orbit||{az:0.7,el:0.35,dist:9};
@@ -1875,6 +1919,14 @@ const ENG=(function(){
       camPath.visible=moving; pathDot.visible=moving;
       if(moving) pathDot.position.copy(shadowCam.position);
     }else{
+      /* a real studio camera cannot go under the studio floor: clamp the
+         elevation so low angles graze the sweep instead of diving through it.
+         Only the PREVIEW is clamped — the work viewport stays free. */
+      if(env && env.groundY!=null){
+        const minY=env.groundY+0.35;
+        const s=Math.max(-0.995,Math.min(0.995,minY/Math.max(r.dist,0.001)));
+        r={...r, el:Math.max(r.el, Math.asin(s))};
+      }
       placeCam(cam,r,p.ortho>0.5);
       camPath.visible=false; pathDot.visible=false;
       subjWire.visible=false;
@@ -2393,7 +2445,9 @@ function makeOrbit(host, st, onChange){
     e.preventDefault(); },{passive:false});
 }
 let selC=null, selA=null, selB=null;
-let abT=0, abPlaying=false;
+/* abT is the LINEAR position between the two frames (0 = frame A, 1 = frame B).
+   abDir ping-pongs it; abLoop pauses/resumes without losing the position. */
+let abT=0, abDir=1, abLoop=true;
 
 function paint(time){
   if(view==="combo" && cvC && selC){
@@ -2401,20 +2455,27 @@ function paint(time){
   }
   else if(view==="comb2" && cvM && selA && selB){
     const pA=params(selA), pB=params(selB);
-    const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
+    const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;  /* ease per leg */
     draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time,
          VP.comb2.on?{work:true,orbit:VP.comb2}:null);
     /* the two column previews: each frame shown at its own end of the interpolation,
        so a change to either axis grid is visible immediately without switching tabs */
     if(cvA) draw(cvA, selA, pA, time);
     if(cvB) draw(cvB, selB, pB, time);
+    if(window.__abScrubUI) window.__abScrubUI(abT);
   }
 }
 function tick(now){
   if(view!=="combo" && view!=="comb2"){ running=false; return; }
   requestAnimationFrame(tick);
   sizeAll();
-  if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
+  /* the mix player is a LOOP: A → B → A, forever. The interpolation is the
+     whole point of this view, so it never sits still on one endpoint. */
+  if(view==="comb2" && abLoop){
+    abT += 0.0042*abDir;
+    if(abT>=1){ abT=1; abDir=-1; }
+    if(abT<=0){ abT=0; abDir=1; }
+  }
   paint((now-t0)/1000);
 }
 function start(){ if(running) return; running=true; requestAnimationFrame(tick); }
@@ -2527,16 +2588,18 @@ function renderAB(){
     d.appendChild(l); d.appendChild(t); abNotes.appendChild(d);
   });
   abVerdict.textContent=abVerdictTxt();
-  abRecipe.innerHTML="A → B · <b>"+delta()+"</b> assi in movimento";
+  const dN=delta();
+  abRecipe.innerHTML="A ⇄ B · <b>"+dN+"</b> "+(dN===1?"asse":"assi")+" in movimento";
   tabAv.textContent=optOf("cam",selA.cam)[1]+" · "+optOf("comp",selA.comp)[1];
   tabBv.textContent=optOf("cam",selB.cam)[1]+" · "+optOf("comp",selB.comp)[1];
   window.__lastAB={A:Object.assign({},selA),B:Object.assign({},selB)};
   if(window.__repaint) window.__repaint();
 }
-/* Both grids are live at once: editing A parks the mix at t=0 so the change is
-   visible in the big player, editing B parks it at t=1. No tab switching. */
-function onEditA(){ abT=0; abPlaying=false; renderAB(); start(); }
-function onEditB(){ abT=1; abPlaying=false; renderAB(); start(); }
+/* Both grids are live at once and the mix keeps looping through every edit:
+   the thumbnails show each endpoint instantly, the big player shows what the
+   AI will actually have to invent between them. No tab switching, no parking. */
+function onEditA(){ renderAB(); start(); }
+function onEditB(){ renderAB(); start(); }
 /* FRAME reuses COMP's locks + exclusions: one place to say what the dice may
    roll, honoured by every random button in the tool. */
 buildAxes(abHostA, selA, onEditA, {locks:LOCKS, excl:EXCL,
@@ -2565,11 +2628,55 @@ document.getElementById("abRand").onclick=()=>{
     if(others.length) selB[ax.id]=others[Math.floor(Math.random()*others.length)][0];
   });
   syncAxes(abHostA,selA); syncAxes(abHostB,selB);
-  abT=0; abPlaying=false; renderAB(); start();
+  abT=0; abDir=1; renderAB(); start();
 };
 document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]);
   syncAxes(abHostB,selB); renderAB(); start(); };
-document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
+/* play button = loop toggle. Pausing keeps the current position so the
+   scrubber can be used as a still-frame picker for the storyboard. */
+const abPlayBtn=document.getElementById("abPlay");
+function abSetLoop(on){
+  abLoop=on;
+  abPlayBtn.textContent = on ? "Pausa loop" : "Riproduci loop";
+  abPlayBtn.setAttribute("aria-pressed",String(on));
+  if(on) start();
+}
+abPlayBtn.onclick=()=>abSetLoop(!abLoop);
+/* ---- scrubber: drag to park the interpolation anywhere between A and B ---- */
+(function(){
+  const track=document.getElementById("abTrack"), fill=document.getElementById("abFill"),
+        head=document.getElementById("abHead"),
+        capA=document.getElementById("abCapA"), capB=document.getElementById("abCapB");
+  if(!track) return;
+  track.setAttribute("tabindex","0");
+  window.__abScrubUI=t=>{
+    const pc=(t*100).toFixed(2)+"%";
+    head.style.left=pc; fill.style.width=pc;
+    capA.classList.toggle("on",t<0.04);
+    capB.classList.toggle("on",t>0.96);
+  };
+  let drag=false;
+  const setFrom=e=>{
+    const p=e.touches?e.touches[0]:e, r=track.getBoundingClientRect();
+    abT=Math.max(0,Math.min(1,(p.clientX-r.left)/r.width));
+    abDir = abT>=1 ? -1 : 1;
+    if(window.__repaint) window.__repaint();
+  };
+  const down=e=>{ drag=true; abSetLoop(false); setFrom(e); if(e.cancelable) e.preventDefault(); };
+  track.addEventListener("mousedown",down);
+  track.addEventListener("touchstart",down,{passive:false});
+  window.addEventListener("mousemove",e=>{ if(drag) setFrom(e); });
+  window.addEventListener("touchmove",e=>{ if(drag){ setFrom(e); if(e.cancelable) e.preventDefault(); } },{passive:false});
+  window.addEventListener("mouseup",()=>{ drag=false; });
+  window.addEventListener("touchend",()=>{ drag=false; });
+  track.addEventListener("keydown",e=>{
+    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+      abSetLoop(false);
+      abT=Math.max(0,Math.min(1,abT+(e.key==="ArrowRight"?0.05:-0.05)));
+      if(window.__repaint) window.__repaint(); e.preventDefault();
+    }else if(e.key===" "||e.key==="Enter"){ abSetLoop(!abLoop); e.preventDefault(); }
+  });
+})();
 (function(){
   const bp=document.getElementById("abVpPrev"), bw=document.getElementById("abVpWork"),
         host=document.getElementById("prevMix"), hint=document.getElementById("abVpHint");
@@ -2577,10 +2684,12 @@ document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); 
     VP.comb2.on=on;
     bp.setAttribute("aria-selected",String(!on)); bw.setAttribute("aria-selected",String(on));
     host.classList.toggle("work",on);
-    hint.textContent = on ? "Trascina per orbitare · rotella per lo zoom" : "";
+    hint.textContent = on ? "Trascina per orbitare · rotella per lo zoom"
+                          : "Il player mostra l'interpolazione A ⇄ B in loop";
     if(window.__repaint) window.__repaint(); start();
   }
   bp.onclick=()=>set(false); bw.onclick=()=>set(true);
+  set(false);
   makeOrbit(host, VP.comb2, ()=>{ if(window.__repaint) window.__repaint(); });
 })();
 __syncLocks();
