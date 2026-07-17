@@ -161,6 +161,10 @@
     transition:all .15s var(--ease)}
   .seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17130f}
 
+  .play .i-pause{display:none}
+  .play.playing .i-play{display:none}
+  .play.playing .i-pause{display:block}
+  .play.playing{border-color:var(--accent);background:#1c130c}
   .play{display:none;align-items:center;justify-content:center;gap:9px;
     appearance:none;border:1px solid var(--accent-dim);background:#140f0b;color:var(--accent);
     padding:12px 18px;border-radius:9px;font-size:12.5px;font-weight:700;letter-spacing:.02em;
@@ -421,12 +425,18 @@
   .swave-x:hover{border-color:var(--accent);color:var(--accent)}
 
   /* ---- clip annotations ---- */
+  /* three lines of text, always. The spin arrows were the number input's
+     native spinner leaking in through the shared selector — killed here. */
   .clip .note{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:5px;
     background:var(--void);color:var(--txt-2);font:500 10px "Inter",sans-serif;
-    padding:4px 5px;resize:none;min-height:0;height:22px;line-height:1.3;
-    transition:border-color .15s var(--ease),height .15s var(--ease)}
+    padding:4px 5px;resize:none;min-height:0;height:44px;line-height:1.35;
+    overflow-y:auto;scrollbar-width:none;-webkit-appearance:none;appearance:none;
+    transition:border-color .15s var(--ease)}
+  .clip .note::-webkit-scrollbar{display:none}
+  .clip .note::-webkit-inner-spin-button,
+  .clip .note::-webkit-outer-spin-button{-webkit-appearance:none;display:none;margin:0}
   .clip .note::placeholder{color:var(--txt-3);opacity:.7}
-  .clip .note:focus{outline:none;border-color:var(--accent-dim);height:46px;color:var(--txt)}
+  .clip .note:focus{outline:none;border-color:var(--accent-dim);color:var(--txt)}
   .clip .note.has{border-color:var(--accent-dim);color:var(--accent)}
   .clip.over-rep{box-shadow:inset 0 0 0 2px var(--accent)}
   .clip.over-rep::after{content:"SOSTITUISCI";position:absolute;left:50%;top:50%;
@@ -434,21 +444,44 @@
     color:var(--accent);background:var(--void);padding:2px 5px;border-radius:3px;z-index:3}
 
   /* ---- print: the tool disappears, the shot list survives ---- */
+  /* ---- print: allowlist, not blocklist ----
+     The old rule listed things to hide, and lost: anything it forgot (the nav,
+     the library, the tool grid) printed anyway, and the interactive track came
+     through with its live form controls. Now everything is hidden by default
+     and only the four things the brief asks for are put back:
+     timeline · waveform · peak line · shot list. */
   @media print{
-    @page{margin:14mm}
-    body{background:#fff!important;color:#111!important}
-    .topbar,.nav,.tools,.sbar,.strack,.senergy,.swave-wrap,.slib,.slib-h,
-    .selector,.stage,.cprev-bar,.vpbar,.cats,.list,.app>section:not(#seq){display:none!important}
-    #seq,.swrap{display:block!important}
-    .slead{display:none}
-    .srec{border:0!important;background:#fff!important;color:#111!important;
-      font-size:11pt!important;line-height:1.55!important;white-space:pre-wrap}
-    .srec *{color:#111!important}
-    .printhead{display:block!important;margin:0 0 8mm;border-bottom:1px solid #ccc;padding-bottom:4mm}
-    .printhead h1{font:700 15pt "Inter",sans-serif;letter-spacing:.18em;margin:0 0 2mm}
-    .printhead p{font:400 9pt "Inter",sans-serif;color:#555;margin:0}
+    @page{margin:12mm}
+    html,body{background:#fff!important;color:#111!important}
+    /* hide everything… */
+    body *{visibility:hidden!important}
+    /* …then reveal only the print sheet and its contents */
+    .printsheet, .printsheet *{visibility:visible!important}
+    .printsheet{position:absolute!important;left:0;top:0;width:100%;
+      display:block!important;background:#fff!important;color:#111!important}
+    .printhead{display:block!important;margin:0 0 7mm;border-bottom:1px solid #bbb;
+      padding-bottom:3mm}
+    .printhead h1{font:700 14pt "Inter",sans-serif;letter-spacing:.16em;margin:0 0 1.5mm;color:#111}
+    .printhead p{font:400 8.5pt "Inter",sans-serif;color:#555;margin:0}
+    .psec{margin:0 0 6mm;break-inside:avoid}
+    .psec h2{font:700 7.5pt "Inter",sans-serif;letter-spacing:.2em;text-transform:uppercase;
+      color:#888;margin:0 0 2mm;border-bottom:1px solid #e2e2e2;padding-bottom:1mm}
+    .psec img, .psec svg{display:block;width:100%;height:auto;
+      border:1px solid #ddd;border-radius:2mm;background:#fff}
+    .pshot{break-inside:avoid;margin:0 0 3.4mm;padding:0 0 2.6mm;
+      border-bottom:1px solid #eee}
+    .pshot .ph{display:flex;align-items:baseline;gap:3mm;margin:0 0 1.4mm}
+    .pshot .pn{font:700 7.5pt "Inter",sans-serif;letter-spacing:.14em;color:#c2410c}
+    .pshot .pt{font:700 10pt "Inter",sans-serif;color:#111;flex:1}
+    .pshot .pd{font:600 8.5pt "Inter",sans-serif;color:#666}
+    .pshot .pp{font:400 8pt "Inter",sans-serif;color:#333;line-height:1.6}
+    .pshot .pp b{color:#111;font-weight:600}
+    .pshot .pnote{margin-top:1.4mm;padding-left:2.4mm;border-left:2px solid #c2410c;
+      font:400 8pt "Inter",sans-serif;color:#444;font-style:italic}
+    .pmini{font:400 8pt "Inter",sans-serif;color:#666;margin:0 0 2.4mm;padding-left:2mm}
+    .pmini b{color:#222}
   }
-  .printhead{display:none}
+  .printsheet{display:none}
 
   .senergy{width:100%;height:64px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
     margin-bottom:22px;display:block}
@@ -555,7 +588,7 @@
   #abNotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 20px;margin-bottom:18px}
   /* ---- timeline tracks ---- */
   .tracks{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);margin-bottom:8px}
-  .trk{display:flex;align-items:stretch;border-bottom:1px solid var(--line);min-height:104px}
+  .trk{display:flex;align-items:stretch;border-bottom:1px solid var(--line);min-height:126px}
   .trk:last-child{border-bottom:0}
   .trkh{flex:none;width:92px;display:flex;align-items:center;gap:8px;padding:0 13px;
     font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--txt-2);font-weight:700;
@@ -564,9 +597,11 @@
   .trkh .dot.s{background:var(--accent)}
   .trkh .dot.t{background:#c98a5e}
   .trkh .dot.a{background:#6a90b8}
-  .trkl{flex:1;min-width:0;display:flex;gap:5px;padding:9px;overflow-x:auto;align-items:center;
-    scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .trkl::-webkit-scrollbar{display:none}
+  /* Wrap, do not scroll. A lane that overflowed horizontally put its last
+     clips permanently out of reach: no scrollbar (hidden) and no way to drag
+     to them. Now the lane grows a second row and the track gets taller. */
+  .trkl{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:5px;padding:9px;
+    align-content:flex-start;align-items:flex-start}
   .trkl.dragover{background:#17130f;box-shadow:inset 0 0 0 1px var(--accent-dim)}
   .trkl:empty::after{content:"trascina qui";font-size:11px;color:var(--txt-3);font-style:italic;
     align-self:center;padding-left:6px}
@@ -795,9 +830,10 @@
         <div class="ticks" id="ticks" style="display:none"></div>
       </div>
       <div class="seg" id="seg" role="group" aria-label="Composizione"></div>
-      <button class="play" id="play">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <span id="playlabel">Riproduci</span>
+      <button class="play" id="play" aria-pressed="false">
+        <svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        <span id="playlabel">Loop</span>
       </button>
       <div class="ctl-empty" id="ctlempty" style="display:none">Nessun parametro — osserva il soggetto.</div>
     </div>
@@ -1390,25 +1426,58 @@ function selectFx(f){
     curPlay=f.play;
     curSlider={label:f.play.label.replace(/^Esegui\s*/i,"").replace(/^\w/,c=>c.toUpperCase()),
       min:0,max:100,val:0,step:1,fmt:v=>v+"%",
-      apply:v=>{ anim=null; if(f.play.setup) f.play.setup(); f.play.run(v/100); }};
+      apply:v=>{ if(f.play.setup) f.play.setup(); f.play.run(v/100); }};
     sldwrap.classList.add("on"); sldlabel.textContent=curSlider.label;
     sld.min=0; sld.max=100; sld.step=1; sld.value=0;
-    playBtn.classList.add("on"); playlabel.textContent="Riproduci";
     applySlider(0);
-    if(!REDUCED) runPlay();
   }
   if(!f.slider && !f.seg && !f.play){ ctlempty.style.display="block"; }
+  /* Every demo that has a slider can loop — optics included. Before, only the
+     movement clips had a play button and the lenses just sat there. */
+  const loopable = !!(f.play || f.slider || f.seg);
+  playBtn.classList.toggle("on", loopable);
+  if(loopable){ setLoop(!REDUCED && !!f.play); } else { setLoop(false); }
   openGroupOf(f); markList(); buildNav(f);
 }
 
 function applySlider(v){ curSlider.apply(+v); sldval.textContent=curSlider.fmt(+v); }
-sld.addEventListener("input",e=>{ if(curSlider){ idle=false; anim=null; applySlider(e.target.value);} });
+sld.addEventListener("input",e=>{ if(curSlider){ idle=false; if(!looping) anim=null; applySlider(e.target.value);} });
 
-function runPlay(){ if(!curPlay) return; if(curPlay.setup) curPlay.setup();
-  anim=makeAnim(curPlay.dur, t=>{ curPlay.run(t); sld.value=Math.round(t*100);
-      if(curSlider&&curSlider.fmt) sldval.textContent=curSlider.fmt(Math.round(t*100)); },
-    {loop:curPlay.loop, linear:curPlay.linear, onEnd:curPlay.onEnd}); }
-playBtn.addEventListener("click",runPlay);
+/* ---------------- universal loop ----------------
+   Any demo with a control can be put on a loop: the slider sweeps its own
+   range and back, forever, on a cosine so the turnarounds have no visible
+   snap. Movement clips run their own timeline; sliders and segmented controls
+   ping-pong across their values. */
+let looping=false;
+const LOOP_MS=5200;
+function setLoop(on){
+  looping=!!on;
+  anim=null;
+  playBtn.setAttribute("aria-pressed",String(looping));
+  playlabel.textContent = looping ? "Pausa" : "Loop";
+  playBtn.classList.toggle("playing",looping);
+  if(!looping) return;
+  if(curPlay){
+    if(curPlay.setup) curPlay.setup();
+    anim=makeAnim(curPlay.dur, t=>{ curPlay.run(t); sld.value=Math.round(t*100);
+        if(curSlider&&curSlider.fmt) sldval.textContent=curSlider.fmt(Math.round(t*100)); },
+      {loop:true, linear:curPlay.linear});
+    return;
+  }
+  if(!curSlider) return;
+  const lo=+sld.min, hi=+sld.max, stepped=sldwrap.classList.contains("stepped");
+  anim=makeAnim(LOOP_MS, t=>{
+    /* cosine ping-pong: starts and ends at lo with zero velocity, so a loop
+       boundary is invisible */
+    const k=(1-Math.cos(t*Math.PI*2))/2;
+    let v=lo+(hi-lo)*k;
+    if(stepped) v=Math.round(v);
+    sld.value=v; applySlider(v);
+  },{loop:true, linear:true});
+}
+playBtn.addEventListener("click",()=>setLoop(!looping));
+/* dragging the slider takes over: the loop yields to the hand */
+sld.addEventListener("pointerdown",()=>{ if(looping) setLoop(false); });
 
 selectFx(FX[0]);
 })();
@@ -1435,6 +1504,9 @@ const ENG=(function(){
 
   const scene=new THREE.Scene();
   const cam=new THREE.PerspectiveCamera(38,16/9,0.1,200);
+  /* a stunt double: lets the work view compute the PREVIEW camera pose without
+     disturbing the camera actually rendering the frame */
+  const shadowCam=new THREE.PerspectiveCamera(38,16/9,0.1,200);
 
   /* beveled cube — same factory the LIVE bench publishes, so both players
      show the identical object instead of two lookalike geometries */
@@ -1505,7 +1577,14 @@ const ENG=(function(){
   const underL=new THREE.DirectionalLight(0xff9c78,0.0); underL.position.set(0,-5,1.2);
   const backL=new THREE.PointLight(0xff7950,0.0,40,1.4); backL.position.set(0,0,-5);
   const grazeL=new THREE.DirectionalLight(0xffb499,0.0); grazeL.position.set(-5,0.2,0.4);
-  scene.add(amb,key,rimA,rimB,topL,underL,backL,grazeL);
+  /* three-point / studio / spot rig, all off by default */
+  const keyL=new THREE.DirectionalLight(0xfff0e6,0.0);
+  const fillL=new THREE.DirectionalLight(0xc8d4ff,0.0);
+  const backL2=new THREE.DirectionalLight(0xffd9c6,0.0);
+  const spotL=new THREE.SpotLight(0xfff2e8,0.0,26,Math.PI/7,0.5,1.4);
+  const ambStudio=new THREE.AmbientLight(0xf0f4ff,0.0);
+  scene.add(amb,key,rimA,rimB,topL,underL,backL,grazeL,
+            keyL,fillL,backL2,spotL,spotL.target,ambStudio);
 
   /* ---- environment: one mesh per element, toggled by the env axis ----
      Everything hangs off the subject's own half-height so the cube RESTS on the
@@ -1526,27 +1605,9 @@ const ENG=(function(){
     const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x0d0d0f,roughness:0.85,metalness:0.05,side:THREE.DoubleSide}));
     m.visible=false; scene.add(m); return m;
   })();
-  const wall=new THREE.Mesh(new THREE.PlaneGeometry(60,34),
-    new THREE.MeshStandardMaterial({color:0x0b0b0d,roughness:0.9,metalness:0.03}));
-  wall.visible=false; scene.add(wall);
-  const PED_H=1.1;
-  const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.3,PED_H,40),
-    new THREE.MeshStandardMaterial({color:0x101012,roughness:0.42,metalness:0.4}));
-  pedestal.visible=false; scene.add(pedestal);
-  const techGrid=new THREE.GridHelper(60,44,0xff7950,0x1d2430);
-  techGrid.material.transparent=true;
-  techGrid.material.opacity=0.34; techGrid.visible=false; scene.add(techGrid);
-  const horizon=new THREE.Mesh(new THREE.PlaneGeometry(120,60),
-    new THREE.MeshBasicMaterial({color:0x141821}));
-  horizon.visible=false; scene.add(horizon);
-  const roomL=new THREE.Mesh(new THREE.PlaneGeometry(34,34),
-    new THREE.MeshStandardMaterial({color:0x0a0a0c,roughness:0.9}));
-  roomL.rotation.y=Math.PI/2; roomL.visible=false; scene.add(roomL);
-  const roomR=roomL.clone(); roomR.rotation.y=-Math.PI/2;
-  roomR.visible=false; scene.add(roomR);
-  const mirror=new THREE.Mesh(CUBE,(function(){ const m=mat.clone();
-    m.transparent=true; m.opacity=0.16; return m; })());
-  mirror.visible=false; scene.add(mirror);
+  /* wall / pedestal / techgrid / horizon / room removed: the brief cut them.
+     Only void, floor and limbo remain. */
+
 
   /* ---- work-viewport only rigs: camera frustum + light gizmos ---- */
   const rig=new THREE.Group(); rig.visible=false; scene.add(rig);
@@ -1579,160 +1640,205 @@ const ENG=(function(){
   }
   const gizA=lightGiz(0xff7950), gizB=lightGiz(0xff7950);
   rig.add(gizA,gizB);
+  /* ---- camera path: the dashed track the current move flies along.
+     Rebuilt whenever the rig changes, shown in the work viewport. ---- */
+  const pathMat=new THREE.LineDashedMaterial({color:0xff7950,dashSize:0.16,
+    gapSize:0.12,transparent:true,opacity:0.75});
+  const camPath=new THREE.Line(new THREE.BufferGeometry(),pathMat);
+  camPath.visible=false; scene.add(camPath);
+  const pathDot=new THREE.Mesh(new THREE.SphereGeometry(0.07,10,8),
+    new THREE.MeshBasicMaterial({color:0xff7950}));
+  pathDot.visible=false; scene.add(pathDot);
+  let pathKey="";
+  function buildPath(p){
+    const k=[p._cam,p.az,p.el,p.dist,p.fov,p.tx,p.ty].join("|");
+    if(k===pathKey) return;
+    pathKey=k;
+    if(!p._cam||p._cam==="static"){ camPath.visible=false; return; }
+    const pts=[];
+    for(let i=0;i<=96;i++){
+      const r=rigAt(p,(i/96)*LOOP);
+      const d=r.dist;
+      pts.push(new THREE.Vector3(
+        Math.cos(r.el)*Math.sin(r.az)*d,
+        Math.sin(r.el)*d,
+        Math.cos(r.el)*Math.cos(r.az)*d));
+    }
+    camPath.geometry.dispose();
+    camPath.geometry=new THREE.BufferGeometry().setFromPoints(pts);
+    camPath.computeLineDistances();
+  }
   const grid=new THREE.GridHelper(12,12,0x2a2a30,0x18181c);
   grid.material.transparent=true; grid.material.opacity=0.5;
   grid.visible=false; rig.add(grid);   /* y set per-frame, see applyScene */
   const axesH=new THREE.AxesHelper(1.1); axesH.visible=false; rig.add(axesH);
   const subjWire=wire(CUBE,0x5c5c61,0.35); subjWire.visible=false; scene.add(subjWire);
 
+  /* ---- The camera rig. ONE function decides where the camera is at time t,
+     used by the preview, by the dashed path overlay, and by the work-view
+     gizmo — so all three can never disagree. Every move LOOPS: phase is a
+     0..1 sawtooth, and each move is built to end where it started. ---- */
+  const LOOP=7.0;                                   /* seconds per cycle */
+  function rigAt(p,time){
+    const ph=((time||0)%LOOP)/LOOP;                 /* 0..1, wraps */
+    const tau=Math.PI*2;
+    /* smooth, symmetric ping-pong: starts and ends at 0 with zero velocity */
+    const swing=Math.sin(ph*tau);                   /* -1..1, seamless */
+    const ease=(1-Math.cos(ph*tau))/2;              /* 0..1..0, seamless */
+    let az=p.az, el=p.el, dist=p.dist, fov=p.fov,
+        tx=p.tx, ty=p.ty, roll=p.roll||0;
+    const A=(p.amp==null?1:p.amp);
+    switch(p._cam){
+      case "push":     dist -= dist*0.34*ease*A; break;
+      case "orbit":    az   += swing*0.72*A; break;
+      case "truck":    /*真 lateral travel: the camera slides, it does not turn.
+                          Aim slides with it, so the subject drifts across frame
+                          and the parallax reads. */
+                       { const off=swing*1.9*A;
+                         az += Math.atan2(off,dist)*0.35;
+                         tx -= off*0.42; }
+                       break;
+      case "crane":    el  += (0.55 - 1.1*ease)*A*0.9; ty += (0.18-0.36*ease)*A; break;
+      case "vertigo":  /* dolly zoom: dist and fov move against each other so the
+                          subject keeps its size while the background breathes */
+                       { const k=ease*A;
+                         dist -= dist*0.42*k;
+                         fov   = fov*(1-0.42*k)/(1-0.0*k);
+                         fov   = 2*Math.atan(Math.tan(p.fov*Math.PI/360)*(dist/p.dist))*180/Math.PI; }
+                       break;
+      case "pan":      az += swing*0.30*A; tx -= swing*0.55*A; break;
+      case "handheld": az += Math.sin(ph*tau*3)*0.035*A;
+                       el += Math.sin(ph*tau*2+1.1)*0.028*A;
+                       roll += Math.sin(ph*tau*2.3)*0.012*A; break;
+    }
+    el=Math.max(-1.45,Math.min(1.45,el));
+    return {az,el,dist,fov,tx,ty,roll};
+  }
+  /* place a THREE camera from a rig state */
+  function placeCam(c,r,ortho){
+    const d = ortho ? r.dist*5.4 : r.dist;
+    c.position.set(
+      Math.cos(r.el)*Math.sin(r.az)*d,
+      Math.sin(r.el)*d,
+      Math.cos(r.el)*Math.cos(r.az)*d);
+    c.up.set(0,1,0);
+    c.lookAt(r.tx, r.ty, 0);
+    if(r.roll) c.rotateZ(r.roll);
+    c.fov = ortho ? 7 : r.fov;
+    c.updateProjectionMatrix();
+  }
+
   const RR=3.4;
-  /* ---- apply p (the params contract) to the scene ---- */
+  /* ---- apply p to the scene. The SUBJECT is not moved by any camera axis:
+     only Dimensione and Rotazione touch it, by design. ---- */
   function applyScene(p,time,forWork){
     const t=time||0;
-    /* subject transform.
-       Vista (yaw/pitch) turns the OBJECT rather than flying the camera: it keeps
-       the framing that Composizione asked for, which is the whole point of
-       having the two as separate axes. */
-    const orbitSpin = p.orbit>0.01 ? t*0.28*p.orbit : 0;
-    subject.rotation.set((p.pitch||0)*0.9 + p.tilt*0.7,
-                         p.rot*Math.PI + orbitSpin + 0.5 + (p.yaw||0), 0.05);
-    subject.scale.setScalar(p.scale);
+    const ph=((t)%LOOP)/LOOP;
 
-    /* ---- Ground contract ----
-       The subject is the origin of the world: it always sits centred at y=0.
-       The GROUND is then placed under it, at whatever depth its current size
-       demands, and every other environment element hangs off that ground.
-       Rotating a cube makes it taller than its own half-height, so we use the
-       half-diagonal — otherwise a 45-degree corner would sink into the floor. */
-    const anyEnv = (p.floor>0.5)||(p.cove>0.5)||(p.wall>0.5)||(p.pedestal>0.5)||
-                   (p.techgrid>0.5)||(p.room>0.5)||(p.horizon>0.5)||(p.refl>0.01);
-    const halfDiag = HALF*Math.SQRT2*p.scale;      /* worst case under rotation */
-    const gy = -halfDiag - 0.02;                   /* a hair of clearance */
-    subject.position.set(0, 0, 0);
+    /* subject: origin, native orientation, only its own two axes apply */
+    const spin = (p.srot===-1) ? ph*Math.PI*2 : (p.srot||0);
+    subject.rotation.set(0, spin, 0);
+    subject.scale.setScalar(p.sscale||1);
     hero.visible=true;
 
-    /* environment, all keyed to gy */
-    floor.visible=(p.floor>0.5)||(p.refl>0.01);
-    floor.position.y = (p.pedestal>0.5) ? gy-PED_H : gy;
-    cove.visible=p.cove>0.5;      cove.position.y=gy;
-    wall.visible=(p.wall>0.5)&&!(p.cove>0.5);
-    wall.position.set(0, gy+17, -14);
-    pedestal.visible=p.pedestal>0.5;
-    pedestal.position.set(0, gy-PED_H/2, 0);       /* its top meets the subject */
-    techGrid.visible=p.techgrid>0.5; techGrid.position.y=gy+0.01;
-    horizon.visible=p.horizon>0.5;  horizon.position.set(0,gy+18,-30);
-    roomL.visible=roomR.visible=p.room>0.5;
-    roomL.position.set(-9,gy+17,-2); roomR.position.set(9,gy+17,-2);
-    /* gradient env: a soft backdrop glow, done with fog rather than a plane so
-       it never clips the subject */
-    if(p.grad>0.5 && !scene.fog) scene.fog=new THREE.FogExp2(0x120a07,0.028);
+    /* ground follows the subject's real size */
+    const anyEnv=(p.floor>0.5)||(p.cove>0.5);
+    const halfDiag=HALF*Math.SQRT2*(p.sscale||1);
+    const gy=-halfDiag-0.02;
+    subject.position.set(0,0,0);
+    floor.visible=p.floor>0.5;  floor.position.y=gy;
+    cove.visible=p.cove>0.5;    cove.position.y=gy;
+    /* limbo = floor + cove sweep. The cove already carries its own floor, so
+       showing the flat plane too was what read as a doubled seam. */
+    if(p.cove>0.5) floor.visible=false;
+    grid.position.y=gy;
+    scene.fog=null;
 
-    /* lights per axis */
+    /* lights */
     rimA.intensity=3.2*p.rimA; rimB.intensity=3.2*p.rimB;
-    const aA=(112+ (p.parallax? Math.sin(t*0.4)*8:0))*Math.PI/180;
+    const aA=112*Math.PI/180;
     rimA.position.set(RR*Math.sin(aA),1.3,RR*Math.cos(aA));
     rimB.position.set(-RR*Math.sin(aA),1.0,RR*Math.cos(aA));
     topL.intensity=1.5*p.top; underL.intensity=1.4*p.under;
     backL.intensity=4.2*p.silh; grazeL.intensity=1.6*p.graz;
+    /* three-point / studio / spot */
+    keyL.intensity=2.1*(p.key||0)*(0.55+0.45*(1-(p.softness||0)));
+    keyL.position.set(-2.6,2.2,3.1);
+    fillL.intensity=1.5*(p.fill||0);
+    fillL.position.set(3.0,0.7,2.2);
+    backL2.intensity=2.6*(p.back||0);
+    backL2.position.set(0.6,2.6,-3.4);
+    spotL.intensity=(p.spot||0)*30;
+    spotL.penumbra=p.penumbra==null?0.5:p.penumbra;
+    spotL.position.set(0.4,4.2,1.6);
+    spotL.target.position.set(0,0,0); spotL.target.updateMatrixWorld();
+    ambStudio.intensity=(p.studio||0)*0.5;
     amb.intensity=0.55*(1-0.7*p.silh);
     key.intensity=0.42*(1-0.8*p.silh);
 
     /* atmosphere */
     dust.material.opacity=0.42*p.part;
     dust.rotation.y=t*0.05;
-    const hz=Math.max(p.haze,p.smoke);
-    scene.fog = hz>0.01 ? new THREE.FogExp2(0x1a0d08, 0.055*hz) : null;
 
-    /* reflection */
-    mirror.visible=p.refl>0.01;
-    if(mirror.visible){
-      /* mirrored across the ground plane, wherever that currently is */
-      mirror.rotation.copy(subject.rotation); mirror.rotation.x*=-1;
-      mirror.scale.copy(subject.scale); mirror.scale.y*=-1;
-      mirror.position.set(0, 2*floor.position.y, 0);
-      mirror.material.opacity=0.16*p.refl;
-    }
-
-    /* clones */
-    const layouts={};
+    /* ---- motion design: ALWAYS behind the hero ----
+       Everything sits at negative Z and is scaled down, so the subject stays
+       the hero and the pattern becomes background. */
     cloneMesh.forEach(m=>m.visible=false);
-    clones.rotation.set(0,0,0);
     const mode=p._motion;
+    const BACK=-3.2;                        /* how far behind the subject */
     if(mode&&mode!=="none"){
       let n=0, place=null;
-      if(mode==="clone"){ n=2; place=(m,i)=>{ m.position.set(i?2.2:-2.2,0,-1.6); m.scale.setScalar(0.8*p.scale); }; }
-      else if(mode==="grid"){ n=8; place=(m,i)=>{ const c=i%3,r=(i/3)|0;
-        m.position.set((c-1)*1.9,(r-1)*1.6,-1.2); m.scale.setScalar(0.55*p.scale); }; }
-      else if(mode==="spiral"){ n=14; place=(m,i)=>{ const a=i*0.7+t*0.15, rr=0.9+i*0.26;
-        m.position.set(Math.cos(a)*rr,Math.sin(a)*rr*0.5,-i*0.35);
-        m.scale.setScalar(Math.max(0.14,0.62-i*0.03)*p.scale); m.rotation.set(0,a,0); }; }
-      else if(mode==="vortex"){ n=16; place=(m,i)=>{ const a=i*0.9+t*0.6, rr=1.8+Math.sin(i)*0.5;
-        m.position.set(Math.cos(a)*rr,Math.sin(a*1.3)*0.9,Math.sin(a)*rr-0.8);
-        m.scale.setScalar(0.3*p.scale); m.rotation.set(a,a*0.7,0); }; }
-      else if(mode==="kaleido"){ n=12; place=(m,i)=>{ const a=i/12*Math.PI*2;
-        m.position.set(Math.cos(a)*2.0,Math.sin(a)*2.0,-0.6);
-        m.scale.setScalar(0.42*p.scale); m.rotation.set(0,0,a); }; }
-      else if(mode==="multi"){ n=10; place=(m,i)=>{ const a=i/10*Math.PI*2+t*0.2;
-        const ring=i%2; const rr=2.1;
-        if(ring) m.position.set(Math.cos(a)*rr,Math.sin(a)*rr*0.35,Math.sin(a)*1.2);
-        else m.position.set(Math.sin(a)*rr*0.35,Math.cos(a)*rr,Math.sin(a)*1.2);
-        m.scale.setScalar(0.34*p.scale); m.rotation.set(a,a,0); }; }
-      /* exploded view: components drift out along their own axis and settle */
+      const S=(p.sscale||1);
+      if(mode==="clone"){ n=2; place=(m,i)=>{ m.position.set(i?2.4:-2.4,0,BACK);
+        m.scale.setScalar(0.62*S); m.rotation.set(0,0.5,0); }; }
+      else if(mode==="grid"){ n=8; place=(m,i)=>{ const c=i%4,r=(i/4)|0;
+        m.position.set((c-1.5)*2.1,(r-0.5)*1.9,BACK);
+        m.scale.setScalar(0.44*S); m.rotation.set(0,0.4,0); }; }
+      else if(mode==="spiral"){ n=14; place=(m,i)=>{ const a=i*0.68+ph*Math.PI*2, rr=1.5+i*0.3;
+        m.position.set(Math.cos(a)*rr,Math.sin(a)*rr*0.55,BACK-i*0.16);
+        m.scale.setScalar(Math.max(0.1,0.44-i*0.02)*S); m.rotation.set(0,a,0); }; }
+      else if(mode==="vortex"){ n=16; place=(m,i)=>{ const a=i*0.78+ph*Math.PI*2, rr=2.4+Math.sin(i)*0.6;
+        m.position.set(Math.cos(a)*rr,Math.sin(a*1.3)*1.1,BACK+Math.sin(a)*0.9);
+        m.scale.setScalar(0.26*S); m.rotation.set(a,a*0.7,0); }; }
+      else if(mode==="kaleido"){ n=12; place=(m,i)=>{ const a=i/12*Math.PI*2+ph*Math.PI*2*0.25;
+        m.position.set(Math.cos(a)*2.7,Math.sin(a)*2.7,BACK);
+        m.scale.setScalar(0.34*S); m.rotation.set(0,0,a); }; }
+      else if(mode==="multi"){ n=10; place=(m,i)=>{ const a=i/10*Math.PI*2+ph*Math.PI*2*0.2;
+        const ring=i%2, rr=2.8;
+        if(ring) m.position.set(Math.cos(a)*rr,Math.sin(a)*rr*0.4,BACK);
+        else m.position.set(Math.sin(a)*rr*0.4,Math.cos(a)*rr,BACK);
+        m.scale.setScalar(0.28*S); m.rotation.set(a,a,0); }; }
       else if(mode==="explode"){ n=6; place=(m,i)=>{
-        const dir=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[0,0,1],[0,0,-1]][i];
-        const k=1.5+Math.sin(t*0.5)*0.35;
-        m.position.set(dir[0]*1.6*k,dir[1]*1.4*k,dir[2]*1.6*k);
-        m.scale.setScalar(0.38*p.scale); m.rotation.set(0,t*0.2,0); }; }
-      /* stack: layers assemble upward, the reveal grammar */
+        const dir=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[0.5,0,1],[-0.5,0,-1]][i];
+        const k=1.9+Math.sin(ph*Math.PI*2)*0.4;
+        m.position.set(dir[0]*1.5*k,dir[1]*1.3*k,BACK+dir[2]*0.8);
+        m.scale.setScalar(0.3*S); m.rotation.set(0,ph*Math.PI*2*0.3,0); }; }
       else if(mode==="stack"){ n=5; place=(m,i)=>{
-        const ph=Math.min(1,Math.max(0,(t*0.4)%2-i*0.12));
-        m.position.set(0,(i-2)*0.95,0);
-        m.scale.set(0.9*p.scale,0.16*p.scale,0.9*p.scale);
-        m.rotation.set(0,ph*0.4,0); }; }
-      /* satellites on an ellipse: gives scale without touching the hero */
-      else if(mode==="orbitm"){ n=6; place=(m,i)=>{ const a=i/6*Math.PI*2+t*0.5;
-        m.position.set(Math.cos(a)*3.0,Math.sin(a*2)*0.35,Math.sin(a)*1.5);
-        m.scale.setScalar(0.24*p.scale); m.rotation.set(0,a,0); }; }
-      /* phase-shifted sine: very readable on a loop */
-      else if(mode==="wave"){ n=9; place=(m,i)=>{ const x=(i-4)*0.85;
-        m.position.set(x,Math.sin(t*1.2+i*0.6)*0.75,-0.4);
-        m.scale.setScalar(0.3*p.scale); m.rotation.set(0,Math.sin(t+i)*0.3,0); }; }
-      /* scatter: deterministic pseudo-random so it does not jitter per frame */
+        m.position.set(0,(i-2)*1.15,BACK);
+        m.scale.set(0.78*S,0.14*S,0.78*S);
+        m.rotation.set(0,ph*Math.PI*2*0.2+i*0.15,0); }; }
+      else if(mode==="orbitm"){ n=6; place=(m,i)=>{ const a=i/6*Math.PI*2+ph*Math.PI*2;
+        m.position.set(Math.cos(a)*3.4,Math.sin(a*2)*0.4,BACK+Math.sin(a)*1.1);
+        m.scale.setScalar(0.2*S); m.rotation.set(0,a,0); }; }
+      else if(mode==="wave"){ n=9; place=(m,i)=>{ const x=(i-4)*1.0;
+        m.position.set(x,Math.sin(ph*Math.PI*2+i*0.6)*0.85,BACK);
+        m.scale.setScalar(0.24*S); m.rotation.set(0,Math.sin(ph*6.28+i)*0.3,0); }; }
       else if(mode==="scatter"){ n=14; place=(m,i)=>{
-        const r1=Math.sin(i*12.9898)*43758.5453, r2=Math.sin(i*78.233)*43758.5453;
-        const r3=Math.sin(i*39.425)*43758.5453;
         const fr=v=>v-Math.floor(v);
-        m.position.set((fr(r1)-0.5)*7,(fr(r2)-0.5)*4,(fr(r3)-0.5)*5-1);
-        m.scale.setScalar((0.14+fr(r1)*0.2)*p.scale);
-        m.rotation.set(fr(r2)*3,fr(r3)*3+t*0.1,0); }; }
+        const r1=fr(Math.sin(i*12.9898)*43758.5453), r2=fr(Math.sin(i*78.233)*43758.5453),
+              r3=fr(Math.sin(i*39.425)*43758.5453);
+        m.position.set((r1-0.5)*8,(r2-0.5)*4.6,BACK-(r3*2.2));
+        m.scale.setScalar((0.1+r1*0.16)*S);
+        m.rotation.set(r2*3,r3*3+ph*0.6,0); }; }
       for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i); }
     }
 
-    /* starfield drift follows camera intent */
-    /* the work rig aligns to the same ground the previews use */
-    grid.position.y = anyEnv ? gy : -halfDiag-0.02;
-    stars.rotation.y = (p.orbit? t*0.05 : 0) + (p.parallax? t*0.02 : 0);
     starFar.material.opacity=0.30*(1-0.6*p.silh);
     starMid.material.opacity=0.34*(1-0.6*p.silh);
     starNear.material.opacity=0.20*(1-0.6*p.silh);
+    stars.rotation.y=0;                 /* the camera moves now, not the world */
     subjWire.visible=false;
-  }
-
-  /* preview camera: derived from p, matching the old 2D framing */
-  function previewCam(p,time){
-    const t=time||0;
-    const z=4.2*p.dist;
-    const px=(p.px-0.5)*2, py=(p.py-0.5)*2;
-    const orb=p.orbit? Math.sin(t*0.35)*0.5 : 0;
-    const par=p.parallax? Math.sin(t*0.5)*0.55 : 0;
-    cam.fov = p._focus==="macro" ? 26 : 38;
-    /* Ortho: r128 can swap the projection matrix, but a long lens pulled far
-       back reads the same and keeps one camera object for the whole engine. */
-    if(p.ortho>0.5){ cam.fov=7; cam.position.set(px*2.2,-py*1.5,z*5.4);
-      cam.lookAt(-px*0.6,-py*0.4,0); cam.updateProjectionMatrix(); return; }
-    cam.position.set(Math.sin(orb)*z + par + px*2.2, -py*1.5 + p.tilt*2.2, Math.cos(orb)*z);
-    cam.lookAt(-px*0.6, -py*0.4 + p.tilt*0.2, 0);
-    cam.updateProjectionMatrix();
+    return {gy:gy};
   }
 
   /* ---- blit: render off-screen, copy into the target 2D canvas ---- */
@@ -1744,26 +1850,34 @@ const ENG=(function(){
     applyScene(p,time,!!opts.work);
     rig.visible=!!opts.work;
     grid.visible=!!opts.work; axesH.visible=!!opts.work;
+    const r=rigAt(p,time);
     if(opts.work){
-      /* work viewport: free orbit camera + visible rigs */
+      /* work viewport: free orbit camera, everything else drawn as a rig */
       const o=opts.orbit||{az:0.7,el:0.35,dist:9};
-      cam.fov=42; cam.updateProjectionMatrix();
       cam.position.set(
         Math.cos(o.el)*Math.sin(o.az)*o.dist,
         Math.sin(o.el)*o.dist,
         Math.cos(o.el)*Math.cos(o.az)*o.dist);
+      cam.up.set(0,1,0);
       cam.lookAt(0,0,0);
-      /* place the gizmos where the preview camera and rim lights actually are */
-      const save=cam.position.clone(), saveQ=cam.quaternion.clone(), saveFov=cam.fov;
-      previewCam(p,time);
-      camGiz.position.copy(cam.position); camGiz.quaternion.copy(cam.quaternion);
-      cam.position.copy(save); cam.quaternion.copy(saveQ); cam.fov=saveFov; cam.updateProjectionMatrix();
+      cam.fov=42; cam.updateProjectionMatrix();
+      /* the gizmo IS the preview camera: same rigAt(), so it cannot drift */
+      placeCam(shadowCam,r,p.ortho>0.5);
+      camGiz.position.copy(shadowCam.position);
+      camGiz.quaternion.copy(shadowCam.quaternion);
       gizA.position.copy(rimA.position); gizA.visible=p.rimA>0.02;
       gizB.position.copy(rimB.position); gizB.visible=p.rimB>0.02;
       subjWire.visible=true;
       subjWire.rotation.copy(subject.rotation); subjWire.scale.copy(subject.scale);
+      /* dashed camera path + a dot riding it at the current phase */
+      buildPath(p);
+      const moving = p._cam && p._cam!=="static";
+      camPath.visible=moving; pathDot.visible=moving;
+      if(moving) pathDot.position.copy(shadowCam.position);
     }else{
-      previewCam(p,time);
+      placeCam(cam,r,p.ortho>0.5);
+      camPath.visible=false; pathDot.visible=false;
+      subjWire.visible=false;
     }
     cam.aspect=W/H; cam.updateProjectionMatrix();
     gl.setSize(W,H,false);
@@ -1806,7 +1920,17 @@ const AXES=[
   ["silhou","Controluce",ic('<circle class="s" cx="20" cy="20" r="9"/><circle class="o" cx="20" cy="20" r="9"/><path class="a" d="M20 6v3M20 31v3M34 20h-3M9 20H6M29 11l-2 2M13 27l-2 2M29 29l-2-2M13 13l-2-2"/>'),
    "Il fondo è luce, il prodotto è nero pieno: resta solo la sagoma. Massima leggibilità della forma, zero materiale."],
   ["grazing","Radente",ic('<path class="o" d="M6 28h28"/><path class="a" d="M6 24h28" stroke-dasharray="3 2"/><path class="a" d="M10 28c4 0 4-5 8-5s4 5 8 5"/>'),
-   "Sfiora la superficie a filo: ogni micro-rilievo proietta la propria ombra. È la luce che rivela la texture."]]},
+   "Sfiora la superficie a filo: ogni micro-rilievo proietta la propria ombra. È la luce che rivela la texture."],
+  ["three","Three point",ic('<circle class="s" cx="20" cy="21" r="7"/><path class="a" d="M7 9l5 5" stroke-width="2"/><path class="a" d="M33 12l-4 4" opacity=".5"/><path class="a" d="M20 4v5" opacity=".7"/>'),
+   "Key, fill e back: lo schema classico. Volume leggibile, ombre controllate, nessuna sorpresa — è la base da cui deviare."],
+  ["studio","Studio",ic('<rect class="o" x="5" y="7" width="30" height="9" rx="2"/><path class="dim" d="M11 16v3M20 16v3M29 16v3"/><circle class="s" cx="20" cy="26" r="7"/>'),
+   "Softbox ampio e avvolgente: materiale pulito, riflessi morbidi, zero dramma. La luce da catalogo."],
+  ["spot","Spotlight",ic('<path class="a" d="M20 5l-8 22h16z" opacity=".45"/><path class="o" d="M15 27h10"/><circle class="af" cx="20" cy="5" r="2"/>'),
+   "Cono stretto con caduta netta: isola il prodotto nel buio. Teatrale — il resto della scena sparisce."],
+  ["soft","Penombra",ic('<circle class="s" cx="20" cy="20" r="8"/><circle class="dim" cx="20" cy="20" r="12"/><path class="a" d="M12 14a10 10 0 0 1 9-4" opacity=".5" stroke-width="3"/>'),
+   "Transizione luce-ombra lunghissima: niente bordi, tutto respira. Elegante, ma il volume si legge appena."],
+  ["hard","Luce dura",ic('<circle class="s" cx="20" cy="20" r="8"/><path class="a" d="M20 12v16" stroke-width="2"/><path class="af" d="M7 7l5 5"/>'),
+   "Sorgente piccola, ombra tagliata col rasoio. Grafica e aggressiva: mostra ogni difetto della superficie."]]},
  {id:"cam",label:"Camera",opts:[
   ["static","Statica",ic('<rect class="o" x="8" y="13" width="24" height="14" rx="2"/><circle class="af" cx="20" cy="20" r="3"/>'),
    "Nessun movimento: tutta l'attenzione va alla forma e alla luce. Il frame più stabile in generazione."],
@@ -1819,7 +1943,26 @@ const AXES=[
   ["crane","Gru",ic('<path class="a" d="M8 8v12"/><path class="af" d="M8 22l-2.5-4h5z"/><rect class="o" x="14" y="22" width="18" height="10" rx="2"/><circle class="af" cx="23" cy="27" r="2.5"/>'),
    "Scende o sale rivelando progressivamente: il prodotto entra nel quadro dall'alto, gesto d'apertura per eccellenza."],
   ["vertigo","Dolly zoom",ic('<circle class="s" cx="20" cy="20" r="6"/><path class="a" d="M6 8l6 6M34 8l-6 6M6 32l6-6M34 32l-6-6"/>'),
-   "Il prodotto resta identico, lo spazio dietro respira. Effetto forte ma difficile da generare pulito: costruiscilo A→B."]]},
+   "Il prodotto resta identico, lo spazio dietro respira. Effetto forte ma difficile da generare pulito: costruiscilo A→B."],
+  ["pan","Pan",ic('<rect class="o" x="12" y="14" width="16" height="12" rx="2"/><path class="a" d="M6 20h4M30 20h4"/><path class="af" d="M34 20l-3-2v4zM6 20l3-2v4z"/>'),
+   "La camera ruota sul proprio asse: lo sfondo scorre, la distanza no. Movimento economico, l'AI lo regge bene."],
+  ["handheld","A mano",ic('<rect class="o" x="11" y="13" width="18" height="13" rx="2" transform="rotate(-4 20 20)"/><path class="a" d="M8 31c3-2 5 2 8 0s5 2 8 0s5 2 8 0" opacity=".7"/>'),
+   "Micro-oscillazioni continue: dà presenza fisica e urgenza. In generazione introduce rumore — usalo corto."]]},
+ {id:"lens",label:"Lente",opts:[
+  ["wide18","18mm",ic('<path class="o" d="M20 20L4 9v22z" opacity=".6"/><rect class="o" x="20" y="14" width="14" height="12" rx="2"/><circle class="af" cx="27" cy="20" r="2.5"/>'),
+   "Grandangolo estremo: lo spazio esplode, i bordi si curvano, il vicino diventa gigante. Drammatico e infedele."],
+  ["wide35","35mm",ic('<path class="o" d="M20 20L8 12v16z" opacity=".6"/><rect class="o" x="20" y="14" width="14" height="12" rx="2"/><circle class="af" cx="27" cy="20" r="2.5"/>'),
+   "Ampio ma onesto: contesto e prodotto insieme senza distorsioni evidenti. Il reportage."],
+  ["normal","50mm",ic('<rect class="o" x="18" y="14" width="14" height="12" rx="2"/><path class="o" d="M18 20L11 15v10z" opacity=".6"/><circle class="af" cx="25" cy="20" r="2.5"/>'),
+   "La resa più vicina all'occhio: nessuna opinione prospettica. Il punto neutro da cui misurare tutto il resto."],
+  ["tele85","85mm",ic('<rect class="o" x="16" y="15" width="16" height="10" rx="2"/><path class="o" d="M16 20l-4-2v4z" opacity=".6"/><circle class="af" cx="24" cy="20" r="2.5"/>'),
+   "Comincia a comprimere: il soggetto si stacca, il fondo si avvicina. Il ritratto del prodotto."],
+  ["tele200","200mm",ic('<rect class="o" x="12" y="16" width="22" height="8" rx="2"/><circle class="af" cx="23" cy="20" r="2"/><path class="dim" d="M6 20h6"/>'),
+   "Compressione forte: piani schiacciati, sfondo che sale addosso al soggetto. Isola come nient'altro."],
+  ["macro","Macro",ic('<circle class="o" cx="20" cy="20" r="9"/><circle class="af" cx="20" cy="20" r="3"/><path class="a" d="M29 29l5 5"/>'),
+   "Distanza minima di messa a fuoco ridicola: la texture diventa paesaggio. Profondità di campo quasi nulla."],
+  ["tilt","Tilt-shift",ic('<rect class="o" x="8" y="14" width="24" height="12" rx="2" transform="skewX(-8)"/><path class="a" d="M6 12h28M6 28h28" opacity=".4" stroke-dasharray="2 2"/>'),
+   "Piano di fuoco inclinato: decidi tu cosa resta nitido, indipendentemente dalla distanza. Il controllo totale."]]},
  {id:"focus",label:"Fuoco",opts:[
   ["deep","Tutto a fuoco",ic('<circle class="af" cx="20" cy="20" r="5"/><circle class="a" cx="8" cy="20" r="3"/><circle class="a" cx="32" cy="20" r="3"/>'),
    "Nitido dal primo all'ultimo piano: descrittivo, tecnico, catalogo. L'occhio deve trovare il soggetto da solo."],
@@ -1844,6 +1987,30 @@ const AXES=[
    "Dal basso verso l'alto: il prodotto domina lo spettatore. Il linguaggio del monumento."],
   ["top","A picco",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="4"/><path class="dim" d="M20 11v3M20 26v3M5 20h3M32 20h3"/>'),
    "Vista zenitale: annulla la profondità e trasforma il prodotto in grafica. Perfetta per i pattern."]]},
+ {id:"size",label:"Dimensione soggetto",opts:[
+  ["xs","Molto piccolo",ic('<rect class="o" x="5" y="10" width="30" height="20"/><rect class="af" x="18" y="18" width="4" height="4"/>'),
+   "Il prodotto è un dettaglio nel vuoto: parla la scala, non l'oggetto. Rischia di sparire in compressione."],
+  ["s","Piccolo",ic('<rect class="o" x="5" y="10" width="30" height="20"/><rect class="af" x="16" y="16" width="8" height="8"/>'),
+   "Lascia respirare il frame: c'è aria per titoli e claim, il prodotto resta protagonista."],
+  ["m","Medio",ic('<rect class="o" x="5" y="10" width="30" height="20"/><rect class="af" x="14" y="14" width="12" height="12"/>'),
+   "Il rapporto neutro: il prodotto occupa il frame senza toccarne i bordi. Il default."],
+  ["l","Grande",ic('<rect class="o" x="5" y="10" width="30" height="20"/><rect class="af" x="11" y="11" width="18" height="18"/>'),
+   "Riempie: presenza fisica forte, poco spazio per altro. La scelta da hero shot."],
+  ["xl","Fuori scala",ic('<rect class="o" x="5" y="10" width="30" height="20"/><rect class="af" x="7" y="7" width="26" height="26"/>'),
+   "Esce dal quadro: diventa architettura invece che oggetto. Perdi la sagoma, guadagni impatto."]]},
+ {id:"rot",label:"Rotazione soggetto",opts:[
+  ["r0","0°",ic('<rect class="o" x="12" y="12" width="16" height="16"/><path class="af" d="M20 8v4"/>'),
+   "Faccia frontale piena: lettura da icona, zero informazione sul volume."],
+  ["r45","45°",ic('<rect class="o" x="12" y="12" width="16" height="16" transform="rotate(45 20 20)"/><path class="af" d="M20 5v4"/>'),
+   "Lo spigolo verso l'osservatore: due facce visibili, il classico tre quarti del prodotto."],
+  ["r90","90°",ic('<rect class="o" x="12" y="12" width="16" height="16"/><path class="af" d="M32 20h4"/><path class="dim" d="M20 12v16"/>'),
+   "Un quarto di giro: mostra la faccia laterale come fosse la principale."],
+  ["r135","135°",ic('<rect class="o" x="12" y="12" width="16" height="16" transform="rotate(135 20 20)"/><path class="af" d="M31 31l3 3"/>'),
+   "Tre quarti posteriore: si intuisce il retro senza mostrarlo. Crea curiosità."],
+  ["r180","180°",ic('<rect class="o" x="12" y="12" width="16" height="16"/><path class="af" d="M20 32v4"/><path class="dim" d="M12 20h16"/>'),
+   "Il retro pieno: onesto o inutile a seconda del prodotto. Ottimo come frame A di un reveal."],
+  ["spin","In rotazione",ic('<circle class="dim" cx="20" cy="20" r="12"/><rect class="o" x="14" y="14" width="12" height="12" transform="rotate(20 20 20)"/><path class="af" d="M32 16l2 5-5-1z"/>'),
+   "Gira su sé stesso in loop: mostra tutto, ma è il soggetto a muoversi — usalo quando il movimento È il messaggio."]]},
  {id:"view",label:"Vista",opts:[
   ["center","Centrato",ic('<rect class="o" x="10" y="10" width="20" height="20"/><circle class="af" cx="20" cy="20" r="3"/>'),
    "Faccia frontale, nessuna fuga: il prodotto si legge come un'icona. Zero informazione sul volume."],
@@ -1896,87 +2063,132 @@ const AXES=[
   ["floor","Piano",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M5 25h30"/><circle class="af" cx="20" cy="19" r="5"/>'),
    "Una superficie sotto il prodotto: gli dà peso e lo ancora. L'ombra di contatto fa metà del lavoro."],
   ["limbo","Limbo",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M5 24q15-6 30 0" opacity=".7"/><circle class="af" cx="20" cy="18" r="5"/>'),
-   "Cove senza spigolo: pavimento e fondo si fondono in una curva. Lo studio classico da packshot."],
-  ["cyclo","Ciclorama",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M9 8v13q0 5 5 5h17" opacity=".6"/><circle class="af" cx="20" cy="20" r="4"/>'),
-   "Fondale continuo su due lati: spazio infinito ma illuminabile. Costoso da generare, molto pulito."],
-  ["pedestal","Piedistallo",ic('<rect class="o" x="5" y="8" width="30" height="24"/><rect class="a" x="14" y="24" width="12" height="6"/><circle class="af" cx="20" cy="18" r="5"/>'),
-   "Il prodotto su un podio: dice 'guardami' prima ancora della luce. Museale."],
-  ["gradient","Fondo gradiente",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="dim" d="M5 14h30M5 20h30M5 26h30"/><circle class="af" cx="20" cy="20" r="5"/>'),
-   "Sfumatura dietro il soggetto: separa senza introdurre oggetti. Il compromesso più sicuro."],
-  ["interior","Interno",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M12 8v24M28 8v24M5 26h30" opacity=".45"/><circle class="af" cx="20" cy="20" r="4"/>'),
-   "Un ambiente reale attorno: dà contesto d'uso ma ruba attenzione. L'AI ci mette dentro cose non richieste."],
-  ["outdoor","Esterno",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M5 24h30" opacity=".6"/><circle class="a" cx="30" cy="13" r="3" opacity=".5"/><circle class="af" cx="18" cy="20" r="4"/>'),
-   "Luce naturale e orizzonte: racconta una storia, non un prodotto. Il meno controllabile di tutti."],
-  ["tech","Tech grid",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="dim" d="M5 16h30M5 24h30M14 8v24M26 8v24"/><circle class="af" cx="20" cy="20" r="4"/>'),
-   "Griglia luminosa nel buio: linguaggio da spec sheet. Dice 'ingegneria' senza una parola."]]},
+   "Cove senza spigolo: il pavimento risale in curva e diventa fondo. Lo studio classico da packshot."]]},
  {id:"atmo",label:"Atmosfera",opts:[
-  ["clean","Void pulito",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="5"/>'),
-   "Nero assoluto, nessuna interferenza: chirurgico. Lascia tutta la responsabilità alla forma."],
-  ["haze","Foschia",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="a" d="M8 16h24M8 20h20M8 25h24" opacity=".4"/><circle class="af" cx="20" cy="20" r="5"/>'),
-   "L'aria diventa visibile: i raggi si vedono, lo spazio acquista profondità e il fondo smette di essere piatto."],
-  ["particle","Particelle",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="5"/><circle class="af" cx="10" cy="15" r="1"/><circle class="af" cx="30" cy="24" r="1"/><circle class="af" cx="14" cy="26" r="1"/><circle class="af" cx="28" cy="14" r="1"/>'),
-   "Pulviscolo sospeso: dà scala e vita al vuoto senza rubare la scena."],
-  ["reflect","Riflesso",ic('<rect class="o" x="5" y="8" width="30" height="24"/><circle class="af" cx="20" cy="16" r="5"/><path class="dim" d="M5 21h30"/><circle class="a" cx="20" cy="26" r="5" opacity=".3"/>'),
-   "Il riflesso raddoppia il prodotto e ancora l'oggetto a un piano: smette di fluttuare nel nulla."],
-  ["smoke","Fumo",ic('<rect class="o" x="5" y="11" width="30" height="18"/><path class="a" d="M9 27c3-6 7-3 9-8s7-6 9-1 5 4 4 9z" opacity=".6"/><circle class="af" cx="20" cy="20" r="4"/>'),
-   "Volume che si muove da sé: riempie il vuoto e nasconde quanto basta perché l'occhio voglia vedere di più."]]}
+  ["clean","Void pulito",ic('<rect class="o" x="6" y="11" width="28" height="18"/><circle class="af" cx="20" cy="20" r="5"/>'),
+   "Aria trasparente: nessun velo tra camera e prodotto. Massima nitidezza, zero atmosfera."],
+  ["particle","Particelle",ic('<rect class="o" x="6" y="11" width="28" height="18"/><circle class="af" cx="20" cy="20" r="4"/><circle class="a" cx="11" cy="15" r="1"/><circle class="a" cx="29" cy="16" r="1"/><circle class="a" cx="14" cy="25" r="1"/><circle class="a" cx="27" cy="24" r="1"/><circle class="a" cx="20" cy="13" r=".8"/>'),
+   "Pulviscolo sospeso che cattura la luce: dà volume all'aria e scala allo spazio. Poco invasivo, molto efficace."]]}
 ];
 const AXMAP={}; AXES.forEach(a=>AXMAP[a.id]=a);
 const optOf=(ax,id)=>AXMAP[ax].opts.find(o=>o[0]===id);
 
 /* ---------------- shared 3D-ish renderer (canvas, interactive) ---------------- */
 /* numeric params derived from a selection, tweened for animation */
+/* ============================================================================
+   params(sel) -> a CAMERA RIG, not a pile of object transforms.
+
+   The subject NEVER moves. It sits at the origin, unrotated, at its native
+   size. Everything else is the camera: where it stands (az/el/dist), what it
+   looks at (tx/ty), and what lens it wears (fov). This is the whole reason the
+   old build felt wrong — "Vista" spun the cube, "Composizione" slid it, and
+   "Camera" faked a move by scaling it. Three axes fighting over one object.
+
+   Now they compose cleanly:
+     Vista        -> where the camera STANDS       (az, el)
+     Camera       -> how it MOVES from there       (mov + amplitude)
+     Composizione -> where it AIMS                 (tx, ty) + roll
+     Lente        -> fov / compression             (fov, dist scaled to match)
+   ========================================================================== */
 function params(sel){
-  const p={rot:0,tilt:0,dist:1,px:.5,py:.5,scale:1,rimA:1,rimB:0,top:0,under:0,
-    silh:0,graz:0,blur:0,fg:0,haze:0,part:0,refl:0,smoke:0,orbit:0,parallax:0,
-    /* vista */ yaw:0,pitch:0,ortho:0,
-    /* environment */ floor:0,cove:0,wall:0,pedestal:0,grad:0,room:0,horizon:0,techgrid:0};
+  const p={
+    /* camera rig */
+    az:0, el:0.10, dist:4.6, tx:0, ty:0, fov:38, ortho:0, roll:0,
+    /* movement: which animated move, and how strong. Loops, always. */
+    mov:"none", amp:1,
+    /* lights */
+    rimA:1, rimB:0, top:0, under:0, silh:0, graz:0,
+    key:0, fill:0, back:0, spot:0, penumbra:.5, studio:0, softness:.5,
+    /* lens/optics */
+    blur:0, fg:0, bokeh:0,
+    /* subject: the ONLY two knobs allowed to touch the object */
+    sscale:1, srot:0,
+    /* atmosphere + environment */
+    part:0, floor:0, cove:0,
+    /* motion design */
+    mpush:1
+  };
+
+  /* ---------- Luce ---------- */
   if(sel.luce==="duo"){p.rimB=.6;}
   if(sel.luce==="top"){p.rimA=0;p.top=1;}
   if(sel.luce==="under"){p.rimA=0;p.under=1;}
   if(sel.luce==="silhou"){p.silh=1;p.rimA=.35;}
   if(sel.luce==="grazing"){p.graz=1;p.rimA=.7;}
-  if(sel.cam==="push"){p.dist=.82;}
-  if(sel.cam==="orbit"){p.orbit=1;p.rot=.5;}
-  if(sel.cam==="truck"){p.parallax=1;p.rot=-.25;}
-  if(sel.cam==="crane"){p.tilt=.3;}
-  if(sel.cam==="vertigo"){p.dist=.9;p.parallax=1;}
-  if(sel.focus==="shallow"){p.blur=.7;}
-  if(sel.focus==="rack"){p.blur=.4;p.fg=.5;}
-  if(sel.focus==="macro"){p.dist=.5;p.scale=1.7;}
+  if(sel.luce==="three"){p.rimA=.35;p.key=1;p.fill=.45;p.back=.8;}
+  if(sel.luce==="studio"){p.rimA=.2;p.studio=1;p.key=.7;p.fill=.6;p.softness=1;}
+  if(sel.luce==="spot"){p.rimA=.15;p.spot=1;p.penumbra=.12;}
+  if(sel.luce==="soft"){p.rimA=.3;p.key=.8;p.fill=.7;p.softness=1;p.penumbra=1;}
+  if(sel.luce==="hard"){p.rimA=.5;p.key=1;p.fill=.05;p.softness=0;p.penumbra=0;}
+
+  /* ---------- Vista: where the camera STANDS ---------- */
+  if(sel.view==="quarter"){p.az=.62;p.el=.20;}
+  if(sel.view==="shape"){p.az=.34;p.el=.06;p.dist=3.0;}
+  if(sel.view==="offset"){p.az=.5;p.el=.16;}
+  if(sel.view==="low"){p.az=.38;p.el=-.62;}
+  if(sel.view==="high"){p.az=.38;p.el=.62;}
+  if(sel.view==="profile"){p.az=1.5708;p.el=.02;}
+  if(sel.view==="ortho"){p.az=0;p.el=0;p.ortho=1;}
+  if(sel.view==="macro3q"){p.az=.72;p.el=.24;p.dist=2.8;}
+  if(sel.view==="zenith"){p.az=0;p.el=1.45;}
+
+  /* ---------- Lente ---------- */
+  /* dist compensates so the subject keeps roughly the same height on screen:
+     that is the whole point of a focal-length axis — perspective changes,
+     framing does not. */
+  if(sel.lens==="wide18"){p.fov=78;p.dist*=.52;}
+  if(sel.lens==="wide35"){p.fov=54;p.dist*=.78;}
+  if(sel.lens==="normal"){p.fov=38;}
+  if(sel.lens==="tele85"){p.fov=24;p.dist*=1.55;}
+  if(sel.lens==="tele200"){p.fov=11;p.dist*=3.3;}
+  if(sel.lens==="macro"){p.fov=32;p.dist*=.58;p.bokeh=.5;}
+  if(sel.lens==="tilt"){p.fov=38;p.blur=.35;p.bokeh=.8;}
+
+  /* ---------- Camera: how it MOVES ---------- */
+  if(sel.cam==="push"){p.mov="push";}
+  if(sel.cam==="orbit"){p.mov="orbit";}
+  if(sel.cam==="truck"){p.mov="truck";}
+  if(sel.cam==="crane"){p.mov="crane";}
+  if(sel.cam==="vertigo"){p.mov="vertigo";}
+  if(sel.cam==="pan"){p.mov="pan";}
+  if(sel.cam==="handheld"){p.mov="handheld";}
+
+  /* ---------- Fuoco ---------- */
+  if(sel.focus==="shallow"){p.blur=.7;p.bokeh=.7;}
+  if(sel.focus==="rack"){p.blur=.4;p.fg=.5;p.bokeh=.5;}
+  if(sel.focus==="macro"){p.dist*=.62;p.bokeh=.8;}
   if(sel.focus==="fgblur"){p.fg=1;p.blur=.35;}
-  if(sel.comp==="thirds"){p.px=.66;}
-  if(sel.comp==="neg"){p.px=.3;}
-  if(sel.comp==="extreme"){p.px=.6;p.scale*=1.75;}
-  if(sel.comp==="low"){p.py=.58;p.tilt=-.35;}
-  if(sel.comp==="top"){p.tilt=.9;}
-  if(sel.atmo==="haze"){p.haze=1;}
+
+  /* ---------- Composizione: where the camera AIMS ----------
+     tx/ty shift the LOOK-AT target, which slides the subject in frame without
+     touching the subject itself. Positive tx pushes the subject left. */
+  if(sel.comp==="thirds"){p.tx=.62;p.ty=-.12;}
+  if(sel.comp==="neg"){p.tx=-.85;p.ty=-.10;}
+  if(sel.comp==="extreme"){p.dist*=.52;p.tx=.18;}
+  if(sel.comp==="low"){p.el=Math.min(p.el,-.42);p.ty=.22;}
+  if(sel.comp==="top"){p.el=Math.max(p.el,.85);}
+
+  /* ---------- Soggetto: the only two object-space knobs ---------- */
+  if(sel.size==="xs"){p.sscale=.55;}
+  if(sel.size==="s"){p.sscale=.78;}
+  if(sel.size==="l"){p.sscale=1.3;}
+  if(sel.size==="xl"){p.sscale=1.7;}
+  if(sel.rot==="r45"){p.srot=Math.PI/4;}
+  if(sel.rot==="r90"){p.srot=Math.PI/2;}
+  if(sel.rot==="r135"){p.srot=Math.PI*.75;}
+  if(sel.rot==="r180"){p.srot=Math.PI;}
+  if(sel.rot==="spin"){p.srot=-1;}      /* -1 = animate, handled in the engine */
+
+  /* ---------- Atmosfera ---------- */
   if(sel.atmo==="particle"){p.part=1;}
-  if(sel.atmo==="reflect"){p.refl=1;}
-  if(sel.atmo==="smoke"){p.smoke=1;}
-  /* ---- Vista: where the camera sits relative to the object. Separate from
-     Composizione, which is where the object sits inside the frame. ---- */
-  if(sel.view==="quarter"){p.yaw=.62;p.pitch=.16;}
-  if(sel.view==="shape"){p.yaw=.3;p.pitch=.05;p.scale*=1.5;p.dist*=.72;}
-  if(sel.view==="offset"){p.yaw=.5;p.px=Math.min(.82,p.px+.16);}
-  if(sel.view==="low"){p.pitch=-.72;p.yaw=.35;}
-  if(sel.view==="high"){p.pitch=.6;p.yaw=.35;}
-  if(sel.view==="profile"){p.yaw=1.5708;}
-  if(sel.view==="ortho"){p.ortho=1;p.yaw=.0;}
-  if(sel.view==="macro3q"){p.yaw=.72;p.pitch=.2;p.scale*=1.45;p.dist*=.62;}
-  if(sel.view==="zenith"){p.pitch=1.5;}
-  /* ---- Environment: what the object stands in ---- */
+
+  /* ---------- Environment ---------- */
   if(sel.env==="floor"){p.floor=1;}
   if(sel.env==="limbo"){p.floor=1;p.cove=1;}
-  if(sel.env==="cyclo"){p.floor=1;p.cove=1;p.wall=1;}
-  if(sel.env==="pedestal"){p.floor=1;p.pedestal=1;}
-  if(sel.env==="gradient"){p.grad=1;}
-  if(sel.env==="interior"){p.floor=1;p.wall=1;p.room=1;}
-  if(sel.env==="outdoor"){p.floor=1;p.horizon=1;}
-  if(sel.env==="tech"){p.techgrid=1;p.floor=1;}
-  /* non-numeric passthrough for the 3D engine (mixP only lerps numbers, and
-     these are categorical: they snap at t=0.5 rather than blending) */
-  p._motion=sel.motion; p._focus=sel.focus; p._view=sel.view; p._env=sel.env;
+
+  /* categorical passthrough: mixP only lerps numbers */
+  p._motion=sel.motion; p._focus=sel.focus; p._view=sel.view;
+  p._env=sel.env; p._cam=sel.cam; p._rot=sel.rot;
   return p;
 }
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -1984,147 +2196,25 @@ function mixP(A,B,t){ const o={};
   for(const k in A) o[k] = (typeof A[k]==="number") ? lerp(A[k],B[k],t) : (t<0.5?A[k]:B[k]);
   return o; }
 
-/* draw one frame onto a 2D canvas.
-   Primary path = the shared Three.js engine (beveled cube + starfield).
-   The 2D capsule below is kept as the fallback when WebGL is unavailable. */
+/* Draw one frame. The Three.js engine is the only real renderer now; the old
+   2D capsule painter spoke the pre-rig param language (rot/px/haze/refl) which
+   no longer exists, so keeping it would have meant maintaining two divergent
+   scenes. Without WebGL we say so plainly instead of lying with a fake. */
 function draw(cv, sel, p, time, opts){
   if(ENG){ ENG.renderTo(cv,p,time,opts); return; }
   const W=cv.width, H=cv.height, ctx=cv.getContext("2d");
   if(!ctx || W<4 || H<4) return;
-  const A="#ff7950";
-  /* full reset: guarantees no leftover transform/alpha/filter from a previous pass */
   ctx.setTransform(1,0,0,1,0,0);
-  ctx.globalAlpha=1;
-  if("filter" in ctx) ctx.filter="none";
-  ctx.clearRect(0,0,W,H);
   ctx.fillStyle="#040404"; ctx.fillRect(0,0,W,H);
-
-  const cx=W*p.px, cy=H*p.py;
-  const R=Math.min(W,H)*0.17*p.scale/p.dist;
-
-  /* atmosphere behind */
-  if(p.haze>0.01){ const g=ctx.createLinearGradient(0,0,W,H);
-    g.addColorStop(0,"rgba(255,121,80,"+(0.15*p.haze)+")"); g.addColorStop(1,"rgba(255,121,80,0)");
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
-  if(p.smoke>0.01){ const g=ctx.createRadialGradient(W*.62,H*.62,4,W*.62,H*.62,W*.36);
-    g.addColorStop(0,"rgba(255,121,80,"+(0.2*p.smoke)+")"); g.addColorStop(1,"rgba(255,121,80,0)");
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
-  if(p.part>0.01){ for(let i=0;i<40;i++){
-      const dx=((i*137.5+time*8*(1+(i%3)))%W), dy=((i*79.3+time*4)%H);
-      ctx.fillStyle="rgba(255,121,80,"+(0.18+(i%4)*0.1)*p.part+")";
-      ctx.beginPath(); ctx.arc(dx,dy,(i%3)*0.5+0.6,0,7); ctx.fill(); } }
-  if(p.silh>0.01){ const g=ctx.createRadialGradient(cx,cy,R*.4,cx,cy,R*3.4);
-    g.addColorStop(0,"rgba(255,121,80,"+(0.7*p.silh)+")"); g.addColorStop(1,"rgba(255,121,80,0)");
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
-  if(p.parallax>0.01){ ctx.strokeStyle="rgba(58,59,65,"+(0.5*p.parallax)+")"; ctx.lineWidth=1;
-    for(let i=0;i<4;i++){ const x=((i*W/4)+time*22)%W;
-      ctx.beginPath(); ctx.moveTo(x,H*.16); ctx.lineTo(x,H*.84); ctx.stroke(); } }
-  if(p.refl>0.01){ ctx.strokeStyle="rgba(38,38,43,"+p.refl+")"; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(0,cy+R*1.5); ctx.lineTo(W,cy+R*1.5); ctx.stroke(); }
-
-  const clones=[];
-  const push=(x,y,r,o)=>clones.push([x,y,r,o]);
-  if(sel.motion==="clone"){ push(cx-R*2.1,cy,R*.6,.5); push(cx+R*2.1,cy,R*.6,.5); }
-  if(sel.motion==="grid"){ for(let r=0;r<3;r++)for(let c=0;c<7;c++){
-      const x=W*.08+c*W*.14, y=H*.24+r*H*.26;
-      if(Math.abs(x-cx)<R*1.2&&Math.abs(y-cy)<R*1.2) continue; push(x,y,R*.3,.4);} }
-  if(sel.motion==="spiral"){ for(let i=0;i<11;i++){ const a=i*.72+time*.35, rr=R*.3+i*R*.22;
-      push(cx+Math.cos(a)*rr*1.4, cy+Math.sin(a)*rr*.7, R*.12+i*R*.04, .28+i*.04);} }
-  if(sel.motion==="vortex"){ for(let i=0;i<8;i++){ const a=i*.79+time*.9;
-      push(cx+Math.cos(a)*R*2.4, cy+Math.sin(a)*R*1.05, R*.24, .35);} }
-  if(sel.motion==="kaleido"){ for(let i=0;i<6;i++){ const a=i*Math.PI/3+time*.25;
-      push(cx+Math.cos(a)*R*1.75, cy+Math.sin(a)*R*.95, R*.42, .46);} }
-  if(sel.motion==="multi"){ const a=time*.7;
-    push(cx+Math.cos(a)*R*2.4, cy, R*.38,.45); push(cx-Math.cos(a)*R*2.4, cy, R*.38,.45);
-    push(cx, cy+Math.sin(a)*R*1.7, R*.38,.35); push(cx, cy-Math.sin(a)*R*1.7, R*.38,.35); }
-
-  /* capsule with rim shading */
-  function capsule(x,y,r,alpha,isHero){
-    const rx=r*0.62, ry=r, tl=p.tilt;
-    ctx.save(); ctx.translate(x,y); ctx.rotate(tl*0.18); ctx.globalAlpha=alpha;
-    const g=ctx.createLinearGradient(-rx,0,rx,0);
-    if(p.silh>0.5){ g.addColorStop(0,"#040405"); g.addColorStop(1,"#070709"); }
-    else { g.addColorStop(0,"#0a0b0c"); g.addColorStop(.34,"#141518");
-           g.addColorStop(.62,"#1d1e22"); g.addColorStop(.86,"#26272c"); g.addColorStop(1,"#141519"); }
-    ctx.fillStyle=g;
-    ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.fill();
-    /* subtle vertical falloff so the capsule reads as a solid, like the LIVE render */
-    ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.clip();
-    const vgr=ctx.createLinearGradient(0,-ry,0,ry);
-    vgr.addColorStop(0,"rgba(255,255,255,.05)"); vgr.addColorStop(.5,"rgba(255,255,255,0)");
-    vgr.addColorStop(1,"rgba(0,0,0,.35)");
-    ctx.fillStyle=vgr; ctx.fillRect(-rx,-ry,rx*2,ry*2); ctx.restore();
-    if(isHero){
-      /* rim right */
-      if(p.rimA>0.01){ ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.clip();
-        const rg=ctx.createLinearGradient(rx*0.05,0,rx,0);
-        rg.addColorStop(0,"rgba(255,121,80,0)");
-        rg.addColorStop(.72,"rgba(255,121,80,"+(p.rimA*0.55)+")");
-        rg.addColorStop(.93,"rgba(255,175,135,"+p.rimA+")");
-        rg.addColorStop(1,"rgba(255,214,190,"+(p.rimA*0.85)+")");
-        ctx.fillStyle=rg; ctx.fillRect(-rx,-ry,rx*2,ry*2); ctx.restore(); }
-      if(p.rimB>0.01){ ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.clip();
-        const rg=ctx.createLinearGradient(-rx*0.1,0,-rx,0);
-        rg.addColorStop(0,"rgba(255,121,80,0)"); rg.addColorStop(1,"rgba(255,150,110,"+p.rimB+")");
-        ctx.fillStyle=rg; ctx.fillRect(-rx,-ry,rx*2,ry*2); ctx.restore(); }
-      if(p.top>0.01){ ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.clip();
-        const rg=ctx.createLinearGradient(0,-ry,0,0);
-        rg.addColorStop(0,"rgba(255,150,110,"+p.top+")"); rg.addColorStop(1,"rgba(255,121,80,0)");
-        ctx.fillStyle=rg; ctx.fillRect(-rx,-ry,rx*2,ry*2); ctx.restore(); }
-      if(p.under>0.01){ ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.clip();
-        const rg=ctx.createLinearGradient(0,ry,0,0);
-        rg.addColorStop(0,"rgba(255,150,110,"+p.under+")"); rg.addColorStop(1,"rgba(255,121,80,0)");
-        ctx.fillStyle=rg; ctx.fillRect(-rx,-ry,rx*2,ry*2); ctx.restore(); }
-      if(p.graz>0.01){ ctx.strokeStyle="rgba(255,121,80,"+(0.5*p.graz)+")"; ctx.lineWidth=1;
-        for(let i=0;i<6;i++){ const yy=-ry*.72+i*(ry*.29);
-          ctx.beginPath(); ctx.moveTo(-rx*.5,yy); ctx.quadraticCurveTo(0,yy+3,rx*.5,yy); ctx.stroke(); } }
-    } else {
-      ctx.strokeStyle="rgba(255,121,80,"+(alpha*0.45)+")"; ctx.lineWidth=1;
-      ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,7); ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  clones.forEach(c=>capsule(c[0],c[1],c[2],c[3],false));
-  /* save/restore must always pair — an unbalanced stack corrupts every later draw */
-  ctx.save();
-  if(p.blur>0.01 && "filter" in ctx) ctx.filter="blur("+(p.blur*3).toFixed(1)+"px)";
-  capsule(cx,cy,R,1,true);
-  ctx.restore();
-
-  if(p.refl>0.01){ ctx.save(); ctx.globalAlpha=0.2*p.refl;
-    ctx.translate(0,(cy+R*1.5)*2); ctx.scale(1,-1);
-    capsule(cx,cy,R,1,true);
-    ctx.restore(); }
-
-  if(p.fg>0.01){ ctx.save();
-    if("filter" in ctx) ctx.filter="blur("+(8*p.fg)+"px)";
-    ctx.fillStyle="rgba(255,121,80,"+(0.18*p.fg)+")";
-    ctx.beginPath(); ctx.arc(W*.12,H*.82,W*.1,0,7); ctx.fill();
-    ctx.beginPath(); ctx.arc(W*.88,H*.2,W*.07,0,7); ctx.fill();
-    ctx.restore(); }
-
-  /* overlays */
-  ctx.lineWidth=1;
-  if(sel.comp==="thirds"){ ctx.strokeStyle="rgba(255,255,255,.13)";
-    [W/3,W*2/3].forEach(x=>{ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();});
-    [H/3,H*2/3].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}); }
-  if(sel.comp==="center"){ ctx.strokeStyle="rgba(255,121,80,.4)"; ctx.setLineDash([4,4]);
-    ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
-    ctx.setLineDash([]); }
-  if(sel.comp==="neg"){ const bx=W*.62,by=H*.3,bw=W*.3,bh=H*.4;
-    ctx.fillStyle="rgba(255,121,80,.07)"; ctx.fillRect(bx,by,bw,bh);
-    ctx.strokeStyle="rgba(255,121,80,.6)"; ctx.setLineDash([3,3]); ctx.strokeRect(bx,by,bw,bh); ctx.setLineDash([]);
-    ctx.fillStyle=A; ctx.font="600 "+Math.round(W*.018)+"px Inter,sans-serif";
-    ctx.fillText("AREA LOGO", bx+7, by+16); }
-
-  /* vignette */
-  const vg=ctx.createRadialGradient(W/2,H*.46,Math.min(W,H)*.28,W/2,H*.46,Math.max(W,H)*.72);
-  vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.72)");
-  ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#5c5c61";
+  ctx.font='500 12px "Inter",system-ui,sans-serif';
+  ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText("Anteprima 3D non disponibile", W/2, H/2);
+  ctx.textAlign="start"; ctx.textBaseline="alphabetic";
 }
 
-/* animated canvas host */
+/* every canvas the tool paints into; sizeAll() resizes them as a group.
+   (Declared here after the old 2D painter that used to host it was removed.) */
 const CANVASES=[];
 function makeCanvas(host){
   const cv=document.createElement("canvas"); cv.style.cssText="width:100%;height:100%;display:block";
@@ -2151,19 +2241,27 @@ function makeCanvas(host){
 function sizeAll(){ let ch=false; CANVASES.forEach(cv=>{ if(cv._size&&cv._size()) ch=true; }); return ch; }
 
 /* ---------------- verdict ---------------- */
+/* How strongly each option pushes the PRODUCT forward as the subject.
+   3 = the product dominates, 0 = the composition steals the show. */
 const VERDICT={
- luce:{rim:2,duo:2,top:1,under:1,silhou:3,grazing:2},
- cam:{static:2,push:3,orbit:2,truck:1,crane:2,vertigo:3},
+ luce:{rim:2,duo:2,top:1,under:1,silhou:3,grazing:2,three:2,studio:2,spot:3,soft:1,hard:2},
+ cam:{static:2,push:3,orbit:2,truck:1,crane:2,vertigo:3,pan:1,handheld:1},
+ lens:{wide18:0,wide35:1,normal:2,tele85:3,tele200:3,macro:3,tilt:2},
  focus:{deep:0,shallow:3,rack:2,macro:3,fgblur:2},
  comp:{center:3,thirds:1,neg:2,extreme:3,low:3,top:1},
+ size:{xs:0,s:1,m:2,l:3,xl:3},
+ rot:{r0:2,r45:3,r90:2,r135:1,r180:1,spin:2},
  motion:{none:3,clone:2,grid:1,spiral:2,vortex:1,kaleido:0,multi:1,explode:1,stack:2,orbitm:2,wave:1,scatter:0},
  view:{center:2,quarter:3,shape:2,offset:2,low:2,high:1,profile:2,ortho:1,macro3q:3,zenith:1},
- env:{void:3,floor:2,limbo:3,cyclo:2,pedestal:3,gradient:2,interior:0,outdoor:0,tech:1},
- atmo:{clean:3,haze:2,particle:2,reflect:2,smoke:1}
+ env:{void:3,floor:2,limbo:3},
+ atmo:{clean:3,particle:2}
 };
+/* max = 3 per axis; scale to the axes that actually exist so adding an axis
+   never silently rescales the reading */
+const VMAX=Object.keys(VERDICT).length*3;
 function verdict(sel){
   let s=0; for(const k in sel) s+=(VERDICT[k]&&VERDICT[k][sel[k]])||0;
-  const p=Math.round(s/18*100);
+  const p=Math.round(s/VMAX*100);
   if(p>=78) return "Dominante ("+p+"%). Il prodotto è inequivocabilmente il soggetto: nessuna ambiguità su dove guardare. Rischio opposto — può risultare freddo. Un solo elemento d'atmosfera lo riscalda senza indebolirlo.";
   if(p>=55) return "Protagonista ("+p+"%). Gerarchia chiara, con abbastanza contesto da restare interessante. È la zona giusta per la maggior parte degli shot di prodotto.";
   if(p>=35) return "Integrato ("+p+"%). Il prodotto convive con lo spazio: bello da vedere, ma l'occhio ha alternative. Funziona come inquadratura d'atmosfera, non come hero.";
@@ -2495,52 +2593,52 @@ const sIc=s=>'<svg viewBox="0 0 40 40">'+s+'</svg>';
 const BLOCKS=[
  ["dark","Penombra totale","Il prodotto è lì ma non si vede: solo un accenno di volume nel nero.",2.5,.08,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse cx="20" cy="21" rx="5" ry="7" fill="#131316"/>'),"shot",
-  {luce:"silhou",cam:"static",focus:"deep",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"silhou",cam:"static",lens:"normal",focus:"deep",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["shapereveal","Macro shape reveal","La rim light accende un bordo: emerge una forma, non ancora un oggetto.",3,.22,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse cx="20" cy="21" rx="5" ry="7" fill="#131316"/><path class="a" d="M24 15a7 7 0 0 1 0 12" stroke-width="2"/>'),"shot",
-  {luce:"rim",cam:"static",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"rim",cam:"static",lens:"normal",focus:"shallow",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["macro","Dettaglio macro","Superficie a tutto quadro: texture, finitura, qualità costruttiva.",2.5,.32,
   sIc('<circle class="o" cx="20" cy="20" r="12"/><path class="a" d="M13 20c2-3 5-3 7 0s5 3 7 0"/><circle class="af" cx="20" cy="20" r="2"/>'),"shot",
-  {luce:"grazing",cam:"static",focus:"macro",comp:"center",view:"macro3q",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"grazing",cam:"static",lens:"macro",focus:"macro",comp:"center",size:"m",rot:"r45",view:"macro3q",env:"void",motion:"none",atmo:"clean"}],
  ["form","Dettaglio forma","Ci si allarga quel tanto che basta per capire la geometria.",2.5,.4,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M20 13l8 5v8l-8 5-8-5v-8z"/>'),"shot",
-  {luce:"duo",cam:"orbit",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"haze"}],
+  {luce:"duo",cam:"orbit",lens:"normal",focus:"shallow",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"particle"}],
  ["feature","Dettaglio feature","Il particolare che giustifica il prezzo: meccanismo, giunzione, marchio.",3,.45,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><circle class="a" cx="20" cy="21" r="7"/><path class="af" d="M20 17l1.5 3H25l-2.6 2 1 3.4L20 23.6 16.6 25.4l1-3.4L15 20h3.5z"/>'),"shot",
-  {luce:"rim",cam:"push",focus:"macro",comp:"thirds",view:"macro3q",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"rim",cam:"push",lens:"macro",focus:"macro",comp:"thirds",size:"m",rot:"r45",view:"macro3q",env:"void",motion:"none",atmo:"clean"}],
  ["full","Product full","Prima volta intero nel quadro: il pay-off di tutto il reveal.",3.5,.6,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="20" cy="21" rx="4" ry="7"/>'),"shot",
-  {luce:"duo",cam:"push",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"particle"}],
+  {luce:"duo",cam:"push",lens:"normal",focus:"shallow",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"particle"}],
  ["variant","Variant reveal","Le versioni entrano in scena: gamma, colori, taglie.",3,.55,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="13" cy="21" rx="2.5" ry="5" opacity=".5"/><ellipse class="af" cx="20" cy="21" rx="3" ry="6"/><ellipse class="af" cx="27" cy="21" rx="2.5" ry="5" opacity=".5"/>'),"shot",
-  {luce:"rim",cam:"truck",focus:"deep",comp:"center",view:"quarter",env:"void",motion:"clone",atmo:"clean"}],
+  {luce:"rim",cam:"truck",lens:"normal",focus:"deep",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"clone",atmo:"clean"}],
  ["exploded","Exploded view","Il prodotto si scompone a mezz'aria: dice ingegneria senza una parola.",3,.5,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="20" cy="21" rx="3" ry="4"/><path class="a" d="M20 14v-2M20 28v2M11 21h-2M29 21h2" opacity=".8"/><ellipse class="a" cx="20" cy="9" rx="3" ry="1.5"/><ellipse class="a" cx="20" cy="33" rx="3" ry="1.5"/>'),"shot",
-  {luce:"duo",cam:"orbit",focus:"deep",comp:"center",view:"quarter",env:"void",motion:"multi",atmo:"clean"}],
+  {luce:"duo",cam:"orbit",lens:"normal",focus:"deep",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"multi",atmo:"clean"}],
  ["fx","Effetto speciale","Particelle, energia, morph: il momento puramente emozionale.",2,.75,
   sIc('<path class="af" d="M20 7l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/><circle class="af" cx="31" cy="12" r="1.5"/><circle class="af" cx="10" cy="28" r="1.5"/>'),"shot",
-  {luce:"silhou",cam:"vertigo",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"vortex",atmo:"particle"}],
+  {luce:"silhou",cam:"vertigo",lens:"normal",focus:"shallow",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"vortex",atmo:"particle"}],
  ["info","Infografica","Numeri e callout: l'unico blocco che parla alla testa, non alla pancia.",3,.35,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><circle class="af" cx="14" cy="21" r="3"/><path class="a" d="M20 18h11M20 22h8M20 26h11"/>'),"shot",
-  {luce:"top",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"top",cam:"static",lens:"normal",focus:"deep",comp:"neg",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["drop","Drop / hero","Il picco: il prodotto arriva sul colpo di cassa, tutto converge qui.",2.5,1,
   sIc('<path class="a" d="M6 26c5 0 6-3 10-3s4 3 4 3" opacity=".7"/><path class="a" d="M20 26l3-14 3 14" stroke-width="2.2"/><path class="a" d="M26 26c4 0 5 4 8 4" opacity=".7"/><circle class="af" cx="23" cy="12" r="2.5"/>'),"shot",
-  {luce:"duo",cam:"push",focus:"shallow",comp:"extreme",view:"quarter",env:"void",motion:"none",atmo:"smoke"}],
+  {luce:"duo",cam:"push",lens:"normal",focus:"shallow",comp:"extreme",size:"l",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"particle"}],
  ["pattern","Pattern / vortice","Repliche in movimento: energia grafica pura, ottima dopo il drop.",2,.8,
   sIc('<circle class="af" cx="20" cy="20" r="3"/><path class="a" d="M20 8a12 12 0 0 1 11 8M31 24a12 12 0 0 1-19 6M9 22a12 12 0 0 1 5-13" opacity=".75"/>'),"shot",
-  {luce:"rim",cam:"orbit",focus:"deep",comp:"top",view:"quarter",env:"void",motion:"kaleido",atmo:"clean"}],
+  {luce:"rim",cam:"orbit",lens:"normal",focus:"deep",comp:"top",size:"m",rot:"r45",view:"quarter",env:"void",motion:"kaleido",atmo:"clean"}],
  ["logo","Logo / badge","Il marchio atterra nello spazio negativo lasciato apposta.",2,.45,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><rect class="af" x="13" y="17" width="14" height="7" rx="1"/>'),"shot",
-  {luce:"rim",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"rim",cam:"static",lens:"normal",focus:"deep",comp:"neg",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["claim","Claim / payoff","Una riga di testo. Se il video ha funzionato, qui non serve altro.",2,.3,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M12 19h16M14 24h12" stroke-width="1.8"/>'),"shot",
-  {luce:"rim",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"rim",cam:"static",lens:"normal",focus:"deep",comp:"neg",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["outro","Outro / fade","Ritorno al nero: il prodotto se ne va come è arrivato.",2,.12,
   sIc('<defs><linearGradient id="og" x1="0" x2="1"><stop offset="0" stop-color="#ff7950"/><stop offset="1" stop-color="#060606"/></linearGradient></defs><rect x="6" y="12" width="28" height="17" rx="1" fill="url(#og)"/>'),"shot",
-  {luce:"silhou",cam:"static",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"smoke"}],
+  {luce:"silhou",cam:"static",lens:"normal",focus:"shallow",comp:"center",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"particle"}],
  ["credits","Crediti","Chi ha fatto cosa. Breve, piccolo, fuori dal centro.",2.5,.06,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M13 17h14M13 20h9M13 23h11M13 26h6" opacity=".6"/>'),"shot",
-  {luce:"top",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
+  {luce:"top",cam:"static",lens:"normal",focus:"deep",comp:"neg",size:"m",rot:"r45",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  /* transitions */
  ["t_cut","Stacco netto","Nessuna transizione: il taglio più onesto e più veloce.",0,0,
   sIc('<rect class="o" x="6" y="14" width="12" height="13" rx="1"/><rect class="o" x="22" y="14" width="12" height="13" rx="1"/><path class="a" d="M20 8v25" stroke-width="1.6"/>'),"trans",null],
@@ -2643,7 +2741,7 @@ function drawTL(){
     const thumb = it.img ? '<img src="'+it.img+'" alt="">' : b[5];
     d.innerHTML='<div class="th">'+thumb+'</div><div class="nm">'+b[1]+'</div>'+
       (b[3]>0?'<div class="dur"><input type="number" min="0.1" max="30" step="0.1" value="'+it.dur.toFixed(1)+'"></div>':'')+
-      '<textarea class="note'+(it.note?' has':'')+'" rows="1" placeholder="nota…"></textarea>'+
+      '<textarea class="note'+(it.note?' has':'')+'" rows="3" placeholder="nota…"></textarea>'+
       '<button class="x" aria-label="Rimuovi">×</button>';
     d.querySelector(".x").onclick=e=>{ e.stopPropagation(); TL.splice(i,1); drawTL(); };
     const inp=d.querySelector("input");
@@ -2847,19 +2945,88 @@ window.addEventListener("resize",()=>{ if(PEAKS) drawWave(); });
 /* ---------------- PDF via the print dialog ----------------
    No second CDN: the print stylesheet strips the tool and leaves the shot
    list, the browser's "Save as PDF" does the rest. */
+/* ---------------- PDF: build a dedicated print sheet ----------------
+   The live timeline is full of inputs, textareas and scrollers — printing it
+   directly produced form controls on paper. Instead we render a STATIC sheet:
+   the track as a flat strip, the waveform as a bitmap, the energy curve with
+   its peak line, and the shot list. Only these four, per the brief. */
 if(document.getElementById("sPdf")) document.getElementById("sPdf").onclick=function(){
   const shots=TL.filter(x=>B(x.id)&&B(x.id)[6]==="shot");
   if(!shots.length){ flash(this,"Timeline vuota"); return; }
-  let head=document.querySelector(".printhead");
-  if(!head){
-    head=document.createElement("div"); head.className="printhead";
-    const sw=document.querySelector(".swrap");
-    if(sw) sw.insertBefore(head, sw.firstChild);
-  }
+  const old=document.querySelector(".printsheet"); if(old) old.remove();
+  const sheet=document.createElement("div"); sheet.className="printsheet";
   const tot=TL.reduce((a,x)=>a+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0);
-  head.innerHTML="<h1>SHOT LIST</h1><p>"+shots.length+" inquadrature · "+tot.toFixed(1)+
-    "s"+(AUD_NAME?" · traccia: "+esc(AUD_NAME):"")+" — "+
-    new Date().toLocaleDateString("it-IT")+"</p>";
+
+  /* head */
+  let h='<div class="printhead"><h1>SHOT LIST</h1><p>'+shots.length+
+    ' inquadrature · '+tot.toFixed(1)+'s'+
+    (AUD_NAME?' · traccia: '+esc(AUD_NAME):'')+' — '+
+    new Date().toLocaleDateString("it-IT")+'</p></div>';
+
+  /* 1. timeline strip: proportional blocks, no controls */
+  h+='<div class="psec"><h2>Timeline</h2>';
+  ["shot","trans","audio"].forEach(ty=>{
+    const items=TL.filter(x=>B(x.id)&&B(x.id)[6]===ty);
+    if(!items.length) return;
+    const label={shot:"Shot",trans:"FX",audio:"Audio"}[ty];
+    h+='<div style="display:flex;align-items:center;gap:2mm;margin:0 0 1.6mm">'+
+       '<span style="font:700 6.5pt Inter,sans-serif;letter-spacing:.14em;color:#999;'+
+       'width:11mm;flex:none;text-transform:uppercase">'+label+'</span>'+
+       '<div style="flex:1;display:flex;gap:.8mm">';
+    items.forEach((x,i)=>{
+      const b=B(x.id);
+      const w=b[3]>0 ? Math.max(4,(x.dur/Math.max(tot,0.1))*100) : 4;
+      h+='<div style="flex:'+w.toFixed(2)+' 1 0;min-width:0;border:1px solid #ddd;'+
+         'border-radius:1mm;padding:1mm .8mm;background:'+(ty==="shot"?"#fdf6f2":"#fafafa")+'">'+
+         '<div style="font:600 6pt Inter,sans-serif;color:#333;overflow:hidden;'+
+         'text-overflow:ellipsis;white-space:nowrap">'+esc(b[1])+'</div>'+
+         (b[3]>0?'<div style="font:700 6pt Inter,sans-serif;color:#c2410c">'+x.dur.toFixed(1)+'s</div>':'')+
+         '</div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div>';
+
+  /* 2. energy curve + peak line: reuse the live SVG markup */
+  if(sEnergy && sEnergy.innerHTML.trim()){
+    h+='<div class="psec"><h2>Curva di energia · picco</h2>'+
+       '<svg viewBox="0 0 800 56" preserveAspectRatio="none" style="height:22mm">'+
+       sEnergy.innerHTML+'</svg></div>';
+  }
+  /* 3. waveform: snapshot the canvas as a bitmap */
+  if(PEAKS && sWave){
+    try{
+      const url=sWave.toDataURL("image/png");
+      h+='<div class="psec"><h2>Traccia audio'+(AUD_NAME?' · '+esc(AUD_NAME):'')+'</h2>'+
+         '<img src="'+url+'" style="height:16mm"></div>';
+    }catch(e){ /* tainted canvas: skip the waveform rather than fail the print */ }
+  }
+  /* 4. shot list with every axis + notes */
+  h+='<div class="psec"><h2>Ricette</h2>';
+  let n=0;
+  TL.forEach(x=>{
+    const b=B(x.id); if(!b) return;
+    if(b[6]==="shot"){
+      n++; const sc=b[7];
+      h+='<div class="pshot"><div class="ph">'+
+        '<span class="pn">SHOT '+String(n).padStart(2,"0")+'</span>'+
+        '<span class="pt">'+esc(b[1])+'</span>'+
+        '<span class="pd">'+x.dur.toFixed(1)+'s</span></div>'+
+        '<div class="pp">'+AXES.map(ax=>
+          '<b>'+ax.label+':</b> '+esc(optOf(ax.id,sc[ax.id])[1])).join(' &nbsp;·&nbsp; ')+'</div>'+
+        (x.note?'<div class="pnote">'+esc(x.note)+'</div>':'')+
+        '</div>';
+    } else {
+      h+='<div class="pmini">'+(b[6]==="trans"?"fx":"audio")+' · <b>'+esc(b[1])+'</b>'+
+         (b[3]>0?' ('+x.dur.toFixed(2)+'s)':'')+(x.note?' — '+esc(x.note):'')+'</div>';
+    }
+  });
+  h+='</div>';
+  sheet.innerHTML=h;
+  document.body.appendChild(sheet);
+  const clean=()=>{ const el=document.querySelector(".printsheet"); if(el) el.remove(); };
+  if(window.onafterprint!==undefined) window.addEventListener("afterprint",clean,{once:true});
+  else setTimeout(clean,1500);
   window.print();
 };
 
