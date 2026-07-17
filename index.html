@@ -48,11 +48,17 @@
 
   /* ---------- Left panel ---------- */
 
-  .selector{border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;
-    background:var(--panel);overflow:hidden;flex:none}
+  /* ---- LIVE rig: selector + stage + demobar + controls are ONE object.
+     They used to be four siblings each carrying its own border, stitched
+     together with a -13px margin — which is what let a stray rule show through
+     under the demo labels. Now: one border on the wrapper, dividers inside. ---- */
+  .rig{border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    overflow:hidden;display:flex;flex-direction:column;flex:none}
+  .selector{background:transparent;overflow:hidden;flex:none;
+    border-bottom:1px solid var(--line)}
   .cats{display:flex;flex-direction:row;gap:0}
   .cat{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
-    background:transparent;cursor:pointer;padding:16px 12px 15px;position:relative;
+    background:transparent;cursor:pointer;padding:15px 12px 14px;position:relative;
     display:flex;align-items:center;justify-content:center;
     font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
     color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -70,8 +76,10 @@
   .sub{display:none}
   .cat .idx{font-family:var(--mono);font-size:10px;color:var(--txt-3);letter-spacing:0}
   .cat:hover{background:var(--panel-2);color:var(--txt)}
-  .cat[aria-selected="true"]{background:var(--panel-2);color:var(--txt)}
+  .cat[aria-selected="true"]{background:#17130f;color:var(--accent);position:relative}
   .cat[aria-selected="true"] .idx{color:var(--accent)}
+  .cat[aria-selected="true"]::before{content:"";position:absolute;left:0;top:0;bottom:0;
+    width:2px;background:var(--accent)}
 
   .fx{appearance:none;width:100%;border:0;border-left:1px solid var(--line-2);
     background:transparent;color:var(--txt-3);
@@ -85,10 +93,9 @@
   /* ---------- Main / stage ---------- */
   .main{grid-area:main;min-width:0;display:flex;flex-direction:column;
     padding:18px 22px 60px;gap:0;max-width:1500px;margin:0 auto;width:100%}
-  .stage{position:relative;width:100%;aspect-ratio:16/9;flex:none;margin:0 auto;
+  .stage{position:relative;width:100%;aspect-ratio:16/9;flex:none;margin:0;
     background:radial-gradient(120% 140% at 62% 42%,#0a0a0b 0%,#040404 70%);
-    border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none;
-    max-height:none}
+    border:0;border-radius:0;overflow:hidden;max-height:none}
   .stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
   .layer{position:absolute;inset:0;pointer-events:none}
   #bgBokeh{filter:blur(14px)}
@@ -130,11 +137,10 @@
   .row.gen .k{color:var(--txt-3);font-weight:500}
   .row.gen .v{color:var(--txt-2);font-size:15px;font-weight:400}
 
-  .stagectl{flex:none;border:1px solid var(--line);border-top:1px solid var(--line);border-radius:0 0 12px 12px;
-    background:var(--panel);padding:14px 18px;margin-top:-13px;
+  .stagectl{flex:none;border:0;border-top:1px solid var(--line);border-radius:0;
+    background:var(--panel);padding:15px 18px;margin:0;
     display:flex;flex-direction:column;gap:12px}
   .stagectl:empty{display:none}
-  .stage{border-radius:12px 12px 0 0}
   .ctl-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
     color:var(--txt-3);display:flex;justify-content:space-between;align-items:baseline;gap:12px}
   .ctl-label .val{color:var(--accent);font-size:14px;letter-spacing:.04em;font-weight:600;
@@ -186,15 +192,18 @@
     .cats{flex-direction:row;overflow-x:auto;padding:11px 14px 0;gap:6px;
       scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .cats::-webkit-scrollbar{display:none}
-    .cat{flex:none;background:transparent;padding:8px 11px;font-size:11.5px;letter-spacing:.08em}
-    .cat[aria-selected="true"]{background:var(--panel-2)}
+    .cat{flex:none;background:transparent;padding:8px 11px;font-size:11.5px;letter-spacing:.08em;
+      border-radius:7px 7px 0 0}
+    .cat[aria-selected="true"]{background:#17130f;color:var(--accent)}
+    /* horizontal rail on mobile: the rule moves to the top edge */
+    .cat[aria-selected="true"]::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px}
     .list{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;border-top:0;
       padding:10px 14px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-top:0}
     .list::-webkit-scrollbar{display:none}
     .fx{flex:none;width:auto;margin:0;padding:9px 13px;font-size:12.5px;
       border:1px solid var(--line);background:var(--panel-2)}
     .main{padding:14px;gap:0;min-width:0;overflow:hidden}
-    .stage{max-height:none;aspect-ratio:16/9;width:100%;max-width:100%}
+    .stage{max-height:none;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:0}
     .stage canvas{max-width:100%}
     .stagectl{padding:13px 14px;gap:11px}
     .dock{padding-top:16px}
@@ -397,6 +406,50 @@
   .sblk:hover .x{opacity:1}
   .sblk .x:hover{background:var(--line-2);color:var(--accent)}
   /* energy curve */
+  .rnote{margin-top:7px;padding:6px 8px;border-left:2px solid var(--accent-dim);
+    background:#0f0d0c;border-radius:0 5px 5px 0;font-size:11.5px;color:var(--accent);
+    line-height:1.45}
+  /* ---- audio waveform, sits directly under the energy curve ---- */
+  .swave-wrap{position:relative;margin:6px 0 0;border:1px solid var(--line);border-radius:10px;
+    background:var(--panel);overflow:hidden}
+  .swave{display:block;width:100%;height:48px}
+  .swave-lbl{position:absolute;left:9px;top:6px;font-family:var(--mono);font-size:9px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);pointer-events:none}
+  .swave-x{position:absolute;right:6px;top:5px;width:19px;height:19px;border-radius:5px;
+    border:1px solid var(--line-2);background:var(--panel-2);color:var(--txt-3);cursor:pointer;
+    font:700 12px "Inter",sans-serif;line-height:1;padding:0}
+  .swave-x:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ---- clip annotations ---- */
+  .clip .note{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:5px;
+    background:var(--void);color:var(--txt-2);font:500 10px "Inter",sans-serif;
+    padding:4px 5px;resize:none;min-height:0;height:22px;line-height:1.3;
+    transition:border-color .15s var(--ease),height .15s var(--ease)}
+  .clip .note::placeholder{color:var(--txt-3);opacity:.7}
+  .clip .note:focus{outline:none;border-color:var(--accent-dim);height:46px;color:var(--txt)}
+  .clip .note.has{border-color:var(--accent-dim);color:var(--accent)}
+  .clip.over-rep{box-shadow:inset 0 0 0 2px var(--accent)}
+  .clip.over-rep::after{content:"SOSTITUISCI";position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);font:700 8px var(--mono),sans-serif;letter-spacing:.1em;
+    color:var(--accent);background:var(--void);padding:2px 5px;border-radius:3px;z-index:3}
+
+  /* ---- print: the tool disappears, the shot list survives ---- */
+  @media print{
+    @page{margin:14mm}
+    body{background:#fff!important;color:#111!important}
+    .topbar,.nav,.tools,.sbar,.strack,.senergy,.swave-wrap,.slib,.slib-h,
+    .selector,.stage,.cprev-bar,.vpbar,.cats,.list,.app>section:not(#seq){display:none!important}
+    #seq,.swrap{display:block!important}
+    .slead{display:none}
+    .srec{border:0!important;background:#fff!important;color:#111!important;
+      font-size:11pt!important;line-height:1.55!important;white-space:pre-wrap}
+    .srec *{color:#111!important}
+    .printhead{display:block!important;margin:0 0 8mm;border-bottom:1px solid #ccc;padding-bottom:4mm}
+    .printhead h1{font:700 15pt "Inter",sans-serif;letter-spacing:.18em;margin:0 0 2mm}
+    .printhead p{font:400 9pt "Inter",sans-serif;color:#555;margin:0}
+  }
+  .printhead{display:none}
+
   .senergy{width:100%;height:64px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
     margin-bottom:22px;display:block}
   /* library */
@@ -584,8 +637,8 @@
   }
 
   /* ---- demo selector above the player ---- */
-  .demobar{display:flex;gap:0;background:var(--panel);overflow:hidden;flex:none;
-    border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  .demobar{display:flex;gap:0;background:transparent;overflow:hidden;flex:none;
+    border-top:1px solid var(--line)}
   .demo{flex:1;min-width:0;appearance:none;border:0;border-right:1px solid var(--line);
     background:transparent;cursor:pointer;padding:11px 10px 10px;
     display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;
@@ -596,12 +649,13 @@
   .demo .t{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
     color:var(--txt-3);line-height:1.25;text-align:center;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:color .16s var(--ease)}
-  .demo[aria-selected="true"]{background:var(--panel-2)}
+  /* active demo: accent bar + tinted bed + accent label. The bar alone read as
+     decoration on a phone; the tint is what actually says "you are here". */
+  .demo[aria-selected="true"]{background:#17130f}
   .demo[aria-selected="true"] .n{color:var(--accent)}
-  .demo[aria-selected="true"] .t{color:var(--txt)}
-  .demo[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;top:0;
+  .demo[aria-selected="true"] .t{color:var(--accent)}
+  .demo[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;top:-1px;
     height:2px;background:var(--accent)}
-  .selector+.stage{border-radius:0;border-top:0}
   @media (max-width:900px){
     .demobar{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .demobar::-webkit-scrollbar{display:none}
@@ -644,6 +698,50 @@
   .cgrp-h .lock[aria-pressed="true"]{border-color:var(--accent);background:#17130f;color:var(--accent)}
   .cgrp-h .lock svg{width:12px;height:12px;display:block}
   .cgrp.locked .copts{opacity:.42}
+
+  /* ---- per-option exclusion (hover X) ---- */
+  .copt{position:relative}
+  .copt .x{position:absolute;top:-5px;right:-5px;width:17px;height:17px;border-radius:50%;
+    border:1px solid var(--line-2);background:var(--panel-2);color:var(--txt-3);
+    display:none;align-items:center;justify-content:center;padding:0;cursor:pointer;
+    font:700 11px "Inter",sans-serif;line-height:1;z-index:2;transition:all .12s var(--ease)}
+  .copt .x svg{width:8px;height:8px;display:block}
+  .copt:hover .x{display:flex}
+  .copt .x:hover{border-color:var(--accent);color:var(--accent);background:#17130f}
+  .copt.excl{opacity:.3}
+  .copt.excl .ic{filter:grayscale(1)}
+  .copt.excl .x{display:flex;border-color:var(--line-2);color:var(--txt-3)}
+  .copt.excl .x:hover{border-color:var(--accent);color:var(--accent)}
+  .copt.excl::after{content:"";position:absolute;left:6px;right:6px;top:50%;height:1px;
+    background:var(--line-2);transform:rotate(-14deg);pointer-events:none}
+  .cgrp.locked .copt .x{display:none!important}
+
+  /* ---- viewport tabs above the player ---- */
+  /* ---- COMP/FRAME player rig: same object language as the LIVE bench.
+     tabs + player + hint live in one bordered box instead of floating apart. ---- */
+  .prig{border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    overflow:hidden;display:flex;flex-direction:column;margin:0 0 14px}
+  .vpbar{display:flex;align-items:center;flex-wrap:wrap;gap:0;
+    border-bottom:1px solid var(--line);background:var(--panel)}
+  .vptabs{display:inline-flex;background:transparent;margin:0}
+  .vptab{appearance:none;border:0;border-right:1px solid var(--line);background:transparent;
+    cursor:pointer;padding:11px 17px;font:700 10.5px var(--mono),"Inter",sans-serif;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--txt-3);position:relative;
+    transition:all .15s var(--ease)}
+  .vptab:hover{background:var(--panel-2);color:var(--txt-2)}
+  .vptab[aria-selected="true"]{background:#17130f;color:var(--accent)}
+  .vptab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;
+    height:2px;background:var(--accent)}
+  .vphint{font-size:11px;color:var(--txt-3);margin-left:13px;align-self:center;
+    padding-right:12px}
+  /* inside the rig the player loses its own frame */
+  .prig .cprev{border:0;border-radius:0;margin:0}
+  .cprev.work{cursor:grab}
+  .cprev.work:active{cursor:grabbing}
+  @media(max-width:900px){
+    .vptab{padding:10px 13px;font-size:10px;letter-spacing:.12em}
+    .vphint{margin-left:10px;font-size:10.5px;padding:0 10px 8px;width:100%}
+  }
 </style>
 </head>
 <body>
@@ -665,6 +763,7 @@
 
 
   <main class="main">
+    <div class="rig">
     <div class="selector">
       <div class="cats" id="cats" role="tablist" aria-label="Categorie"></div>
     </div>
@@ -702,6 +801,7 @@
       </button>
       <div class="ctl-empty" id="ctlempty" style="display:none">Nessun parametro — osserva il soggetto.</div>
     </div>
+    </div>
 
     <div class="dock">
       <div class="info">
@@ -715,11 +815,18 @@
 
   <section class="combo" id="combo" aria-label="Composizione">
     <div class="cfull">
-      <p class="clead">Sei assi indipendenti, <b id="cCount">15.120</b> composizioni possibili.</p>
-      <div class="cprev" id="cprev"></div>
+      <p class="clead"><b id="cAxN">8</b> assi indipendenti, <b id="cCount">15.120</b> composizioni possibili.</p>
+      <div class="prig">
+        <div class="vpbar">
+          <div class="vptabs" role="tablist" aria-label="Viewport">
+            <button class="vptab" id="cVpPrev" role="tab" aria-selected="true">Anteprima</button>
+            <button class="vptab" id="cVpWork" role="tab" aria-selected="false">Lavorazione</button>
+          </div><span class="vphint" id="cVpHint"></span>
+        </div>
+        <div class="cprev" id="cprev"></div>
+      </div>
       <div class="cprev-bar">
         <button class="cbtn pri" id="cRand">Combinazione casuale</button>
-        <button class="cbtn" id="cRandSel">Casuale selettiva</button>
         <button class="cbtn" id="cReset">Azzera</button>
         <div class="crecipe" id="cRecipe"></div>
       </div>
@@ -735,7 +842,15 @@
   <section class="comb2" id="comb2" aria-label="Frame">
     <div class="cfull">
       <p class="clead">Due fotogrammi, <b>A</b> e <b>B</b>: l'AI inventa tutto ciò che sta in mezzo.</p>
-      <div class="cprev" id="prevMix"></div>
+      <div class="prig">
+        <div class="vpbar">
+          <div class="vptabs" role="tablist" aria-label="Viewport">
+            <button class="vptab" id="abVpPrev" role="tab" aria-selected="true">Anteprima</button>
+            <button class="vptab" id="abVpWork" role="tab" aria-selected="false">Lavorazione</button>
+          </div><span class="vphint" id="abVpHint"></span>
+        </div>
+        <div class="cprev" id="prevMix"></div>
+      </div>
       <div class="cprev-bar">
         <button class="cbtn pri" id="abPlay">Riproduci A → B</button>
         <button class="cbtn" id="abRand">Coppia casuale</button>
@@ -773,6 +888,29 @@
   <section class="seq" id="seq" aria-label="Timeline">
     <div class="swrap">
       <p class="slead">Una sequenza è una <b>curva di energia</b>. Trascina i blocchi dalla libreria alle tracce, riordina, regola le durate.</p>
+      <div class="tools">
+        <label class="tool" for="sUpload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+          <div><b>Carica immagine</b><span>sul blocco selezionato</span></div>
+          <input type="file" id="sUpload" accept="image/*" hidden></label>
+        <label class="tool" for="sAudio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>
+          <div><b>Carica traccia</b><span id="sAudioLbl">waveform sotto la curva</span></div>
+          <input type="file" id="sAudio" accept="audio/*" hidden></label>
+        <button class="tool" id="sOpen" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="12" cy="11" r="3"/></svg>
+          <div><b>Apri in Comp</b><span>modifica lo shot</span></div></button>
+        <button class="tool" id="sCopy" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+          <div><b>Copia breakdown</b><span>negli appunti</span></div></button>
+        <button class="tool" id="sExport" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M4 18v2h16v-2"/></svg>
+          <div><b>Esporta .txt</b><span>scarica il file</span></div></button>
+        <button class="tool" id="sPdf" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9V4h12v5"/><rect x="6" y="14" width="12" height="6"/><path d="M4 9h16v6H4z"/></svg>
+          <div><b>Esporta PDF</b><span>stampa la shot list</span></div></button>
+      </div>
+
       <div class="sbar">
         <div class="spresets" id="sPresets"></div>
         <button class="cbtn" id="sClear">Svuota</button>
@@ -794,21 +932,10 @@
         </div>
       </div>
       <svg class="senergy" id="sEnergy" viewBox="0 0 800 56" preserveAspectRatio="none" aria-hidden="true"></svg>
-
-      <div class="tools">
-        <label class="tool" for="sUpload">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-          <div><b>Carica immagine</b><span>sul blocco selezionato</span></div>
-          <input type="file" id="sUpload" accept="image/*" hidden></label>
-        <button class="tool" id="sOpen" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="12" cy="11" r="3"/></svg>
-          <div><b>Apri in Comp</b><span>modifica lo shot</span></div></button>
-        <button class="tool" id="sCopy" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
-          <div><b>Copia breakdown</b><span>negli appunti</span></div></button>
-        <button class="tool" id="sExport" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M4 18v2h16v-2"/></svg>
-          <div><b>Esporta .txt</b><span>scarica il file</span></div></button>
+      <div class="swave-wrap" id="sWaveWrap" hidden>
+        <canvas id="sWave" class="swave"></canvas>
+        <span class="swave-lbl" id="sWaveLbl"></span>
+        <button class="swave-x" id="sWaveX" type="button" aria-label="Rimuovi traccia">×</button>
       </div>
 
       <h3 class="slib-h">Libreria — trascina o clicca</h3>
@@ -915,14 +1042,26 @@ function noiseTex(){
 }
 const bump = noiseTex();
 
-// neutral subject: manual capsule (cylinder + 2 spheres) — bulletproof in r128
+/* Neutral subject: beveled cube. A capsule has no edges, so rotation and the
+   more complex moves were unreadable — the bevel catches the rim light and
+   gives the eye a corner to track. Shared with COMP/FRAME via window.__bevelBox
+   so both players show the same object. r128 has no RoundedBoxGeometry. */
+function beveledBox(size,radius,bevel){
+  const h=size/2, r=radius, sh=new THREE.Shape();
+  sh.moveTo(-h+r,-h);
+  sh.lineTo(h-r,-h); sh.quadraticCurveTo(h,-h,h,-h+r);
+  sh.lineTo(h,h-r);  sh.quadraticCurveTo(h,h,h-r,h);
+  sh.lineTo(-h+r,h); sh.quadraticCurveTo(-h,h,-h,h-r);
+  sh.lineTo(-h,-h+r);sh.quadraticCurveTo(-h,-h,-h+r,-h);
+  const g=new THREE.ExtrudeGeometry(sh,{depth:size-bevel*2,bevelEnabled:true,
+    bevelThickness:bevel,bevelSize:bevel,bevelSegments:3,curveSegments:8});
+  g.center(); return g;
+}
+window.__bevelBox=beveledBox;
 const mat = new THREE.MeshStandardMaterial({color:0x171819, roughness:0.52, metalness:0.55, bumpMap:bump, bumpScale:DEF.bump});
 const subject = new THREE.Group();
-const R=0.56, H=1.15;
-const cyl=new THREE.Mesh(new THREE.CylinderGeometry(R,R,H,64,1,true),mat);
-const capT=new THREE.Mesh(new THREE.SphereGeometry(R,64,32,0,Math.PI*2,0,Math.PI/2),mat); capT.position.y=H/2;
-const capB=new THREE.Mesh(new THREE.SphereGeometry(R,64,32,0,Math.PI*2,Math.PI/2,Math.PI/2),mat); capB.position.y=-H/2;
-subject.add(cyl,capT,capB);
+const box=new THREE.Mesh(beveledBox(1.15,0.10,0.045),mat);
+subject.add(box);
 subject.rotation.y=DEF.subY;
 subject.rotation.z=0.13;
 scene.add(subject);
@@ -1278,6 +1417,379 @@ selectFx(FX[0]);
 /* ============ COMPOSIZIONE · COMBINAZIONE · TIMELINE ============ */
 (function(){
 "use strict";
+/* ============================================================================
+   Shared Three.js engine for COMP + FRAME.
+   ONE WebGLRenderer, rendered off-screen and blitted into each target canvas.
+   Browsers cap live WebGL contexts (~16); FRAME alone wants 3 previews + 2
+   viewports, so a context per canvas is not an option.
+   Consumes the SAME p = params(sel) contract as the old 2D draw().
+   ========================================================================== */
+const ENG=(function(){
+  if(typeof THREE==="undefined"||!THREE.WebGLRenderer) return null;
+  let gl;
+  try{
+    gl=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true});
+  }catch(e){ console.warn("COMP/FRAME: WebGL non inizializzabile:",e.message); return null; }
+  gl.setPixelRatio(1);                       /* target canvases carry the DPR */
+  gl.setClearColor(0x040404,1);
+
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(38,16/9,0.1,200);
+
+  /* beveled cube — same factory the LIVE bench publishes, so both players
+     show the identical object instead of two lookalike geometries */
+  const beveledBox = window.__bevelBox || function(size,radius,bevel){
+    const h=size/2, r=radius, s=new THREE.Shape();
+    s.moveTo(-h+r,-h);
+    s.lineTo(h-r,-h); s.quadraticCurveTo(h,-h,h,-h+r);
+    s.lineTo(h,h-r);  s.quadraticCurveTo(h,h,h-r,h);
+    s.lineTo(-h+r,h); s.quadraticCurveTo(-h,h,-h,h-r);
+    s.lineTo(-h,-h+r);s.quadraticCurveTo(-h,-h,-h+r,-h);
+    const g=new THREE.ExtrudeGeometry(s,{depth:size-bevel*2,bevelEnabled:true,
+      bevelThickness:bevel,bevelSize:bevel,bevelSegments:3,curveSegments:8});
+    g.center(); return g;
+  };
+  function noiseTex(){
+    try{
+      const c=document.createElement("canvas"); c.width=c.height=128;
+      const x=c.getContext("2d"); if(!x||!x.createImageData) return null;
+      const im=x.createImageData(128,128);
+      for(let i=0;i<im.data.length;i+=4){ const v=200+Math.random()*55;
+        im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=255; }
+      x.putImageData(im,0,0);
+      const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(3,3);
+      return t;
+    }catch(e){ return null; }
+  }
+  /* same graphite language as the LIVE bench */
+  const mat=new THREE.MeshStandardMaterial({color:0x171819,roughness:0.52,metalness:0.55,
+    bumpMap:noiseTex(),bumpScale:0.006});
+  const CUBE=beveledBox(1.15,0.10,0.045);
+
+  const subject=new THREE.Group();
+  const hero=new THREE.Mesh(CUBE,mat); subject.add(hero);
+  scene.add(subject);
+
+  /* clones for the "priorità soggetto" axis */
+  const clones=new THREE.Group(); scene.add(clones);
+  const cloneMat=mat.clone(); cloneMat.transparent=true; cloneMat.opacity=0.5;
+  const CLONE_N=26, cloneMesh=[];
+  for(let i=0;i<CLONE_N;i++){ const m=new THREE.Mesh(CUBE,cloneMat); m.visible=false; clones.add(m); cloneMesh.push(m); }
+
+  /* ---- starfield: reads camera movement. Two shells at different depths so
+     orbit/truck produce real parallax instead of a flat drift. ---- */
+  const stars=new THREE.Group(); scene.add(stars);
+  function shell(n,rad,size,color,op){
+    const g=new THREE.BufferGeometry(),pos=[];
+    for(let i=0;i<n;i++){
+      const th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1), r=rad*(0.75+Math.random()*0.5);
+      pos.push(r*Math.sin(ph)*Math.cos(th), r*Math.cos(ph)*0.55, r*Math.sin(ph)*Math.sin(th));
+    }
+    g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+    const p=new THREE.Points(g,new THREE.PointsMaterial({color:color,size:size,
+      transparent:true,opacity:op,sizeAttenuation:true}));
+    stars.add(p); return p;
+  }
+  const starFar=shell(220,26,0.075,0xffffff,0.30);
+  const starMid=shell(120,15,0.060,0xff7950,0.34);
+  const starNear=shell(60,8,0.045,0xffffff,0.20);
+
+  /* dust/particles for the atmosphere axis */
+  const dust=shell(260,5.5,0.038,0xff7950,0.0);
+
+  const amb=new THREE.AmbientLight(0x0b0b0e,0.55);
+  const key=new THREE.DirectionalLight(0x2a2d38,0.42); key.position.set(-3,2,4);
+  const rimA=new THREE.PointLight(0xff7950,3.2,30,1.6);
+  const rimB=new THREE.PointLight(0xff7950,0.0,30,1.6);
+  const topL=new THREE.DirectionalLight(0xffe6da,0.0); topL.position.set(0,5,0.6);
+  const underL=new THREE.DirectionalLight(0xff9c78,0.0); underL.position.set(0,-5,1.2);
+  const backL=new THREE.PointLight(0xff7950,0.0,40,1.4); backL.position.set(0,0,-5);
+  const grazeL=new THREE.DirectionalLight(0xffb499,0.0); grazeL.position.set(-5,0.2,0.4);
+  scene.add(amb,key,rimA,rimB,topL,underL,backL,grazeL);
+
+  /* ---- environment: one mesh per element, toggled by the env axis ----
+     Everything hangs off the subject's own half-height so the cube RESTS on the
+     ground instead of hovering: the old fixed GY=-1.05 left half a unit of gap
+     under a 1.15 cube, and scaling (macro = 1.7x) made it worse. */
+  const SUB=1.15, HALF=SUB/2;
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60),
+    new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7}));
+  floor.rotation.x=-Math.PI/2; floor.visible=false;
+  scene.add(floor);
+  /* limbo/cyclorama: a quarter-pipe sweep so floor and wall meet with no seam */
+  const cove=(function(){
+    const sh=new THREE.Shape();
+    sh.moveTo(0,0); sh.lineTo(26,0); sh.quadraticCurveTo(38,0,38,12); sh.lineTo(38,30);
+    sh.lineTo(36,30); sh.lineTo(36,12); sh.quadraticCurveTo(36,2,26,2); sh.lineTo(0,2);
+    const g=new THREE.ExtrudeGeometry(sh,{depth:60,bevelEnabled:false,curveSegments:16});
+    g.rotateY(Math.PI/2); g.translate(-30,0,26);
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x0d0d0f,roughness:0.85,metalness:0.05,side:THREE.DoubleSide}));
+    m.visible=false; scene.add(m); return m;
+  })();
+  const wall=new THREE.Mesh(new THREE.PlaneGeometry(60,34),
+    new THREE.MeshStandardMaterial({color:0x0b0b0d,roughness:0.9,metalness:0.03}));
+  wall.visible=false; scene.add(wall);
+  const PED_H=1.1;
+  const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.3,PED_H,40),
+    new THREE.MeshStandardMaterial({color:0x101012,roughness:0.42,metalness:0.4}));
+  pedestal.visible=false; scene.add(pedestal);
+  const techGrid=new THREE.GridHelper(60,44,0xff7950,0x1d2430);
+  techGrid.material.transparent=true;
+  techGrid.material.opacity=0.34; techGrid.visible=false; scene.add(techGrid);
+  const horizon=new THREE.Mesh(new THREE.PlaneGeometry(120,60),
+    new THREE.MeshBasicMaterial({color:0x141821}));
+  horizon.visible=false; scene.add(horizon);
+  const roomL=new THREE.Mesh(new THREE.PlaneGeometry(34,34),
+    new THREE.MeshStandardMaterial({color:0x0a0a0c,roughness:0.9}));
+  roomL.rotation.y=Math.PI/2; roomL.visible=false; scene.add(roomL);
+  const roomR=roomL.clone(); roomR.rotation.y=-Math.PI/2;
+  roomR.visible=false; scene.add(roomR);
+  const mirror=new THREE.Mesh(CUBE,(function(){ const m=mat.clone();
+    m.transparent=true; m.opacity=0.16; return m; })());
+  mirror.visible=false; scene.add(mirror);
+
+  /* ---- work-viewport only rigs: camera frustum + light gizmos ---- */
+  const rig=new THREE.Group(); rig.visible=false; scene.add(rig);
+  function wire(geo,color,op){ return new THREE.LineSegments(new THREE.EdgesGeometry(geo),
+    new THREE.LineBasicMaterial({color:color,transparent:true,opacity:op==null?0.9:op})); }
+  /* Camera gizmo. A THREE camera looks down its own -Z, so the frustum must
+     open toward -Z: the cone was at +0.7 with its apex facing +Z, i.e. aimed
+     backwards, which read as an inverted camera. Apex sits at the body, the
+     mouth opens out along the view direction. */
+  const camGiz=new THREE.Group();
+  camGiz.add(wire(new THREE.BoxGeometry(0.34,0.24,0.42),0xff7950));
+  (function(){
+    const c=wire(new THREE.ConeGeometry(0.46,1.0,4,1,true),0xff7950,0.5);
+    c.rotation.x=Math.PI/2;      /* apex toward +Z (the body), mouth toward -Z */
+    c.position.z=-0.7;           /* in front of the body, along the view axis */
+    camGiz.add(c);
+    /* a short axis line so the direction is unmistakable even at a glance */
+    const g=new THREE.BufferGeometry();
+    g.setAttribute("position",new THREE.Float32BufferAttribute([0,0,0, 0,0,-1.5],3));
+    camGiz.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0xff7950,
+      transparent:true,opacity:0.85})));
+  })();
+  rig.add(camGiz);
+  function lightGiz(color){
+    const g=new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.11,12,10),
+      new THREE.MeshBasicMaterial({color:color})));
+    g.add(wire(new THREE.SphereGeometry(0.22,8,6),color,0.4));
+    return g;
+  }
+  const gizA=lightGiz(0xff7950), gizB=lightGiz(0xff7950);
+  rig.add(gizA,gizB);
+  const grid=new THREE.GridHelper(12,12,0x2a2a30,0x18181c);
+  grid.material.transparent=true; grid.material.opacity=0.5;
+  grid.visible=false; rig.add(grid);   /* y set per-frame, see applyScene */
+  const axesH=new THREE.AxesHelper(1.1); axesH.visible=false; rig.add(axesH);
+  const subjWire=wire(CUBE,0x5c5c61,0.35); subjWire.visible=false; scene.add(subjWire);
+
+  const RR=3.4;
+  /* ---- apply p (the params contract) to the scene ---- */
+  function applyScene(p,time,forWork){
+    const t=time||0;
+    /* subject transform.
+       Vista (yaw/pitch) turns the OBJECT rather than flying the camera: it keeps
+       the framing that Composizione asked for, which is the whole point of
+       having the two as separate axes. */
+    const orbitSpin = p.orbit>0.01 ? t*0.28*p.orbit : 0;
+    subject.rotation.set((p.pitch||0)*0.9 + p.tilt*0.7,
+                         p.rot*Math.PI + orbitSpin + 0.5 + (p.yaw||0), 0.05);
+    subject.scale.setScalar(p.scale);
+
+    /* ---- Ground contract ----
+       The subject is the origin of the world: it always sits centred at y=0.
+       The GROUND is then placed under it, at whatever depth its current size
+       demands, and every other environment element hangs off that ground.
+       Rotating a cube makes it taller than its own half-height, so we use the
+       half-diagonal — otherwise a 45-degree corner would sink into the floor. */
+    const anyEnv = (p.floor>0.5)||(p.cove>0.5)||(p.wall>0.5)||(p.pedestal>0.5)||
+                   (p.techgrid>0.5)||(p.room>0.5)||(p.horizon>0.5)||(p.refl>0.01);
+    const halfDiag = HALF*Math.SQRT2*p.scale;      /* worst case under rotation */
+    const gy = -halfDiag - 0.02;                   /* a hair of clearance */
+    subject.position.set(0, 0, 0);
+    hero.visible=true;
+
+    /* environment, all keyed to gy */
+    floor.visible=(p.floor>0.5)||(p.refl>0.01);
+    floor.position.y = (p.pedestal>0.5) ? gy-PED_H : gy;
+    cove.visible=p.cove>0.5;      cove.position.y=gy;
+    wall.visible=(p.wall>0.5)&&!(p.cove>0.5);
+    wall.position.set(0, gy+17, -14);
+    pedestal.visible=p.pedestal>0.5;
+    pedestal.position.set(0, gy-PED_H/2, 0);       /* its top meets the subject */
+    techGrid.visible=p.techgrid>0.5; techGrid.position.y=gy+0.01;
+    horizon.visible=p.horizon>0.5;  horizon.position.set(0,gy+18,-30);
+    roomL.visible=roomR.visible=p.room>0.5;
+    roomL.position.set(-9,gy+17,-2); roomR.position.set(9,gy+17,-2);
+    /* gradient env: a soft backdrop glow, done with fog rather than a plane so
+       it never clips the subject */
+    if(p.grad>0.5 && !scene.fog) scene.fog=new THREE.FogExp2(0x120a07,0.028);
+
+    /* lights per axis */
+    rimA.intensity=3.2*p.rimA; rimB.intensity=3.2*p.rimB;
+    const aA=(112+ (p.parallax? Math.sin(t*0.4)*8:0))*Math.PI/180;
+    rimA.position.set(RR*Math.sin(aA),1.3,RR*Math.cos(aA));
+    rimB.position.set(-RR*Math.sin(aA),1.0,RR*Math.cos(aA));
+    topL.intensity=1.5*p.top; underL.intensity=1.4*p.under;
+    backL.intensity=4.2*p.silh; grazeL.intensity=1.6*p.graz;
+    amb.intensity=0.55*(1-0.7*p.silh);
+    key.intensity=0.42*(1-0.8*p.silh);
+
+    /* atmosphere */
+    dust.material.opacity=0.42*p.part;
+    dust.rotation.y=t*0.05;
+    const hz=Math.max(p.haze,p.smoke);
+    scene.fog = hz>0.01 ? new THREE.FogExp2(0x1a0d08, 0.055*hz) : null;
+
+    /* reflection */
+    mirror.visible=p.refl>0.01;
+    if(mirror.visible){
+      /* mirrored across the ground plane, wherever that currently is */
+      mirror.rotation.copy(subject.rotation); mirror.rotation.x*=-1;
+      mirror.scale.copy(subject.scale); mirror.scale.y*=-1;
+      mirror.position.set(0, 2*floor.position.y, 0);
+      mirror.material.opacity=0.16*p.refl;
+    }
+
+    /* clones */
+    const layouts={};
+    cloneMesh.forEach(m=>m.visible=false);
+    clones.rotation.set(0,0,0);
+    const mode=p._motion;
+    if(mode&&mode!=="none"){
+      let n=0, place=null;
+      if(mode==="clone"){ n=2; place=(m,i)=>{ m.position.set(i?2.2:-2.2,0,-1.6); m.scale.setScalar(0.8*p.scale); }; }
+      else if(mode==="grid"){ n=8; place=(m,i)=>{ const c=i%3,r=(i/3)|0;
+        m.position.set((c-1)*1.9,(r-1)*1.6,-1.2); m.scale.setScalar(0.55*p.scale); }; }
+      else if(mode==="spiral"){ n=14; place=(m,i)=>{ const a=i*0.7+t*0.15, rr=0.9+i*0.26;
+        m.position.set(Math.cos(a)*rr,Math.sin(a)*rr*0.5,-i*0.35);
+        m.scale.setScalar(Math.max(0.14,0.62-i*0.03)*p.scale); m.rotation.set(0,a,0); }; }
+      else if(mode==="vortex"){ n=16; place=(m,i)=>{ const a=i*0.9+t*0.6, rr=1.8+Math.sin(i)*0.5;
+        m.position.set(Math.cos(a)*rr,Math.sin(a*1.3)*0.9,Math.sin(a)*rr-0.8);
+        m.scale.setScalar(0.3*p.scale); m.rotation.set(a,a*0.7,0); }; }
+      else if(mode==="kaleido"){ n=12; place=(m,i)=>{ const a=i/12*Math.PI*2;
+        m.position.set(Math.cos(a)*2.0,Math.sin(a)*2.0,-0.6);
+        m.scale.setScalar(0.42*p.scale); m.rotation.set(0,0,a); }; }
+      else if(mode==="multi"){ n=10; place=(m,i)=>{ const a=i/10*Math.PI*2+t*0.2;
+        const ring=i%2; const rr=2.1;
+        if(ring) m.position.set(Math.cos(a)*rr,Math.sin(a)*rr*0.35,Math.sin(a)*1.2);
+        else m.position.set(Math.sin(a)*rr*0.35,Math.cos(a)*rr,Math.sin(a)*1.2);
+        m.scale.setScalar(0.34*p.scale); m.rotation.set(a,a,0); }; }
+      /* exploded view: components drift out along their own axis and settle */
+      else if(mode==="explode"){ n=6; place=(m,i)=>{
+        const dir=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[0,0,1],[0,0,-1]][i];
+        const k=1.5+Math.sin(t*0.5)*0.35;
+        m.position.set(dir[0]*1.6*k,dir[1]*1.4*k,dir[2]*1.6*k);
+        m.scale.setScalar(0.38*p.scale); m.rotation.set(0,t*0.2,0); }; }
+      /* stack: layers assemble upward, the reveal grammar */
+      else if(mode==="stack"){ n=5; place=(m,i)=>{
+        const ph=Math.min(1,Math.max(0,(t*0.4)%2-i*0.12));
+        m.position.set(0,(i-2)*0.95,0);
+        m.scale.set(0.9*p.scale,0.16*p.scale,0.9*p.scale);
+        m.rotation.set(0,ph*0.4,0); }; }
+      /* satellites on an ellipse: gives scale without touching the hero */
+      else if(mode==="orbitm"){ n=6; place=(m,i)=>{ const a=i/6*Math.PI*2+t*0.5;
+        m.position.set(Math.cos(a)*3.0,Math.sin(a*2)*0.35,Math.sin(a)*1.5);
+        m.scale.setScalar(0.24*p.scale); m.rotation.set(0,a,0); }; }
+      /* phase-shifted sine: very readable on a loop */
+      else if(mode==="wave"){ n=9; place=(m,i)=>{ const x=(i-4)*0.85;
+        m.position.set(x,Math.sin(t*1.2+i*0.6)*0.75,-0.4);
+        m.scale.setScalar(0.3*p.scale); m.rotation.set(0,Math.sin(t+i)*0.3,0); }; }
+      /* scatter: deterministic pseudo-random so it does not jitter per frame */
+      else if(mode==="scatter"){ n=14; place=(m,i)=>{
+        const r1=Math.sin(i*12.9898)*43758.5453, r2=Math.sin(i*78.233)*43758.5453;
+        const r3=Math.sin(i*39.425)*43758.5453;
+        const fr=v=>v-Math.floor(v);
+        m.position.set((fr(r1)-0.5)*7,(fr(r2)-0.5)*4,(fr(r3)-0.5)*5-1);
+        m.scale.setScalar((0.14+fr(r1)*0.2)*p.scale);
+        m.rotation.set(fr(r2)*3,fr(r3)*3+t*0.1,0); }; }
+      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i); }
+    }
+
+    /* starfield drift follows camera intent */
+    /* the work rig aligns to the same ground the previews use */
+    grid.position.y = anyEnv ? gy : -halfDiag-0.02;
+    stars.rotation.y = (p.orbit? t*0.05 : 0) + (p.parallax? t*0.02 : 0);
+    starFar.material.opacity=0.30*(1-0.6*p.silh);
+    starMid.material.opacity=0.34*(1-0.6*p.silh);
+    starNear.material.opacity=0.20*(1-0.6*p.silh);
+    subjWire.visible=false;
+  }
+
+  /* preview camera: derived from p, matching the old 2D framing */
+  function previewCam(p,time){
+    const t=time||0;
+    const z=4.2*p.dist;
+    const px=(p.px-0.5)*2, py=(p.py-0.5)*2;
+    const orb=p.orbit? Math.sin(t*0.35)*0.5 : 0;
+    const par=p.parallax? Math.sin(t*0.5)*0.55 : 0;
+    cam.fov = p._focus==="macro" ? 26 : 38;
+    /* Ortho: r128 can swap the projection matrix, but a long lens pulled far
+       back reads the same and keeps one camera object for the whole engine. */
+    if(p.ortho>0.5){ cam.fov=7; cam.position.set(px*2.2,-py*1.5,z*5.4);
+      cam.lookAt(-px*0.6,-py*0.4,0); cam.updateProjectionMatrix(); return; }
+    cam.position.set(Math.sin(orb)*z + par + px*2.2, -py*1.5 + p.tilt*2.2, Math.cos(orb)*z);
+    cam.lookAt(-px*0.6, -py*0.4 + p.tilt*0.2, 0);
+    cam.updateProjectionMatrix();
+  }
+
+  /* ---- blit: render off-screen, copy into the target 2D canvas ---- */
+  function renderTo(cv,p,time,opts){
+    opts=opts||{};
+    const W=cv.width,H=cv.height;
+    if(W<4||H<4) return;
+    const ctx=cv.getContext("2d"); if(!ctx) return;
+    applyScene(p,time,!!opts.work);
+    rig.visible=!!opts.work;
+    grid.visible=!!opts.work; axesH.visible=!!opts.work;
+    if(opts.work){
+      /* work viewport: free orbit camera + visible rigs */
+      const o=opts.orbit||{az:0.7,el:0.35,dist:9};
+      cam.fov=42; cam.updateProjectionMatrix();
+      cam.position.set(
+        Math.cos(o.el)*Math.sin(o.az)*o.dist,
+        Math.sin(o.el)*o.dist,
+        Math.cos(o.el)*Math.cos(o.az)*o.dist);
+      cam.lookAt(0,0,0);
+      /* place the gizmos where the preview camera and rim lights actually are */
+      const save=cam.position.clone(), saveQ=cam.quaternion.clone(), saveFov=cam.fov;
+      previewCam(p,time);
+      camGiz.position.copy(cam.position); camGiz.quaternion.copy(cam.quaternion);
+      cam.position.copy(save); cam.quaternion.copy(saveQ); cam.fov=saveFov; cam.updateProjectionMatrix();
+      gizA.position.copy(rimA.position); gizA.visible=p.rimA>0.02;
+      gizB.position.copy(rimB.position); gizB.visible=p.rimB>0.02;
+      subjWire.visible=true;
+      subjWire.rotation.copy(subject.rotation); subjWire.scale.copy(subject.scale);
+    }else{
+      previewCam(p,time);
+    }
+    cam.aspect=W/H; cam.updateProjectionMatrix();
+    gl.setSize(W,H,false);
+    gl.render(scene,cam);
+    ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1;
+    if("filter" in ctx) ctx.filter="none";
+    ctx.clearRect(0,0,W,H);
+    /* depth-of-field is faked at blit time: cheaper than a post pass and the
+       axis only needs to read as "shallow", not be physically correct */
+    const b=(opts.work?0:(p.blur||0));
+    if(b>0.02 && "filter" in ctx){
+      ctx.filter="blur("+(b*5).toFixed(2)+"px)"; ctx.drawImage(gl.domElement,0,0);
+      ctx.filter="none"; ctx.globalAlpha=Math.max(0,1-b*0.85);
+    }
+    ctx.drawImage(gl.domElement,0,0);
+    ctx.globalAlpha=1;
+    if(!opts.work && p.fg>0.02){
+      const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.25,W/2,H/2,Math.max(W,H)*0.62);
+      g.addColorStop(0,"rgba(4,4,4,0)"); g.addColorStop(1,"rgba(4,4,4,"+(0.72*p.fg).toFixed(2)+")");
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    }
+  }
+  return {renderTo:renderTo};
+})();
+
+"use strict";
 const ic=s=>'<svg class="ic" viewBox="0 0 40 40">'+s+'</svg>';
 
 /* ---------------- AXES ---------------- */
@@ -1332,21 +1844,71 @@ const AXES=[
    "Dal basso verso l'alto: il prodotto domina lo spettatore. Il linguaggio del monumento."],
   ["top","A picco",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="4"/><path class="dim" d="M20 11v3M20 26v3M5 20h3M32 20h3"/>'),
    "Vista zenitale: annulla la profondità e trasforma il prodotto in grafica. Perfetta per i pattern."]]},
- {id:"pri",label:"Priorità soggetto",opts:[
-  ["hero","Hero singolo",ic('<circle class="af" cx="20" cy="20" r="8"/>'),
-   "Un solo protagonista, nessuna distrazione: la dichiarazione più semplice e più forte."],
+ {id:"view",label:"Vista",opts:[
+  ["center","Centrato",ic('<rect class="o" x="10" y="10" width="20" height="20"/><circle class="af" cx="20" cy="20" r="3"/>'),
+   "Faccia frontale, nessuna fuga: il prodotto si legge come un'icona. Zero informazione sul volume."],
+  ["quarter","Tre quarti",ic('<path class="o" d="M12 14l10-4 8 4v14l-8 4-10-4z"/><path class="a" d="M22 10v18M12 14l10 4 8-4" opacity=".55"/>'),
+   "La vista che descrive due facce insieme: dice 'oggetto' invece di 'immagine'. Il default onesto."],
+  ["shape","Dettaglio forma",ic('<path class="o" d="M8 24c4-10 20-14 24-4"/><path class="af" d="M8 24c4-10 20-14 24-4" opacity=".35" stroke-width="4"/>'),
+   "Chiude su una curva o uno spigolo: astrae il prodotto in linea. Serve luce radente o non c'è niente da vedere."],
+  ["offset","Offset",ic('<rect class="o" x="6" y="10" width="28" height="20"/><circle class="af" cx="27" cy="22" r="5"/><path class="dim" d="M16 10v20"/>'),
+   "Soggetto spinto fuori asse: crea tensione e lascia aria per un titolo. Vive di quello che NON riempi."],
+  ["low","Vista dal basso",ic('<path class="o" d="M10 26h20l-4-12H14z"/><path class="a" d="M10 26l10 5 10-5" opacity=".5"/>'),
+   "Contropicchiata: il prodotto incombe e diventa monumento. Eroico, ma distorce le proporzioni."],
+  ["high","Vista dall\'alto",ic('<path class="o" d="M14 14h12l4 12H10z"/><path class="a" d="M14 14l6-5 6 5" opacity=".5"/>'),
+   "Picchiata leggera: mostra la faccia superiore e sgonfia il soggetto. Utile per i piani d\'appoggio."],
+  ["profile","Vista di profilo",ic('<rect class="o" x="14" y="8" width="12" height="24"/><path class="a" d="M14 8v24" opacity=".6"/>'),
+   "Silhouette laterale pura: la sagoma è tutto. Massima leggibilità del contorno, zero volume."],
+  ["ortho","Ortogonale",ic('<rect class="o" x="9" y="9" width="22" height="22"/><path class="dim" d="M9 20h22M20 9v22"/>'),
+   "Nessuna prospettiva: la vista da disegno tecnico. Perfetta per confronti e schede, fredda come una tavola CAD."],
+  ["macro3q","Macro tre quarti",ic('<path class="o" d="M6 16l14-6 14 6v10l-14 6-14-6z"/><circle class="af" cx="20" cy="21" r="4"/>'),
+   "Tre quarti ravvicinato: volume + dettaglio insieme. La vista che vende la lavorazione."],
+  ["zenith","Zenitale",ic('<rect class="o" x="10" y="10" width="20" height="20"/><rect class="af" x="16" y="16" width="8" height="8"/>'),
+   "A piombo dall\'alto: annulla la profondità e trasforma il prodotto in grafica. La vista da flat lay."]]},
+ {id:"motion",label:"Motion design",opts:[
+  ["none","Nessuno",ic('<circle class="af" cx="20" cy="20" r="7"/>'),
+   "Un solo protagonista, nessuna replica: la dichiarazione più semplice e più forte."],
   ["clone","Hero + cloni",ic('<circle class="af" cx="20" cy="20" r="7"/><circle class="a" cx="8" cy="20" r="4" opacity=".4"/><circle class="a" cx="32" cy="20" r="4" opacity=".4"/>'),
-   "Il protagonista in primo piano, le repliche sfocate dietro: dice 'gamma' senza togliere gerarchia."],
+   "Il protagonista davanti, le repliche dietro: dice 'gamma' senza perdere gerarchia."],
   ["grid","Pattern",ic('<circle class="a" cx="10" cy="10" r="3" opacity=".5"/><circle class="a" cx="20" cy="10" r="3" opacity=".5"/><circle class="a" cx="30" cy="10" r="3" opacity=".5"/><circle class="a" cx="10" cy="20" r="3" opacity=".5"/><circle class="af" cx="20" cy="20" r="5"/><circle class="a" cx="30" cy="20" r="3" opacity=".5"/><circle class="a" cx="10" cy="30" r="3" opacity=".5"/><circle class="a" cx="20" cy="30" r="3" opacity=".5"/><circle class="a" cx="30" cy="30" r="3" opacity=".5"/>'),
    "Griglia regolare con un elemento che rompe lo schema: l'occhio va dove la regola si spezza."],
   ["spiral","Spirale",ic('<path class="a" d="M20 20c0-6 8-6 8 0s-11 11-16 4-2-16 8-16 15 8 15 14"/><circle class="af" cx="20" cy="20" r="3"/>'),
    "Le repliche si avvitano verso il centro: la composizione stessa punta il dito sul protagonista."],
   ["vortex","Vortice",ic('<path class="a" d="M20 8a12 12 0 0 1 11 8M32 24a12 12 0 0 1-20 6M9 22a12 12 0 0 1 5-13" opacity=".7"/><circle class="af" cx="20" cy="20" r="4"/><path class="af" d="M32 15l1 5-5-1z"/>'),
-   "Movimento rotatorio attorno all'hero: energia pura, ottimo sul picco di un montaggio."],
+   "Rotazione attorno all'hero: energia pura, ottimo sul picco di un montaggio."],
   ["kaleido","Caleidoscopio",ic('<path class="a" d="M20 6l12 7v14l-12 7-12-7V13z"/><path class="a" d="M20 6v28M8 13l24 14M32 13L8 27" opacity=".45"/><circle class="af" cx="20" cy="20" r="3.5"/>'),
-   "Ripetizione simmetrica su più assi: astrae il prodotto in ornamento. Bellissimo, ma perde leggibilità."],
+   "Ripetizione simmetrica su più assi: astrae il prodotto in ornamento. Bello, ma perde leggibilità."],
   ["multi","Multiasse",ic('<ellipse class="dim" cx="20" cy="20" rx="14" ry="5"/><ellipse class="dim" cx="20" cy="20" rx="5" ry="14"/><circle class="af" cx="20" cy="20" r="4"/><circle class="a" cx="34" cy="20" r="2"/><circle class="a" cx="20" cy="6" r="2"/>'),
-   "Repliche che ruotano su assi diversi: mostra ogni faccia contemporaneamente. Molto denso, tienilo corto."]]},
+   "Repliche su assi diversi: mostra ogni faccia insieme. Molto denso, tienilo corto."],
+  ["explode","Esploso",ic('<rect class="af" x="16" y="16" width="8" height="8"/><rect class="a" x="4" y="6" width="7" height="7" opacity=".6"/><rect class="a" x="29" y="6" width="7" height="7" opacity=".6"/><rect class="a" x="4" y="27" width="7" height="7" opacity=".6"/><rect class="a" x="29" y="27" width="7" height="7" opacity=".6"/>'),
+   "I componenti si separano nello spazio: mostra com'è fatto. Il linguaggio dell'ingegneria."],
+  ["stack","Stack",ic('<rect class="a" x="10" y="8" width="20" height="6" opacity=".4"/><rect class="a" x="10" y="17" width="20" height="6" opacity=".7"/><rect class="af" x="10" y="26" width="20" height="6"/>'),
+   "Strati che si impilano: costruisce il prodotto davanti agli occhi. Ottimo per i reveal."],
+  ["orbitm","Orbita satelliti",ic('<circle class="af" cx="20" cy="20" r="5"/><ellipse class="dim" cx="20" cy="20" rx="15" ry="6"/><circle class="a" cx="35" cy="20" r="2.5"/><circle class="a" cx="5" cy="20" r="2.5"/>'),
+   "Elementi che ruotano attorno all'hero su un'ellisse: dà scala e centro senza toccare il prodotto."],
+  ["wave","Onda",ic('<path class="a" d="M4 20q6-9 12 0t12 0 8 0" opacity=".7"/><circle class="af" cx="20" cy="20" r="4"/>'),
+   "Le repliche seguono una sinusoide sfasata: movimento morbido e ipnotico, molto leggibile in loop."],
+  ["scatter","Dispersione",ic('<circle class="af" cx="20" cy="20" r="5"/><circle class="a" cx="8" cy="11" r="2" opacity=".5"/><circle class="a" cx="33" cy="14" r="2" opacity=".5"/><circle class="a" cx="12" cy="31" r="2" opacity=".5"/><circle class="a" cx="30" cy="29" r="2" opacity=".5"/><circle class="a" cx="6" cy="22" r="1.5" opacity=".4"/>'),
+   "Repliche sparse senza griglia: caos controllato. Dà densità, ma l'AI ci si perde facilmente."]]},
+ {id:"env",label:"Environment",opts:[
+  ["void","Void",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="5"/>'),
+   "Nero infinito, nessun piano: l'oggetto fluttua fuori dal mondo. Il default del brand."],
+  ["floor","Piano",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M5 25h30"/><circle class="af" cx="20" cy="19" r="5"/>'),
+   "Una superficie sotto il prodotto: gli dà peso e lo ancora. L'ombra di contatto fa metà del lavoro."],
+  ["limbo","Limbo",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M5 24q15-6 30 0" opacity=".7"/><circle class="af" cx="20" cy="18" r="5"/>'),
+   "Cove senza spigolo: pavimento e fondo si fondono in una curva. Lo studio classico da packshot."],
+  ["cyclo","Ciclorama",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M9 8v13q0 5 5 5h17" opacity=".6"/><circle class="af" cx="20" cy="20" r="4"/>'),
+   "Fondale continuo su due lati: spazio infinito ma illuminabile. Costoso da generare, molto pulito."],
+  ["pedestal","Piedistallo",ic('<rect class="o" x="5" y="8" width="30" height="24"/><rect class="a" x="14" y="24" width="12" height="6"/><circle class="af" cx="20" cy="18" r="5"/>'),
+   "Il prodotto su un podio: dice 'guardami' prima ancora della luce. Museale."],
+  ["gradient","Fondo gradiente",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="dim" d="M5 14h30M5 20h30M5 26h30"/><circle class="af" cx="20" cy="20" r="5"/>'),
+   "Sfumatura dietro il soggetto: separa senza introdurre oggetti. Il compromesso più sicuro."],
+  ["interior","Interno",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M12 8v24M28 8v24M5 26h30" opacity=".45"/><circle class="af" cx="20" cy="20" r="4"/>'),
+   "Un ambiente reale attorno: dà contesto d'uso ma ruba attenzione. L'AI ci mette dentro cose non richieste."],
+  ["outdoor","Esterno",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="a" d="M5 24h30" opacity=".6"/><circle class="a" cx="30" cy="13" r="3" opacity=".5"/><circle class="af" cx="18" cy="20" r="4"/>'),
+   "Luce naturale e orizzonte: racconta una storia, non un prodotto. Il meno controllabile di tutti."],
+  ["tech","Tech grid",ic('<rect class="o" x="5" y="8" width="30" height="24"/><path class="dim" d="M5 16h30M5 24h30M14 8v24M26 8v24"/><circle class="af" cx="20" cy="20" r="4"/>'),
+   "Griglia luminosa nel buio: linguaggio da spec sheet. Dice 'ingegneria' senza una parola."]]},
  {id:"atmo",label:"Atmosfera",opts:[
   ["clean","Void pulito",ic('<rect class="o" x="5" y="11" width="30" height="18"/><circle class="af" cx="20" cy="20" r="5"/>'),
    "Nero assoluto, nessuna interferenza: chirurgico. Lascia tutta la responsabilità alla forma."],
@@ -1366,7 +1928,9 @@ const optOf=(ax,id)=>AXMAP[ax].opts.find(o=>o[0]===id);
 /* numeric params derived from a selection, tweened for animation */
 function params(sel){
   const p={rot:0,tilt:0,dist:1,px:.5,py:.5,scale:1,rimA:1,rimB:0,top:0,under:0,
-    silh:0,graz:0,blur:0,fg:0,haze:0,part:0,refl:0,smoke:0,orbit:0,parallax:0};
+    silh:0,graz:0,blur:0,fg:0,haze:0,part:0,refl:0,smoke:0,orbit:0,parallax:0,
+    /* vista */ yaw:0,pitch:0,ortho:0,
+    /* environment */ floor:0,cove:0,wall:0,pedestal:0,grad:0,room:0,horizon:0,techgrid:0};
   if(sel.luce==="duo"){p.rimB=.6;}
   if(sel.luce==="top"){p.rimA=0;p.top=1;}
   if(sel.luce==="under"){p.rimA=0;p.under=1;}
@@ -1390,13 +1954,41 @@ function params(sel){
   if(sel.atmo==="particle"){p.part=1;}
   if(sel.atmo==="reflect"){p.refl=1;}
   if(sel.atmo==="smoke"){p.smoke=1;}
+  /* ---- Vista: where the camera sits relative to the object. Separate from
+     Composizione, which is where the object sits inside the frame. ---- */
+  if(sel.view==="quarter"){p.yaw=.62;p.pitch=.16;}
+  if(sel.view==="shape"){p.yaw=.3;p.pitch=.05;p.scale*=1.5;p.dist*=.72;}
+  if(sel.view==="offset"){p.yaw=.5;p.px=Math.min(.82,p.px+.16);}
+  if(sel.view==="low"){p.pitch=-.72;p.yaw=.35;}
+  if(sel.view==="high"){p.pitch=.6;p.yaw=.35;}
+  if(sel.view==="profile"){p.yaw=1.5708;}
+  if(sel.view==="ortho"){p.ortho=1;p.yaw=.0;}
+  if(sel.view==="macro3q"){p.yaw=.72;p.pitch=.2;p.scale*=1.45;p.dist*=.62;}
+  if(sel.view==="zenith"){p.pitch=1.5;}
+  /* ---- Environment: what the object stands in ---- */
+  if(sel.env==="floor"){p.floor=1;}
+  if(sel.env==="limbo"){p.floor=1;p.cove=1;}
+  if(sel.env==="cyclo"){p.floor=1;p.cove=1;p.wall=1;}
+  if(sel.env==="pedestal"){p.floor=1;p.pedestal=1;}
+  if(sel.env==="gradient"){p.grad=1;}
+  if(sel.env==="interior"){p.floor=1;p.wall=1;p.room=1;}
+  if(sel.env==="outdoor"){p.floor=1;p.horizon=1;}
+  if(sel.env==="tech"){p.techgrid=1;p.floor=1;}
+  /* non-numeric passthrough for the 3D engine (mixP only lerps numbers, and
+     these are categorical: they snap at t=0.5 rather than blending) */
+  p._motion=sel.motion; p._focus=sel.focus; p._view=sel.view; p._env=sel.env;
   return p;
 }
 const lerp=(a,b,t)=>a+(b-a)*t;
-function mixP(A,B,t){ const o={}; for(const k in A) o[k]=lerp(A[k],B[k],t); return o; }
+function mixP(A,B,t){ const o={};
+  for(const k in A) o[k] = (typeof A[k]==="number") ? lerp(A[k],B[k],t) : (t<0.5?A[k]:B[k]);
+  return o; }
 
-/* draw one frame onto a 2D canvas — pseudo-3D capsule with rim shading */
-function draw(cv, sel, p, time){
+/* draw one frame onto a 2D canvas.
+   Primary path = the shared Three.js engine (beveled cube + starfield).
+   The 2D capsule below is kept as the fallback when WebGL is unavailable. */
+function draw(cv, sel, p, time, opts){
+  if(ENG){ ENG.renderTo(cv,p,time,opts); return; }
   const W=cv.width, H=cv.height, ctx=cv.getContext("2d");
   if(!ctx || W<4 || H<4) return;
   const A="#ff7950";
@@ -1432,17 +2024,17 @@ function draw(cv, sel, p, time){
 
   const clones=[];
   const push=(x,y,r,o)=>clones.push([x,y,r,o]);
-  if(sel.pri==="clone"){ push(cx-R*2.1,cy,R*.6,.5); push(cx+R*2.1,cy,R*.6,.5); }
-  if(sel.pri==="grid"){ for(let r=0;r<3;r++)for(let c=0;c<7;c++){
+  if(sel.motion==="clone"){ push(cx-R*2.1,cy,R*.6,.5); push(cx+R*2.1,cy,R*.6,.5); }
+  if(sel.motion==="grid"){ for(let r=0;r<3;r++)for(let c=0;c<7;c++){
       const x=W*.08+c*W*.14, y=H*.24+r*H*.26;
       if(Math.abs(x-cx)<R*1.2&&Math.abs(y-cy)<R*1.2) continue; push(x,y,R*.3,.4);} }
-  if(sel.pri==="spiral"){ for(let i=0;i<11;i++){ const a=i*.72+time*.35, rr=R*.3+i*R*.22;
+  if(sel.motion==="spiral"){ for(let i=0;i<11;i++){ const a=i*.72+time*.35, rr=R*.3+i*R*.22;
       push(cx+Math.cos(a)*rr*1.4, cy+Math.sin(a)*rr*.7, R*.12+i*R*.04, .28+i*.04);} }
-  if(sel.pri==="vortex"){ for(let i=0;i<8;i++){ const a=i*.79+time*.9;
+  if(sel.motion==="vortex"){ for(let i=0;i<8;i++){ const a=i*.79+time*.9;
       push(cx+Math.cos(a)*R*2.4, cy+Math.sin(a)*R*1.05, R*.24, .35);} }
-  if(sel.pri==="kaleido"){ for(let i=0;i<6;i++){ const a=i*Math.PI/3+time*.25;
+  if(sel.motion==="kaleido"){ for(let i=0;i<6;i++){ const a=i*Math.PI/3+time*.25;
       push(cx+Math.cos(a)*R*1.75, cy+Math.sin(a)*R*.95, R*.42, .46);} }
-  if(sel.pri==="multi"){ const a=time*.7;
+  if(sel.motion==="multi"){ const a=time*.7;
     push(cx+Math.cos(a)*R*2.4, cy, R*.38,.45); push(cx-Math.cos(a)*R*2.4, cy, R*.38,.45);
     push(cx, cy+Math.sin(a)*R*1.7, R*.38,.35); push(cx, cy-Math.sin(a)*R*1.7, R*.38,.35); }
 
@@ -1564,7 +2156,9 @@ const VERDICT={
  cam:{static:2,push:3,orbit:2,truck:1,crane:2,vertigo:3},
  focus:{deep:0,shallow:3,rack:2,macro:3,fgblur:2},
  comp:{center:3,thirds:1,neg:2,extreme:3,low:3,top:1},
- pri:{hero:3,clone:2,grid:1,spiral:2,vortex:1,kaleido:0,multi:1},
+ motion:{none:3,clone:2,grid:1,spiral:2,vortex:1,kaleido:0,multi:1,explode:1,stack:2,orbitm:2,wave:1,scatter:0},
+ view:{center:2,quarter:3,shape:2,offset:2,low:2,high:1,profile:2,ortho:1,macro3q:3,zenith:1},
+ env:{void:3,floor:2,limbo:3,cyclo:2,pedestal:3,gradient:2,interior:0,outdoor:0,tech:1},
  atmo:{clean:3,haze:2,particle:2,reflect:2,smoke:1}
 };
 function verdict(sel){
@@ -1576,13 +2170,23 @@ function verdict(sel){
   return "Diluito ("+p+"%). La composizione è più interessante del prodotto. Va bene come stacco breve o come texture di passaggio — non reggerebbe un finale.";
 }
 const recipe=sel=>AXES.map(ax=>optOf(ax.id,sel[ax.id])[1]).join(" · ");
-/* randomize sel in place; axes whose id is truthy in `skip` keep their value */
-function randomize(sel, skip){
-  skip=skip||{};
-  AXES.forEach(a=>{ if(skip[a.id]) return;
-    sel[a.id]=a.opts[Math.floor(Math.random()*a.opts.length)][0]; });
+/* Randomize sel in place.
+   `skip`  : axis id -> true  => axis is locked, value kept as-is
+   `excl`  : "axisId:optId" -> true => that option is off the table.
+   If every option of an axis is excluded the axis is treated as locked,
+   otherwise there would be nothing to pick. */
+function randomize(sel, skip, excl){
+  skip=skip||{}; excl=excl||{};
+  AXES.forEach(a=>{
+    if(skip[a.id]) return;
+    const pool=a.opts.filter(o=>!excl[a.id+":"+o[0]]);
+    if(!pool.length) return;
+    sel[a.id]=pool[Math.floor(Math.random()*pool.length)][0];
+  });
   return sel;
 }
+/* an option the user excluded but that is currently selected stays visible &
+   selected — exclusion only governs the dice, never fights a manual choice */
 
 /* ---------------- axis UI builder ---------------- */
 /* opts.locks : if passed, each axis header gets a lock toggle writing into locks[ax.id] */
@@ -1615,6 +2219,18 @@ function buildAxes(host, sel, onChange, opts){
       b.innerHTML=op[2]; const lb=document.createElement("span"); lb.textContent=op[1]; b.appendChild(lb);
       b.onclick=()=>{ sel[ax.id]=op[0];
         o.querySelectorAll(".copt").forEach(x=>x.setAttribute("aria-pressed", x===b)); onChange(); };
+      if(opts.excl){
+        const key=ax.id+":"+op[0];
+        const x=document.createElement("span"); x.className="x"; x.setAttribute("role","button");
+        x.innerHTML='<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>';
+        const sync=()=>{ const off=!!opts.excl[key];
+          b.classList.toggle("excl",off);
+          x.title=off?"Reintegra nella casuale":"Escludi dalla casuale";
+          x.setAttribute("aria-label",x.title); };
+        x.onclick=(e)=>{ e.stopPropagation();
+          opts.excl[key]=!opts.excl[key]; sync(); if(opts.onExcl) opts.onExcl(); };
+        sync(); b.appendChild(x);
+      }
       o.appendChild(b);
     });
     g.appendChild(o); host.appendChild(g);
@@ -1638,15 +2254,58 @@ function notes(host, sel){
    first render hits the temporal dead zone and the view never paints.              */
 let view="bench", t0=performance.now(), running=false;
 let cvC=null, cvM=null, cvA=null, cvB=null; /* assigned by the views below */
+/* Locks & exclusions are global: COMP and FRAME roll the same dice, so a lock
+   set in one view must show in the other. Grids register here as they are
+   built; __syncLocks repaints every registered grid. Declared above the views
+   for the same reason paint() is — FRAME's init runs before COMP's. */
+const LOCKS={}, EXCL={}, LOCK_HOSTS=[];
+function __syncLocks(){
+  LOCK_HOSTS.forEach(h=>{
+    if(!h) return;
+    h.querySelectorAll(".cgrp").forEach(g=>{
+      const on=!!LOCKS[g.dataset.ax]; g.classList.toggle("locked",on);
+      const lk=g.querySelector(".lock");
+      if(lk) lk.setAttribute("aria-pressed",String(on));
+    });
+    h.querySelectorAll(".copt").forEach(b=>
+      b.classList.toggle("excl", !!EXCL[b.dataset.ax+":"+b.dataset.op]));
+  });
+  if(window.__lockLabel) window.__lockLabel();
+}
+/* work-viewport state, one orbit per view */
+const VP={combo:{on:false,az:0.7,el:0.35,dist:9},comb2:{on:false,az:0.7,el:0.35,dist:9}};
+/* drag-to-orbit on a preview host; only active while that view is in work mode */
+function makeOrbit(host, st, onChange){
+  let dragging=false, lx=0, ly=0;
+  const down=e=>{ if(!st.on) return; dragging=true;
+    const t=e.touches?e.touches[0]:e; lx=t.clientX; ly=t.clientY;
+    if(e.cancelable) e.preventDefault(); };
+  const move=e=>{ if(!dragging||!st.on) return;
+    const t=e.touches?e.touches[0]:e;
+    st.az -= (t.clientX-lx)*0.008;
+    st.el = Math.max(-1.35, Math.min(1.35, st.el + (t.clientY-ly)*0.006));
+    lx=t.clientX; ly=t.clientY; onChange();
+    if(e.cancelable) e.preventDefault(); };
+  const up=()=>{ dragging=false; };
+  host.addEventListener("mousedown",down); host.addEventListener("touchstart",down,{passive:false});
+  window.addEventListener("mousemove",move); window.addEventListener("touchmove",move,{passive:false});
+  window.addEventListener("mouseup",up); window.addEventListener("touchend",up);
+  host.addEventListener("wheel",e=>{ if(!st.on) return;
+    st.dist=Math.max(3.5,Math.min(22, st.dist + (e.deltaY>0?0.7:-0.7))); onChange();
+    e.preventDefault(); },{passive:false});
+}
 let selC=null, selA=null, selB=null;
 let abT=0, abPlaying=false;
 
 function paint(time){
-  if(view==="combo" && cvC && selC){ draw(cvC, selC, params(selC), time); }
+  if(view==="combo" && cvC && selC){
+    draw(cvC, selC, params(selC), time, VP.combo.on?{work:true,orbit:VP.combo}:null);
+  }
   else if(view==="comb2" && cvM && selA && selB){
     const pA=params(selA), pB=params(selB);
     const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
-    draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time);
+    draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time,
+         VP.comb2.on?{work:true,orbit:VP.comb2}:null);
     /* the two column previews: each frame shown at its own end of the interpolation,
        so a change to either axis grid is visible immediately without switching tabs */
     if(cvA) draw(cvA, selA, pA, time);
@@ -1683,24 +2342,55 @@ function renderC(){
   window.__lastComposition=Object.assign({},selC);
   if(window.__repaint) window.__repaint();
 }
-const cLocks={};                       /* axis id -> true = frozen, skipped by selective random */
+/* cLocks/cExcl alias the globals: COMP and FRAME share one dice policy. */
+const cLocks=LOCKS, cExcl=EXCL;
 const cAxesHost=document.getElementById("cAxes");
-function cSelBtnLabel(){
-  const n=AXES.filter(a=>!cLocks[a.id]).length;
-  const b=document.getElementById("cRandSel");
-  if(b){ b.textContent="Casuale selettiva ("+n+")"; b.disabled=(n===0); }
+function cRandLabel(){
+  let pool=0;
+  AXES.forEach(a=>{ if(cLocks[a.id]) return;
+    pool+=a.opts.filter(o=>!cExcl[a.id+":"+o[0]]).length; });
+  const b=document.getElementById("cRand");
+  const free=AXES.filter(a=>!cLocks[a.id]).length;
+  if(b) b.textContent = free? "Combinazione casuale" : "Tutti gli assi bloccati";
+  if(b) b.disabled = !free;
+  const h=document.getElementById("cVpHint");
+  if(h && !VP.combo.on){
+    const nEx=Object.keys(cExcl).filter(k=>cExcl[k]).length;
+    const nLk=AXES.filter(a=>cLocks[a.id]).length;
+    const bits=[];
+    if(nLk) bits.push(nLk+(nLk===1?" asse bloccato":" assi bloccati"));
+    if(nEx) bits.push(nEx+(nEx===1?" opzione esclusa":" opzioni escluse"));
+    h.textContent=bits.join(" · ");
+  }
 }
-buildAxes(cAxesHost, selC, renderC, {locks:cLocks, onLock:cSelBtnLabel});
-cSelBtnLabel();
+buildAxes(cAxesHost, selC, renderC, {locks:cLocks, excl:cExcl,
+  onLock:__syncLocks, onExcl:__syncLocks});
+LOCK_HOSTS.push(cAxesHost);
+window.__lockLabel=cRandLabel;
+cRandLabel();
 document.getElementById("cRand").onclick=()=>{
-  randomize(selC); syncAxes(cAxesHost,selC); renderC(); };
-document.getElementById("cRandSel").onclick=()=>{
-  randomize(selC, cLocks); syncAxes(cAxesHost,selC); renderC(); };
+  randomize(selC, cLocks, cExcl); syncAxes(cAxesHost,selC); renderC(); };
 document.getElementById("cReset").onclick=()=>{
   AXES.forEach(a=>selC[a.id]=a.opts[0][0]);
   syncAxes(cAxesHost,selC); renderC(); };
+/* viewport toggle */
+(function(){
+  const bp=document.getElementById("cVpPrev"), bw=document.getElementById("cVpWork"),
+        host=document.getElementById("cprev"), hint=document.getElementById("cVpHint");
+  function set(on){
+    VP.combo.on=on;
+    bp.setAttribute("aria-selected",String(!on)); bw.setAttribute("aria-selected",String(on));
+    host.classList.toggle("work",on);
+    if(on) hint.textContent="Trascina per orbitare · rotella per lo zoom";
+    else cRandLabel();
+    if(window.__repaint) window.__repaint(); start();
+  }
+  bp.onclick=()=>set(false); bw.onclick=()=>set(true);
+  makeOrbit(host, VP.combo, ()=>{ if(window.__repaint) window.__repaint(); });
+})();
 (function(){ let n=1; AXES.forEach(a=>n*=a.opts.length);
-  const el=document.getElementById("cCount"); if(el) el.textContent=n.toLocaleString("it-IT"); })();
+  const el=document.getElementById("cCount"); if(el) el.textContent=n.toLocaleString("it-IT");
+  const ax=document.getElementById("cAxN"); if(ax) ax.textContent=AXES.length; })();
 renderC();
 
 /* ================= VIEW 2 · FRAME (A→B) ================= */
@@ -1749,11 +2439,15 @@ function renderAB(){
    visible in the big player, editing B parks it at t=1. No tab switching. */
 function onEditA(){ abT=0; abPlaying=false; renderAB(); start(); }
 function onEditB(){ abT=1; abPlaying=false; renderAB(); start(); }
-buildAxes(abHostA, selA, onEditA);
-buildAxes(abHostB, selB, onEditB);
-
-document.getElementById("aRand").onclick=()=>{ randomize(selA); syncAxes(abHostA,selA); onEditA(); };
-document.getElementById("bRand").onclick=()=>{ randomize(selB); syncAxes(abHostB,selB); onEditB(); };
+/* FRAME reuses COMP's locks + exclusions: one place to say what the dice may
+   roll, honoured by every random button in the tool. */
+buildAxes(abHostA, selA, onEditA, {locks:LOCKS, excl:EXCL,
+  onLock:__syncLocks, onExcl:__syncLocks});
+buildAxes(abHostB, selB, onEditB, {locks:LOCKS, excl:EXCL,
+  onLock:__syncLocks, onExcl:__syncLocks});
+LOCK_HOSTS.push(abHostA, abHostB);
+document.getElementById("aRand").onclick=()=>{ randomize(selA,cLocks,cExcl); syncAxes(abHostA,selA); onEditA(); };
+document.getElementById("bRand").onclick=()=>{ randomize(selB,cLocks,cExcl); syncAxes(abHostB,selB); onEditB(); };
 document.getElementById("aReset").onclick=()=>{ AXES.forEach(a=>selA[a.id]=a.opts[0][0]);
   syncAxes(abHostA,selA); onEditA(); };
 document.getElementById("bReset").onclick=()=>{ AXES.forEach(a=>selB[a.id]=a.opts[0][0]);
@@ -1761,12 +2455,15 @@ document.getElementById("bReset").onclick=()=>{ AXES.forEach(a=>selB[a.id]=a.opt
 /* pair random: keep the delta in the workable 2-3 axis band instead of rolling
    both frames independently (which lands on delta 5-6 almost every time) */
 document.getElementById("abRand").onclick=()=>{
-  randomize(selA);
+  randomize(selA,cLocks,cExcl);
   AXES.forEach(a=>selB[a.id]=selA[a.id]);
-  const pool=AXES.slice(), pick=[];
+  /* only unlocked axes with a spare non-excluded option can carry the delta */
+  const pool=AXES.filter(ax=>!cLocks[ax.id] &&
+    ax.opts.filter(o=>o[0]!==selA[ax.id] && !cExcl[ax.id+":"+o[0]]).length);
+  const pick=[];
   while(pick.length<3 && pool.length) pick.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   pick.forEach(ax=>{
-    const others=ax.opts.filter(o=>o[0]!==selA[ax.id]);
+    const others=ax.opts.filter(o=>o[0]!==selA[ax.id] && !cExcl[ax.id+":"+o[0]]);
     if(others.length) selB[ax.id]=others[Math.floor(Math.random()*others.length)][0];
   });
   syncAxes(abHostA,selA); syncAxes(abHostB,selB);
@@ -1775,6 +2472,20 @@ document.getElementById("abRand").onclick=()=>{
 document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]);
   syncAxes(abHostB,selB); renderAB(); start(); };
 document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
+(function(){
+  const bp=document.getElementById("abVpPrev"), bw=document.getElementById("abVpWork"),
+        host=document.getElementById("prevMix"), hint=document.getElementById("abVpHint");
+  function set(on){
+    VP.comb2.on=on;
+    bp.setAttribute("aria-selected",String(!on)); bw.setAttribute("aria-selected",String(on));
+    host.classList.toggle("work",on);
+    hint.textContent = on ? "Trascina per orbitare · rotella per lo zoom" : "";
+    if(window.__repaint) window.__repaint(); start();
+  }
+  bp.onclick=()=>set(false); bw.onclick=()=>set(true);
+  makeOrbit(host, VP.comb2, ()=>{ if(window.__repaint) window.__repaint(); });
+})();
+__syncLocks();
 renderAB();
 start();
 
@@ -1784,52 +2495,52 @@ const sIc=s=>'<svg viewBox="0 0 40 40">'+s+'</svg>';
 const BLOCKS=[
  ["dark","Penombra totale","Il prodotto è lì ma non si vede: solo un accenno di volume nel nero.",2.5,.08,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse cx="20" cy="21" rx="5" ry="7" fill="#131316"/>'),"shot",
-  {luce:"silhou",cam:"static",focus:"deep",comp:"center",pri:"hero",atmo:"clean"}],
+  {luce:"silhou",cam:"static",focus:"deep",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["shapereveal","Macro shape reveal","La rim light accende un bordo: emerge una forma, non ancora un oggetto.",3,.22,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse cx="20" cy="21" rx="5" ry="7" fill="#131316"/><path class="a" d="M24 15a7 7 0 0 1 0 12" stroke-width="2"/>'),"shot",
-  {luce:"rim",cam:"static",focus:"shallow",comp:"center",pri:"hero",atmo:"clean"}],
+  {luce:"rim",cam:"static",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["macro","Dettaglio macro","Superficie a tutto quadro: texture, finitura, qualità costruttiva.",2.5,.32,
   sIc('<circle class="o" cx="20" cy="20" r="12"/><path class="a" d="M13 20c2-3 5-3 7 0s5 3 7 0"/><circle class="af" cx="20" cy="20" r="2"/>'),"shot",
-  {luce:"grazing",cam:"static",focus:"macro",comp:"center",pri:"hero",atmo:"clean"}],
+  {luce:"grazing",cam:"static",focus:"macro",comp:"center",view:"macro3q",env:"void",motion:"none",atmo:"clean"}],
  ["form","Dettaglio forma","Ci si allarga quel tanto che basta per capire la geometria.",2.5,.4,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M20 13l8 5v8l-8 5-8-5v-8z"/>'),"shot",
-  {luce:"duo",cam:"orbit",focus:"shallow",comp:"center",pri:"hero",atmo:"haze"}],
+  {luce:"duo",cam:"orbit",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"haze"}],
  ["feature","Dettaglio feature","Il particolare che giustifica il prezzo: meccanismo, giunzione, marchio.",3,.45,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><circle class="a" cx="20" cy="21" r="7"/><path class="af" d="M20 17l1.5 3H25l-2.6 2 1 3.4L20 23.6 16.6 25.4l1-3.4L15 20h3.5z"/>'),"shot",
-  {luce:"rim",cam:"push",focus:"macro",comp:"thirds",pri:"hero",atmo:"clean"}],
+  {luce:"rim",cam:"push",focus:"macro",comp:"thirds",view:"macro3q",env:"void",motion:"none",atmo:"clean"}],
  ["full","Product full","Prima volta intero nel quadro: il pay-off di tutto il reveal.",3.5,.6,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="20" cy="21" rx="4" ry="7"/>'),"shot",
-  {luce:"duo",cam:"push",focus:"shallow",comp:"center",pri:"hero",atmo:"particle"}],
+  {luce:"duo",cam:"push",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"particle"}],
  ["variant","Variant reveal","Le versioni entrano in scena: gamma, colori, taglie.",3,.55,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="13" cy="21" rx="2.5" ry="5" opacity=".5"/><ellipse class="af" cx="20" cy="21" rx="3" ry="6"/><ellipse class="af" cx="27" cy="21" rx="2.5" ry="5" opacity=".5"/>'),"shot",
-  {luce:"rim",cam:"truck",focus:"deep",comp:"center",pri:"clone",atmo:"clean"}],
+  {luce:"rim",cam:"truck",focus:"deep",comp:"center",view:"quarter",env:"void",motion:"clone",atmo:"clean"}],
  ["exploded","Exploded view","Il prodotto si scompone a mezz'aria: dice ingegneria senza una parola.",3,.5,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><ellipse class="af" cx="20" cy="21" rx="3" ry="4"/><path class="a" d="M20 14v-2M20 28v2M11 21h-2M29 21h2" opacity=".8"/><ellipse class="a" cx="20" cy="9" rx="3" ry="1.5"/><ellipse class="a" cx="20" cy="33" rx="3" ry="1.5"/>'),"shot",
-  {luce:"duo",cam:"orbit",focus:"deep",comp:"center",pri:"multi",atmo:"clean"}],
+  {luce:"duo",cam:"orbit",focus:"deep",comp:"center",view:"quarter",env:"void",motion:"multi",atmo:"clean"}],
  ["fx","Effetto speciale","Particelle, energia, morph: il momento puramente emozionale.",2,.75,
   sIc('<path class="af" d="M20 7l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/><circle class="af" cx="31" cy="12" r="1.5"/><circle class="af" cx="10" cy="28" r="1.5"/>'),"shot",
-  {luce:"silhou",cam:"vertigo",focus:"shallow",comp:"center",pri:"vortex",atmo:"particle"}],
+  {luce:"silhou",cam:"vertigo",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"vortex",atmo:"particle"}],
  ["info","Infografica","Numeri e callout: l'unico blocco che parla alla testa, non alla pancia.",3,.35,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><circle class="af" cx="14" cy="21" r="3"/><path class="a" d="M20 18h11M20 22h8M20 26h11"/>'),"shot",
-  {luce:"top",cam:"static",focus:"deep",comp:"neg",pri:"hero",atmo:"clean"}],
+  {luce:"top",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["drop","Drop / hero","Il picco: il prodotto arriva sul colpo di cassa, tutto converge qui.",2.5,1,
   sIc('<path class="a" d="M6 26c5 0 6-3 10-3s4 3 4 3" opacity=".7"/><path class="a" d="M20 26l3-14 3 14" stroke-width="2.2"/><path class="a" d="M26 26c4 0 5 4 8 4" opacity=".7"/><circle class="af" cx="23" cy="12" r="2.5"/>'),"shot",
-  {luce:"duo",cam:"push",focus:"shallow",comp:"extreme",pri:"hero",atmo:"smoke"}],
+  {luce:"duo",cam:"push",focus:"shallow",comp:"extreme",view:"quarter",env:"void",motion:"none",atmo:"smoke"}],
  ["pattern","Pattern / vortice","Repliche in movimento: energia grafica pura, ottima dopo il drop.",2,.8,
   sIc('<circle class="af" cx="20" cy="20" r="3"/><path class="a" d="M20 8a12 12 0 0 1 11 8M31 24a12 12 0 0 1-19 6M9 22a12 12 0 0 1 5-13" opacity=".75"/>'),"shot",
-  {luce:"rim",cam:"orbit",focus:"deep",comp:"top",pri:"kaleido",atmo:"clean"}],
+  {luce:"rim",cam:"orbit",focus:"deep",comp:"top",view:"quarter",env:"void",motion:"kaleido",atmo:"clean"}],
  ["logo","Logo / badge","Il marchio atterra nello spazio negativo lasciato apposta.",2,.45,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><rect class="af" x="13" y="17" width="14" height="7" rx="1"/>'),"shot",
-  {luce:"rim",cam:"static",focus:"deep",comp:"neg",pri:"hero",atmo:"clean"}],
+  {luce:"rim",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["claim","Claim / payoff","Una riga di testo. Se il video ha funzionato, qui non serve altro.",2,.3,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M12 19h16M14 24h12" stroke-width="1.8"/>'),"shot",
-  {luce:"rim",cam:"static",focus:"deep",comp:"neg",pri:"hero",atmo:"clean"}],
+  {luce:"rim",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  ["outro","Outro / fade","Ritorno al nero: il prodotto se ne va come è arrivato.",2,.12,
   sIc('<defs><linearGradient id="og" x1="0" x2="1"><stop offset="0" stop-color="#ff7950"/><stop offset="1" stop-color="#060606"/></linearGradient></defs><rect x="6" y="12" width="28" height="17" rx="1" fill="url(#og)"/>'),"shot",
-  {luce:"silhou",cam:"static",focus:"shallow",comp:"center",pri:"hero",atmo:"smoke"}],
+  {luce:"silhou",cam:"static",focus:"shallow",comp:"center",view:"quarter",env:"void",motion:"none",atmo:"smoke"}],
  ["credits","Crediti","Chi ha fatto cosa. Breve, piccolo, fuori dal centro.",2.5,.06,
   sIc('<rect class="o" x="6" y="12" width="28" height="17" rx="1"/><path class="a" d="M13 17h14M13 20h9M13 23h11M13 26h6" opacity=".6"/>'),"shot",
-  {luce:"top",cam:"static",focus:"deep",comp:"neg",pri:"hero",atmo:"clean"}],
+  {luce:"top",cam:"static",focus:"deep",comp:"neg",view:"quarter",env:"void",motion:"none",atmo:"clean"}],
  /* transitions */
  ["t_cut","Stacco netto","Nessuna transizione: il taglio più onesto e più veloce.",0,0,
   sIc('<rect class="o" x="6" y="14" width="12" height="13" rx="1"/><rect class="o" x="22" y="14" width="12" height="13" rx="1"/><path class="a" d="M20 8v25" stroke-width="1.6"/>'),"trans",null],
@@ -1916,7 +2627,7 @@ Object.keys(LANES).forEach(ty=>{
     if(!dragFrom) return;
     if(dragFrom.kind==="lib"){
       const b=B(dragFrom.id); if(!b||b[6]!==ty) return;
-      TL.push({id:b[0],img:null,selected:false,dur:b[3]});
+      TL.push({id:b[0],img:null,selected:false,dur:b[3],note:""});
     }
     dragFrom=null; drawTL();
   });
@@ -1932,6 +2643,7 @@ function drawTL(){
     const thumb = it.img ? '<img src="'+it.img+'" alt="">' : b[5];
     d.innerHTML='<div class="th">'+thumb+'</div><div class="nm">'+b[1]+'</div>'+
       (b[3]>0?'<div class="dur"><input type="number" min="0.1" max="30" step="0.1" value="'+it.dur.toFixed(1)+'"></div>':'')+
+      '<textarea class="note'+(it.note?' has':'')+'" rows="1" placeholder="nota…"></textarea>'+
       '<button class="x" aria-label="Rimuovi">×</button>';
     d.querySelector(".x").onclick=e=>{ e.stopPropagation(); TL.splice(i,1); drawTL(); };
     const inp=d.querySelector("input");
@@ -1940,18 +2652,51 @@ function drawTL(){
       inp.onchange=()=>{ const v=parseFloat(inp.value);
         it.dur = isNaN(v)?b[3]:Math.min(30,Math.max(0.1,v)); drawTL(); };
     }
+    /* annotation: the note lives on the timeline item, travels with reorder,
+       and lands in the breakdown export */
+    const nt=d.querySelector(".note");
+    if(nt){
+      nt.value=it.note||"";
+      nt.onclick=e=>e.stopPropagation();
+      /* a textarea inside a draggable parent cannot be focused in Firefox
+         unless the drag is disabled while pointing at it */
+      nt.onmousedown=()=>{ d.draggable=false; };
+      nt.onblur=()=>{ d.draggable=true; nt.classList.toggle("has",!!nt.value.trim()); };
+      nt.oninput=()=>{ it.note=nt.value; nt.classList.toggle("has",!!nt.value.trim());
+        recipeOut(); };
+    }
     d.onclick=()=>{ TL.forEach(x=>x.selected=false); it.selected=true; drawTL(); };
     d.addEventListener("dragstart",()=>{ dragFrom={kind:"tl",idx:i}; d.classList.add("drag"); });
     d.addEventListener("dragend",()=>{ dragFrom=null; d.classList.remove("drag");
       document.querySelectorAll(".clip").forEach(x=>x.classList.remove("over")); });
+    /* A clip accepts BOTH a reorder (from the timeline) and a new block (from
+       the library). Previously it bailed on anything that was not kind==="tl"
+       AND called stopPropagation, so a library drag onto an existing clip fell
+       through to nothing at all: the lane never saw it either. */
     d.addEventListener("dragover",e=>{
-      if(!dragFrom||dragFrom.kind!=="tl") return;
-      e.preventDefault(); e.stopPropagation(); d.classList.add("over"); });
-    d.addEventListener("dragleave",()=>d.classList.remove("over"));
+      if(!dragFrom) return;
+      const src = dragFrom.kind==="lib" ? B(dragFrom.id) : B(TL[dragFrom.idx].id);
+      if(!src || src[6]!==b[6]) return;      /* still type-checked per lane */
+      e.preventDefault(); e.stopPropagation();
+      d.classList.toggle("over-rep", !!e.altKey);
+      d.classList.add("over"); });
+    d.addEventListener("dragleave",()=>d.classList.remove("over","over-rep"));
     d.addEventListener("drop",e=>{
-      e.preventDefault(); e.stopPropagation(); d.classList.remove("over");
-      if(!dragFrom||dragFrom.kind!=="tl"||dragFrom.idx===i) return;
-      const m=TL.splice(dragFrom.idx,1)[0]; TL.splice(i,0,m); dragFrom=null; drawTL(); });
+      e.preventDefault(); e.stopPropagation(); d.classList.remove("over","over-rep");
+      if(!dragFrom) return;
+      /* Alt = replace this clip, plain drop = insert before it */
+      const replace=!!e.altKey;
+      if(dragFrom.kind==="lib"){
+        const nb=B(dragFrom.id); if(!nb||nb[6]!==b[6]){ dragFrom=null; return; }
+        const item={id:nb[0],img:null,selected:false,dur:nb[3],note:""};
+        if(replace) TL.splice(i,1,item); else TL.splice(i,0,item);
+      }else{
+        if(dragFrom.idx===i){ dragFrom=null; return; }
+        const m=TL.splice(dragFrom.idx,1)[0];
+        const at = dragFrom.idx<i ? i-1 : i;
+        if(replace) TL.splice(at,1,m); else TL.splice(at,0,m);
+      }
+      dragFrom=null; drawTL(); });
     lane.appendChild(d);
   });
   drawEnergy(); recipeOut();
@@ -1979,8 +2724,10 @@ function drawEnergy(){
   g+='<line x1="'+pts[pk][0].toFixed(1)+'" y1="4" x2="'+pts[pk][0].toFixed(1)+'" y2="'+H+'" stroke="#ff7950" stroke-width=".6" stroke-dasharray="2 2" opacity=".55"/>';
   g+='<text x="'+(pts[pk][0]+4).toFixed(1)+'" y="11" fill="#ff7950" font-family="Inter,sans-serif" font-size="7" letter-spacing=".1em">PICCO</text>';
   sEnergy.innerHTML=g;
+  if(typeof PEAKS!=="undefined" && PEAKS) drawWave();  /* keep the edit-length marker in sync */
 }
 
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function recipeOut(){
   const shots=TL.filter(x=>B(x.id)&&B(x.id)[6]==="shot");
   if(!shots.length){ sRec.innerHTML='<p class="rempty">La shot list compare qui: ogni inquadratura con i suoi parametri, pronta per la produzione.</p>'; return; }
@@ -1990,10 +2737,13 @@ function recipeOut(){
     if(b[6]==="shot"){ n++; const s=b[7];
       out+='<div class="rshot"><div class="rh"><span class="rn">SHOT '+String(n).padStart(2,"0")+'</span>'+
         '<span class="rt">'+b[1]+'</span><span class="rd">'+x.dur.toFixed(1)+'s</span></div>'+
-        '<div class="rp">'+AXES.map(ax=>'<span><i>'+ax.label+'</i>'+optOf(ax.id,s[ax.id])[1]+'</span>').join('')+'</div></div>';
+        '<div class="rp">'+AXES.map(ax=>'<span><i>'+ax.label+'</i>'+optOf(ax.id,s[ax.id])[1]+'</span>').join('')+'</div>'+
+        (x.note?'<div class="rnote">▸ '+esc(x.note)+'</div>':'')+'</div>';
     } else if(b[6]==="trans"){
-      out+='<div class="rtr">fx · <b>'+b[1]+'</b>'+(b[3]>0?' ('+x.dur.toFixed(2)+'s)':'')+'</div>';
-    } else { out+='<div class="rau">audio · <b>'+b[1]+'</b></div>'; }
+      out+='<div class="rtr">fx · <b>'+b[1]+'</b>'+(b[3]>0?' ('+x.dur.toFixed(2)+'s)':'')+
+        (x.note?' — <i>'+esc(x.note)+'</i>':'')+'</div>';
+    } else { out+='<div class="rau">audio · <b>'+b[1]+'</b>'+
+        (x.note?' — <i>'+esc(x.note)+'</i>':'')+'</div>'; }
   });
   sRec.innerHTML=out;
 }
@@ -2005,15 +2755,113 @@ function breakdownText(){
       txt+="SHOT "+String(n).padStart(2,"0")+" — "+b[1]+"  ("+x.dur.toFixed(1)+"s)\n";
       txt+="  "+b[2]+"\n";
       AXES.forEach(ax=>{ txt+="  "+ax.label.padEnd(18)+": "+optOf(ax.id,s[ax.id])[1]+"\n"; });
+      if(x.note) txt+="  NOTA              : "+x.note+"\n";
       txt+="\n";
-    } else if(b[6]==="trans"){ txt+="  >> FX: "+b[1]+(b[3]>0?" ("+x.dur.toFixed(2)+"s)":"")+"\n\n"; }
-    else { txt+="  >> AUDIO: "+b[1]+"\n\n"; } });
+    } else if(b[6]==="trans"){ txt+="  >> FX: "+b[1]+(b[3]>0?" ("+x.dur.toFixed(2)+"s)":"")+
+      (x.note?"  [nota: "+x.note+"]":"")+"\n\n"; }
+    else { txt+="  >> AUDIO: "+b[1]+(x.note?"  [nota: "+x.note+"]":"")+"\n\n"; } });
   const tot=TL.reduce((s,x)=>s+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0);
   txt+="------------------\nDurata totale: "+tot.toFixed(1)+"s · "+n+" inquadrature\n";
   return txt;
 }
 function flash(btn,msg){ const b=btn.querySelector("b"), o=b.textContent;
   b.textContent=msg; setTimeout(()=>b.textContent=o,1400); }
+
+/* ---------------- audio track + waveform ----------------
+   Decoded with WebAudio and drawn as min/max peaks per pixel column, aligned
+   to the same x-axis as the energy curve so the drop lines up with the PICCO
+   marker. The file is never uploaded anywhere and is not persisted: reloading
+   the page clears it. */
+const sWaveWrap=document.getElementById("sWaveWrap"), sWave=document.getElementById("sWave"),
+      sWaveLbl=document.getElementById("sWaveLbl"), sWaveX=document.getElementById("sWaveX"),
+      sAudioLbl=document.getElementById("sAudioLbl");
+let PEAKS=null, AUD_DUR=0, AUD_NAME="";
+function drawWave(){
+  if(!PEAKS||!sWave) return;
+  const r=Math.min(devicePixelRatio||1,2);
+  const w=sWave.clientWidth||800, h=48;
+  if(sWave.width!==Math.round(w*r)){ sWave.width=Math.round(w*r); sWave.height=Math.round(h*r); }
+  const x=sWave.getContext("2d"); if(!x) return;
+  x.setTransform(r,0,0,r,0,0);
+  x.clearRect(0,0,w,h);
+  const n=PEAKS.length/2, mid=h/2;
+  x.strokeStyle="#ff7950"; x.globalAlpha=.75; x.lineWidth=1;
+  x.beginPath();
+  for(let i=0;i<w;i++){
+    const k=Math.floor(i/w*n)*2;
+    const lo=PEAKS[k], hi=PEAKS[k+1];
+    x.moveTo(i+.5, mid - hi*(mid-3));
+    x.lineTo(i+.5, mid - lo*(mid-3));
+  }
+  x.stroke();
+  x.globalAlpha=1;
+  /* timeline length marker: where the edit ends relative to the track */
+  const tot=TL.reduce((a,it)=>a+(B(it.id)&&B(it.id)[3]>0?it.dur:0),0);
+  if(AUD_DUR>0.01 && tot>0.01){
+    const px=Math.min(1,tot/AUD_DUR)*w;
+    x.strokeStyle="#ededed"; x.globalAlpha=.5; x.setLineDash([3,3]);
+    x.beginPath(); x.moveTo(px,0); x.lineTo(px,h); x.stroke();
+    x.setLineDash([]); x.globalAlpha=1;
+  }
+}
+if(document.getElementById("sAudio")) document.getElementById("sAudio").onchange=function(e){
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){ sAudioLbl.textContent="audio non supportato dal browser"; return; }
+  sAudioLbl.textContent="decodifico…";
+  const fr=new FileReader();
+  fr.onload=function(){
+    const ctx=new AC();
+    const done=buf=>{
+      AUD_DUR=buf.duration; AUD_NAME=f.name;
+      const ch=buf.getChannelData(0), N=1600, step=Math.max(1,Math.floor(ch.length/N));
+      const pk=new Float32Array(N*2);
+      for(let i=0;i<N;i++){
+        let lo=1, hi=-1;
+        const a=i*step, b=Math.min(ch.length,a+step);
+        for(let j=a;j<b;j++){ const v=ch[j]; if(v<lo)lo=v; if(v>hi)hi=v; }
+        pk[i*2]=lo; pk[i*2+1]=hi;
+      }
+      PEAKS=pk;
+      sWaveWrap.hidden=false;
+      sWaveLbl.textContent=f.name+" · "+AUD_DUR.toFixed(1)+"s";
+      sAudioLbl.textContent="traccia caricata";
+      drawWave();
+      try{ ctx.close(); }catch(_){}
+    };
+    const p=ctx.decodeAudioData(fr.result, done, err=>{
+      sAudioLbl.textContent="file audio non leggibile";
+      try{ ctx.close(); }catch(_){}
+    });
+    /* older Safari returns undefined instead of a promise */
+    if(p&&p.then) p.then(done).catch(()=>{ sAudioLbl.textContent="file audio non leggibile"; });
+  };
+  fr.onerror=()=>{ sAudioLbl.textContent="lettura fallita"; };
+  fr.readAsArrayBuffer(f);
+};
+if(sWaveX) sWaveX.onclick=()=>{ PEAKS=null; AUD_DUR=0; sWaveWrap.hidden=true;
+  sAudioLbl.textContent="waveform sotto la curva";
+  const i=document.getElementById("sAudio"); if(i) i.value=""; };
+window.addEventListener("resize",()=>{ if(PEAKS) drawWave(); });
+
+/* ---------------- PDF via the print dialog ----------------
+   No second CDN: the print stylesheet strips the tool and leaves the shot
+   list, the browser's "Save as PDF" does the rest. */
+if(document.getElementById("sPdf")) document.getElementById("sPdf").onclick=function(){
+  const shots=TL.filter(x=>B(x.id)&&B(x.id)[6]==="shot");
+  if(!shots.length){ flash(this,"Timeline vuota"); return; }
+  let head=document.querySelector(".printhead");
+  if(!head){
+    head=document.createElement("div"); head.className="printhead";
+    const sw=document.querySelector(".swrap");
+    if(sw) sw.insertBefore(head, sw.firstChild);
+  }
+  const tot=TL.reduce((a,x)=>a+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0);
+  head.innerHTML="<h1>SHOT LIST</h1><p>"+shots.length+" inquadrature · "+tot.toFixed(1)+
+    "s"+(AUD_NAME?" · traccia: "+esc(AUD_NAME):"")+" — "+
+    new Date().toLocaleDateString("it-IT")+"</p>";
+  window.print();
+};
 
 document.getElementById("sCopy").onclick=function(){
   const ta=document.createElement("textarea"); ta.value=breakdownText();
