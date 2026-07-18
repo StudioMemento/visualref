@@ -195,9 +195,10 @@
     /* logo centred, nav bar underneath */
     .top{gap:11px;padding:13px 14px 11px}
     .brand svg{height:12px}
-    .modeswitch{width:100%;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+    .modeswitch{width:auto;max-width:100%;margin:0 auto;display:grid;
+      grid-template-columns:repeat(5,auto);gap:2px;
       background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:3px}
-    .modeswitch button{padding:9px 2px;font-size:10.5px;letter-spacing:.04em;border-radius:6px;
+    .modeswitch button{padding:9px 11px;font-size:10.5px;letter-spacing:.04em;border-radius:6px;
       text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .modeswitch button[aria-pressed="true"]{background:var(--panel-2);color:var(--accent)}
     /* single merged nav: categories then effects, both horizontal */
@@ -236,7 +237,7 @@
   }
 
   /* ---------- Mode switch ---------- */
-  .modeswitch{display:flex;gap:6px}
+  .modeswitch{display:flex;gap:6px;align-self:center}
   .modeswitch button{appearance:none;border:0;background:transparent;color:var(--txt-3);
     padding:9px 17px;border-radius:7px;font:600 12.5px/1 "Inter",sans-serif;cursor:pointer;
     letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
@@ -364,11 +365,6 @@
   .abscrub .head{position:absolute;top:50%;left:0;width:11px;height:11px;
     margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--accent);
     box-shadow:0 0 9px rgba(255,121,80,.5);pointer-events:none}
-  .abscrub .ph{position:absolute;top:50%;width:1px;height:8px;margin-top:-4px;
-    background:var(--line-2);pointer-events:none}
-  .abscrub .phl{position:absolute;top:100%;transform:translateX(-50%);margin-top:-3px;
-    font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--txt-3);pointer-events:none;white-space:nowrap}
   .abscrub .track:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .cbtn{appearance:none;border:1px solid var(--line-2);background:var(--panel);color:var(--txt-2);
     padding:9px 14px;border-radius:8px;font:600 12.5px "Inter",sans-serif;cursor:pointer;
@@ -927,7 +923,7 @@
       </div>
       <div class="abscrub" id="abScrub" aria-label="Posizione tra frame A e frame B">
         <span class="cap" id="abCapA">A</span>
-        <div class="track" id="abTrack"><span class="ph" style="left:25%"></span><span class="ph" style="left:50%"></span><span class="ph" style="left:75%"></span><span class="phl" style="left:37.5%" data-i18n>look</span><span class="phl" style="left:62.5%" data-i18n>camera</span><div class="fill" id="abFill"></div><div class="head" id="abHead"></div></div>
+        <div class="track" id="abTrack"><div class="fill" id="abFill"></div><div class="head" id="abHead"></div></div>
         <span class="cap" id="abCapB">B</span>
       </div>
       <div class="cprev-bar">
@@ -1635,7 +1631,7 @@ const ENG=(function(){
      under a 1.15 cube, and scaling (macro = 1.7x) made it worse. */
   const SUB=1.15, HALF=SUB/2;
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60),
-    new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7}));
+    new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7,transparent:true}));
   floor.rotation.x=-Math.PI/2; floor.visible=false;
   scene.add(floor);
   /* limbo/cyclorama: ONE open surface — floor run, quarter-round cove, back
@@ -1663,7 +1659,7 @@ const ENG=(function(){
     /* FrontSide only: if a camera ever does slip past the surface it sees
        through to the void instead of a solid black wall */
     const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x121215,
-      roughness:0.92,metalness:0.02,side:THREE.FrontSide}));
+      roughness:0.92,metalness:0.02,side:THREE.FrontSide,transparent:true}));
     m.visible=false; scene.add(m); return m;
   })();
   /* wall / pedestal / techgrid / horizon / room removed: the brief cut them.
@@ -1711,24 +1707,44 @@ const ENG=(function(){
     new THREE.MeshBasicMaterial({color:0xff7950}));
   pathDot.visible=false; scene.add(pathDot);
   let pathKey="";
+  /* The path used to dispose+recreate its BufferGeometry on every parameter
+     change — harmless when the rig was static, a 60fps GPU-buffer churn once
+     the FRAME loop started animating every parameter. Now: one preallocated
+     position attribute, updated in place. */
+  const PATH_N=96;
+  (function(){
+    const g=new THREE.BufferGeometry();
+    g.setAttribute("position",new THREE.BufferAttribute(new Float32Array((PATH_N+1)*3),3));
+    g.setAttribute("lineDistance",new THREE.BufferAttribute(new Float32Array(PATH_N+1),1));
+    camPath.geometry.dispose(); camPath.geometry=g;
+  })();
   function buildPath(p){
-    const k=[p._cam,p._camB,(p._camT||0).toFixed(3),p.az,p.el,p.dist,p.fov,p.tx,p.ty].join("|");
+    const still=(!p._cam||p._cam==="static") && !(p._camB&&p._camB!=="static"&&p._camT>0);
+    if(still){ camPath.visible=false; pathKey=""; return; }
+    /* cheap change check: quantized — the in-place update is cheap anyway,
+       this only skips work while the rig is genuinely parked */
+    const k=[p._cam,p._camB,(p._camT||0).toFixed(2),p.az.toFixed(3),p.el.toFixed(3),
+             p.dist.toFixed(3),p.fov.toFixed(1),p.tx.toFixed(3),p.ty.toFixed(3)].join("|");
     if(k===pathKey) return;
     pathKey=k;
-    const still=(!p._cam||p._cam==="static") && !(p._camB&&p._camB!=="static"&&p._camT>0);
-    if(still){ camPath.visible=false; return; }
-    const pts=[];
-    for(let i=0;i<=96;i++){
-      const r=rigAt(p,(i/96)*LOOP);
-      const d=r.dist;
-      pts.push(new THREE.Vector3(
-        Math.cos(r.el)*Math.sin(r.az)*d,
-        Math.sin(r.el)*d,
-        Math.cos(r.el)*Math.cos(r.az)*d));
+    const pos=camPath.geometry.getAttribute("position"), arr=pos.array;
+    for(let i=0;i<=PATH_N;i++){
+      const r=rigAt(p,(i/PATH_N)*LOOP), d=r.dist, j=i*3;
+      arr[j]  =Math.cos(r.el)*Math.sin(r.az)*d;
+      arr[j+1]=Math.sin(r.el)*d;
+      arr[j+2]=Math.cos(r.el)*Math.cos(r.az)*d;
     }
-    camPath.geometry.dispose();
-    camPath.geometry=new THREE.BufferGeometry().setFromPoints(pts);
-    camPath.computeLineDistances();
+    pos.needsUpdate=true;
+    /* dash distances in place: computeLineDistances() would allocate a fresh
+       attribute on every call */
+    const ld=camPath.geometry.getAttribute("lineDistance"), la=ld.array;
+    la[0]=0;
+    for(let i=1;i<=PATH_N;i++){
+      const j=i*3, dx=arr[j]-arr[j-3], dy=arr[j+1]-arr[j-2], dz=arr[j+2]-arr[j-1];
+      la[i]=la[i-1]+Math.sqrt(dx*dx+dy*dy+dz*dz);
+    }
+    ld.needsUpdate=true;
+    camPath.geometry.computeBoundingSphere();
   }
   const grid=new THREE.GridHelper(12,12,0x2a2a30,0x18181c);
   grid.material.transparent=true; grid.material.opacity=0.5;
@@ -1814,25 +1830,37 @@ const ENG=(function(){
     const ph=((t)%LOOP)/LOOP;
 
     /* subject: origin, native orientation, only its own two axes apply */
-    const spin = (p.srot===-1) ? ph*Math.PI*2 : (p.srot||0);
+    let spin;
+    if(p._srotA!=null){
+      const tau2=Math.PI*2, angOf=v=>(v===-1)? (ph*tau2) : (v||0);
+      const a=angOf(p._srotA), b=angOf(p._srotB);
+      let dd=(((b-a)%tau2)+tau2*1.5)%tau2-tau2*0.5;   /* shortest signed delta */
+      spin=a+dd*(p._srotT||0);
+    }else{
+      spin = (p.srot===-1) ? ph*Math.PI*2 : (p.srot||0);
+    }
     subject.rotation.set(0, spin, 0);
     subject.scale.setScalar(p.sscale||1);
     hero.visible=true;
 
     /* ground follows the subject's real size */
-    const anyEnv=(p.floor>0.5)||(p.cove>0.5);
+    const anyEnv=(p.floor>0.02)||(p.cove>0.02);
     const halfDiag=HALF*Math.SQRT2*(p.sscale||1);
     const gy=-halfDiag-0.02;
     subject.position.set(0,0,0);
-    floor.visible=p.floor>0.5;  floor.position.y=gy;
+    /* environments FADE with their lerped 0..1 value instead of popping at a
+       threshold. The flat floor cross-dissolves out as the cove comes in, so
+       the two never double up mid-blend. */
+    const cvV=Math.max(0,Math.min(1,p.cove||0));
+    const flV=Math.max(0,Math.min(1,p.floor||0))*(1-cvV);
+    floor.visible=flV>0.02;  floor.position.y=gy;
+    floor.material.opacity=flV;
     /* the limbo sits WELL below the subject: the product floats over a clean
        studio sweep instead of resting against a wall the camera can clip */
-    cove.visible=p.cove>0.5;    cove.position.y=gy-COVE_DROP;
-    /* limbo = the sweep alone. The sweep carries its own floor, so showing the
-       flat plane too was what read as a doubled seam. */
-    if(p.cove>0.5) floor.visible=false;
+    cove.visible=cvV>0.02;   cove.position.y=gy-COVE_DROP;
+    cove.material.opacity=cvV;
     /* where the visible ground actually is, for the camera floor-clamp */
-    const groundY = (p.cove>0.5) ? gy-COVE_DROP : (p.floor>0.5 ? gy : null);
+    const groundY = (cvV>0.5) ? gy-COVE_DROP : (flV>0.5 ? gy : null);
     grid.position.y=gy;
     scene.fog=null;
 
@@ -1867,8 +1895,9 @@ const ENG=(function(){
        the hero and the pattern becomes background. */
     cloneMesh.forEach(m=>m.visible=false);
     const mode=p._motion;
+    const FADE=(p._motionFade==null)?1:p._motionFade;  /* pattern presence 0..1 */
     const BACK=-3.2;                        /* how far behind the subject */
-    if(mode&&mode!=="none"){
+    if(mode&&mode!=="none"&&FADE>0.02){
       let n=0, place=null;
       const S=(p.sscale||1);
       if(mode==="clone"){ n=2; place=(m,i)=>{ m.position.set(i?2.4:-2.4,0,BACK);
@@ -1912,7 +1941,8 @@ const ENG=(function(){
         m.position.set((r1-0.5)*8,(r2-0.5)*4.6,BACK-(r3*2.2));
         m.scale.setScalar((0.1+r1*0.16)*S);
         m.rotation.set(r2*3,r3*3+ph*0.6,0); }; }
-      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i); }
+      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i);
+        if(FADE<1) m.scale.multiplyScalar(FADE); }
     }
 
     starFar.material.opacity=0.30*(1-0.6*p.silh);
@@ -2287,30 +2317,26 @@ function mixP(A,B,t){ const o={};
   for(const k in A) o[k] = (typeof A[k]==="number") ? lerp(A[k],B[k],t) : (t<0.5?A[k]:B[k]);
   return o; }
 
-/* ---- staged interpolation for the FRAME player ----
-   0–25%   hold on frame A
-   25–50%  the LOOK crossfades in: lights, lens perspective, focus, atmosphere,
-           environment, motion design
-   50–75%  the RIG travels: camera position/aim, composition, subject scale+rot
-   75–100% hold on frame B — then the ping-pong reverses the whole thing.
-   Each phase is eased, so nothing ever snaps. */
-const MIX_FX={rimA:1,rimB:1,top:1,under:1,silh:1,graz:1,key:1,fill:1,back:1,
-  spot:1,penumbra:1,studio:1,softness:1,blur:1,fg:1,bokeh:1,part:1,
-  floor:1,cove:1,fov:1,mpush:1};                 /* the "look" numerics */
-const MIX_FXC={_motion:1,_focus:1,_env:1};       /* look categoricals: flip mid-phase-1 */
-function stageT(t,a,b){
-  const u=Math.max(0,Math.min(1,(t-a)/(b-a)));
-  return u<0.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2; /* easeInOut per phase */
-}
+/* ---- FRAME player interpolation ----
+   ONE gradual eased ramp across the whole A→B range: every numeric travels
+   continuously, nothing switches sharply at 50%. The two things that can't be
+   lerped as numbers get their own gradual treatment:
+   · the camera MOVE crossfades inside rigAt() (p._camB / p._camT)
+   · motion-design patterns scale out/in around the midpoint (p._motionFade)
+   · environment surfaces fade via their lerped 0..1 params (see applyScene) */
 function mixStaged(A,B,t){
-  const tf=stageT(t,0.25,0.50), tc=stageT(t,0.50,0.75), o={};
+  const e = t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;   /* easeInOut, full range */
+  const o={};
   for(const k in A){
-    if(typeof A[k]==="number") o[k]=lerp(A[k],B[k], MIX_FX[k]?tf:tc);
-    else o[k] = ((MIX_FXC[k]?tf:tc) < 0.5) ? A[k] : B[k];
+    if(typeof A[k]==="number") o[k]=lerp(A[k],B[k],e);
+    else o[k]=(e<0.5)?A[k]:B[k];
   }
-  /* the camera MOVE crossfades instead of switching at mid-phase:
-     rigAt() blends the two move offsets by _camT */
-  o._cam=A._cam; o._camB=B._cam; o._camT=tc;
+  o._cam=A._cam; o._camB=B._cam; o._camT=e;
+  o._motionFade=(A._motion===B._motion)?1:Math.min(1,Math.abs(e-0.5)*4);
+  /* srot=-1 means "spinning" and can't be lerped as a number: hand both ends
+     to the engine, which blends the ANGLES (shortest path) so a spin eases
+     into a fixed pose instead of snapping */
+  if(A.srot===-1 || B.srot===-1){ o._srotA=A.srot; o._srotB=B.srot; o._srotT=e; o.srot=0; }
   return o;
 }
 
@@ -2717,8 +2743,8 @@ abPlayBtn.onclick=()=>abSetLoop(!abLoop);
   window.__abScrubUI=t=>{
     const pc=(t*100).toFixed(2)+"%";
     head.style.left=pc; fill.style.width=pc;
-    capA.classList.toggle("on",t<0.25);
-    capB.classList.toggle("on",t>0.75);
+    capA.classList.toggle("on",t<0.08);
+    capB.classList.toggle("on",t>0.92);
   };
   let drag=false;
   const setFrom=e=>{
