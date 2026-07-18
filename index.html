@@ -412,9 +412,8 @@
 
   /* ---- sequence player ---- */
   .splayer{border:1px solid var(--line);border-radius:12px;background:var(--panel);
-    overflow:hidden;margin-bottom:14px}
-  .spstage{position:relative;width:100%;aspect-ratio:21/9;max-height:min(46vh,430px);
-    background:#050506}
+    overflow:hidden;margin:0 auto 14px;max-width:1000px}
+  .spstage{position:relative;width:100%;aspect-ratio:16/9;background:#050506}
   #spStage{position:absolute;inset:0}
   /* transient title: appears on the shot change, then leaves the image alone */
   .spchip{position:absolute;left:14px;bottom:12px;display:flex;align-items:baseline;gap:9px;
@@ -451,7 +450,6 @@
   .tracks{position:relative}
   #lane-shot .clip.playing{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-dim)}
   @media(max-width:900px){
-    .spstage{aspect-ratio:16/9;max-height:300px}
     .spinfo .nm{max-width:110px}
     .spbar{flex-wrap:wrap}
   }
@@ -465,11 +463,15 @@
     width:calc(var(--e,0)*100%)}
   .cgrp-h.sub{font-size:9.5px;letter-spacing:.14em;color:var(--txt-3);margin:10px 0 4px;
     padding-left:1px}
-  .scard .thimg{width:100%;aspect-ratio:16/9;border-radius:6px;overflow:hidden;
-    background:#050506;margin-bottom:6px;border:1px solid var(--line)}
+  .scard.t-shot{width:138px;flex:0 0 138px;height:auto;min-height:0;padding:8px 8px 9px}
+  .scard .thimg{position:relative;width:100%;aspect-ratio:16/9;border-radius:6px;
+    overflow:hidden;background:#050506;margin-bottom:6px;border:1px solid var(--line);flex:none}
   .scard .thimg img{width:100%;height:100%;object-fit:cover;display:block}
-  .scard .rc{font-size:9.5px;color:var(--txt-3);letter-spacing:.03em;margin-top:1px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .scard .thimg canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .scard .rc{font-size:9px;color:var(--txt-3);letter-spacing:.02em;line-height:1.3;
+    max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .clip .th{position:relative}
+  .clip .th canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   .slead{font-size:14.5px;color:var(--txt-2);line-height:1.6;max-width:none;margin:0 0 18px}
   .slead b{color:var(--txt);font-weight:600}
   .sbar{display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap}
@@ -758,6 +760,7 @@
     .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
     .trkh{width:58px;font-size:9px;padding:0 8px}
     .scard{flex:0 0 calc(33.333% - 4.7px);width:auto;height:102px}
+    .scard.t-shot{height:auto}
   }
 
   /* ---- demo selector above the player ---- */
@@ -2977,6 +2980,7 @@ let dragFrom=null;       /* {kind:'lib'|'tl', id, idx} */
    still win on individual timeline items. ---- */
 const THUMBS={};
 const thumbCv=document.createElement("canvas");
+const liftCv=document.createElement("canvas");
 function shotThumb(id){
   if(THUMBS[id]!==undefined) return THUMBS[id];
   const b=B(id);
@@ -2985,9 +2989,49 @@ function shotThumb(id){
   try{
     thumbCv.width=192; thumbCv.height=108;
     draw(thumbCv, b[7], params(b[7]), 1.6);   /* fixed scene time: a lit, posed frame */
-    THUMBS[id]=thumbCv.toDataURL("image/jpeg",0.72);
+    /* exposure lift: many shots are dark BY DESIGN (penombra, silhouette) and
+       read as black rectangles at 100px — the thumb gets a grade the render
+       doesn't, so the composition stays legible at card size */
+    let out=thumbCv;
+    const lx=liftCv.getContext("2d");
+    if(lx && lx.filter!==undefined){
+      liftCv.width=thumbCv.width; liftCv.height=thumbCv.height;
+      lx.filter="brightness(1.85) saturate(1.15) contrast(1.04)";
+      lx.drawImage(thumbCv,0,0);
+      out=liftCv;
+    }
+    THUMBS[id]=out.toDataURL("image/jpeg",0.72);
   }catch(_){ THUMBS[id]=null; }
   return THUMBS[id];
+}
+/* live hover preview: while the pointer is on a card, its thumb becomes the
+   real engine running that preset — camera move included. One shared canvas,
+   one rAF, only for the hovered card; the static thumb returns on leave. */
+let hovCv=null, hovRaf=0, hovT0=0;
+function stopHover(){
+  if(hovRaf){ cancelAnimationFrame(hovRaf); hovRaf=0; }
+  if(hovCv&&hovCv.parentNode) hovCv.parentNode.removeChild(hovCv);
+}
+function attachLivePreview(box, sel){
+  if(!box||!sel) return;
+  box.addEventListener("mouseenter",()=>{
+    if(!window.THREE||typeof draw!=="function") return;
+    stopHover();
+    hovCv=hovCv||document.createElement("canvas");
+    const r=box.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
+    hovCv.width=Math.max(64,Math.round(r.width*d));
+    hovCv.height=Math.max(36,Math.round(r.height*d));
+    box.appendChild(hovCv);
+    hovT0=performance.now();
+    const p=params(sel);
+    const loop=()=>{
+      if(!hovCv||!hovCv.isConnected){ hovRaf=0; return; }
+      hovRaf=requestAnimationFrame(loop);
+      draw(hovCv, sel, p, (performance.now()-hovT0)/1000);
+    };
+    loop();
+  });
+  box.addEventListener("mouseleave", stopHover);
 }
 /* two-or-three word recipe: what makes THIS shot this shot */
 function microRecipe(sel){
@@ -3032,6 +3076,7 @@ function libCard(b){
     Object.values(LANES).forEach(l=>l.classList.remove("dragover")); });
   c.onclick=()=>{ c.classList.toggle("open"); };
   c.ondblclick=()=>{ TL.push({id:b[0],img:null,selected:false,dur:b[3]}); drawTL(); };
+  if(ty==="shot"&&tu) attachLivePreview(c.querySelector(".thimg"), b[7]);
   return c;
 }
 function libGrid(list){
@@ -3093,6 +3138,7 @@ function drawTL(){
       (isShot?'<span class="en" style="--e:'+(b[4]||0)+'"><i></i></span>':'')+
       '<textarea class="note'+(it.note?' has':'')+'" rows="3" placeholder="nota…"></textarea>'+
       '<button class="x" aria-label="Rimuovi">×</button>';
+    if(isShot&&tu&&!it.img) attachLivePreview(d.querySelector(".th"), b[7]);
     d.querySelector(".x").onclick=e=>{ e.stopPropagation(); TL.splice(i,1); drawTL(); };
     const inp=d.querySelector("input");
     if(inp){
@@ -3517,6 +3563,11 @@ btnMute.onclick=()=>{ muted=!muted; if(gainN) gainN.gain.value=muted?0:0.9;
   btnMute.textContent=muted?"♪̸":"♪"; btnMute.setAttribute("aria-pressed",String(muted)); };
 
 /* ---- reactions to the outside world ---- */
+window.__spPlayFrom0=()=>{                     /* preset chosen: show the cut, now */
+  if(!inSeq) return;
+  pt=0; curIdx=-1;
+  if(playing){ audioStart(); render(); } else setPlaying(true);
+};
 window.__spRefresh=()=>{                       /* TL or audio changed */
   const T=total(shots());
   if(pt>T) pt=Math.max(0,T);
@@ -3676,7 +3727,8 @@ Object.keys(PRESETS).forEach((k,i)=>{
   const b=document.createElement("button"); b.className="cbtn"+(i===0?" pri":""); b.type="button";
   b.textContent=PRESETS[k].label;
   b.onclick=()=>{ TL=PRESETS[k].ids.map(id=>({id:id,img:null,selected:false,dur:B(id)?B(id)[3]:0}));
-    [...sPre.children].forEach(x=>x.classList.toggle("pri",x===b)); drawTL(); };
+    [...sPre.children].forEach(x=>x.classList.toggle("pri",x===b)); drawTL();
+    if(window.__spPlayFrom0) window.__spPlayFrom0(); };
   sPre.appendChild(b);
 });
 document.getElementById("sClear").onclick=()=>{ TL=[]; drawTL(); };
