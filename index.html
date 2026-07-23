@@ -39,22 +39,12 @@
   .app>*{min-width:0}
 
   /* ---------- Topbar ---------- */
-  .top{grid-area:top;display:flex;flex-direction:column;align-items:stretch;gap:13px;
+  .top{grid-area:top;display:flex;flex-direction:column;align-items:center;gap:13px;
     padding:16px 22px 13px;border-bottom:1px solid var(--line);background:var(--void);
     position:sticky;top:0;z-index:20}
   .top .spacer{display:none}
-  /* brand row: logo hard-left on the padding margin, language hard-right */
-  .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .brand{display:flex;align-items:center;flex:none}
   .brand svg{height:13px;width:auto;display:block;fill:var(--txt)}
-  .langsel{display:flex;gap:2px;flex:none;background:var(--panel);
-    border:1px solid var(--line);border-radius:8px;padding:2px}
-  .langsel button{appearance:none;border:0;background:transparent;cursor:pointer;
-    padding:6px 10px;border-radius:6px;font-family:inherit;
-    font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--txt-3);
-    transition:color .16s var(--ease),background .16s var(--ease)}
-  .langsel button:hover{color:var(--txt-2)}
-  .langsel button[aria-pressed="true"]{background:var(--panel-2);color:var(--accent)}
 
   /* ---------- Left panel ---------- */
 
@@ -195,10 +185,9 @@
     /* logo centred, nav bar underneath */
     .top{gap:11px;padding:13px 14px 11px}
     .brand svg{height:12px}
-    .modeswitch{width:auto;max-width:100%;margin:0 auto;display:grid;
-      grid-template-columns:repeat(5,auto);gap:2px;
+    .modeswitch{width:100%;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
       background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:3px}
-    .modeswitch button{padding:9px 11px;font-size:10.5px;letter-spacing:.04em;border-radius:6px;
+    .modeswitch button{padding:9px 2px;font-size:10.5px;letter-spacing:.04em;border-radius:6px;
       text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .modeswitch button[aria-pressed="true"]{background:var(--panel-2);color:var(--accent)}
     /* single merged nav: categories then effects, both horizontal */
@@ -237,7 +226,7 @@
   }
 
   /* ---------- Mode switch ---------- */
-  .modeswitch{display:flex;gap:6px;align-self:center}
+  .modeswitch{display:flex;gap:6px}
   .modeswitch button{appearance:none;border:0;background:transparent;color:var(--txt-3);
     padding:9px 17px;border-radius:7px;font:600 12.5px/1 "Inter",sans-serif;cursor:pointer;
     letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
@@ -349,23 +338,6 @@
     overflow:hidden;background:#040404;margin-bottom:9px}
   .cprev svg{display:block;width:100%;height:100%}
   .cprev-bar{display:flex;align-items:center;gap:9px;margin-bottom:22px;flex-wrap:wrap}
-
-  /* ---- A ⇄ B scrubber: the timeline of the interpolation the big player
-     is showing. Drag to park it anywhere between the two frames. ---- */
-  .abscrub{display:flex;align-items:center;gap:12px;padding:12px 2px 14px;user-select:none;
-    -webkit-user-select:none;touch-action:none}
-  .abscrub .cap{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--txt-3);
-    width:14px;text-align:center;transition:color .16s var(--ease)}
-  .abscrub .cap.on{color:var(--accent)}
-  .abscrub .track{position:relative;flex:1;height:24px;cursor:ew-resize}
-  .abscrub .track::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;
-    margin-top:-1px;background:var(--line-2);border-radius:1px}
-  .abscrub .fill{position:absolute;left:0;top:50%;height:2px;margin-top:-1px;width:0;
-    background:var(--accent-dim);border-radius:1px;pointer-events:none}
-  .abscrub .head{position:absolute;top:50%;left:0;width:11px;height:11px;
-    margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--accent);
-    box-shadow:0 0 9px rgba(255,121,80,.5);pointer-events:none}
-  .abscrub .track:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .cbtn{appearance:none;border:1px solid var(--line-2);background:var(--panel);color:var(--txt-2);
     padding:9px 14px;border-radius:8px;font:600 12.5px "Inter",sans-serif;cursor:pointer;
     letter-spacing:.02em;display:flex;align-items:center;gap:7px;transition:all .15s var(--ease)}
@@ -409,69 +381,6 @@
 
   /* ---------- Sequenza ---------- */
   .swrap{padding:22px 24px 70px;max-width:1500px;margin:0 auto}
-
-  /* ---- sequence player ---- */
-  .splayer{border:1px solid var(--line);border-radius:12px;background:var(--panel);
-    overflow:hidden;margin:0 auto 14px;max-width:1000px}
-  .spstage{position:relative;width:100%;aspect-ratio:16/9;background:#050506}
-  #spStage{position:absolute;inset:0}
-  /* transient title: appears on the shot change, then leaves the image alone */
-  .spchip{position:absolute;left:14px;bottom:12px;display:flex;align-items:baseline;gap:9px;
-    padding:7px 12px;border-radius:8px;background:rgba(5,5,6,.72);border:1px solid var(--line);
-    pointer-events:none;opacity:0;transform:translateY(4px);
-    transition:opacity .3s var(--ease),transform .3s var(--ease)}
-  .spchip.on{opacity:1;transform:none}
-  .spchip[hidden]{display:none}
-  .spchip .n{font-size:10px;font-weight:800;letter-spacing:.16em;color:var(--accent)}
-  .spchip .t{font-size:13px;font-weight:700;color:var(--txt)}
-  .spempty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    color:var(--txt-3);font-size:12.5px;text-align:center;padding:0 20px}
-  .spempty[hidden]{display:none}            /* `hidden` must beat display:flex */
-  .spbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
-  .spbar button{appearance:none;border:1px solid var(--line);background:var(--panel-2);
-    color:var(--txt-2);border-radius:8px;padding:8px 11px;cursor:pointer;font-family:inherit;
-    font-size:12px;font-weight:700;letter-spacing:.06em;line-height:1;
-    transition:color .15s var(--ease),border-color .15s var(--ease)}
-  .spbar button:hover{color:var(--txt);border-color:var(--line-2)}
-  .spbar button.pri{color:var(--accent);border-color:var(--accent-dim);font-size:13px;padding:8px 14px}
-  .spbar button[aria-pressed="true"]{color:var(--accent);border-color:var(--accent-dim)}
-  .spinfo{display:flex;align-items:baseline;gap:8px;min-width:0;flex:0 1 auto;padding:0 4px}
-  .spinfo .eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--accent);white-space:nowrap}
-  .spinfo .nm{font-size:12.5px;font-weight:700;color:var(--txt);white-space:nowrap;
-    overflow:hidden;text-overflow:ellipsis;max-width:220px}
-  .spbar .clk{font-size:11px;color:var(--txt-3);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .spprog{flex:1;display:flex;gap:3px;height:22px;align-items:center;cursor:pointer;
-    min-width:80px;touch-action:none}
-  .spprog .seg{position:relative;height:6px;border-radius:3px;background:var(--line-2);
-    overflow:hidden;min-width:6px}
-  .spprog .seg .f{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent)}
-  .sph{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);
-    box-shadow:0 0 8px rgba(255,121,80,.5);pointer-events:none;z-index:3}
-  .tracks{position:relative}
-  #lane-shot .clip.playing{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-dim)}
-  @media(max-width:900px){
-    .spinfo .nm{max-width:110px}
-    .spbar{flex-wrap:wrap}
-  }
-  /* ---- richer clip packages: rendered thumb, micro-recipe, energy tick ---- */
-  .clip .th img{width:100%;height:100%;object-fit:cover;display:block}
-  .clip .rc{font-size:9.5px;color:var(--txt-3);letter-spacing:.03em;line-height:1.35;
-    padding:2px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .clip .en{display:block;height:2px;border-radius:1px;background:var(--line-2);
-    margin:5px 2px 0;position:relative;overflow:hidden}
-  .clip .en i{position:absolute;left:0;top:0;bottom:0;background:var(--accent-dim);
-    width:calc(var(--e,0)*100%)}
-  .cgrp-h.sub{font-size:9.5px;letter-spacing:.14em;color:var(--txt-3);margin:10px 0 4px;
-    padding-left:1px}
-  .scard.t-shot{width:138px;flex:0 0 138px;height:auto;min-height:0;padding:8px 8px 9px}
-  .scard .thimg{position:relative;width:100%;aspect-ratio:16/9;border-radius:6px;
-    overflow:hidden;background:#050506;margin-bottom:6px;border:1px solid var(--line);flex:none}
-  .scard .thimg img{width:100%;height:100%;object-fit:cover;display:block}
-  .scard .thimg canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .scard .rc{font-size:9px;color:var(--txt-3);letter-spacing:.02em;line-height:1.3;
-    max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-  .clip .th{position:relative}
-  .clip .th canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   .slead{font-size:14.5px;color:var(--txt-2);line-height:1.6;max-width:none;margin:0 0 18px}
   .slead b{color:var(--txt);font-weight:600}
   .sbar{display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap}
@@ -760,7 +669,6 @@
     .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
     .trkh{width:58px;font-size:9px;padding:0 8px}
     .scard{flex:0 0 calc(33.333% - 4.7px);width:auto;height:102px}
-    .scard.t-shot{height:auto}
   }
 
   /* ---- demo selector above the player ---- */
@@ -874,14 +782,8 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="toprow">
-      <div class="brand" aria-label="Memento Studio">
+    <div class="brand" aria-label="Memento Studio">
       <svg viewBox="0 0 1600 100" role="img" aria-label="MEMENTO"><polygon points="109.14,10.45 109.14,89.55 101.23,81.64 101.23,28.91 69.58,60.55 37.94,28.91 37.94,81.64 30.03,89.55 30.03,10.45 69.58,50"/><polygon points="596.08,10.45 596.08,89.55 588.17,81.64 588.17,28.91 556.52,60.55 524.88,28.91 524.88,81.64 516.97,89.55 516.97,10.45 556.52,50"/><polygon points="1077.74,10.45 1077.74,89.55 1017.09,28.91 1017.09,81.65 1009.18,89.55 1009.18,10.45 1069.84,71.09 1069.84,18.36"/><polygon points="344.7,81.64 352.61,89.55 273.5,89.55 281.41,81.64"/><rect x="297.23" y="46.05" width="31.64" height="7.91"/><polygon points="352.61,10.45 344.7,18.36 281.41,18.36 273.5,10.45"/><polygon points="831.64,81.64 839.55,89.55 760.44,89.55 768.35,81.64"/><rect x="784.17" y="46.05" width="31.64" height="7.91"/><polygon points="839.55,10.45 831.64,18.36 768.35,18.36 760.44,10.45"/><polygon points="1247.38,10.45 1326.49,10.45 1318.57,18.36 1290.88,18.36 1290.88,89.55 1282.98,81.64 1282.98,18.36 1255.29,18.36"/><path d="M1530.42,10.45L1530.42,10.45c-21.85,0-39.56,17.71-39.56,39.55c0,21.85,17.71,39.55,39.55,39.55h0 c21.85,0,39.55-17.7,39.55-39.55C1569.97,28.16,1552.27,10.45,1530.42,10.45z M1530.42,81.65L1530.42,81.65 c-17.47,0-31.64-14.17-31.64-31.65c0-17.47,14.17-31.64,31.64-31.64h0c17.48,0,31.64,14.17,31.64,31.64 C1562.06,67.48,1547.9,81.64,1530.42,81.65z"/></svg>
-    </div>
-      <div class="langsel" role="group" aria-label="Lingua / Language">
-        <button id="langIT" aria-pressed="true">IT</button>
-        <button id="langEN" aria-pressed="false">EN</button>
-      </div>
     </div>
     <div class="modeswitch" role="group" aria-label="Vista">
       <button id="mBench" aria-pressed="true">Live</button>
@@ -985,13 +887,8 @@
         </div>
         <div class="cprev" id="prevMix"></div>
       </div>
-      <div class="abscrub" id="abScrub" aria-label="Posizione tra frame A e frame B">
-        <span class="cap" id="abCapA">A</span>
-        <div class="track" id="abTrack"><div class="fill" id="abFill"></div><div class="head" id="abHead"></div></div>
-        <span class="cap" id="abCapB">B</span>
-      </div>
       <div class="cprev-bar">
-        <button class="cbtn pri" id="abPlay" aria-pressed="true">Pausa loop</button>
+        <button class="cbtn pri" id="abPlay">Riproduci A → B</button>
         <button class="cbtn" id="abRand">Coppia casuale</button>
         <button class="cbtn" id="abCopy">Copia A in B</button>
         <div class="crecipe" id="abRecipe"></div>
@@ -1056,28 +953,7 @@
         <div class="stime" id="sTime"></div>
       </div>
 
-      <!-- sequence player: the timeline, seen. Shots rendered live with the
-           COMP engine, transitions rendered for real, audio in sync. -->
-      <div class="splayer" aria-label="Player della sequenza">
-        <div class="spstage">
-          <div id="spStage"></div>
-          <div class="spchip" id="spChip" hidden><span class="n" id="spChipNum"></span><span class="t" id="spChipName"></span></div>
-          <div class="spempty" id="spEmpty">Trascina un'inquadratura nella timeline per riprodurre la sequenza</div>
-        </div>
-        <div class="spbar">
-          <button id="spPrev" title="Shot precedente" aria-label="Shot precedente">⏮</button>
-          <button id="spPlay" class="pri" title="Riproduci la sequenza" aria-label="Riproduci la sequenza">▶</button>
-          <button id="spNext" title="Shot successivo" aria-label="Shot successivo">⏭</button>
-          <div class="spinfo"><span class="eyebrow" id="spNum">—</span><span class="nm" id="spName"></span></div>
-          <div class="spprog" id="spProg" aria-label="Posizione nella sequenza"></div>
-          <div class="clk" id="spClock"></div>
-          <button id="spLoop" aria-pressed="true" title="Ripeti in loop">LOOP</button>
-          <button id="spMute" hidden title="Audio della traccia">♪</button>
-        </div>
-      </div>
-
       <div class="tracks" id="tracks">
-        <div class="sph" id="spPh" hidden></div>
         <div class="trk" data-ty="shot">
           <div class="trkh"><span class="dot s"></span>SHOT</div>
           <div class="trkl" id="lane-shot" data-ty="shot"></div>
@@ -1716,35 +1592,17 @@ const ENG=(function(){
      under a 1.15 cube, and scaling (macro = 1.7x) made it worse. */
   const SUB=1.15, HALF=SUB/2;
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60),
-    new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7,transparent:true}));
+    new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7}));
   floor.rotation.x=-Math.PI/2; floor.visible=false;
   scene.add(floor);
-  /* limbo/cyclorama: ONE open surface — floor run, quarter-round cove, back
-     wall — swept along X. The old ExtrudeGeometry was a closed 2-unit-thick
-     shell: its SECOND floor sat 2 units above the ground line (the "rendered
-     twice" doubling) and cut straight through the subject. A single ribbon has
-     nothing to double, and the sweep is big enough (wall at z=-20, floor
-     reaching z=+34, 88 units wide) that camera moves stay inside it. */
-  const COVE_DROP=1.6;                 /* how far the sweep sits below the subject */
+  /* limbo/cyclorama: a quarter-pipe sweep so floor and wall meet with no seam */
   const cove=(function(){
-    const R=7, WALLZ=-20, FRONT=34, TOP=30, HW=44;
-    const prof=[[0,FRONT],[0,WALLZ+R]];            /* [y,z]: floor run */
-    for(let i=1;i<=16;i++){ const a=(i/16)*Math.PI/2;
-      prof.push([R-R*Math.cos(a), WALLZ+R-R*Math.sin(a)]); }   /* cove fillet */
-    prof.push([TOP,WALLZ]);                                    /* wall run */
-    const pos=[],uv=[],idx=[];
-    prof.forEach((p,i)=>{ pos.push(-HW,p[0],p[1],  HW,p[0],p[1]);
-      uv.push(0,i/(prof.length-1), 1,i/(prof.length-1)); });
-    for(let i=0;i<prof.length-1;i++){ const a=i*2;
-      idx.push(a,a+1,a+2,  a+1,a+3,a+2); }
-    const g=new THREE.BufferGeometry();
-    g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
-    g.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));
-    g.setIndex(idx); g.computeVertexNormals();
-    /* FrontSide only: if a camera ever does slip past the surface it sees
-       through to the void instead of a solid black wall */
-    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x121215,
-      roughness:0.92,metalness:0.02,side:THREE.FrontSide,transparent:true}));
+    const sh=new THREE.Shape();
+    sh.moveTo(0,0); sh.lineTo(26,0); sh.quadraticCurveTo(38,0,38,12); sh.lineTo(38,30);
+    sh.lineTo(36,30); sh.lineTo(36,12); sh.quadraticCurveTo(36,2,26,2); sh.lineTo(0,2);
+    const g=new THREE.ExtrudeGeometry(sh,{depth:60,bevelEnabled:false,curveSegments:16});
+    g.rotateY(Math.PI/2); g.translate(-30,0,26);
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x0d0d0f,roughness:0.85,metalness:0.05,side:THREE.DoubleSide}));
     m.visible=false; scene.add(m); return m;
   })();
   /* wall / pedestal / techgrid / horizon / room removed: the brief cut them.
@@ -1792,44 +1650,23 @@ const ENG=(function(){
     new THREE.MeshBasicMaterial({color:0xff7950}));
   pathDot.visible=false; scene.add(pathDot);
   let pathKey="";
-  /* The path used to dispose+recreate its BufferGeometry on every parameter
-     change — harmless when the rig was static, a 60fps GPU-buffer churn once
-     the FRAME loop started animating every parameter. Now: one preallocated
-     position attribute, updated in place. */
-  const PATH_N=96;
-  (function(){
-    const g=new THREE.BufferGeometry();
-    g.setAttribute("position",new THREE.BufferAttribute(new Float32Array((PATH_N+1)*3),3));
-    g.setAttribute("lineDistance",new THREE.BufferAttribute(new Float32Array(PATH_N+1),1));
-    camPath.geometry.dispose(); camPath.geometry=g;
-  })();
   function buildPath(p){
-    const still=(!p._cam||p._cam==="static") && !(p._camB&&p._camB!=="static"&&p._camT>0);
-    if(still){ camPath.visible=false; pathKey=""; return; }
-    /* cheap change check: quantized — the in-place update is cheap anyway,
-       this only skips work while the rig is genuinely parked */
-    const k=[p._cam,p._camB,(p._camT||0).toFixed(2),p.az.toFixed(3),p.el.toFixed(3),
-             p.dist.toFixed(3),p.fov.toFixed(1),p.tx.toFixed(3),p.ty.toFixed(3)].join("|");
+    const k=[p._cam,p.az,p.el,p.dist,p.fov,p.tx,p.ty].join("|");
     if(k===pathKey) return;
     pathKey=k;
-    const pos=camPath.geometry.getAttribute("position"), arr=pos.array;
-    for(let i=0;i<=PATH_N;i++){
-      const r=rigAt(p,(i/PATH_N)*LOOP), d=r.dist, j=i*3;
-      arr[j]  =Math.cos(r.el)*Math.sin(r.az)*d;
-      arr[j+1]=Math.sin(r.el)*d;
-      arr[j+2]=Math.cos(r.el)*Math.cos(r.az)*d;
+    if(!p._cam||p._cam==="static"){ camPath.visible=false; return; }
+    const pts=[];
+    for(let i=0;i<=96;i++){
+      const r=rigAt(p,(i/96)*LOOP);
+      const d=r.dist;
+      pts.push(new THREE.Vector3(
+        Math.cos(r.el)*Math.sin(r.az)*d,
+        Math.sin(r.el)*d,
+        Math.cos(r.el)*Math.cos(r.az)*d));
     }
-    pos.needsUpdate=true;
-    /* dash distances in place: computeLineDistances() would allocate a fresh
-       attribute on every call */
-    const ld=camPath.geometry.getAttribute("lineDistance"), la=ld.array;
-    la[0]=0;
-    for(let i=1;i<=PATH_N;i++){
-      const j=i*3, dx=arr[j]-arr[j-3], dy=arr[j+1]-arr[j-2], dz=arr[j+2]-arr[j-1];
-      la[i]=la[i-1]+Math.sqrt(dx*dx+dy*dy+dz*dz);
-    }
-    ld.needsUpdate=true;
-    camPath.geometry.computeBoundingSphere();
+    camPath.geometry.dispose();
+    camPath.geometry=new THREE.BufferGeometry().setFromPoints(pts);
+    camPath.computeLineDistances();
   }
   const grid=new THREE.GridHelper(12,12,0x2a2a30,0x18181c);
   grid.material.transparent=true; grid.material.opacity=0.5;
@@ -1842,8 +1679,7 @@ const ENG=(function(){
      gizmo — so all three can never disagree. Every move LOOPS: phase is a
      0..1 sawtooth, and each move is built to end where it started. ---- */
   const LOOP=7.0;                                   /* seconds per cycle */
-  /* one move evaluated on the base rig values */
-  function rigOnce(p,kind,time){
+  function rigAt(p,time){
     const ph=((time||0)%LOOP)/LOOP;                 /* 0..1, wraps */
     const tau=Math.PI*2;
     /* smooth, symmetric ping-pong: starts and ends at 0 with zero velocity */
@@ -1852,7 +1688,7 @@ const ENG=(function(){
     let az=p.az, el=p.el, dist=p.dist, fov=p.fov,
         tx=p.tx, ty=p.ty, roll=p.roll||0;
     const A=(p.amp==null?1:p.amp);
-    switch(kind){
+    switch(p._cam){
       case "push":     dist -= dist*0.34*ease*A; break;
       case "orbit":    az   += swing*0.72*A; break;
       case "truck":    /*真 lateral travel: the camera slides, it does not turn.
@@ -1878,21 +1714,6 @@ const ENG=(function(){
     el=Math.max(-1.45,Math.min(1.45,el));
     return {az,el,dist,fov,tx,ty,roll};
   }
-  /* rigAt: the single source of truth for camera position at time t.
-     When the FRAME player is crossing its camera phase, p._camB/_camT ask for
-     a crossfade BETWEEN two moves — so Static→Push-in morphs instead of
-     switching character mid-flight. */
-  function rigAt(p,time){
-    const r1=rigOnce(p,p._cam,time);
-    if(p._camB!=null && p._camB!==p._cam && p._camT>0){
-      const r2=rigOnce(p,p._camB,time);
-      const t=Math.min(1,p._camT), L=(a,b)=>a+(b-a)*t;
-      return {az:L(r1.az,r2.az), el:Math.max(-1.45,Math.min(1.45,L(r1.el,r2.el))),
-              dist:L(r1.dist,r2.dist), fov:L(r1.fov,r2.fov),
-              tx:L(r1.tx,r2.tx), ty:L(r1.ty,r2.ty), roll:L(r1.roll,r2.roll)};
-    }
-    return r1;
-  }
   /* place a THREE camera from a rig state */
   function placeCam(c,r,ortho){
     const d = ortho ? r.dist*5.4 : r.dist;
@@ -1915,37 +1736,21 @@ const ENG=(function(){
     const ph=((t)%LOOP)/LOOP;
 
     /* subject: origin, native orientation, only its own two axes apply */
-    let spin;
-    if(p._srotA!=null){
-      const tau2=Math.PI*2, angOf=v=>(v===-1)? (ph*tau2) : (v||0);
-      const a=angOf(p._srotA), b=angOf(p._srotB);
-      let dd=(((b-a)%tau2)+tau2*1.5)%tau2-tau2*0.5;   /* shortest signed delta */
-      spin=a+dd*(p._srotT||0);
-    }else{
-      spin = (p.srot===-1) ? ph*Math.PI*2 : (p.srot||0);
-    }
+    const spin = (p.srot===-1) ? ph*Math.PI*2 : (p.srot||0);
     subject.rotation.set(0, spin, 0);
     subject.scale.setScalar(p.sscale||1);
     hero.visible=true;
 
     /* ground follows the subject's real size */
-    const anyEnv=(p.floor>0.02)||(p.cove>0.02);
+    const anyEnv=(p.floor>0.5)||(p.cove>0.5);
     const halfDiag=HALF*Math.SQRT2*(p.sscale||1);
     const gy=-halfDiag-0.02;
     subject.position.set(0,0,0);
-    /* environments FADE with their lerped 0..1 value instead of popping at a
-       threshold. The flat floor cross-dissolves out as the cove comes in, so
-       the two never double up mid-blend. */
-    const cvV=Math.max(0,Math.min(1,p.cove||0));
-    const flV=Math.max(0,Math.min(1,p.floor||0))*(1-cvV);
-    floor.visible=flV>0.02;  floor.position.y=gy;
-    floor.material.opacity=flV;
-    /* the limbo sits WELL below the subject: the product floats over a clean
-       studio sweep instead of resting against a wall the camera can clip */
-    cove.visible=cvV>0.02;   cove.position.y=gy-COVE_DROP;
-    cove.material.opacity=cvV;
-    /* where the visible ground actually is, for the camera floor-clamp */
-    const groundY = (cvV>0.5) ? gy-COVE_DROP : (flV>0.5 ? gy : null);
+    floor.visible=p.floor>0.5;  floor.position.y=gy;
+    cove.visible=p.cove>0.5;    cove.position.y=gy;
+    /* limbo = floor + cove sweep. The cove already carries its own floor, so
+       showing the flat plane too was what read as a doubled seam. */
+    if(p.cove>0.5) floor.visible=false;
     grid.position.y=gy;
     scene.fog=null;
 
@@ -1980,9 +1785,8 @@ const ENG=(function(){
        the hero and the pattern becomes background. */
     cloneMesh.forEach(m=>m.visible=false);
     const mode=p._motion;
-    const FADE=(p._motionFade==null)?1:p._motionFade;  /* pattern presence 0..1 */
     const BACK=-3.2;                        /* how far behind the subject */
-    if(mode&&mode!=="none"&&FADE>0.02){
+    if(mode&&mode!=="none"){
       let n=0, place=null;
       const S=(p.sscale||1);
       if(mode==="clone"){ n=2; place=(m,i)=>{ m.position.set(i?2.4:-2.4,0,BACK);
@@ -2026,8 +1830,7 @@ const ENG=(function(){
         m.position.set((r1-0.5)*8,(r2-0.5)*4.6,BACK-(r3*2.2));
         m.scale.setScalar((0.1+r1*0.16)*S);
         m.rotation.set(r2*3,r3*3+ph*0.6,0); }; }
-      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i);
-        if(FADE<1) m.scale.multiplyScalar(FADE); }
+      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i); }
     }
 
     starFar.material.opacity=0.30*(1-0.6*p.silh);
@@ -2035,7 +1838,7 @@ const ENG=(function(){
     starNear.material.opacity=0.20*(1-0.6*p.silh);
     stars.rotation.y=0;                 /* the camera moves now, not the world */
     subjWire.visible=false;
-    return {gy:gy, groundY:groundY};
+    return {gy:gy};
   }
 
   /* ---- blit: render off-screen, copy into the target 2D canvas ---- */
@@ -2044,10 +1847,10 @@ const ENG=(function(){
     const W=cv.width,H=cv.height;
     if(W<4||H<4) return;
     const ctx=cv.getContext("2d"); if(!ctx) return;
-    const env=applyScene(p,time,!!opts.work);
+    applyScene(p,time,!!opts.work);
     rig.visible=!!opts.work;
     grid.visible=!!opts.work; axesH.visible=!!opts.work;
-    let r=rigAt(p,time);
+    const r=rigAt(p,time);
     if(opts.work){
       /* work viewport: free orbit camera, everything else drawn as a rig */
       const o=opts.orbit||{az:0.7,el:0.35,dist:9};
@@ -2068,19 +1871,10 @@ const ENG=(function(){
       subjWire.rotation.copy(subject.rotation); subjWire.scale.copy(subject.scale);
       /* dashed camera path + a dot riding it at the current phase */
       buildPath(p);
-      const moving = (p._cam && p._cam!=="static") ||
-                     (p._camB && p._camB!=="static" && p._camT>0);
+      const moving = p._cam && p._cam!=="static";
       camPath.visible=moving; pathDot.visible=moving;
       if(moving) pathDot.position.copy(shadowCam.position);
     }else{
-      /* a real studio camera cannot go under the studio floor: clamp the
-         elevation so low angles graze the sweep instead of diving through it.
-         Only the PREVIEW is clamped — the work viewport stays free. */
-      if(env && env.groundY!=null){
-        const minY=env.groundY+0.35;
-        const s=Math.max(-0.995,Math.min(0.995,minY/Math.max(r.dist,0.001)));
-        r={...r, el:Math.max(r.el, Math.asin(s))};
-      }
       placeCam(cam,r,p.ortho>0.5);
       camPath.visible=false; pathDot.visible=false;
       subjWire.visible=false;
@@ -2402,29 +2196,6 @@ function mixP(A,B,t){ const o={};
   for(const k in A) o[k] = (typeof A[k]==="number") ? lerp(A[k],B[k],t) : (t<0.5?A[k]:B[k]);
   return o; }
 
-/* ---- FRAME player interpolation ----
-   ONE gradual eased ramp across the whole A→B range: every numeric travels
-   continuously, nothing switches sharply at 50%. The two things that can't be
-   lerped as numbers get their own gradual treatment:
-   · the camera MOVE crossfades inside rigAt() (p._camB / p._camT)
-   · motion-design patterns scale out/in around the midpoint (p._motionFade)
-   · environment surfaces fade via their lerped 0..1 params (see applyScene) */
-function mixStaged(A,B,t){
-  const e = t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;   /* easeInOut, full range */
-  const o={};
-  for(const k in A){
-    if(typeof A[k]==="number") o[k]=lerp(A[k],B[k],e);
-    else o[k]=(e<0.5)?A[k]:B[k];
-  }
-  o._cam=A._cam; o._camB=B._cam; o._camT=e;
-  o._motionFade=(A._motion===B._motion)?1:Math.min(1,Math.abs(e-0.5)*4);
-  /* srot=-1 means "spinning" and can't be lerped as a number: hand both ends
-     to the engine, which blends the ANGLES (shortest path) so a spin eases
-     into a fixed pose instead of snapping */
-  if(A.srot===-1 || B.srot===-1){ o._srotA=A.srot; o._srotB=B.srot; o._srotT=e; o.srot=0; }
-  return o;
-}
-
 /* Draw one frame. The Three.js engine is the only real renderer now; the old
    2D capsule painter spoke the pre-rig param language (rot/px/haze/refl) which
    no longer exists, so keeping it would have meant maintaining two divergent
@@ -2622,9 +2393,7 @@ function makeOrbit(host, st, onChange){
     e.preventDefault(); },{passive:false});
 }
 let selC=null, selA=null, selB=null;
-/* abT is the LINEAR position between the two frames (0 = frame A, 1 = frame B).
-   abDir ping-pongs it; abLoop pauses/resumes without losing the position. */
-let abT=0, abDir=1, abLoop=true;
+let abT=0, abPlaying=false;
 
 function paint(time){
   if(view==="combo" && cvC && selC){
@@ -2632,26 +2401,20 @@ function paint(time){
   }
   else if(view==="comb2" && cvM && selA && selB){
     const pA=params(selA), pB=params(selB);
-    draw(cvM, (abT<0.625?selA:selB), mixStaged(pA,pB,abT), time,
+    const t=abT<0.5?2*abT*abT:1-Math.pow(-2*abT+2,2)/2;
+    draw(cvM, (t<0.5?selA:selB), mixP(pA,pB,t), time,
          VP.comb2.on?{work:true,orbit:VP.comb2}:null);
     /* the two column previews: each frame shown at its own end of the interpolation,
        so a change to either axis grid is visible immediately without switching tabs */
     if(cvA) draw(cvA, selA, pA, time);
     if(cvB) draw(cvB, selB, pB, time);
-    if(window.__abScrubUI) window.__abScrubUI(abT);
   }
 }
 function tick(now){
   if(view!=="combo" && view!=="comb2"){ running=false; return; }
   requestAnimationFrame(tick);
   sizeAll();
-  /* the mix player is a LOOP: A → B → A, forever. The interpolation is the
-     whole point of this view, so it never sits still on one endpoint. */
-  if(view==="comb2" && abLoop){
-    abT += 0.0042*abDir;
-    if(abT>=1){ abT=1; abDir=-1; }
-    if(abT<=0){ abT=0; abDir=1; }
-  }
+  if(abPlaying){ abT+=0.006; if(abT>=1){ abT=1; abPlaying=false; } }
   paint((now-t0)/1000);
 }
 function start(){ if(running) return; running=true; requestAnimationFrame(tick); }
@@ -2764,18 +2527,16 @@ function renderAB(){
     d.appendChild(l); d.appendChild(t); abNotes.appendChild(d);
   });
   abVerdict.textContent=abVerdictTxt();
-  const dN=delta();
-  abRecipe.innerHTML="A ⇄ B · <b>"+dN+"</b> "+(dN===1?"asse":"assi")+" in movimento";
+  abRecipe.innerHTML="A → B · <b>"+delta()+"</b> assi in movimento";
   tabAv.textContent=optOf("cam",selA.cam)[1]+" · "+optOf("comp",selA.comp)[1];
   tabBv.textContent=optOf("cam",selB.cam)[1]+" · "+optOf("comp",selB.comp)[1];
   window.__lastAB={A:Object.assign({},selA),B:Object.assign({},selB)};
   if(window.__repaint) window.__repaint();
 }
-/* Both grids are live at once and the mix keeps looping through every edit:
-   the thumbnails show each endpoint instantly, the big player shows what the
-   AI will actually have to invent between them. No tab switching, no parking. */
-function onEditA(){ renderAB(); start(); }
-function onEditB(){ renderAB(); start(); }
+/* Both grids are live at once: editing A parks the mix at t=0 so the change is
+   visible in the big player, editing B parks it at t=1. No tab switching. */
+function onEditA(){ abT=0; abPlaying=false; renderAB(); start(); }
+function onEditB(){ abT=1; abPlaying=false; renderAB(); start(); }
 /* FRAME reuses COMP's locks + exclusions: one place to say what the dice may
    roll, honoured by every random button in the tool. */
 buildAxes(abHostA, selA, onEditA, {locks:LOCKS, excl:EXCL,
@@ -2804,55 +2565,11 @@ document.getElementById("abRand").onclick=()=>{
     if(others.length) selB[ax.id]=others[Math.floor(Math.random()*others.length)][0];
   });
   syncAxes(abHostA,selA); syncAxes(abHostB,selB);
-  abT=0; abDir=1; renderAB(); start();
+  abT=0; abPlaying=false; renderAB(); start();
 };
 document.getElementById("abCopy").onclick=()=>{ AXES.forEach(a=>selB[a.id]=selA[a.id]);
   syncAxes(abHostB,selB); renderAB(); start(); };
-/* play button = loop toggle. Pausing keeps the current position so the
-   scrubber can be used as a still-frame picker for the storyboard. */
-const abPlayBtn=document.getElementById("abPlay");
-function abSetLoop(on){
-  abLoop=on;
-  abPlayBtn.textContent = on ? "Pausa loop" : "Riproduci loop";
-  abPlayBtn.setAttribute("aria-pressed",String(on));
-  if(on) start();
-}
-abPlayBtn.onclick=()=>abSetLoop(!abLoop);
-/* ---- scrubber: drag to park the interpolation anywhere between A and B ---- */
-(function(){
-  const track=document.getElementById("abTrack"), fill=document.getElementById("abFill"),
-        head=document.getElementById("abHead"),
-        capA=document.getElementById("abCapA"), capB=document.getElementById("abCapB");
-  if(!track) return;
-  track.setAttribute("tabindex","0");
-  window.__abScrubUI=t=>{
-    const pc=(t*100).toFixed(2)+"%";
-    head.style.left=pc; fill.style.width=pc;
-    capA.classList.toggle("on",t<0.08);
-    capB.classList.toggle("on",t>0.92);
-  };
-  let drag=false;
-  const setFrom=e=>{
-    const p=e.touches?e.touches[0]:e, r=track.getBoundingClientRect();
-    abT=Math.max(0,Math.min(1,(p.clientX-r.left)/r.width));
-    abDir = abT>=1 ? -1 : 1;
-    if(window.__repaint) window.__repaint();
-  };
-  const down=e=>{ drag=true; abSetLoop(false); setFrom(e); if(e.cancelable) e.preventDefault(); };
-  track.addEventListener("mousedown",down);
-  track.addEventListener("touchstart",down,{passive:false});
-  window.addEventListener("mousemove",e=>{ if(drag) setFrom(e); });
-  window.addEventListener("touchmove",e=>{ if(drag){ setFrom(e); if(e.cancelable) e.preventDefault(); } },{passive:false});
-  window.addEventListener("mouseup",()=>{ drag=false; });
-  window.addEventListener("touchend",()=>{ drag=false; });
-  track.addEventListener("keydown",e=>{
-    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
-      abSetLoop(false);
-      abT=Math.max(0,Math.min(1,abT+(e.key==="ArrowRight"?0.05:-0.05)));
-      if(window.__repaint) window.__repaint(); e.preventDefault();
-    }else if(e.key===" "||e.key==="Enter"){ abSetLoop(!abLoop); e.preventDefault(); }
-  });
-})();
+document.getElementById("abPlay").onclick=()=>{ abPlaying=true; abT=0; start(); };
 (function(){
   const bp=document.getElementById("abVpPrev"), bw=document.getElementById("abVpWork"),
         host=document.getElementById("prevMix"), hint=document.getElementById("abVpHint");
@@ -2860,12 +2577,10 @@ abPlayBtn.onclick=()=>abSetLoop(!abLoop);
     VP.comb2.on=on;
     bp.setAttribute("aria-selected",String(!on)); bw.setAttribute("aria-selected",String(on));
     host.classList.toggle("work",on);
-    hint.textContent = on ? "Trascina per orbitare · rotella per lo zoom"
-                          : "Il player mostra l'interpolazione A ⇄ B in loop";
+    hint.textContent = on ? "Trascina per orbitare · rotella per lo zoom" : "";
     if(window.__repaint) window.__repaint(); start();
   }
   bp.onclick=()=>set(false); bw.onclick=()=>set(true);
-  set(false);
   makeOrbit(host, VP.comb2, ()=>{ if(window.__repaint) window.__repaint(); });
 })();
 __syncLocks();
@@ -2975,130 +2690,25 @@ const LANES={shot:document.getElementById("lane-shot"),
 let TL=[];               /* {id,img,selected,dur} */
 let dragFrom=null;       /* {kind:'lib'|'tl', id, idx} */
 
-/* ---- shot thumbnails: every package shows its ACTUAL frame, rendered once
-   by the same engine that plays it. Cached per block id; user-uploaded images
-   still win on individual timeline items. ---- */
-const THUMBS={};
-const thumbCv=document.createElement("canvas");
-const liftCv=document.createElement("canvas");
-function shotThumb(id){
-  if(THUMBS[id]!==undefined) return THUMBS[id];
-  const b=B(id);
-  if(!b||b[6]!=="shot"||!b[7]||typeof draw!=="function"||!window.THREE){
-    THUMBS[id]=null; return null; }
-  try{
-    thumbCv.width=192; thumbCv.height=108;
-    draw(thumbCv, b[7], params(b[7]), 1.6);   /* fixed scene time: a lit, posed frame */
-    /* exposure lift: many shots are dark BY DESIGN (penombra, silhouette) and
-       read as black rectangles at 100px — the thumb gets a grade the render
-       doesn't, so the composition stays legible at card size */
-    let out=thumbCv;
-    const lx=liftCv.getContext("2d");
-    if(lx && lx.filter!==undefined){
-      liftCv.width=thumbCv.width; liftCv.height=thumbCv.height;
-      lx.filter="brightness(1.85) saturate(1.15) contrast(1.04)";
-      lx.drawImage(thumbCv,0,0);
-      out=liftCv;
-    }
-    THUMBS[id]=out.toDataURL("image/jpeg",0.72);
-  }catch(_){ THUMBS[id]=null; }
-  return THUMBS[id];
-}
-/* live hover preview: while the pointer is on a card, its thumb becomes the
-   real engine running that preset — camera move included. One shared canvas,
-   one rAF, only for the hovered card; the static thumb returns on leave. */
-let hovCv=null, hovRaf=0, hovT0=0;
-function stopHover(){
-  if(hovRaf){ cancelAnimationFrame(hovRaf); hovRaf=0; }
-  if(hovCv&&hovCv.parentNode) hovCv.parentNode.removeChild(hovCv);
-}
-function attachLivePreview(box, sel){
-  if(!box||!sel) return;
-  box.addEventListener("mouseenter",()=>{
-    if(!window.THREE||typeof draw!=="function") return;
-    stopHover();
-    hovCv=hovCv||document.createElement("canvas");
-    const r=box.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
-    hovCv.width=Math.max(64,Math.round(r.width*d));
-    hovCv.height=Math.max(36,Math.round(r.height*d));
-    box.appendChild(hovCv);
-    hovT0=performance.now();
-    const p=params(sel);
-    const loop=()=>{
-      if(!hovCv||!hovCv.isConnected){ hovRaf=0; return; }
-      hovRaf=requestAnimationFrame(loop);
-      draw(hovCv, sel, p, (performance.now()-hovT0)/1000);
-    };
-    loop();
-  });
-  box.addEventListener("mouseleave", stopHover);
-}
-/* two-or-three word recipe: what makes THIS shot this shot */
-function microRecipe(sel){
-  if(!sel) return "";
-  const nm=(ax,id)=>{ const a=AXES.find(x=>x.id===ax);
-    const o=a&&a.opts.find(o=>o[0]===id); return o?o[1]:""; };
-  const parts=[ sel.cam!=="static" ? nm("cam",sel.cam) : nm("view",sel.view),
-                nm("luce",sel.luce) ];
-  if(sel.env&&sel.env!=="void") parts.push(nm("env",sel.env));
-  else if(sel.motion&&sel.motion!=="none") parts.push(nm("motion",sel.motion));
-  return parts.filter(Boolean).join(" · ");
-}
-/* narrative phases: the library reads as a story arc, not a bucket */
-const SHOT_PHASES=[
-  ["Apertura",["dark","shapereveal"]],
-  ["Dettaglio",["macro","form","feature"]],
-  ["Rivelazione",["full","variant","exploded"]],
-  ["Picco",["fx","drop","pattern"]],
-  ["Racconto",["info"]],
-  ["Chiusura",["logo","claim","outro","credits"]],
-];
-
-/* ---- library: draggable app tiles, click reveals description ----
-   Shots are grouped by NARRATIVE PHASE (opening → detail → reveal → peak →
-   closing), so the library reads as a story arc instead of a flat bucket.
-   Every shot card carries its rendered frame and its micro-recipe. */
+/* ---- library: draggable app tiles, click reveals description ---- */
 const TYPES=[["shot","Inquadrature"],["trans","FX / transizioni"],["audio","Audio"]];
 sLib.innerHTML="";
-function libCard(b){
-  const ty=b[6];
-  const c=document.createElement("div"); c.className="scard t-"+ty; c.draggable=true; c.tabIndex=0;
-  const tu = ty==="shot" ? shotThumb(b[0]) : null;
-  const rc = ty==="shot" ? microRecipe(b[7]) : "";
-  c.innerHTML=(tu?'<div class="thimg"><img src="'+tu+'" alt=""></div>':b[5])+
-    '<div class="nm">'+b[1]+'</div>'+
-    (rc?'<div class="rc">'+rc+'</div>':'')+
-    (b[3]>0?'<div class="du">'+b[3].toFixed(1)+'s</div>':'')+
-    '<div class="ds">'+b[2]+'</div>';
-  c.addEventListener("dragstart",e=>{ dragFrom={kind:"lib",id:b[0]};
-    e.dataTransfer.effectAllowed="copy"; try{e.dataTransfer.setData("text/plain",b[0]);}catch(_){} });
-  c.addEventListener("dragend",()=>{ dragFrom=null;
-    Object.values(LANES).forEach(l=>l.classList.remove("dragover")); });
-  c.onclick=()=>{ c.classList.toggle("open"); };
-  c.ondblclick=()=>{ TL.push({id:b[0],img:null,selected:false,dur:b[3]}); drawTL(); };
-  if(ty==="shot"&&tu) attachLivePreview(c.querySelector(".thimg"), b[7]);
-  return c;
-}
-function libGrid(list){
-  const grid=document.createElement("div"); grid.className="slibgrid";
-  list.forEach(b=>grid.appendChild(libCard(b)));
-  sLib.appendChild(grid);
-}
 TYPES.forEach(([ty,label])=>{
   const hd=document.createElement("div"); hd.className="cgrp-h"; hd.textContent=label; sLib.appendChild(hd);
-  if(ty==="shot"){
-    SHOT_PHASES.forEach(([ph,ids])=>{
-      const sub=document.createElement("div"); sub.className="cgrp-h sub"; sub.textContent=ph;
-      sLib.appendChild(sub);
-      libGrid(ids.map(id=>BLOCKS.find(b=>b[0]===id)).filter(Boolean));
-    });
-    /* any shot not covered by a phase still shows up */
-    const covered=new Set(SHOT_PHASES.flatMap(p=>p[1]));
-    const rest=BLOCKS.filter(b=>b[6]==="shot"&&!covered.has(b[0]));
-    if(rest.length) libGrid(rest);
-  }else{
-    libGrid(BLOCKS.filter(b=>b[6]===ty));
-  }
+  const grid=document.createElement("div"); grid.className="slibgrid";
+  BLOCKS.filter(b=>b[6]===ty).forEach(b=>{
+    const c=document.createElement("div"); c.className="scard t-"+ty; c.draggable=true; c.tabIndex=0;
+    c.innerHTML=b[5]+'<div class="nm">'+b[1]+'</div>'+(b[3]>0?'<div class="du">'+b[3].toFixed(1)+'s</div>':'')+
+      '<div class="ds">'+b[2]+'</div>';
+    c.addEventListener("dragstart",e=>{ dragFrom={kind:"lib",id:b[0]};
+      e.dataTransfer.effectAllowed="copy"; try{e.dataTransfer.setData("text/plain",b[0]);}catch(_){} });
+    c.addEventListener("dragend",()=>{ dragFrom=null;
+      Object.values(LANES).forEach(l=>l.classList.remove("dragover")); });
+    c.onclick=()=>{ c.classList.toggle("open"); };
+    c.ondblclick=()=>{ TL.push({id:b[0],img:null,selected:false,dur:b[3]}); drawTL(); };
+    grid.appendChild(c);
+  });
+  sLib.appendChild(grid);
 });
 
 /* ---- lanes accept drops ---- */
@@ -3128,17 +2738,11 @@ function drawTL(){
     const lane=LANES[b[6]]; if(!lane) return;
     const d=document.createElement("div");
     d.className="clip"+(it.selected?" sel":""); d.draggable=true; d.dataset.i=i;
-    const isShot=b[6]==="shot";
-    const tu = it.img || (isShot ? shotThumb(it.id) : null);
-    const thumb = tu ? '<img src="'+tu+'" alt="">' : b[5];
-    const rc = isShot ? microRecipe(b[7]) : "";
+    const thumb = it.img ? '<img src="'+it.img+'" alt="">' : b[5];
     d.innerHTML='<div class="th">'+thumb+'</div><div class="nm">'+b[1]+'</div>'+
-      (rc?'<div class="rc">'+rc+'</div>':'')+
       (b[3]>0?'<div class="dur"><input type="number" min="0.1" max="30" step="0.1" value="'+it.dur.toFixed(1)+'"></div>':'')+
-      (isShot?'<span class="en" style="--e:'+(b[4]||0)+'"><i></i></span>':'')+
       '<textarea class="note'+(it.note?' has':'')+'" rows="3" placeholder="nota…"></textarea>'+
       '<button class="x" aria-label="Rimuovi">×</button>';
-    if(isShot&&tu&&!it.img) attachLivePreview(d.querySelector(".th"), b[7]);
     d.querySelector(".x").onclick=e=>{ e.stopPropagation(); TL.splice(i,1); drawTL(); };
     const inp=d.querySelector("input");
     if(inp){
@@ -3269,7 +2873,7 @@ function flash(btn,msg){ const b=btn.querySelector("b"), o=b.textContent;
 const sWaveWrap=document.getElementById("sWaveWrap"), sWave=document.getElementById("sWave"),
       sWaveLbl=document.getElementById("sWaveLbl"), sWaveX=document.getElementById("sWaveX"),
       sAudioLbl=document.getElementById("sAudioLbl");
-let PEAKS=null, AUD_DUR=0, AUD_NAME="", AUD_BUF=null;   /* AUD_BUF feeds the sequence player */
+let PEAKS=null, AUD_DUR=0, AUD_NAME="";
 function drawWave(){
   if(!PEAKS||!sWave) return;
   const r=Math.min(devicePixelRatio||1,2);
@@ -3307,7 +2911,7 @@ if(document.getElementById("sAudio")) document.getElementById("sAudio").onchange
   fr.onload=function(){
     const ctx=new AC();
     const done=buf=>{
-      AUD_DUR=buf.duration; AUD_NAME=f.name; AUD_BUF=buf;
+      AUD_DUR=buf.duration; AUD_NAME=f.name;
       const ch=buf.getChannelData(0), N=1600, step=Math.max(1,Math.floor(ch.length/N));
       const pk=new Float32Array(N*2);
       for(let i=0;i<N;i++){
@@ -3321,7 +2925,6 @@ if(document.getElementById("sAudio")) document.getElementById("sAudio").onchange
       sWaveLbl.textContent=f.name+" · "+AUD_DUR.toFixed(1)+"s";
       sAudioLbl.textContent="traccia caricata";
       drawWave();
-      if(window.__spRefresh) window.__spRefresh();
       try{ ctx.close(); }catch(_){}
     };
     const p=ctx.decodeAudioData(fr.result, done, err=>{
@@ -3334,275 +2937,10 @@ if(document.getElementById("sAudio")) document.getElementById("sAudio").onchange
   fr.onerror=()=>{ sAudioLbl.textContent="lettura fallita"; };
   fr.readAsArrayBuffer(f);
 };
-if(sWaveX) sWaveX.onclick=()=>{ PEAKS=null; AUD_DUR=0; AUD_BUF=null;
-  if(window.__spAudioStop) window.__spAudioStop();
-  if(window.__spRefresh) window.__spRefresh();
-  sWaveWrap.hidden=true;
+if(sWaveX) sWaveX.onclick=()=>{ PEAKS=null; AUD_DUR=0; sWaveWrap.hidden=true;
   sAudioLbl.textContent="waveform sotto la curva";
   const i=document.getElementById("sAudio"); if(i) i.value=""; };
 window.addEventListener("resize",()=>{ if(PEAKS) drawWave(); });
-
-/* ================= SEQUENCE PLAYER =================
-   The timeline, seen. Each shot renders live through the COMP engine from its
-   own preset; the FX lane's Nth block becomes the transition on the Nth cut,
-   rendered for real (the morph even reuses mixStaged, the FRAME interpolator);
-   the loaded audio track plays in sync. */
-(function(){
-"use strict";
-const stage=document.getElementById("spStage"); if(!stage||typeof draw!=="function") return;
-const cv=makeCanvas(stage);
-const offA=document.createElement("canvas"), offB=document.createElement("canvas");
-const $=id=>document.getElementById(id);
-const btnPlay=$("spPlay"), btnPrev=$("spPrev"), btnNext=$("spNext"), btnLoop=$("spLoop"),
-      btnMute=$("spMute"), hudNum=$("spNum"), hudName=$("spName"), hudClock=$("spClock"),
-      prog=$("spProg"), empty=$("spEmpty"), ph=$("spPh"),
-      chip=$("spChip"), chipNum=$("spChipNum"), chipName=$("spChipName");
-let chipT=0;
-function chipShow(n,t){
-  chipNum.textContent=n; chipName.textContent=t;
-  chip.hidden=false;
-  requestAnimationFrame(()=>chip.classList.add("on"));
-  clearTimeout(chipT);
-  chipT=setTimeout(()=>{ chip.classList.remove("on");
-    setTimeout(()=>{ chip.hidden=true; },340); },1300);
-}
-let playing=false, loop=true, muted=false, inSeq=false;
-let pt=0, last=0, raf=0, curIdx=-1, scrub=false, cards=null;
-const sm=u=>u<0?0:u>1?1:u*u*(3-2*u);
-
-const shots =()=>TL.filter(x=>{const b=B(x.id); return b&&b[6]==="shot";});
-const transL=()=>TL.filter(x=>{const b=B(x.id); return b&&b[6]==="trans";});
-const total =sh=>sh.reduce((s,x)=>s+x.dur,0);
-function locate(sh,t){ let acc=0;
-  for(let i=0;i<sh.length;i++){ if(t<acc+sh[i].dur || i===sh.length-1)
-    return {i, start:acc, lt:t-acc}; acc+=sh[i].dur; }
-  return {i:0,start:0,lt:t}; }
-const selOf=x=>B(x.id)[7];
-function sized(o){ if(o.width!==cv.width||o.height!==cv.height){ o.width=cv.width; o.height=cv.height; } }
-function paintVoid(){ const c=cv.getContext("2d");
-  if(c){ c.fillStyle="#050506"; c.fillRect(0,0,cv.width,cv.height); } }
-
-function render(){
-  const sh=shots(), has=sh.length>0;
-  empty.hidden=has;
-  if(!has){ paintVoid(); curIdx=-1; hudNum.textContent="—"; hudName.textContent="";
-    hudClock.textContent=""; ph.hidden=true; buildProg(); return; }
-  const T=total(sh), t=Math.min(pt, T-0.0001), L=locate(sh,t), tr=transL();
-
-  /* transition window on the cut this instant falls into (half before, half after) */
-  let tw=null, acc=0;
-  for(let k=0;k<sh.length-1;k++){
-    acc+=sh[k].dur;
-    const tb=tr[k]?B(tr[k].id):null;
-    const d=tb?(tr[k].dur||tb[3]||0):0;
-    if(d>0 && t>=acc-d/2 && t<=acc+d/2){ tw={a:k, id:tb[0], cut:acc,
-      startA:acc-sh[k].dur, k01:(t-(acc-d/2))/d}; break; }
-    if(acc>t+3) break;
-  }
-
-  if(!tw){
-    draw(cv, selOf(sh[L.i]), params(selOf(sh[L.i])), L.lt);
-  }else{
-    const SA=selOf(sh[tw.a]), SB=selOf(sh[tw.a+1]);
-    const pA=params(SA), pB=params(SB);
-    const ltA=t-tw.startA, ltB=Math.max(0,t-tw.cut), e=sm(tw.k01);
-    const c2=cv.getContext("2d"), W=cv.width, H=cv.height;
-    if(!c2){
-      draw(cv, SA, pA, ltA);
-    }else if(tw.id==="t_morph"){
-      /* a real 3D morph: the FRAME interpolator, applied to a cut */
-      draw(cv, SA, mixStaged(pA,pB,tw.k01), ltA);
-    }else if(tw.id==="t_dissolve"){
-      draw(cv,SA,pA,ltA);
-      sized(offB); draw(offB,SB,pB,ltB);
-      c2.save(); c2.globalAlpha=e; c2.drawImage(offB,0,0); c2.restore();
-    }else if(tw.id==="t_flash"){
-      if(t<tw.cut) draw(cv,SA,pA,ltA); else draw(cv,SB,pB,ltB);
-      const a2=Math.pow(1-Math.abs(tw.k01-0.5)*2, 0.6);
-      c2.save(); c2.globalAlpha=a2; c2.fillStyle="#fff"; c2.fillRect(0,0,W,H); c2.restore();
-    }else if(tw.id==="t_whip"){
-      sized(offA); sized(offB);
-      draw(offA,SA,pA,ltA); draw(offB,SB,pB,ltB);
-      c2.fillStyle="#050506"; c2.fillRect(0,0,W,H);
-      const off=e*W, gh=Math.sin(tw.k01*Math.PI);      /* ghosting peaks mid-whip */
-      c2.save();
-      for(let g=2;g>=0;g--){
-        const dx=g*0.05*W*gh;
-        c2.globalAlpha=g?0.22:1;
-        c2.drawImage(offA,-off-dx,0);
-        c2.drawImage(offB,W-off-dx,0);
-      }
-      c2.restore();
-    }else if(tw.id==="t_smear"){
-      sized(offA); sized(offB);
-      draw(offA,SA,pA,ltA); draw(offB,SB,pB,ltB);
-      const sx=1+e*(1-e)*3.5;                          /* bulge mid-transition */
-      c2.fillStyle="#050506"; c2.fillRect(0,0,W,H);
-      c2.save(); c2.translate(W/2,H/2); c2.scale(sx,1); c2.translate(-W/2,-H/2);
-      c2.globalAlpha=1-e; c2.drawImage(offA,0,0);
-      c2.globalAlpha=e;   c2.drawImage(offB,0,0);
-      c2.restore();
-    }else{ /* t_cut or unknown: honest hard switch on the cut */
-      if(t<tw.cut) draw(cv,SA,pA,ltA); else draw(cv,SB,pB,ltB);
-    }
-  }
-
-  /* HUD: heavy updates only when the shot changes */
-  if(L.i!==curIdx){
-    const fresh=(curIdx===-1);
-    curIdx=L.i;
-    const num="SHOT "+String(L.i+1).padStart(2,"0")+" / "+String(sh.length).padStart(2,"0");
-    const name=B(sh[L.i].id)[1];
-    hudNum.textContent=num; hudName.textContent=name;
-    if(!fresh) chipShow(num,name);          /* transient title on the change, not on refresh */
-    cards=cards||document.querySelectorAll("#lane-shot .clip");
-    cards.forEach((c,j)=>c.classList.toggle("playing", j===L.i));
-  }
-  const ck=t.toFixed(1)+"s / "+T.toFixed(1)+"s";
-  if(ck!==hudClock._v){ hudClock._v=ck; hudClock.textContent=ck; }
-
-  /* playhead riding the active clip card */
-  cards=cards||document.querySelectorAll("#lane-shot .clip");
-  const card=cards[L.i];
-  if(card){
-    const wr=$("tracks").getBoundingClientRect(), cr=card.getBoundingClientRect();
-    const frac=Math.min(1, L.lt/(sh[L.i].dur||1));
-    ph.style.left=(cr.left-wr.left+frac*cr.width)+"px";
-    ph.hidden=false;
-  }else ph.hidden=true;
-
-  /* progress segments */
-  const segs=prog.children;
-  for(let i=0;i<segs.length;i++){
-    const f=segs[i].firstChild; if(!f) continue;
-    f.style.width = i<L.i ? "100%" : i>L.i ? "0%" :
-      (100*Math.min(1,L.lt/(sh[i].dur||1))).toFixed(1)+"%";
-  }
-}
-
-/* ---- progress bar: one segment per shot, width ∝ duration ---- */
-function buildProg(){
-  const sh=shots(); prog.innerHTML="";
-  sh.forEach(x=>{
-    const s=document.createElement("div"); s.className="seg";
-    s.style.flex=String(Math.max(0.2,x.dur));
-    s.appendChild(Object.assign(document.createElement("div"),{className:"f"}));
-    prog.appendChild(s);
-  });
-}
-function seekFromX(clientX){
-  const sh=shots(); if(!sh.length) return;
-  const r=prog.getBoundingClientRect();
-  pt=Math.max(0,Math.min(1,(clientX-r.left)/r.width))*total(sh);
-  if(playing) audioStart();
-  render();
-}
-prog.addEventListener("pointerdown",e=>{ scrub=true; prog.setPointerCapture(e.pointerId);
-  seekFromX(e.clientX); });
-prog.addEventListener("pointermove",e=>{ if(scrub) seekFromX(e.clientX); });
-prog.addEventListener("pointerup",()=>{ scrub=false; });
-
-/* ---- clock ---- */
-function tick(ts){
-  raf=requestAnimationFrame(tick);
-  const dt=Math.min(0.05,(ts-last)/1000); last=ts;
-  pt+=dt;
-  const T=total(shots());
-  if(pt>=T){
-    if(loop && T>0){ pt=0; if(playing) audioStart(); }
-    else { pt=Math.max(0,T); setPlaying(false); }
-  }
-  render();
-}
-function setPlaying(on){
-  if(on===playing) return;
-  playing=on;
-  btnPlay.textContent = on ? "⏸" : "▶";
-  if(on){
-    if(total(shots())<=0){ playing=false; btnPlay.textContent="▶"; return; }
-    last=performance.now(); raf=requestAnimationFrame(tick);
-    audioStart();
-  }else{
-    if(raf){ cancelAnimationFrame(raf); raf=0; }
-    audioStop(); render();
-  }
-}
-btnPlay.onclick=()=>setPlaying(!playing);
-btnLoop.onclick=()=>{ loop=!loop; btnLoop.setAttribute("aria-pressed",String(loop)); };
-function jump(di){
-  const sh=shots(); if(!sh.length) return;
-  const L=locate(sh,Math.min(pt,total(sh)-0.0001));
-  let i=L.i+di;
-  if(i<0) i=loop?sh.length-1:0;
-  if(i>=sh.length) i=loop?0:sh.length-1;
-  let acc=0; for(let k=0;k<i;k++) acc+=sh[k].dur;
-  pt=acc; if(playing) audioStart(); render();
-}
-btnPrev.onclick=()=>jump(-1);
-btnNext.onclick=()=>jump(1);
-
-/* ---- audio: play the loaded track in sync ---- */
-let PA=null, srcN=null, gainN=null;
-function audioStart(){
-  if(!AUD_BUF) return;
-  const ACx=window.AudioContext||window.webkitAudioContext; if(!ACx) return;
-  try{
-    PA=PA||new ACx();
-    if(PA.state==="suspended") PA.resume();
-    audioStop();
-    if(pt>=AUD_BUF.duration) return;      /* timeline longer than the track: silence past the end */
-    gainN=gainN||PA.createGain(); gainN.connect(PA.destination);
-    gainN.gain.value=muted?0:0.9;
-    srcN=PA.createBufferSource(); srcN.buffer=AUD_BUF;
-    srcN.connect(gainN); srcN.start(0,pt);
-  }catch(_){}
-}
-function audioStop(){ if(srcN){ try{srcN.stop();}catch(_){ } try{srcN.disconnect();}catch(_){ } srcN=null; } }
-window.__spAudioStop=()=>{ audioStop(); };
-btnMute.onclick=()=>{ muted=!muted; if(gainN) gainN.gain.value=muted?0:0.9;
-  btnMute.textContent=muted?"♪̸":"♪"; btnMute.setAttribute("aria-pressed",String(muted)); };
-
-/* ---- reactions to the outside world ---- */
-window.__spPlayFrom0=()=>{                     /* preset chosen: show the cut, now */
-  if(!inSeq) return;
-  pt=0; curIdx=-1;
-  if(playing){ audioStart(); render(); } else setPlaying(true);
-};
-window.__spRefresh=()=>{                       /* TL or audio changed */
-  const T=total(shots());
-  if(pt>T) pt=Math.max(0,T);
-  btnMute.hidden=!AUD_BUF;
-  cards=null; curIdx=-1;                                   /* force HUD + highlight rebuild */
-  buildProg();
-  if(inSeq) render();
-};
-/* every drawTL (add/remove/reorder/duration) refreshes the player */
-const _dtl=drawTL;
-drawTL=function(){ _dtl.apply(this,arguments); window.__spRefresh(); };
-
-const prevOnView=window.__onView;
-window.__onView=m=>{
-  if(prevOnView) prevOnView(m);
-  inSeq=(m==="seq");
-  if(inSeq){ window.__spRefresh(); render(); }
-  else setPlaying(false);
-};
-const prevRepaint=window.__repaint;
-window.__repaint=()=>{ if(prevRepaint) prevRepaint();
-  if(inSeq && !playing) render(); };
-
-/* keyboard playground: space = play/pause, ←/→ = shot prev/next */
-document.addEventListener("keydown",e=>{
-  if(!inSeq) return;
-  const tg=e.target && e.target.tagName;
-  if(tg==="INPUT"||tg==="TEXTAREA"||tg==="SELECT") return;
-  if(e.key===" "){ setPlaying(!playing); e.preventDefault(); }
-  else if(e.key==="ArrowLeft"){ jump(-1); e.preventDefault(); }
-  else if(e.key==="ArrowRight"){ jump(1); e.preventDefault(); }
-});
-
-buildProg();
-})();
 
 /* ---------------- PDF via the print dialog ----------------
    No second CDN: the print stylesheet strips the tool and leaves the shot
@@ -3686,7 +3024,6 @@ if(document.getElementById("sPdf")) document.getElementById("sPdf").onclick=func
   h+='</div>';
   sheet.innerHTML=h;
   document.body.appendChild(sheet);
-  if(window.__i18nApply) window.__i18nApply(sheet);   /* PDF in the active language */
   const clean=()=>{ const el=document.querySelector(".printsheet"); if(el) el.remove(); };
   if(window.onafterprint!==undefined) window.addEventListener("afterprint",clean,{once:true});
   else setTimeout(clean,1500);
@@ -3727,8 +3064,7 @@ Object.keys(PRESETS).forEach((k,i)=>{
   const b=document.createElement("button"); b.className="cbtn"+(i===0?" pri":""); b.type="button";
   b.textContent=PRESETS[k].label;
   b.onclick=()=>{ TL=PRESETS[k].ids.map(id=>({id:id,img:null,selected:false,dur:B(id)?B(id)[3]:0}));
-    [...sPre.children].forEach(x=>x.classList.toggle("pri",x===b)); drawTL();
-    if(window.__spPlayFrom0) window.__spPlayFrom0(); };
+    [...sPre.children].forEach(x=>x.classList.toggle("pri",x===b)); drawTL(); };
   sPre.appendChild(b);
 });
 document.getElementById("sClear").onclick=()=>{ TL=[]; drawTL(); };
@@ -4391,142 +3727,5 @@ filter();
 /* mode switch lives in its own script — see #modeswitch-boot */
 })();
 </script>
-
-<script id="i18n">
-/* ================= i18n · IT / EN =================
-   Exact-match text-node translation with a MutationObserver so dynamically
-   rendered content (verdicts, axis notes, glossary cards, print sheet) is
-   translated the instant it appears. Switching back to IT restores the
-   original node values from a live map. */
-(function(){
-"use strict";
-const M={"Lunghezza focale": "Focal length", "Determina compressione e campo visivo. Provala dal vivo nel Banco ottico.": "Sets compression and field of view. Try it live in the optical bench.", "Apertura": "Aperture", "Quanto è aperto il diaframma: controlla insieme la luce che entra e la profondità di campo.": "How open the iris is: controls incoming light and depth of field at once.", "Obiettivo a focale fissa (più nitido e luminoso) o a focale variabile (più versatile).": "Fixed focal length lens (sharper, faster) or variable focal length (more versatile).", "Anamorfico": "Anamorphic", "Ottica che comprime l'immagine: dà flare orizzontali e bokeh ovali, la firma del cinema.": "A lens that squeezes the image: horizontal flares and oval bokeh, the signature of cinema.", "Distorsione": "Distortion", "Curvatura delle linee ai bordi, tipica dei grandangoli spinti. L'AI la gestisce male.": "Curved lines at the edges, typical of extreme wide angles. AI handles it badly.", "Profondità di campo": "Depth of field", "La fascia a fuoco davanti e dietro il soggetto.": "The in-focus band in front of and behind the subject.", "La resa delle luci sfocate fuori fuoco. La forma rivela la qualità dell'obiettivo.": "How out-of-focus lights render. Their shape reveals the quality of the lens.", "Spostare il fuoco da un piano all'altro dentro la stessa inquadratura.": "Shifting focus from one plane to another inside the same shot.", "Riprese ravvicinatissime: la superficie diventa paesaggio e si legge la qualità costruttiva.": "Extreme close-ups: the surface becomes a landscape and build quality shows.", "Sensibilità del sensore / tempo di esposizione. Con l'apertura formano il triangolo espositivo.": "Sensor sensitivity / exposure time. Together with aperture they form the exposure triangle.", "Fotogrammi al secondo. Determina fluidità e possibilità di slow-motion.": "Frames per second. Determines smoothness and slow-motion headroom.", "Profilo di ripresa piatto che conserva più informazione per il grading successivo.": "A flat capture profile that preserves more information for later grading.", "Parallasse": "Parallax", "I piani scorrono a velocità diverse quando la camera trasla: è l'indizio di profondità più forte.": "Planes slide at different speeds when the camera travels: the strongest depth cue there is.", "La camera avanza fisicamente verso il soggetto: tensione crescente, prospettiva invariata.": "The camera physically moves toward the subject: rising tension, unchanged perspective.", "Rotazione sul posto, orizzontale o verticale. La camera non trasla: nessuna parallasse.": "Rotation in place, horizontal or vertical. The camera doesn't travel: no parallax.", "Orbita": "Orbit", "La camera gira attorno al soggetto rivelandone progressivamente i volumi.": "The camera circles the subject, progressively revealing its volumes.", "Zoom e carrello opposti: il soggetto resta identico, lo spazio dietro si dilata.": "Zoom and dolly in opposite directions: the subject stays identical, the space behind stretches.", "Ripresa stabilizzata / ripresa a mano libera, con la sua vibrazione naturale.": "Stabilized shooting / handheld shooting, with its natural vibration.", "Regola dei terzi": "Rule of thirds", "Dividere il quadro in terzi e posizionare il soggetto sulle linee o sugli incroci.": "Divide the frame into thirds and place the subject on the lines or intersections.", "Sezione aurea": "Golden ratio", "Proporzione classica per una composizione naturalmente armoniosa.": "The classic proportion for a naturally harmonious composition.", "Simmetria / Equilibrio": "Symmetry / Balance", "Come è distribuito il peso visivo dentro il quadro.": "How visual weight is distributed inside the frame.", "Griglia / Baseline": "Grid / Baseline", "Struttura invisibile che allinea gli elementi: eredità del graphic design applicata al frame.": "An invisible structure aligning the elements: graphic design heritage applied to the frame.", "Spazio negativo": "Negative space", "Il vuoto attorno al soggetto: dà respiro e lascia posto a logo o testo.": "The emptiness around the subject: it gives breathing room and makes space for logo or copy.", "Lo spazio lasciato sopra la testa o la cima del soggetto.": "The space left above the subject's head or top edge.", "Spazio davanti alla direzione di sguardo o di movimento del soggetto.": "Space ahead of the subject's gaze or direction of movement.", "La zona sicura entro cui tenere testi ed elementi importanti.": "The safe zone within which to keep text and key elements.", "Linee guida": "Leading lines", "Linee della scena che accompagnano l'occhio verso il soggetto.": "Lines in the scene that walk the eye toward the subject.", "Cornice nella cornice": "Frame within a frame", "Incorniciare il soggetto con elementi presenti nella scena stessa.": "Framing the subject with elements found in the scene itself.", "La direzione dello sguardo del soggetto, da rispettare nei raccordi.": "The direction of the subject's gaze, to be respected across cuts.", "Gerarchia visiva": "Visual hierarchy", "L'ordine in cui l'occhio incontra gli elementi: si progetta, non si spera.": "The order in which the eye meets the elements: you design it, you don't hope for it.", "Piani di profondità": "Depth planes", "Primo piano, piano medio e sfondo: i tre strati che costruiscono lo spazio.": "Foreground, midground and background: the three layers that build the space.", "La proporzione del quadro: 16:9, 2.39:1 cinematografico, 9:16 verticale.": "The frame's proportion: 16:9, 2.39:1 cinematic, 9:16 vertical.", "Scala del soggetto": "Subject scale", "Da campo lunghissimo a macro: quanto spazio occupa il soggetto nel quadro.": "From extreme wide to macro: how much of the frame the subject occupies.", "Raccolta di riferimenti che fissa il tono prima di produrre qualsiasi cosa.": "A collection of references that locks the tone before producing anything.", "Le regole visive che tengono insieme tutto: palette, tipografia, materiali, luce.": "The visual rules that hold everything together: palette, typography, materials, light.", "La sintesi percepita di tutte le scelte visive: ciò che resta se descrivi il video a voce.": "The perceived sum of every visual choice: what remains if you describe the video out loud.", "La sorgente dominante che definisce l'esposizione e la direzione delle ombre.": "The dominant source defining exposure and the direction of the shadows.", "Schiarisce le ombre della key: controlla il contrasto, non la direzione.": "Lifts the key's shadows: it controls contrast, not direction.", "Colpisce il soggetto da dietro e ne accende il bordo: lo stacca dal fondo.": "Hits the subject from behind and lights its edge: separates it from the background.", "Sorgente visibile dentro l'inquadratura: lampada, schermo, insegna.": "A visible source inside the frame: a lamp, a screen, a sign.", "Rim laterale ravvicinato che scolpisce un lato preciso del soggetto.": "A close side rim that sculpts one precise side of the subject.", "Dura vs morbida": "Hard vs soft", "Sorgente piccola = ombre nette. Sorgente grande = transizioni morbide e avvolgenti.": "Small source = crisp shadows. Large source = soft, wrapping transitions.", "La rapidità con cui la luce cade nel buio: è ciò che crea il fondo nero pieno.": "How quickly light falls into darkness: it's what creates the solid black backdrop.", "Radente": "Grazing", "Sfiora la superficie a filo: ogni micro-rilievo proietta la propria ombra. Rivela la texture.": "Skims the surface at a razor angle: every micro-relief casts its own shadow. It reveals texture.", "Rapporto di contrasto": "Contrast ratio", "Il divario tra key e fill: decide se l'immagine è drammatica o descrittiva.": "The gap between key and fill: decides whether the image is dramatic or descriptive.", "Luce motivata": "Motivated light", "Luce che sembra provenire da una fonte reale presente nella scena.": "Light that appears to come from a real source present in the scene.", "Tre punti": "Three point", "Key + fill + rim: lo schema di base da cui derivano quasi tutti gli altri.": "Key + fill + rim: the base scheme almost every other one derives from.", "Il fondo è luce, il soggetto è nero pieno: resta solo la sagoma.": "The background is light, the subject solid black: only the outline remains.", "Poca luce, molto nero, contrasto alto: il linguaggio del prodotto premium.": "Little light, lots of black, high contrast: the language of premium product.", "Luce diffusa e abbondante, ombre minime: pulito, chiaro, commerciale.": "Abundant diffuse light, minimal shadows: clean, bright, commercial.", "Softbox / Diffusione": "Softbox / Diffusion", "Allarga la sorgente per ammorbidire le ombre.": "Enlarges the source to soften the shadows.", "Bandiera / Gobo": "Flag / Gobo", "Blocca selettivamente la luce per creare ombre disegnate o proteggere l'obiettivo.": "Selectively blocks light to draw shadows or protect the lens.", "Riflettore / Bounce": "Reflector / Bounce", "Rimanda la luce sulle ombre senza aggiungere una sorgente.": "Bounces light back into the shadows without adding a source.", "Gelatina": "Gel", "Filtro colorato che cambia temperatura o tinta di una sorgente.": "A colored filter that changes a source's temperature or tint.", "Temperatura colore": "Color temperature", "Quanto una luce è calda o fredda, misurata in kelvin.": "How warm or cool a light is, measured in kelvin.", "Correzione colore": "Color correction", "Portare l'immagine a una base neutra e coerente: bilanciamento, esposizione, contrasto.": "Bringing the image to a neutral, consistent base: balance, exposure, contrast.", "Bilanciamento del bianco": "White balance", "Regolare il bianco perché non tenda al caldo o al freddo.": "Adjusting whites so they don't drift warm or cool.", "Esposizione": "Exposure", "La luminosità complessiva dell'immagine.": "The overall brightness of the image.", "Contrasto": "Contrast", "La distanza tra le zone più chiare e le più scure.": "The distance between the brightest and darkest zones.", "Uniformare il colore tra inquadrature diverse della stessa scena.": "Making the color consistent across different shots of the same scene.", "Dare il look creativo finale con colore e contrasto. È l'atmosfera del pezzo.": "Giving the final creative look with color and contrast. It's the mood of the piece.", "Tabella che rimappa i colori applicando un intero look in un colpo solo.": "A table that remaps colors, applying an entire look in one move.", "Schiacciare i neri / addolcire il passaggio verso le alte luci.": "Crushing the blacks / softening the transition into the highlights.", "Tinte diverse su ombre e alte luci: il trucco dietro molti look cinematografici.": "Different tints on shadows and highlights: the trick behind many cinematic looks.", "Controllo separato di ombre / mezzitoni / alte luci.": "Separate control of shadows / midtones / highlights.", "Curve": "Curves", "Rimodellare tono e colore con la massima precisione.": "Reshaping tone and color with maximum precision.", "Isolare un singolo colore per tonalità/saturazione/luminosità e modificarlo.": "Isolating a single color by hue/saturation/luminance and modifying it.", "Maschera mobile che applica il grading solo a una zona del quadro.": "A movable mask that applies the grade to just one area of the frame.", "Strumenti per leggere oggettivamente luminosità e colore, senza fidarsi dell'occhio.": "Tools that read brightness and color objectively, without trusting the eye.", "Tonalità": "Hue", "La posizione di un colore sulla ruota cromatica.": "A color's position on the color wheel.", "Saturazione": "Saturation", "L'intensità complessiva dei colori.": "The overall intensity of the colors.", "Alza la saturazione dei colori spenti risparmiando quelli già vividi.": "Boosts the saturation of dull colors while sparing the already vivid ones.", "Spazio colore": "Color space", "La gamma di colori disponibili in un dato standard, es. Rec.709 per gli schermi.": "The range of colors available in a given standard, e.g. Rec.709 for screens.", "Gradini visibili in una sfumatura, causati da poca profondità di colore.": "Visible steps in a gradient, caused by low color depth.", "Gamma dinamica estesa o standard: cambia quanto possono essere brillanti le alte luci.": "Extended or standard dynamic range: changes how bright the highlights can get.", "Stacco": "Cut", "Passaggio netto da un'inquadratura all'altra. L'unità base del montaggio.": "A clean switch from one shot to the next. The base unit of editing.", "Stacco tra due inquadrature quasi identiche: crea un salto temporale volutamente visibile.": "A cut between two near-identical shots: a deliberately visible jump in time.", "Stacco che lega due scene per forma o movimento condiviso: il taglio sparisce all'occhio.": "A cut binding two scenes through shared shape or motion: the cut disappears to the eye.", "Lo stacco cade dentro un movimento, che prosegue senza interruzione nell'inquadratura dopo.": "The cut lands inside a movement, which continues seamlessly into the next shot.", "Stacco d'appoggio": "Cutaway", "Breve dettaglio che si allontana dall'azione principale per poi tornarci.": "A brief detail stepping away from the main action, then returning to it.", "Montaggio alternato": "Cross-cutting", "Alterna due azioni parallele per costruire tensione o confronto.": "Alternates two parallel actions to build tension or comparison.", "Raccordo": "Continuity", "Coerenza di posizione, luce e direzione tra un'inquadratura e la successiva.": "Consistency of position, light and direction from one shot to the next.", "Dissolvenza incrociata": "Cross dissolve", "Una scena sfuma dentro l'altra sovrapponendosi per un istante.": "One scene fades into the next, overlapping for an instant.", "Apertura o chiusura graduale da (o verso) il nero.": "A gradual opening or closing from (or toward) black.", "Panoramica velocissima che diventa scia: copre la giunzione tra due scene.": "A lightning-fast pan that becomes a streak: it covers the join between two scenes.", "Rampa di velocità": "Speed ramp", "Cambio di velocità dentro la stessa inquadratura: da normale a slow-motion e ritorno.": "A speed change inside the same shot: from normal to slow-motion and back.", "Rimappatura non lineare della velocità lungo tutta la clip.": "Non-linear remapping of speed along the whole clip.", "Fermo immagine": "Freeze frame", "Blocco su un singolo fotogramma mentre il tempo si ferma.": "Locking on a single frame while time stops.", "Ritmo": "Rhythm", "La velocità percepita del montato, guidata dalla durata dei singoli tagli.": "The perceived speed of the edit, driven by the length of individual cuts.", "Sync al beat": "Beat sync", "Tagliare a tempo di musica, allineando gli stacchi ai colpi del brano.": "Cutting in time with the music, aligning cuts to the beats.", "Il picco di energia del brano dove parte la sequenza clou del montaggio.": "The track's energy peak where the edit's key sequence launches.", "L'audio della scena successiva entra prima delle sue immagini.": "The next scene's audio enters before its images.", "L'audio della scena precedente prosegue sopra le immagini della successiva.": "The previous scene's audio carries on over the next one's images.", "Materiale di contorno usato per coprire tagli o arricchire il racconto.": "Supporting footage used to cover cuts or enrich the story.", "Il primo montaggio grezzo: struttura giusta, rifiniture zero.": "The first raw edit: right structure, zero polish.", "Il montaggio è congelato: da qui in poi si tocca solo colore, audio e VFX.": "The edit is frozen: from here on only color, sound and VFX get touched.", "Fondere più elementi — riprese, CGI, matte — in un'unica immagine credibile.": "Blending multiple elements — footage, CGI, mattes — into one believable image.", "Canale alpha": "Alpha channel", "Il canale che memorizza la trasparenza di un'immagine.": "The channel that stores an image's transparency.", "Come il colore è combinato con l'alpha ai bordi. Sbagliarlo dà aloni scuri o chiari.": "How color combines with alpha at the edges. Get it wrong and you get dark or bright halos.", "Ritagliare a mano il contorno di un soggetto, fotogramma per fotogramma.": "Hand-tracing a subject's outline, frame by frame.", "Eliminare uno sfondo di colore uniforme (green screen) per isolare il soggetto.": "Removing a uniform color background (green screen) to isolate the subject.", "Togliere lo sversamento di verde del green screen sui bordi del soggetto.": "Removing the green screen's spill from the subject's edges.", "Maschera che definisce quali parti dell'immagine sono visibili e quali nascoste.": "A mask defining which parts of the image are visible and which are hidden.", "Seguire il movimento di un punto per agganciarvi altri elementi.": "Following a point's movement to attach other elements to it.", "Ricostruire in 3D il movimento della camera reale per integrarci la CGI.": "Reconstructing the real camera's movement in 3D to integrate CGI.", "Ripresa 'pulita' della scena senza il soggetto, base per le cancellazioni.": "A 'clean' take of the scene without the subject, the base for removals.", "Rimuovere elementi indesiderati: cavi, rig, riflessi, marchi.": "Removing unwanted elements: cables, rigs, reflections, logos.", "Cancellare i supporti fisici — aste, sostegni — presenti in ripresa.": "Erasing the physical supports — poles, mounts — present in the shot.", "Sfondo dipinto o digitale che estende o sostituisce completamente l'ambiente.": "A painted or digital backdrop that extends or fully replaces the environment.", "Ampliare digitalmente un set reale oltre i suoi limiti fisici.": "Digitally extending a real set beyond its physical limits.", "Copia 3D di un oggetto o persona, per le scene difficili o impossibili.": "A 3D copy of an object or person, for the hard or impossible scenes.", "Il modo in cui due livelli si combinano matematicamente tra loro.": "How two layers combine mathematically with each other.", "Scurisce moltiplicando i valori. Utile per ombre e per incastrare elementi nel fondo.": "Darkens by multiplying values. Useful for shadows and seating elements into the background.", "Schiarisce. Ideale per luci, bagliori e fumo su fondo scuro.": "Brightens. Ideal for lights, glows and smoke on a dark background.", "Aumenta il contrasto combinando multiply e screen in un colpo solo.": "Boosts contrast by combining multiply and screen in one move.", "Somma i valori luminosi. Perfetto per luci additive e flare.": "Sums the luminous values. Perfect for additive lights and flares.", "Contrasto morbido, come una luce diffusa proiettata sul livello sotto.": "Gentle contrast, like a diffuse light projected onto the layer below.", "Maschera": "Mask", "Definisce esattamente dove un livello è visibile o trasparente.": "Defines exactly where a layer is visible or transparent.", "Usare la luminosità di un livello come maschera di un altro.": "Using one layer's brightness as another layer's mask.", "Ammorbidire il bordo di una maschera o di una selezione.": "Softening the edge of a mask or selection.", "Opacità": "Opacity", "Quanto un livello è trasparente rispetto a quello sottostante.": "How transparent a layer is against the one beneath it.", "Bagliori generati dalla luce che colpisce direttamente l'obiettivo.": "Glows produced by light hitting the lens directly.", "Infiltrazioni di luce sul bordo del fotogramma: look analogico.": "Light seeping in at the frame's edge: an analog look.", "Alone luminoso morbido attorno alle alte luci.": "A soft luminous halo around the highlights.", "Alone rossastro attorno alle luci forti: firma tipica della pellicola.": "A reddish halo around strong lights: film's signature artifact.", "Aberrazione cromatica": "Chromatic aberration", "Frange di colore ai bordi ad alto contrasto.": "Color fringing along high-contrast edges.", "Grana": "Grain", "Texture fine che imita la pellicola e toglie l'aspetto troppo pulito del digitale.": "Fine texture that mimics film and removes digital's too-clean look.", "Vignettatura": "Vignette", "Scurimento graduale ai bordi che concentra l'occhio al centro.": "Gradual darkening at the edges that pulls the eye to the center.", "Effetti pratici": "Practical FX", "Effetti reali realizzati sul set: fumo, scintille, pioggia, rotture.": "Real effects done on set: smoke, sparks, rain, breakage.", "Atmosfere": "Atmospherics", "Foschia sospesa che rende visibili i raggi e aggiunge profondità all'aria.": "Suspended haze that makes light rays visible and adds depth to the air.", "Fotogramma chiave che fissa un valore. Il software calcola tutti quelli in mezzo.": "A key frame that pins a value. The software computes everything in between.", "I fotogrammi intermedi generati automaticamente tra due keyframe.": "The intermediate frames generated automatically between two keyframes.", "Interpolazione": "Interpolation", "Generare i valori intermedi tra due stati noti. È il principio esatto dell'interpolazione A→B.": "Generating the values between two known states. The exact principle of A→B interpolation.", "Interpolazione lineare / sferica tra due valori o due rotazioni.": "Linear / spherical interpolation between two values or two rotations.", "Vedere in trasparenza i fotogrammi vicini per animare con coerenza.": "Seeing nearby frames in transparency to animate with consistency.", "Come un valore accelera e rallenta. È ciò che separa il movimento vivo da quello meccanico.": "How a value accelerates and slows. It's what separates living motion from mechanical motion.", "Curve di animazione": "Animation curves", "La rappresentazione grafica della velocità: si edita la curva, non il valore.": "The graphical representation of speed: you edit the curve, not the value.", "Anticipazione": "Anticipation", "Un piccolo movimento contrario prima dell'azione: la prepara e la rende leggibile.": "A small counter-movement before the action: it prepares it and makes it readable.", "Il movimento supera il bersaglio e rientra: dà peso ed elasticità.": "The movement passes the target and comes back: it adds weight and elasticity.", "Gli elementi partono sfalsati invece che insieme: trasforma una lista in una cascata.": "Elements start offset instead of together: it turns a list into a cascade.", "Trasformare con continuità una forma in un'altra, senza stacco.": "Continuously transforming one shape into another, without a cut.", "Pose memorizzate di una mesh che si mescolano tra loro per animare o morphare.": "Stored poses of a mesh that blend together to animate or morph.", "Deformare immagine o mesh spostandone i punti di controllo.": "Deforming an image or mesh by moving its control points.", "La scia tra due pose: dà energia ed elasticità ai cambi rapidi.": "The streak between two poses: it gives energy and elasticity to fast changes.", "Analisi del movimento pixel per pixel. Base di molte interpolazioni e slow-motion.": "Pixel-by-pixel motion analysis. The base of many interpolations and slow-motion.", "Fondere fotogrammi adiacenti per morbidezza o per rallentare.": "Blending adjacent frames for smoothness or to slow down.", "Creare fotogrammi nuovi tra quelli esistenti: il cuore dello start/end frame AI.": "Creating new frames between existing ones: the heart of AI start/end frame.", "La sfocatura naturale del movimento: senza, l'animazione sembra a scatti.": "Movement's natural blur: without it, animation looks steppy.", "Il testo che si muove e recita: la tipografia diventa performance.": "Text that moves and performs: typography becomes performance.", "La grafica informativa in basso: nome, ruolo, contesto.": "The informational graphic at the bottom: name, role, context.", "Etichetta che indica un dettaglio del prodotto e lo spiega.": "A label pointing at a product detail and explaining it.", "Transizione grafica": "Graphic transition", "Elementi grafici che coprono lo stacco e trasportano l'occhio.": "Graphic elements that cover the cut and carry the eye across.", "Animazione che si ricongiunge perfettamente: fine e inizio combaciano.": "An animation that rejoins itself perfectly: end and start coincide.", "Rigging 2D": "2D rigging", "Costruire controlli su una grafica piatta per animarla come una marionetta.": "Building controls on flat artwork to animate it like a puppet.", "La geometria di un modello 3D: vertici, spigoli e facce. È lo scheletro di ogni oggetto.": "A 3D model's geometry: vertices, edges and faces. The skeleton of every object.", "Poligono": "Polygon", "La faccia elementare della mesh. Il loro insieme forma la superficie visibile.": "The mesh's elementary face. Together they form the visible surface.", "Topologia": "Topology", "Come sono disposti i poligoni. Una buona topologia deforma pulito e si texturizza senza stiramenti.": "How polygons are laid out. Good topology deforms cleanly and textures without stretching.", "La vista della sola struttura a fil di ferro, senza superfici.": "The view of the bare wire structure, without surfaces.", "Modellazione procedurale": "Procedural modeling", "Geometria generata da regole o nodi anziché costruita a mano.": "Geometry generated from rules or nodes rather than built by hand.", "Modellare come fosse creta digitale: forme organiche e dettaglio fine.": "Modeling as if it were digital clay: organic shapes and fine detail.", "Ricostruire una mesh pulita e leggera sopra uno sculpt denso, per renderlo animabile.": "Rebuilding a clean, light mesh over a dense sculpt so it can be animated.", "'Srotolare' la superficie 3D su un piano 2D per applicare le texture senza deformazioni.": "'Unwrapping' the 3D surface onto a 2D plane to apply textures without distortion.", "Immagine applicata alla superficie per darle colore, dettaglio o rilievo apparente.": "An image applied to the surface to give it color, detail or apparent relief.", "Texture che simula rilievo reagendo alla luce, senza aggiungere un solo poligono.": "A texture that fakes relief by reacting to light, without adding a single polygon.", "Bump finge il rilievo con la luce. Displacement sposta davvero la geometria.": "Bump fakes relief with light. Displacement actually moves the geometry.", "Precalcolare luce o dettaglio dentro una texture per alleggerire il render.": "Precomputing light or detail into a texture to lighten the render.", "Il programma che definisce come una superficie appare sotto la luce.": "The program that defines how a surface looks under light.", "Resa fisicamente accurata: il materiale reagisce alla luce come nel mondo reale.": "Physically based rendering: the material reacts to light like in the real world.", "Il colore puro del materiale, privo di qualsiasi luce o ombra.": "The material's pure color, stripped of any light or shadow.", "Quanto la superficie è ruvida o lucida. Controlla la nitidezza dei riflessi.": "How rough or glossy the surface is. Controls the sharpness of reflections.", "Definisce se il materiale si comporta da metallo. Non esistono vie di mezzo fisiche.": "Defines whether the material behaves like metal. Physically, there is no in-between.", "La luce penetra e si diffonde dentro materiali translucidi: pelle, cera, marmo.": "Light enters and scatters inside translucent materials: skin, wax, marble.", "Costruire lo 'scheletro' di controlli che permette di animare un modello.": "Building the 'skeleton' of controls that makes a model animatable.", "Simulazione": "Simulation", "Calcolo fisico automatico di tessuti, fluidi, particelle o corpi rigidi.": "Automatic physical computation of cloth, fluids, particles or rigid bodies.", "Sistema che genera e anima migliaia di elementi: polvere, scintille, fumo.": "A system that spawns and animates thousands of elements: dust, sparks, smoke.", "Dati volumetrici per fumo, nebbia e nuvole con densità e spessore reali.": "Volumetric data for smoke, fog and clouds with real density and thickness.", "Immagine ambientale a 360° che illumina e si riflette sulla scena in modo realistico.": "A 360° environment image that lights and reflects onto the scene realistically.", "Il calcolo del rimbalzo indiretto della luce tra le superfici. Senza, tutto sembra finto.": "Computing light's indirect bounce between surfaces. Without it, everything looks fake.", "Rendering che simula il percorso reale dei raggi di luce. Lento ma fotorealistico.": "Rendering that simulates light rays' real paths. Slow but photorealistic.", "Ombreggiatura di contatto negli incavi e nelle giunzioni tra superfici.": "Contact shading in crevices and where surfaces meet.", "Livelli separati di un render — colore, ombre, riflessi — ricombinati in compositing.": "Separate layers of a render — color, shadows, reflections — recombined in compositing.", "Render istantaneo (game engine) o calcolato a lungo per frame: due filosofie opposte.": "Instant rendering (game engine) or long per-frame computation: two opposite philosophies.", "La costruzione di tutto il paesaggio sonoro non musicale.": "The construction of the entire non-musical soundscape.", "La musica composta o scelta per accompagnare il montato.": "The music composed or chosen to accompany the edit.", "Rumori registrati ad hoc — passi, oggetti — sincronizzati alle immagini.": "Sounds recorded ad hoc — footsteps, objects — synced to the images.", "Il tappeto sonoro dell'ambiente: si nota solo quando manca.": "The environment's sound bed: you only notice it when it's missing.", "Suono in crescendo che costruisce tensione verso un evento.": "A rising sound building tension toward an event.", "Colpo sonoro secco che accenta uno stacco o l'ingresso del logo.": "A sharp sonic hit accenting a cut or the logo's entrance.", "Suono di passaggio, abbinato a whip pan e smear nelle transizioni.": "A passing-by sound, paired with whip pans and smears in transitions.", "Caduta di bassa frequenza che dà peso fisico al drop.": "A low-frequency drop that gives the drop physical weight.", "Ottone grave e dissonante: il suono del trailer moderno.": "Deep, dissonant brass: the sound of the modern trailer.", "Bilanciare i livelli tra musica, effetti e voce perché convivano.": "Balancing levels between music, effects and voice so they coexist.", "La musica si abbassa da sola quando entra la voce o un effetto.": "The music lowers itself when voice or an effect comes in.", "EQ / Riverbero": "EQ / Reverb", "Modellare il timbro e collocare il suono in uno spazio.": "Shaping timbre and placing the sound in a space.", "Il volume percepito normalizzato: ogni piattaforma ha il suo target.": "Normalized perceived volume: every platform has its own target.", "Quanti canali e come si distribuisce il suono nello spazio.": "How many channels and how the sound spreads through space.", "L'algoritmo che comprime il video. Determina qualità, peso e compatibilità.": "The algorithm compressing the video. It determines quality, size and compatibility.", "Contenitore": "Container", "Il file che racchiude video, audio e metadati: MP4, MOV, MKV.": "The file wrapping video, audio and metadata: MP4, MOV, MKV.", "Gli standard di distribuzione: leggeri e universali. H.265 pesa meno a parità di qualità.": "The delivery standards: light and universal. H.265 weighs less at equal quality.", "Codec di montaggio: pesanti ma con qualità intatta e riproduzione fluida.": "Editing codecs: heavy but with intact quality and smooth playback.", "Ogni fotogramma completo (montaggio) o gruppi compressi insieme (distribuzione).": "Every frame complete (editing) or groups compressed together (delivery).", "Quanti dati al secondo. È la leva principale su qualità e peso finale.": "How much data per second. The main lever on quality and final size.", "Bitrate costante o variabile: il secondo spende dati dove servono davvero.": "Constant or variable bitrate: the second spends data where it's truly needed.", "Risoluzione": "Resolution", "Il numero di pixel: 1080p, 4K UHD, 8K. Più alto non significa sempre meglio.": "The pixel count: 1080p, 4K UHD, 8K. Higher doesn't always mean better.", "Quanta informazione colore si conserva. Conta molto se il file verrà ancora lavorato.": "How much color information is kept. Matters a lot if the file will be worked further.", "Quante sfumature per canale: 10 bit evita il banding nei gradienti.": "How many shades per channel: 10-bit avoids banding in gradients.", "H.264, MP4, bitrate moderato: la piattaforma ricomprime comunque tutto.": "H.264, MP4, moderate bitrate: the platform recompresses everything anyway.", "Verticale 9:16": "Vertical 9:16", "Formato mobile a schermo pieno: il soggetto va ricomposto, non solo ritagliato.": "Full-screen mobile format: the subject must be recomposed, not just cropped.", "Standard rigidi imposti dall'emittente: risoluzione, loudness, safe area.": "Strict standards imposed by the broadcaster: resolution, loudness, safe area.", "Il pacchetto per la proiezione in sala: spazio colore e struttura dedicati.": "The package for theatrical projection: dedicated color space and structure.", "Master d'archivio": "Archive master", "La copia di massima qualità da cui deriverai ogni versione futura.": "The highest-quality copy every future version will derive from.", "Copia leggera per montare fluido, sostituita dal master in export.": "A lightweight copy for smooth editing, swapped for the master on export.", "Generare un video partendo da un'immagine di riferimento.": "Generating a video starting from a reference image.", "Generare un video dal solo prompt testuale, senza immagine di partenza.": "Generating a video from a text prompt alone, with no starting image.", "Le istruzioni testuali che descrivono cosa e come generare.": "The text instructions describing what to generate and how.", "Numero che fissa la casualità. Stesso seed e stesso prompt = risultato ripetibile.": "A number that pins the randomness. Same seed and same prompt = repeatable result.", "Un singolo tentativo di generazione. Ogni take consuma crediti, quindi si pianifica prima.": "A single generation attempt. Every take burns credits, so you plan first.", "Quanti passaggi l'AI compie per 'pulire' e definire progressivamente l'immagine.": "How many passes the AI runs to progressively 'clean' and define the image.", "I due fotogrammi che guidano l'interpolazione: il cuore del workflow start/end frame.": "The two frames guiding the interpolation: the heart of the start/end frame workflow.", "Interpolazione AI": "AI interpolation", "L'AI inventa tutti i fotogrammi tra lo start e l'end frame.": "The AI invents every frame between the start and end frame.", "Cosa NON deve comparire: spesso più efficace che descrivere ciò che vuoi.": "What must NOT appear: often more effective than describing what you want.", "Plate di riferimento": "Reference plate", "La ripresa reale usata come base della generazione.": "The real footage used as the base of the generation.", "Il montaggio delle plate in un'unica immagine che alimenta la generazione.": "The plates assembled into a single image that feeds the generation.", "Coerenza temporale": "Temporal coherence", "Quanto l'output resta stabile nel tempo, senza saltellare tra un frame e l'altro.": "How stable the output stays over time, without jittering between frames.", "Allucinazione": "Hallucination", "L'AI inventa dettagli errati o incoerenti. Spesso per troppo delta tra frame A e B.": "The AI invents wrong or inconsistent detail. Often from too much delta between frames A and B.", "Sfarfallio": "Flicker", "Variazioni indesiderate di luce o dettaglio tra fotogrammi consecutivi.": "Unwanted variations of light or detail between consecutive frames.", "Aumentare la risoluzione dell'output cercando di mantenere il dettaglio.": "Raising the output's resolution while trying to preserve detail.", "Pre-produzione": "Pre-production", "Tutto ciò che accade prima di girare: brief, moodboard, storyboard, lista shot.": "Everything that happens before shooting: brief, moodboard, storyboard, shot list.", "Il video disegnato prima di esistere: risolve i problemi quando costano ancora zero.": "The video drawn before it exists: it solves problems while they still cost nothing.", "L'elenco esatto di cosa si gira: senza, si torna sempre a casa con un buco.": "The exact list of what gets shot: without it, you always come home with a gap.", "Post-produzione": "Post-production", "Montaggio, VFX, color, sound: dove il materiale diventa il film.": "Editing, VFX, color, sound: where the material becomes the film.", "Nomenclatura": "Naming convention", "Regole fisse per i nomi file. Noioso finché non cerchi qualcosa tra mille asset.": "Fixed rules for file names. Boring until you're hunting through a thousand assets.", "Ogni modifica è una versione nuova: mai sovrascrivere, mai 'finale_definitivo_2'.": "Every change is a new version: never overwrite, never 'final_definitive_2'.", "Dove vivono i file e chi può toccarli. Il collante di ogni progetto a più mani.": "Where the files live and who may touch them. The glue of every multi-hand project.", "Backup 3-2-1": "3-2-1 backup", "Tre copie, due supporti, una fuori sede. La regola che ti salva una volta sola.": "Three copies, two media, one off-site. The rule that saves you exactly once.", "Il giro di feedback strutturato: chi commenta, su cosa, entro quando.": "The structured feedback loop: who comments, on what, by when.", "Annotazione": "Annotation", "Commenti ancorati a un fotogramma preciso: elimina l'ambiguità del feedback a voce.": "Comments anchored to a precise frame: it kills the ambiguity of spoken feedback.", "Round di revisione": "Review round", "Un ciclo completo di feedback e correzioni. Vanno contati e messi a contratto.": "One full cycle of feedback and fixes. Count them and put them in the contract.", "La lista esatta di cosa si consegna: formati, versioni, durate, lingue.": "The exact list of what gets delivered: formats, versions, durations, languages.", "Il passaggio di consegne tra fasi o persone: il momento in cui si perde il contesto.": "The handover between phases or people: the moment context gets lost.", "Archiviazione": "Archiving", "Cosa si conserva a lungo termine e in che forma, per poterlo riaprire tra due anni.": "What is kept long-term and in what form, so it can be reopened in two years.", "Luce": "Light", "Rim laterale": "Side rim", "Un taglio di luce sul bordo separa il prodotto dal fondo senza illuminarlo: resta massa scura con un profilo incandescente.": "A cut of light along the edge separates the product from the background without lighting it: it stays a dark mass with an incandescent profile.", "Due tagli opposti scolpiscono il volume da entrambi i lati e lasciano il centro in ombra: la forma si legge, il dettaglio no.": "Two opposing cuts sculpt the volume from both sides and leave the center in shadow: the shape reads, the detail doesn't.", "Dall'alto": "From above", "Cade dall'alto e disegna la superficie superiore: fa da luce museale, autorevole e statica.": "Falls from above and draws the top surface: a museum light, authoritative and static.", "Dal basso": "From below", "Innaturale per definizione: l'occhio la registra come minaccia o come tecnologia. Usala consapevolmente.": "Unnatural by definition: the eye registers it as threat or as technology. Use it deliberately.", "Controluce": "Backlight", "Il fondo è luce, il prodotto è nero pieno: resta solo la sagoma. Massima leggibilità della forma, zero materiale.": "The background is light, the product solid black: only the outline remains. Maximum shape legibility, zero material.", "Sfiora la superficie a filo: ogni micro-rilievo proietta la propria ombra. È la luce che rivela la texture.": "Skims the surface at a razor angle: every micro-relief casts its own shadow. It's the light that reveals texture.", "Key, fill e back: lo schema classico. Volume leggibile, ombre controllate, nessuna sorpresa — è la base da cui deviare.": "Key, fill and back: the classic scheme. Readable volume, controlled shadows, no surprises — the baseline to deviate from.", "Softbox ampio e avvolgente: materiale pulito, riflessi morbidi, zero dramma. La luce da catalogo.": "A wide, wrapping softbox: clean material, soft reflections, zero drama. Catalog light.", "Cono stretto con caduta netta: isola il prodotto nel buio. Teatrale — il resto della scena sparisce.": "A tight cone with a sharp falloff: it isolates the product in darkness. Theatrical — the rest of the scene vanishes.", "Penombra": "Half-light", "Transizione luce-ombra lunghissima: niente bordi, tutto respira. Elegante, ma il volume si legge appena.": "An endless light-to-shadow transition: no edges, everything breathes. Elegant, but the volume barely reads.", "Luce dura": "Hard light", "Sorgente piccola, ombra tagliata col rasoio. Grafica e aggressiva: mostra ogni difetto della superficie.": "A tiny source, razor-cut shadow. Graphic and aggressive: it shows every flaw in the surface.", "Statica": "Static", "Nessun movimento: tutta l'attenzione va alla forma e alla luce. Il frame più stabile in generazione.": "No movement: all attention goes to shape and light. The most stable frame in generation.", "Avanza lentamente: costruisce tensione senza cambiare prospettiva. Delta piccolo, ottimo per l'interpolazione.": "Advances slowly: builds tension without changing perspective. Small delta, great for interpolation.", "Gira attorno al prodotto svelandone i lati: massima informazione volumetrica, ma delta ampio da gestire a passi corti.": "Circles the product revealing its sides: maximum volumetric information, but a wide delta to manage in short steps.", "Carrello": "Truck", "Trasla di lato: i piani scorrono a velocità diverse e nasce la parallasse. È l'indizio di profondità più forte.": "Slides sideways: planes scroll at different speeds and parallax is born. The strongest depth cue.", "Gru": "Crane", "Scende o sale rivelando progressivamente: il prodotto entra nel quadro dall'alto, gesto d'apertura per eccellenza.": "Descends or rises, revealing progressively: the product enters frame from above, the opening gesture par excellence.", "Il prodotto resta identico, lo spazio dietro respira. Effetto forte ma difficile da generare pulito: costruiscilo A→B.": "The product stays identical, the space behind it breathes. Strong effect but hard to generate clean: build it A→B.", "La camera ruota sul proprio asse: lo sfondo scorre, la distanza no. Movimento economico, l'AI lo regge bene.": "The camera rotates on its own axis: the background scrolls, the distance doesn't. A cheap move, the AI handles it well.", "A mano": "Handheld", "Micro-oscillazioni continue: dà presenza fisica e urgenza. In generazione introduce rumore — usalo corto.": "Continuous micro-oscillations: adds physical presence and urgency. In generation it introduces noise — keep it short.", "Lente": "Lens", "Grandangolo estremo: lo spazio esplode, i bordi si curvano, il vicino diventa gigante. Drammatico e infedele.": "Extreme wide angle: space explodes, edges curve, what's near becomes giant. Dramatic and unfaithful.", "Ampio ma onesto: contesto e prodotto insieme senza distorsioni evidenti. Il reportage.": "Wide but honest: context and product together without obvious distortion. The reportage lens.", "La resa più vicina all'occhio: nessuna opinione prospettica. Il punto neutro da cui misurare tutto il resto.": "The rendering closest to the eye: no perspective opinion. The neutral point everything else is measured from.", "Comincia a comprimere: il soggetto si stacca, il fondo si avvicina. Il ritratto del prodotto.": "Starts to compress: the subject detaches, the background moves closer. The product's portrait lens.", "Compressione forte: piani schiacciati, sfondo che sale addosso al soggetto. Isola come nient'altro.": "Strong compression: flattened planes, a background pressing onto the subject. Isolates like nothing else.", "Distanza minima di messa a fuoco ridicola: la texture diventa paesaggio. Profondità di campo quasi nulla.": "A ridiculous minimum focus distance: texture becomes landscape. Almost no depth of field.", "Piano di fuoco inclinato: decidi tu cosa resta nitido, indipendentemente dalla distanza. Il controllo totale.": "A tilted focal plane: you decide what stays sharp, regardless of distance. Total control.", "Fuoco": "Focus", "Tutto a fuoco": "All in focus", "Nitido dal primo all'ultimo piano: descrittivo, tecnico, catalogo. L'occhio deve trovare il soggetto da solo.": "Sharp from first plane to last: descriptive, technical, catalog. The eye must find the subject on its own.", "Fuoco ridotto": "Shallow focus", "Solo il prodotto è nitido, tutto il resto si scioglie: la scelta più diretta per imporre una gerarchia.": "Only the product is sharp, everything else melts: the most direct way to impose a hierarchy.", "Il fuoco si sposta e trascina l'occhio con sé: rivela il prodotto senza muovere la camera.": "Focus shifts and drags the eye with it: reveals the product without moving the camera.", "Così vicino che la superficie diventa paesaggio: è l'inquadratura che dimostra la qualità costruttiva.": "So close the surface becomes landscape: the shot that proves the build quality.", "PP sfocato": "Blurred FG", "Un elemento sfocato davanti crea profondità e voyeurismo: guardi il prodotto attraverso qualcosa.": "A blurred element up front creates depth and voyeurism: you watch the product through something.", "Composizione": "Composition", "Centrato": "Centered", "Frontale e simmetrico: lettura immediata, tono istituzionale. Deriva pochissimo in interpolazione.": "Frontal and symmetrical: instant readability, institutional tone. Drifts very little in interpolation.", "Terzi": "Thirds", "Fuori asse: più dinamico, lascia respiro da un lato. Il classico per l'editoriale.": "Off-axis: more dynamic, leaves breathing room on one side. The classic for editorial.", "Prodotto da un lato, vuoto dall'altro: il vuoto non è sprecato, è dove entrerà logo o claim.": "Product on one side, emptiness on the other: the void isn't wasted, it's where logo or copy will land.", "Fuori scala": "Oversized", "Il prodotto sfonda il bordo: fa sentire la sua fisicità, l'occhio ne ricostruisce il resto da solo.": "The product breaks the frame edge: you feel its physicality, the eye rebuilds the rest on its own.", "Dal basso verso l'alto: il prodotto domina lo spettatore. Il linguaggio del monumento.": "Bottom-up: the product towers over the viewer. The language of the monument.", "A picco": "Top-down", "Vista zenitale: annulla la profondità e trasforma il prodotto in grafica. Perfetta per i pattern.": "Zenith view: cancels depth and turns the product into graphics. Perfect for patterns.", "Dimensione soggetto": "Subject size", "Molto piccolo": "Very small", "Il prodotto è un dettaglio nel vuoto: parla la scala, non l'oggetto. Rischia di sparire in compressione.": "The product is a detail in the void: scale speaks, not the object. Risks vanishing in compression.", "Piccolo": "Small", "Lascia respirare il frame: c'è aria per titoli e claim, il prodotto resta protagonista.": "Lets the frame breathe: there's air for titles and copy, the product stays the lead.", "Medio": "Medium", "Il rapporto neutro: il prodotto occupa il frame senza toccarne i bordi. Il default.": "The neutral ratio: the product fills the frame without touching its edges. The default.", "Grande": "Large", "Riempie: presenza fisica forte, poco spazio per altro. La scelta da hero shot.": "It fills: strong physical presence, little room for anything else. The hero-shot choice.", "Esce dal quadro: diventa architettura invece che oggetto. Perdi la sagoma, guadagni impatto.": "It exits the frame: it becomes architecture instead of object. You lose the outline, you gain impact.", "Rotazione soggetto": "Subject rotation", "Faccia frontale piena: lettura da icona, zero informazione sul volume.": "Full frontal face: icon-like reading, zero information about volume.", "Lo spigolo verso l'osservatore: due facce visibili, il classico tre quarti del prodotto.": "The edge toward the viewer: two faces visible, the classic product three-quarter.", "Un quarto di giro: mostra la faccia laterale come fosse la principale.": "A quarter turn: shows the side face as if it were the main one.", "Tre quarti posteriore: si intuisce il retro senza mostrarlo. Crea curiosità.": "Rear three-quarter: you sense the back without showing it. It creates curiosity.", "Il retro pieno: onesto o inutile a seconda del prodotto. Ottimo come frame A di un reveal.": "The full back: honest or useless depending on the product. Great as frame A of a reveal.", "In rotazione": "Spinning", "Gira su sé stesso in loop: mostra tutto, ma è il soggetto a muoversi — usalo quando il movimento È il messaggio.": "Turns on itself in a loop: shows everything, but it's the subject that moves — use it when motion IS the message.", "Vista": "View", "Faccia frontale, nessuna fuga: il prodotto si legge come un'icona. Zero informazione sul volume.": "Frontal face, no vanishing lines: the product reads as an icon. Zero information about volume.", "Tre quarti": "Three-quarter", "La vista che descrive due facce insieme: dice 'oggetto' invece di 'immagine'. Il default onesto.": "The view that describes two faces at once: it says 'object' instead of 'image'. The honest default.", "Dettaglio forma": "Shape detail", "Chiude su una curva o uno spigolo: astrae il prodotto in linea. Serve luce radente o non c'è niente da vedere.": "Closes on a curve or an edge: abstracts the product into line. Needs grazing light or there's nothing to see.", "Soggetto spinto fuori asse: crea tensione e lascia aria per un titolo. Vive di quello che NON riempi.": "Subject pushed off-axis: creates tension and leaves air for a title. It lives off what you DON'T fill.", "Vista dal basso": "Low view", "Contropicchiata: il prodotto incombe e diventa monumento. Eroico, ma distorce le proporzioni.": "Low angle: the product looms and becomes a monument. Heroic, but it distorts proportions.", "Vista dall'alto": "High view", "Picchiata leggera: mostra la faccia superiore e sgonfia il soggetto. Utile per i piani d'appoggio.": "A gentle high angle: shows the top face and deflates the subject. Useful for resting planes.", "Vista di profilo": "Profile view", "Silhouette laterale pura: la sagoma è tutto. Massima leggibilità del contorno, zero volume.": "Pure side silhouette: the outline is everything. Maximum contour legibility, zero volume.", "Ortogonale": "Orthographic", "Nessuna prospettiva: la vista da disegno tecnico. Perfetta per confronti e schede, fredda come una tavola CAD.": "No perspective: the technical-drawing view. Perfect for comparisons and spec sheets, cold as a CAD plate.", "Macro tre quarti": "Macro three-quarter", "Tre quarti ravvicinato: volume + dettaglio insieme. La vista che vende la lavorazione.": "A close three-quarter: volume + detail together. The view that sells the craftsmanship.", "Zenitale": "Zenith", "A piombo dall'alto: annulla la profondità e trasforma il prodotto in grafica. La vista da flat lay.": "Straight down from above: cancels depth and turns the product into graphics. The flat-lay view.", "Nessuno": "None", "Un solo protagonista, nessuna replica: la dichiarazione più semplice e più forte.": "A single lead, no replicas: the simplest and strongest statement.", "Hero + cloni": "Hero + clones", "Il protagonista davanti, le repliche dietro: dice 'gamma' senza perdere gerarchia.": "The lead up front, replicas behind: it says 'range' without losing hierarchy.", "Griglia regolare con un elemento che rompe lo schema: l'occhio va dove la regola si spezza.": "A regular grid with one element breaking the scheme: the eye goes where the rule breaks.", "Spirale": "Spiral", "Le repliche si avvitano verso il centro: la composizione stessa punta il dito sul protagonista.": "Replicas spiral toward the center: the composition itself points at the lead.", "Vortice": "Vortex", "Rotazione attorno all'hero: energia pura, ottimo sul picco di un montaggio.": "Rotation around the hero: pure energy, great at the peak of an edit.", "Caleidoscopio": "Kaleidoscope", "Ripetizione simmetrica su più assi: astrae il prodotto in ornamento. Bello, ma perde leggibilità.": "Symmetrical repetition on multiple axes: abstracts the product into ornament. Beautiful, but it loses legibility.", "Multiasse": "Multi-axis", "Repliche su assi diversi: mostra ogni faccia insieme. Molto denso, tienilo corto.": "Replicas on different axes: shows every face at once. Very dense, keep it short.", "Esploso": "Exploded", "I componenti si separano nello spazio: mostra com'è fatto. Il linguaggio dell'ingegneria.": "Components separate in mid-air: it shows how it's made. The language of engineering.", "Strati che si impilano: costruisce il prodotto davanti agli occhi. Ottimo per i reveal.": "Layers piling up: it builds the product before your eyes. Great for reveals.", "Orbita satelliti": "Satellite orbit", "Elementi che ruotano attorno all'hero su un'ellisse: dà scala e centro senza toccare il prodotto.": "Elements orbiting the hero on an ellipse: gives scale and a center without touching the product.", "Onda": "Wave", "Le repliche seguono una sinusoide sfasata: movimento morbido e ipnotico, molto leggibile in loop.": "Replicas follow a phase-shifted sine: soft, hypnotic motion, very readable in a loop.", "Dispersione": "Scatter", "Repliche sparse senza griglia: caos controllato. Dà densità, ma l'AI ci si perde facilmente.": "Replicas strewn without a grid: controlled chaos. It adds density, but the AI gets lost in it easily.", "Nero infinito, nessun piano: l'oggetto fluttua fuori dal mondo. Il default del brand.": "Infinite black, no plane: the object floats outside the world. The brand default.", "Piano": "Floor", "Una superficie sotto il prodotto: gli dà peso e lo ancora. L'ombra di contatto fa metà del lavoro.": "A surface under the product: it gives it weight and anchors it. The contact shadow does half the work.", "Cove senza spigolo: il pavimento risale in curva e diventa fondo. Lo studio classico da packshot.": "A cove with no corner: the floor curves up and becomes background. The classic packshot studio.", "Atmosfera": "Atmosphere", "Void pulito": "Clean void", "Aria trasparente: nessun velo tra camera e prodotto. Massima nitidezza, zero atmosfera.": "Transparent air: no veil between camera and product. Maximum sharpness, zero atmosphere.", "Particelle": "Particles", "Pulviscolo sospeso che cattura la luce: dà volume all'aria e scala allo spazio. Poco invasivo, molto efficace.": "Suspended dust catching the light: it gives the air volume and the space scale. Low-key, very effective.", "Cambia compressione e resa prospettica. Il tele appiattisce e isola il soggetto; il grandangolo esagera la profondità e distorce i bordi.": "Changes compression and perspective rendering. Tele flattens and isolates the subject; wide angle exaggerates depth and distorts the edges.", "≈50mm è la focale più stabile in generazione. I grandangoli spinti tendono a deformarsi in interpolazione.": "≈50mm is the most stable focal length in generation. Extreme wide angles tend to warp during interpolation.", "Focale": "Focal length", "L'apertura decide quanto sfondo resta a fuoco. Aperto = soggetto isolato su sfondo cremoso; chiuso = tutto nitido.": "The aperture decides how much background stays in focus. Open = subject isolated on a creamy background; closed = everything sharp.", "Se lo sfondo-bokeh è protagonista, giralo reale: l'AI lo reinventa e non combacia mai col tuo obiettivo.": "If background bokeh is the star, shoot it for real: the AI reinvents it and it never matches your lens.", "Sposta il fuoco da un piano all'altro dentro la stessa inquadratura, guidando l'occhio.": "Moves focus from one plane to another within the same shot, guiding the eye.", "Ottima coppia start/end: fuoco davanti → fuoco sul soggetto dà un movimento leggibile e pulito.": "A great start/end pair: focus in front → focus on the subject gives a clean, readable move.", "Esegui pull": "Run pull", "La forma delle luci sfocate fuori fuoco. Dischi tondi e puliti = ottica di qualità; a limone/nervosi = ottica economica.": "The shape of blurred out-of-focus lights. Round, clean discs = quality glass; lemon-shaped/nervous = cheap glass.", "La forma del bokeh generato è casuale. Se è un elemento chiave dell'inquadratura, catturalo in ripresa.": "Generated bokeh shape is random. If it's a key element of the frame, capture it in camera.", "Dimensione": "Size", "Vicinissimo al soggetto: emerge la microstruttura della superficie, il vero carattere del materiale.": "Extremely close to the subject: the surface's microstructure emerges, the material's true character.", "Gli hero di texture vanno girati reali: è dettaglio che l'AI non ricostruisce fedelmente.": "Texture heroes should be shot for real: it's detail the AI doesn't faithfully rebuild.", "Avvicinamento": "Proximity", "Rim light — direzione": "Rim light — direction", "Il taglio di luce che stacca il soggetto dal nero: lo separa dal fondo senza illuminare la scena.": "The cut of light that separates the subject from black: it detaches it from the background without lighting the scene.", "Tieni la direzione coerente in tutte le plate: l'AI eredita la posizione della luce dai frame.": "Keep the direction consistent across all plates: the AI inherits the light's position from the frames.", "Angolo": "Angle", "Sorgente piccola = ombre nette e alto contrasto. Sorgente grande = transizioni morbide e avvolgenti.": "Small source = crisp shadows and high contrast. Large source = soft, wrapping transitions.", "Luce piatta e neutra sulle plate lascia più libertà di rigenerazione; luce già drammatica blocca il look.": "Flat, neutral light on the plates leaves more room for regeneration; already-dramatic light locks the look.", "Morbidezza": "Softness", "Quanto in fretta la luce cade nel nero: definisce quanto il fondo resta vuoto.": "How fast the light falls into black: it defines how empty the background stays.", "Nero pieno intorno al soggetto = area pulita dove innestare un logo o far respirare la generazione.": "Solid black around the subject = a clean area to drop a logo into, or to let the generation breathe.", "Caduta nel nero": "Fall to black", "Push-in (dolly avanti)": "Push-in (dolly forward)", "La camera avanza verso il soggetto: tensione crescente, prospettiva invariata.": "The camera moves toward the subject: rising tension, unchanged perspective.", "Movimento facile per l'i2v: piccola variazione di scala tra frame A e B, nessuna deriva laterale.": "An easy move for i2v: a small scale change between frames A and B, no lateral drift.", "Esegui push-in": "Run push-in", "Truck / carrello laterale": "Truck / lateral dolly", "La camera scorre di lato mantenendo il soggetto in campo: nasce la parallasse tra soggetto e sfondo.": "The camera slides sideways keeping the subject in frame: parallax is born between subject and background.", "La parallasse è un forte indizio di profondità: aiuta l'AI a costruire il volume 3D della scena.": "Parallax is a strong depth cue: it helps the AI build the scene's 3D volume.", "Esegui carrello": "Run truck", "La camera gira intorno al soggetto rivelandone progressivamente i volumi.": "The camera circles the subject, progressively revealing its volumes.", "Delta ampio tra A e B: usa passi piccoli o l'AI allucina i lati che non ha mai visto.": "Wide delta between A and B: use small steps or the AI hallucinates the sides it never saw.", "Orbita continua": "Continuous orbit", "Rotazione della camera sul posto — orizzontale (pan) o verticale (tilt). La camera non si sposta: nessuna parallasse.": "The camera rotates in place — horizontal (pan) or vertical (tilt). It doesn't travel: no parallax.", "Senza parallasse l'AI ha meno indizi di profondità: buono per movimenti d'atmosfera, non per rivelare forma.": "Without parallax the AI has fewer depth cues: good for atmospheric moves, not for revealing shape.", "Esegui pan + tilt": "Run pan + tilt", "Zoom e carrello in direzioni opposte: il soggetto resta identico mentre lo spazio dietro si dilata o comprime.": "Zoom and dolly in opposite directions: the subject stays identical while the space behind stretches or compresses.", "Effetto difficile da generare pulito: meglio costruirlo come coppia start/end molto controllata, non lasciarlo all'AI.": "Hard to generate clean: better built as a tightly controlled start/end pair, not left to the AI.", "Esegui vertigo": "Run vertigo", "Il cuore del workflow: da due soli fotogrammi, l'AI inventa tutto ciò che sta in mezzo.": "The heart of the workflow: from just two frames, the AI invents everything in between.", "Soggetto condiviso, cambiamento controllato. Troppo delta = allucinazione; troppo poco = movimento morto.": "Shared subject, controlled change. Too much delta = hallucination; too little = dead motion.", "Interpola A→B": "Interpolate A→B", "Dove collochi il soggetto nel quadro: regola dei terzi, centrato, spazio negativo, headroom.": "Where you place the subject in the frame: rule of thirds, centered, negative space, headroom.", "Il soggetto centrato deriva meno in interpolazione. Lo spazio negativo è dove poi entra il logo.": "A centered subject drifts less in interpolation. Negative space is where the logo lands later.", "Griglia": "Grid", "Due inquadrature diverse legate da forma o movimento condiviso: il taglio sparisce all'occhio.": "Two different shots bound by shared shape or motion: the cut disappears to the eye.", "Fai combaciare silhouette e posizione tra fine-clip A e inizio-clip B per un match invisibile.": "Match silhouette and position between end-of-clip A and start-of-clip B for an invisible match.", "Esegui match cut": "Run match cut", "La scia di movimento tra due pose. Dà energia ed elasticità ai cambi rapidi.": "The motion streak between two poses. Adds energy and elasticity to fast changes.", "Utile in transizione sul drop: la sfocatura nasconde i salti di generazione tra un take e l'altro.": "Useful as a transition on the drop: the blur hides generation jumps between one take and the next.", "Esegui smear": "Run smear", "Panoramica velocissima: tutto diventa scia orizzontale, poi si ricompone sulla scena nuova.": "A lightning-fast pan: everything becomes a horizontal streak, then reassembles on the new scene.", "Transizione naturale tra due generazioni distinte: la sfocatura copre completamente la giunzione.": "A natural transition between two separate generations: the blur fully covers the join.", "Esegui whip": "Run whip", "Reveal dal buio": "Reveal from darkness", "Il soggetto emerge dal nero mentre la luce sale progressivamente.": "The subject emerges from black as the light progressively rises.", "Parti da un frame quasi nero come 'A': la rivelazione è un semplice delta di luce, facile da interpolare.": "Start from a near-black frame as 'A': the reveal is a simple light delta, easy to interpolate.", "Esegui reveal": "Run reveal", "Una forma si trasforma con continuità in un'altra, senza tagli.": "One shape transforms continuously into another, without cuts.", "L'AI gestisce bene i morph a soggetto singolo: mantieni massa e centro coerenti tra frame A e B.": "The AI handles single-subject morphs well: keep mass and center consistent between frames A and B.", "Esegui morph": "Run morph", "dura": "hard", "media": "medium", "morbida": "soft", "Ottica": "Optics", "Movimento": "Movement", "Montaggio": "Editing", "Penombra totale": "Total half-light", "Il prodotto è lì ma non si vede: solo un accenno di volume nel nero.": "The product is there but unseen: just a hint of volume in the black.", "La rim light accende un bordo: emerge una forma, non ancora un oggetto.": "The rim light ignites an edge: a shape emerges, not yet an object.", "Dettaglio macro": "Macro detail", "Superficie a tutto quadro: texture, finitura, qualità costruttiva.": "Surface full-frame: texture, finish, build quality.", "Ci si allarga quel tanto che basta per capire la geometria.": "Widening just enough to understand the geometry.", "Dettaglio feature": "Feature detail", "Il particolare che giustifica il prezzo: meccanismo, giunzione, marchio.": "The particular that justifies the price: mechanism, joint, mark.", "Prima volta intero nel quadro: il pay-off di tutto il reveal.": "First time whole in frame: the payoff of the entire reveal.", "Le versioni entrano in scena: gamma, colori, taglie.": "The versions enter the scene: range, colors, sizes.", "Il prodotto si scompone a mezz'aria: dice ingegneria senza una parola.": "The product comes apart in mid-air: it says engineering without a word.", "Effetto speciale": "Special effect", "Particelle, energia, morph: il momento puramente emozionale.": "Particles, energy, morph: the purely emotional moment.", "Infografica": "Infographic", "Numeri e callout: l'unico blocco che parla alla testa, non alla pancia.": "Numbers and callouts: the only block that speaks to the head, not the gut.", "Il picco: il prodotto arriva sul colpo di cassa, tutto converge qui.": "The peak: the product lands on the beat, everything converges here.", "Pattern / vortice": "Pattern / vortex", "Repliche in movimento: energia grafica pura, ottima dopo il drop.": "Replicas in motion: pure graphic energy, great after the drop.", "Il marchio atterra nello spazio negativo lasciato apposta.": "The mark lands in the negative space left there on purpose.", "Una riga di testo. Se il video ha funzionato, qui non serve altro.": "One line of text. If the video worked, nothing else is needed here.", "Ritorno al nero: il prodotto se ne va come è arrivato.": "Return to black: the product leaves the way it arrived.", "Crediti": "Credits", "Chi ha fatto cosa. Breve, piccolo, fuori dal centro.": "Who did what. Short, small, off-center.", "Stacco netto": "Hard cut", "Nessuna transizione: il taglio più onesto e più veloce.": "No transition: the most honest and fastest cut.", "Dissolvenza": "Dissolve", "Le due scene si sovrappongono: morbido, un po' nostalgico.": "The two scenes overlap: soft, a little nostalgic.", "Scia orizzontale che copre la giunzione: energia e velocità.": "A horizontal streak covering the join: energy and speed.", "La scia di movimento tra due pose: elastico, grafico.": "The motion streak between two poses: elastic, graphic.", "Un fotogramma bianco: stacco brutale, ottimo sul beat.": "One white frame: a brutal cut, great on the beat.", "Una forma diventa l'altra senza stacco: fluido, ipnotico.": "One shape becomes the other without a cut: fluid, hypnotic.", "Crescendo che costruisce tensione verso il picco.": "A crescendo building tension toward the peak.", "Colpo secco che accenta lo stacco.": "A sharp hit accenting the cut.", "Suono di passaggio, sposato alle transizioni veloci.": "A passing-by sound, married to fast transitions.", "Bassa frequenza che dà peso fisico al drop.": "Low frequency giving the drop physical weight.", "Il tappeto musicale sotto tutta la sequenza.": "The musical bed under the whole sequence.", "Il respiro dell'ambiente: si nota solo se manca.": "The environment's breath: only noticed when missing.", "Camera & Ottica": "Camera & Optics", "Le scelte fisiche dietro la macchina: che obiettivo, quanta luce, cosa resta a fuoco. Il punto di partenza di tutto: nessuna fase successiva recupera davvero un errore commesso qui.": "The physical choices behind the camera: which lens, how much light, what stays in focus. The starting point of everything: no later stage truly recovers a mistake made here.", "Dove metti le cose dentro il quadro, e perché. Vale identico in ripresa, in 3D e in generazione: è il livello di direzione artistica che governa tutti gli altri.": "Where you put things inside the frame, and why. It applies identically on set, in 3D and in generation: it's the art-direction layer that governs all the others.", "Illuminazione": "Lighting", "La luce non mostra l'oggetto: decide cosa dell'oggetto vale la pena vedere. Direzione, qualità e caduta sono le tre leve che trasformano una forma in un'immagine.": "Light doesn't show the object: it decides what about the object is worth seeing. Direction, quality and falloff are the three levers that turn a shape into an image.", "Correzione tecnica prima, look creativo poi. Due mestieri distinti che condividono gli stessi strumenti: il primo rende l'immagine corretta, il secondo la rende tua.": "Technical correction first, creative look after. Two distinct crafts sharing the same tools: the first makes the image correct, the second makes it yours.", "Come le inquadrature si susseguono e con che ritmo. Il dominio in cui il materiale smette di essere una raccolta di shot e diventa racconto.": "How shots follow one another, and at what rhythm. The domain where the material stops being a collection of shots and becomes a story.", "Fondere elementi di origine diversa — ripresa, CGI, matte — in un'immagine unica e credibile. È il mestiere di far sparire le giunzioni.": "Blending elements of different origin — footage, CGI, mattes — into a single believable image. It's the craft of making the seams disappear.", "Come le cose si muovono e si trasformano nel tempo: animazione, interpolazione, morphing e il vocabolario del motion design applicato a grafica e tipografia.": "How things move and transform over time: animation, interpolation, morphing and the motion-design vocabulary applied to graphics and typography.", "Tutto ciò che viene costruito e calcolato al computer: la geometria, i materiali che la vestono, la luce che la colpisce e il calcolo finale che la trasforma in immagine.": "Everything built and computed on a machine: the geometry, the materials dressing it, the light hitting it, and the final computation turning it into an image.", "Il livello sonoro: musica, rumori, atmosfere e i colpi che danno peso fisico alle immagini. Metà dell'effetto di un video, quella che nessuno guarda.": "The sound layer: music, noises, atmospheres and the hits that give images physical weight. Half of a video's effect — the half nobody watches.", "Codec, contenitori, bitrate e preset per ogni destinazione. L'ultima fase, quella in cui un lavoro perfetto può ancora essere rovinato.": "Codecs, containers, bitrates and presets for every destination. The final stage, the one where perfect work can still be ruined.", "Pipeline AI": "AI pipeline", "Il vocabolario specifico della generazione: come nasce, si guida e si controlla un output, e cosa fare quando non collabora.": "The specific vocabulary of generation: how an output is born, steered and controlled, and what to do when it won't cooperate.", "Come il lavoro attraversa le fasi e le persone: nomenclatura, versioni, revisioni, consegne. Il dominio meno affascinante e il primo che salta quando si va di fretta.": "How work flows through stages and people: naming, versions, reviews, deliveries. The least glamorous domain and the first one dropped in a hurry.", "Griglie": "Grids", "Spazio": "Space", "Guida dello sguardo": "Guiding the eye", "Profondità & Formato": "Depth & Format", "Direzione artistica": "Art direction", "Ruoli della luce": "Roles of light", "Qualità": "Quality", "Schemi": "Schemes", "Modificatori": "Modifiers", "Correzione": "Correction", "Strumenti": "Tools", "Proprietà del colore": "Color properties", "Tecnica": "Technique", "Tagli": "Cuts", "Transizioni": "Transitions", "Tempo": "Time", "Suono nel montaggio": "Sound in the edit", "Materiale": "Material", "Isolare il soggetto": "Isolating the subject", "Intervento sull'immagine": "Working the image", "Costruire l'ambiente": "Building the environment", "Maschere": "Masks", "Effetti ottici": "Optical effects", "Effetti in ripresa": "On-set effects", "Principi": "Principles", "Trasformazione": "Transformation", "Analisi del movimento": "Motion analysis", "Texturing": "Texturing", "Rigging & Sim": "Rigging & Sim", "Lighting & Render": "Lighting & Render", "Struttura sonora": "Sound structure", "Elementi d'impatto": "Impact elements", "Missaggio": "Mixing", "Codec & Contenitori": "Codecs & Containers", "Parametri": "Parameters", "Preset per media": "Presets per medium", "Generazione": "Generation", "Controllo": "Control", "Input": "Input", "Problemi noti": "Known issues", "Finitura": "Finishing", "Fasi": "Stages", "Organizzazione": "Organization", "Revisione": "Review", "Consegna": "Delivery", "Reveal classico": "Classic reveal", "Short verticale": "Vertical short", "Loop social": "Social loop", "Spot 15s": "15s spot", "Catalogo": "Catalog", "Inquadrature": "Shots", "FX / transizioni": "FX / transitions", "Anteprima": "Preview", "Lavorazione": "Work view", "Trascina per orbitare · rotella per lo zoom": "Drag to orbit · wheel to zoom", "Il player mostra l'interpolazione A ⇄ B in loop": "The player loops the A ⇄ B interpolation", "Cosa fa?": "What it does", "Nessun parametro — osserva il soggetto.": "No parameters — just watch the subject.", "interpolazione": "interpolation", "assi indipendenti,": "independent axes,", "composizioni possibili.": "possible compositions.", "Combinazione casuale": "Random combination", "Azzera": "Reset", "Tutti gli assi bloccati": "All axes locked", "Lettura dello shot": "Reading the shot", "Il prodotto nel frame": "The product in frame", "RICETTA ·": "RECIPE ·", "Riproduci loop": "Play loop", "Pausa loop": "Pause loop", "Coppia casuale": "Random pair", "Copia A in B": "Copy A into B", "Casuale": "Random", "Delta A → B": "Delta A → B", "Generabilità": "Generability", "asse in movimento": "axis in motion", "assi in movimento": "axes in motion", "Posizione tra frame A e frame B": "Position between frame A and frame B", "Carica immagine": "Upload image", "sul blocco selezionato": "onto the selected block", "Carica traccia": "Upload track", "waveform sotto la curva": "waveform under the curve", "Rimuovi traccia": "Remove track", "Apri in Comp": "Open in Comp", "modifica lo shot": "edit the shot", "Copia breakdown": "Copy breakdown", "negli appunti": "to the clipboard", "Esporta .txt": "Export .txt", "scarica il file": "download the file", "Esporta PDF": "Export PDF", "stampa la shot list": "print the shot list", "Svuota": "Clear", "Libreria — trascina o clicca": "Library — drag or click", "Timeline vuota": "Empty timeline", "Copiato ✓": "Copied ✓", "Esportato ✓": "Exported ✓", "Seleziona uno shot": "Select a shot", "lettura fallita": "read failed", "curva di energia — aggiungi almeno 2 inquadrature": "energy curve — add at least 2 shots", "Curva di energia · picco": "Energy curve · peak", "Ricette": "Recipes", "Traccia audio": "Audio track", "Cerca un termine — italiano o inglese…": "Search a term — Italian or English…", "Nessun termine trovato.": "No terms found.", "Tutti": "All", "nota…": "note…", "Escludi dalla casuale": "Exclude from the random roll", "Reintegra nella casuale": "Return to the random pool", "Blocca questo asse: la casuale selettiva lo salta": "Lock this axis: selective random skips it", "Trascina un'inquadratura nella timeline per riprodurre la sequenza": "Drag a shot onto the timeline to play the sequence", "Shot precedente": "Previous shot", "Shot successivo": "Next shot", "Riproduci la sequenza": "Play the sequence", "Ripeti in loop": "Loop playback", "Audio della traccia": "Track audio", "Player della sequenza": "Sequence player", "Posizione nella sequenza": "Position in the sequence", "Apertura": "Opening", "Dettaglio": "Detail", "Rivelazione": "Reveal", "Picco": "Peak", "Racconto": "Story", "Chiusura": "Closing"};
-/* number/percentage-composed strings that can't be exact-matched */
-const RX=[
- [/^Delta zero\. .*$/, ()=>"Zero delta. The two frames are identical: the AI has nothing to interpolate and will return a freeze-frame. Change at least one axis."],
- [/^Delta minimo \(1 asse\)\. .*$/, ()=>"Minimal delta (1 axis). Extremely clean, predictable motion — the AI has almost nothing to invent. The safe choice for shots that must work on the first take."],
- [/^Delta sano \((\d+) assi\)\. .*$/, (m,n)=>"Healthy delta ("+n+" axes). Enough change to read as movement, enough constraint to stay coherent. This is the ideal working zone."],
- [/^Delta ampio \((\d+) assi\)\. .*$/, (m,n)=>"Wide delta ("+n+" axes). The motion will be interesting but the AI starts improvising: expect a few discarded takes. Consider splitting it into two generations."],
- [/^Delta eccessivo \((\d+) assi\)\. .*$/, (m,n)=>"Excessive delta ("+n+" axes). You're asking the AI to reinvent the scene: hallucinations all but guaranteed. Split it into two or three intermediate steps."],
- [/^Dominante \((\d+)%\)\. .*$/, (m,n)=>"Dominant ("+n+"%). The product is unmistakably the subject: no ambiguity about where to look. Opposite risk — it can feel cold. A single atmospheric element warms it without weakening it."],
- [/^Protagonista \((\d+)%\)\. .*$/, (m,n)=>"Lead ("+n+"%). Clear hierarchy, with enough context to stay interesting. The right zone for most product shots."],
- [/^Integrato \((\d+)%\)\. .*$/, (m,n)=>"Integrated ("+n+"%). The product coexists with the space: nice to look at, but the eye has alternatives. It works as an atmospheric shot, not as a hero."],
- [/^Diluito \((\d+)%\)\. .*$/, (m,n)=>"Diluted ("+n+"%). The composition is more interesting than the product. Fine as a short cutaway or a passing texture — it wouldn't hold a finale."],
- [/^(\d+) termini$/, (m,n)=>n+" terms"],
- [/^(\d+) asse bloccato$/, (m,n)=>n+" axis locked"],
- [/^(\d+) assi bloccati$/, (m,n)=>n+" axes locked"],
- [/^(\d+) opzione esclusa$/, (m,n)=>n+" option excluded"],
- [/^(\d+) opzioni escluse$/, (m,n)=>n+" options excluded"],
- [/(\d+) inquadrature/, (m,n)=>n+" shots"],
- [/traccia: /, ()=>"track: "],
- [/^(.*) \(invariato\)$/, (m,name)=>(M[name]||name)+" (unchanged)"],
- [/^Blocca (.*)$/, (m,name)=>"Lock "+(M[name]||name)],
- [/^(.+):$/, (m,name)=>M[name]?M[name]+":":null],
-];
-/* whole-element swaps for mixed-content lead paragraphs */
-const ELEMS=[
- ["#combo .clead", 'A total of <b id="cAxN">8</b> independent axes, <b id="cCount">15.120</b> possible compositions.'],
- ["#comb2 .clead", "Two frames, <b>A</b> and <b>B</b>: the AI invents everything in between."],
- [".seq .slead", "A sequence is an <b>energy curve</b>. Drag blocks from the library onto the tracks, reorder, adjust durations."],
-];
-const ATTRS=["placeholder","title","aria-label"];
-let lang="it";
-const ORIG=new Map();        /* text node -> original IT value */
-const ORIG_A=new Map();      /* element -> {attr: original} */
-const ORIG_E=new Map();      /* element -> original innerHTML (lead paragraphs) */
-
-function tr(core){
-  if(M[core]!=null) return M[core];
-  /* composed labels like "Luce · Rim laterale": translate part by part */
-  if(core.indexOf(" · ")>-1){
-    const j=core.split(" · ").map(p=>M[p]||p).join(" · ");
-    if(j!==core) return j;
-  }
-  let out=core, hit=false;
-  for(const [re,fn] of RX){
-    const m=core.match(re);
-    if(m){ const r=fn.apply(null,m); if(r!=null){ out=core.replace(re,r); hit=true; core=out; } }
-  }
-  return hit?out:null;
-}
-function trNode(n){
-  const v=n.nodeValue, core=v.trim();
-  if(!core) return;
-  const t=tr(core);
-  if(t!=null && t!==core){
-    if(!ORIG.has(n)) ORIG.set(n,v);
-    n.nodeValue=v.replace(core,t);
-  }
-}
-function trAttrs(el){
-  ATTRS.forEach(a=>{
-    const v=el.getAttribute && el.getAttribute(a);
-    if(!v) return;
-    const t=tr(v.trim());
-    if(t!=null && t!==v.trim()){
-      const rec=ORIG_A.get(el)||{}; if(!(a in rec)){ rec[a]=v; ORIG_A.set(el,rec); }
-      el.setAttribute(a,t);
-    }
-  });
-}
-const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,NOSCRIPT:1};
-function walk(root){
-  if(root.nodeType===3){
-    const p=root.parentNode;
-    if(!p || SKIP[p.nodeName]) return;
-    trNode(root); return;
-  }
-  if(root.nodeType!==1 && root.nodeType!==9) return;
-  if(root.nodeType===1){
-    if(SKIP[root.nodeName]) return;
-    trAttrs(root);
-  }
-  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,{
-    acceptNode:n=>{
-      const el=n.nodeType===3?n.parentNode:n;
-      return (el && SKIP[el.nodeName]) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
-    }});
-  let n; while(n=w.nextNode()){
-    if(n.nodeType===3) trNode(n); else trAttrs(n);
-  }
-}
-const CFG={childList:true,characterData:true,subtree:true};
-const mo=new MutationObserver(muts=>{
-  if(lang!=="en") return;
-  mo.disconnect();
-  muts.forEach(m=>{
-    if(m.type==="characterData"){ ORIG.delete(m.target); trNode(m.target); }
-    m.addedNodes && m.addedNodes.forEach(nd=>walk(nd));
-  });
-  mo.takeRecords(); mo.observe(document.body,CFG);
-});
-function setLang(l){
-  if(l===lang) return;
-  mo.disconnect();
-  if(l==="en"){
-    ELEMS.forEach(([sel,en])=>{ const el=document.querySelector(sel);
-      if(el){ if(!ORIG_E.has(el)) ORIG_E.set(el,el.innerHTML); el.innerHTML=en; } });
-    walk(document.body);
-    mo.takeRecords(); mo.observe(document.body,CFG);
-  }else{
-    ORIG.forEach((v,n)=>{ if(n.isConnected) n.nodeValue=v; }); ORIG.clear();
-    ORIG_A.forEach((rec,el)=>{ if(el.isConnected) for(const a in rec) el.setAttribute(a,rec[a]); }); ORIG_A.clear();
-    ORIG_E.forEach((v,el)=>{ if(el.isConnected) el.innerHTML=v; }); ORIG_E.clear();
-  }
-  lang=l;
-  document.documentElement.lang=l;
-  const bi=document.getElementById("langIT"), be=document.getElementById("langEN");
-  if(bi) bi.setAttribute("aria-pressed",String(l==="it"));
-  if(be) be.setAttribute("aria-pressed",String(l==="en"));
-  try{ localStorage.setItem("mvr_lang",l); }catch(e){}
-}
-window.__i18nApply=root=>{ if(lang==="en") walk(root||document.body); };
-document.getElementById("langIT").onclick=()=>setLang("it");
-document.getElementById("langEN").onclick=()=>setLang("en");
-let saved=null; try{ saved=localStorage.getItem("mvr_lang"); }catch(e){}
-if(saved==="en") setLang("en");
-})();
-</script>
-
 </body>
 </html>
