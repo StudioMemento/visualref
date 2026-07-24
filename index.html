@@ -1110,10 +1110,136 @@
     .dial-item{flex-basis:124px}
   }
 
+
+
+  /* ========================================================================
+     SHOT-FIRST POLISH PASS
+     ======================================================================== */
+  :root{--dual-dock-h:142px;--dual-dock-open-h:224px}
+  .app.v-combo .combo{display:block}
+  .app.v-combo .main,.app.v-combo .seq,.app.v-combo .comb2,.app.v-combo .glossary{display:none}
+  .legacy-hook,.legacy-hooks{display:none!important}
+
+  /* Swipe affordance: a restrained MEMENTO-orange glow on every horizontal rail. */
+  .swipe-edge,.snap-dial,.trkl,.spresets,.recipe-rail,.shot-preset-rail,.shot-variant-gallery,.variant-rail,.gchips{
+    box-shadow:inset 18px 0 18px -24px rgba(255,121,80,.42),inset -18px 0 18px -24px rgba(255,121,80,.42)}
+  .dial-window::before{background:linear-gradient(90deg,rgba(255,121,80,.10),rgba(13,13,15,.42) 30%,rgba(13,13,15,0))}
+  .dial-window::after{background:linear-gradient(-90deg,rgba(255,121,80,.10),rgba(13,13,15,.42) 30%,rgba(13,13,15,0))}
+
+  /* Player tabs read as two equal halves of the player. */
+  .prig .vpbar{display:block;padding:0}
+  .prig .vptabs{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .prig .vptab{width:100%;border-right:1px solid var(--line);padding:13px 8px;text-align:center}
+  .prig .vptab:last-child{border-right:0}
+  .prig .vphint{display:block;margin:0;padding:7px 12px;text-align:center;border-top:1px solid var(--line);min-height:0}
+  .prig .vphint:empty{display:none}
+
+  /* SHOT hierarchy: player → generate → delta → shot type → variants → fine controls. */
+  .combo .cfull{padding:12px 16px calc(var(--dual-dock-h) + 58px + var(--safe-bottom));max-width:980px}
+  body.option-open .combo .cfull{padding-bottom:calc(var(--dual-dock-open-h) + 58px + var(--safe-bottom))}
+  .combo .cprev-bar{display:none!important}
+  .combo #cAxes,.combo .cread{display:block!important}
+  .shot-primary-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0 0 12px}
+  .shot-primary-actions .cbtn{min-height:46px;justify-content:center;font-size:12px}
+  .section-kicker{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;
+    font:700 8.5px/1 var(--mono);letter-spacing:.17em;color:var(--txt-3)}
+  .section-kicker b{font-size:8.5px;color:var(--accent);font-weight:700;letter-spacing:.1em}
+  .shot-delta-summary,.shot-variant-section,.shot-parameter-section{margin:0 0 14px}
+  .delta-chip-rail{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 7px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .delta-chip-rail::-webkit-scrollbar,.shot-preset-rail::-webkit-scrollbar,.shot-variant-gallery::-webkit-scrollbar{display:none}
+  .delta-chip{flex:none;min-width:118px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 10px}
+  .delta-chip .axis{display:block;font:700 7.5px/1 var(--mono);letter-spacing:.13em;color:var(--txt-3);margin-bottom:6px}
+  .delta-chip .flow{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;white-space:nowrap}
+  .delta-chip .from{color:var(--txt-3)} .delta-chip .arrow{color:var(--txt-3)} .delta-chip .to{color:var(--accent)}
+  .delta-chip.same{opacity:.55;min-width:94px}.delta-chip.same .to{color:var(--txt-2)}
+
+  .tech-dial-block{margin-top:0}
+  .shot-preset-rail{display:flex;gap:7px;overflow-x:auto;padding:0 9px 10px;scroll-snap-type:x proximity;scrollbar-width:none}
+  .shot-preset{flex:0 0 150px;scroll-snap-align:start;appearance:none;border:1px solid var(--line);background:#09090b;color:var(--txt-3);
+    border-radius:9px;padding:10px;text-align:left;cursor:pointer;transition:.15s var(--ease)}
+  .shot-preset b{display:block;font-size:11px;color:var(--txt-2);margin-bottom:4px}.shot-preset span{font:600 8px/1.35 var(--mono);letter-spacing:.06em;color:var(--txt-3)}
+  .shot-preset.active{border-color:var(--accent);background:#17130f}.shot-preset.active b{color:var(--accent)}
+
+  .shot-variant-gallery{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 8px;scroll-snap-type:x proximity;scrollbar-width:none;min-height:96px}
+  .shot-variant-empty{font-size:11px;color:var(--txt-3);border:1px dashed var(--line-2);border-radius:9px;padding:16px;min-width:100%}
+  .shot-variant-card{flex:0 0 156px;scroll-snap-align:start;appearance:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;
+    padding:6px;text-align:left;color:var(--txt-2);cursor:pointer;position:relative}
+  .shot-variant-card.active{border-color:var(--accent);background:#17130f}
+  .shot-variant-card canvas{display:block;width:100%;aspect-ratio:16/9;border-radius:6px;background:#040404;margin-bottom:7px}
+  .shot-variant-card b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt-2)}
+  .shot-variant-card span{font:600 7.5px/1.4 var(--mono);letter-spacing:.06em;color:var(--txt-3)}
+  .shot-variant-card.active b,.shot-variant-card.active span{color:var(--accent)}
+
+  .parameter-kicker{padding-top:4px;border-top:1px solid var(--line);padding-top:15px}
+  .combo .cgrp{margin-bottom:16px}
+  .combo .cgrp-h{font-size:9px;margin-bottom:8px}
+  .combo .copts{display:flex;gap:6px;overflow-x:auto;padding:1px 1px 7px;scrollbar-width:none;scroll-snap-type:x proximity;
+    box-shadow:inset 18px 0 18px -24px rgba(255,121,80,.34),inset -18px 0 18px -24px rgba(255,121,80,.34)}
+  .combo .copts::-webkit-scrollbar{display:none}
+  .combo .copt{flex:0 0 auto;min-width:104px;min-height:42px;padding:9px 11px;display:block;text-align:left;border-radius:8px;font-size:10px;scroll-snap-align:start}
+  .combo .copt .ic{display:none!important}
+  .combo .copt .x{top:4px;right:4px}
+  .combo .cgrp.locked .copts{opacity:.58}
+  .combo .cread{margin-top:20px}.combo .cread h3{font-size:10px}
+
+  /* Compact text-first START / options / END dock. */
+  .dual-recipe-dock{padding-bottom:var(--safe-bottom)}
+  .dual-dock-head{display:flex;align-items:center;justify-content:space-between;padding:7px 10px 5px;border-bottom:1px solid var(--line)}
+  .dual-dock-head span{font:700 8px/1 var(--mono);letter-spacing:.16em;color:var(--txt-3)}
+  .dual-dock-head b{font:700 8px/1 var(--mono);letter-spacing:.1em;color:var(--accent)}
+  .dual-row{display:grid;grid-template-columns:54px minmax(0,1fr);border-top:0;border-bottom:1px solid var(--line);min-height:50px;background:#08080a}
+  .dual-row.end{border-bottom:0;background:#09090b}
+  .dual-label{appearance:none;border:0;border-right:1px solid var(--line);background:transparent;color:var(--txt-3);font:700 8px/1 var(--mono);
+    letter-spacing:.12em;text-align:center;writing-mode:horizontal-tb;transform:none;cursor:pointer}
+  .dual-row.active .dual-label{color:var(--accent);background:#17130f}
+  .dual-row .recipe-rail{padding:5px 7px;gap:5px}
+  .recipe-cell{flex:0 0 76px;position:relative;scroll-snap-align:start;border:1px solid var(--line);border-radius:7px;background:var(--panel);min-height:40px}
+  .recipe-cell.diff{border-color:var(--accent-dim)}.recipe-cell.same{opacity:.48}.recipe-cell.active{border-color:var(--accent);background:#17130f}
+  .recipe-chip{width:100%;min-height:40px;border:0;background:transparent;padding:6px 5px 5px;display:flex;align-items:flex-start;justify-content:center;gap:3px;text-align:left}
+  .recipe-chip .ic{display:none!important}.recipe-chip .axis{font-size:6.8px}.recipe-chip .value{font-size:8.5px;max-width:64px}
+  .recipe-cell.diff .value{color:var(--accent)}
+  .axis-lock{position:absolute;right:3px;top:3px;appearance:none;border:0;background:transparent;color:var(--txt-3);font:800 7px/1 var(--mono);cursor:pointer;padding:2px}
+  .recipe-cell.locked .axis-lock{color:var(--accent)}
+  .inline-option-panel{border-bottom:1px solid var(--line);background:#0b0b0d}
+  .inline-option-panel[hidden]{display:none}
+  .inline-option-head{display:flex;gap:8px;align-items:baseline;padding:7px 10px 0}
+  .inline-option-head span{font:700 7.5px/1 var(--mono);letter-spacing:.13em;color:var(--accent)}
+  .inline-option-head b{font-size:10px;color:var(--txt-2)}
+  .inline-option-panel .snap-dial{padding-top:7px;padding-bottom:10px}
+  .inline-option-panel .dial-item{flex-basis:112px;min-height:50px;padding:8px}.inline-option-panel .dial-item svg{display:none}
+  .inline-option-panel .dial-item b{font-size:10px}
+  body.option-open{--dual-dock-h:224px}
+
+  /* SEQ: project template first, selected-shot type after the timeline, project fully visible below. */
+  .seq .swrap{padding-bottom:44px}
+  .seq-template-block{margin-top:0}
+  .seq-template-dial .dial-item{flex-basis:132px;min-height:56px}
+  .seq .sbar{display:none!important}
+  .seq-recipe-dock{display:none!important}
+  .role-dial-block{margin-top:12px}
+  .project-inline{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+  .project-inline-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+  .project-inline-head span{font:700 9px/1 var(--mono);letter-spacing:.18em;color:var(--txt-2)}
+  .project-inline-head b{font:700 8px/1 var(--mono);letter-spacing:.14em;color:var(--txt-3)}
+  .project-inline .tools{display:grid!important;margin-top:0}
+  .project-inline .project-note{display:block!important;margin:0 0 14px}
+  .seq-quickbar{margin-bottom:10px}
+
+  @media(max-width:900px){
+    .modeswitch{grid-template-columns:repeat(3,1fr)}
+    .shot-headbar{position:relative}
+    .combo .prig{position:static;top:auto;box-shadow:none}
+    .combo .cfull{padding-left:12px;padding-right:12px}
+    .shot-player-rig .cprev{min-height:210px}
+    .shot-primary-actions{grid-template-columns:minmax(0,1fr) 126px}
+    .dial-item{flex-basis:132px}
+    .project-inline .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+
 </style>
 </head>
 <body>
-<div class="app v-seq" data-format="16:9">
+<div class="app v-combo" data-format="16:9">
   <header class="top" id="topbar">
     <div class="brandrow">
       <div class="brand" aria-label="Memento Studio"><svg viewBox="0 0 1600 100" role="img" aria-label="MEMENTO"><polygon points="109.14,10.45 109.14,89.55 101.23,81.64 101.23,28.91 69.58,60.55 37.94,28.91 37.94,81.64 30.03,89.55 30.03,10.45 69.58,50"/><polygon points="596.08,10.45 596.08,89.55 588.17,81.64 588.17,28.91 556.52,60.55 524.88,28.91 524.88,81.64 516.97,89.55 516.97,10.45 556.52,50"/><polygon points="1077.74,10.45 1077.74,89.55 1017.09,28.91 1017.09,81.65 1009.18,89.55 1009.18,10.45 1069.84,71.09 1069.84,18.36"/><polygon points="344.7,81.64 352.61,89.55 273.5,89.55 281.41,81.64"/><rect x="297.23" y="46.05" width="31.64" height="7.91"/><polygon points="352.61,10.45 344.7,18.36 281.41,18.36 273.5,10.45"/><polygon points="831.64,81.64 839.55,89.55 760.44,89.55 768.35,81.64"/><rect x="784.17" y="46.05" width="31.64" height="7.91"/><polygon points="839.55,10.45 831.64,18.36 768.35,18.36 760.44,10.45"/><polygon points="1247.38,10.45 1326.49,10.45 1318.57,18.36 1290.88,18.36 1290.88,89.55 1282.98,81.64 1282.98,18.36 1255.29,18.36"/><path d="M1530.42,10.45L1530.42,10.45c-21.85,0-39.56,17.71-39.56,39.55c0,21.85,17.71,39.55,39.55,39.55h0 c21.85,0,39.55-17.7,39.55-39.55C1569.97,28.16,1552.27,10.45,1530.42,10.45z M1530.42,81.65L1530.42,81.65 c-17.47,0-31.64-14.17-31.64-31.65c0-17.47,14.17-31.64,31.64-31.64h0c17.48,0,31.64,14.17,31.64,31.64 C1562.06,67.48,1547.9,81.64,1530.42,81.65z"/></svg></div>
@@ -1125,8 +1251,8 @@
     <div class="manifesto" id="manifesto"><b>Un'immagine è uno stato.</b> Un movimento è un delta. Una sequenza è una curva.</div>
     <div class="navshell">
       <div class="modeswitch" role="group" aria-label="Vista principale">
-        <button id="mSeq" aria-pressed="true">SEQ</button>
-        <button id="mCombo" aria-pressed="false">SHOT</button>
+        <button id="mCombo" aria-pressed="true">SHOT</button>
+        <button id="mSeq" aria-pressed="false">SEQ</button>
         <button id="mTest" aria-pressed="false">TEST</button>
       </div>
     </div>
@@ -1200,12 +1326,12 @@
         <div class="shot-headtools">
           <button class="microbtn" id="shotUndo" type="button" aria-label="Undo">↶</button>
           <button class="microbtn" id="shotRedo" type="button" aria-label="Redo">↷</button>
-          <button class="microbtn" id="shotAdvancedToggle" type="button" aria-pressed="false">⋯</button>
+          <button class="microbtn legacy-hook" id="shotAdvancedToggle" type="button" aria-pressed="false" hidden>⋯</button>
         </div>
       </div>
-      <p class="clead"><b id="cAxN">8</b> assi coordinati, <b id="cCount">15.120</b> combinazioni possibili. Progetta uno stato visivo, poi aggancialo a uno shot della sequenza.</p>
-      <div class="workctx" id="cContext">Modalità libera · nessuno shot collegato</div>
-      <div class="prig">
+      <p class="clead"><b id="cAxN">11</b> assi coordinati, <b id="cCount">—</b> combinazioni possibili.</p>
+      <div class="workctx" id="cContext">Modalità libera</div>
+      <div class="prig shot-player-rig">
         <div class="vpbar">
           <div class="vptabs" role="tablist" aria-label="Viewport">
             <button class="vptab" id="cVpPrev" role="tab" aria-selected="true">Anteprima</button>
@@ -1214,39 +1340,45 @@
         </div>
         <div class="cprev" id="cprev"></div>
       </div>
-      <section class="dial-block tech-dial-block" aria-label="Preset tecnico">
-        <div class="dial-caption"><span id="shotTechCaption">COREOGRAFIA</span><button class="dial-side" id="shotTechReset" type="button">RESET</button></div>
-        <div class="dial-window"><div class="snap-dial" id="shotTechDial"></div><i class="dial-index" aria-hidden="true"></i></div>
+
+      <div class="shot-primary-actions">
+        <button class="cbtn pri" id="cRand">Genera variante</button>
+        <button class="cbtn" id="cReset">Reset</button>
+      </div>
+
+      <section class="shot-delta-summary" aria-label="Ricetta e delta">
+        <div class="section-kicker"><span id="shotRecipeCaption">RICETTA · DELTA</span><b id="shotDeltaCount">0 Δ</b></div>
+        <div class="delta-chip-rail swipe-edge" id="shotDeltaChips"></div>
       </section>
-      <div class="shot-mini-recipe" id="shotMiniRecipe"></div>
-      <div class="cprev-bar">
-        <button class="cbtn pri" id="cRand">Combinazione casuale</button>
-        <button class="cbtn" id="cReset">Azzera</button>
-        <div class="crecipe" id="cRecipe"></div>
-      </div>
-      <div class="workflowbar">
-        <button class="cbtn pri" id="cSaveShot">Salva nello shot</button>
-        <button class="cbtn" id="cUseA">Usa come A</button>
-        <button class="cbtn" id="cUseB">Usa come B</button>
-        <button class="cbtn" id="cBackTime">← Time</button>
-        <div class="intentbox push">
-          <select class="cselect" id="cIntent" aria-label="Intenzione visiva">
-            <option value="stable">Alta stabilità AI</option>
-            <option value="hero">Hero premium</option>
-            <option value="texture">Texture / materiale</option>
-            <option value="copy">Spazio per copy</option>
-            <option value="impact">Alto impatto</option>
-            <option value="catalog">Catalogo pulito</option>
-          </select>
-          <button class="cbtn" id="cIntentGo">Genera</button>
+
+      <section class="dial-block tech-dial-block" aria-label="Tipologia di shot">
+        <div class="dial-caption"><span id="shotTechCaption">TIPOLOGIA DI SHOT</span><button class="dial-side" id="shotTechReset" type="button">RESET</button></div>
+        <div class="dial-window"><div class="snap-dial" id="shotTechDial"></div><i class="dial-index" aria-hidden="true"></i></div>
+        <div class="shot-preset-rail swipe-edge" id="shotPresetRail" aria-label="Preset della tipologia"></div>
+      </section>
+
+      <section class="shot-variant-section" aria-label="Varianti generate">
+        <div class="section-kicker"><span id="shotVariantsCaption">VARIANTI</span><b id="shotVariantCount">0</b></div>
+        <div class="shot-variant-gallery swipe-edge" id="shotVariantGallery"></div>
+      </section>
+
+      <section class="shot-parameter-section">
+        <div class="section-kicker parameter-kicker"><span id="shotParamsTitle">PARAMETRI START</span><b id="shotLocksCount">0 LOCK</b></div>
+        <div id="cAxes"></div>
+        <div class="cread">
+          <h3 id="shotReadTitle">Lettura tecnica</h3>
+          <div class="creadgrid"><div id="cNotes"></div>
+          <div id="cMetrics" class="cmetrics"></div>
+          <div class="cverdict"><div class="lbl">Diagnosi dello shot</div><div class="txt" id="cVerdict"></div></div></div>
         </div>
-      </div>
-      <div id="cAxes"></div>
-      <div class="cread">
-        <h3>Lettura dello shot</h3>
-        <div class="creadgrid"><div id="cNotes"></div>
-        <div id="cMetrics" class="cmetrics"></div>
-        <div class="cverdict"><div class="lbl">Diagnosi dello shot</div><div class="txt" id="cVerdict"></div></div></div>
+      </section>
+
+      <!-- Legacy hooks retained for the single-file runtime; intentionally hidden. -->
+      <div class="legacy-hooks" hidden>
+        <div class="shot-mini-recipe" id="shotMiniRecipe"></div>
+        <div class="crecipe" id="cRecipe"></div>
+        <button id="cSaveShot"></button><button id="cUseA"></button><button id="cUseB"></button><button id="cBackTime"></button>
+        <select id="cIntent"><option value="stable">stable</option></select><button id="cIntentGo"></button>
       </div>
     </div>
   </section>
@@ -1318,17 +1450,16 @@
   <section class="seq" id="seq" aria-label="Sequenza">
     <div class="swrap">
       <div id="headerSentinel" class="header-sentinel" aria-hidden="true"></div>
-      <div id="seqPlayerMount"></div>
-      <section class="dial-block role-dial-block" aria-label="Tipologia di shot">
-        <div class="dial-caption"><span id="seqRoleCaption">TIPOLOGIA SHOT</span><button class="dial-side" id="seqRoleAction" type="button">RESET</button></div>
-        <div class="dial-window"><div class="snap-dial" id="seqShotDial"></div><i class="dial-index" aria-hidden="true"></i></div>
-        <div class="variant-rail" id="seqVariantDial" aria-label="Varianti"></div>
+      <section class="dial-block seq-template-block" aria-label="Preset sequenza">
+        <div class="dial-caption"><span id="seqTemplateCaption">PRESET SEQUENZA</span><button class="dial-side" id="seqTemplateClear" type="button">SVUOTA</button></div>
+        <div class="dial-window"><div class="snap-dial seq-template-dial" id="seqTemplateDial"></div><i class="dial-index" aria-hidden="true"></i></div>
       </section>
+      <div id="seqPlayerMount"></div>
       <div class="seq-quickbar">
         <button class="microbtn" id="seqUndo" type="button" aria-label="Undo">↶</button>
         <button class="microbtn" id="seqRedo" type="button" aria-label="Redo">↷</button>
         <button class="microbtn grow" id="seqEditShot" type="button">EDIT SHOT</button>
-        <button class="microbtn" id="seqProjectBtn" type="button">⋯ PROGETTO</button>
+        <button class="microbtn" id="seqProjectBtn" type="button">PROGETTO</button>
       </div>
       <p class="slead">Una sequenza è una <b>curva di energia</b>. Trascina i blocchi dalla libreria alle tracce, riordina, regola le durate.</p>
       <div class="tools">
@@ -1404,18 +1535,23 @@
         <button class="swave-x" id="sWaveX" type="button" aria-label="Rimuovi traccia">×</button>
       </div>
 
-      <h3 class="slib-h">Libreria — trascina, apri o premi +</h3>
-      <div class="slib" id="sLib"></div>
+      <section class="dial-block role-dial-block" aria-label="Tipologia di shot selezionato">
+        <div class="dial-caption"><span id="seqRoleCaption">TIPOLOGIA SHOT SELEZIONATO</span><button class="dial-side" id="seqRoleAction" type="button">RESET</button></div>
+        <div class="dial-window"><div class="snap-dial" id="seqShotDial"></div><i class="dial-index" aria-hidden="true"></i></div>
+        <div class="variant-rail swipe-edge" id="seqVariantDial" aria-label="Varianti"></div>
+      </section>
 
-      <h3 class="slib-h">Shot list · breakdown</h3>
-      <div class="srec" id="sRecipe"></div>
+      <section class="project-inline" id="projectInline">
+        <div class="project-inline-head"><span id="projectInlineCaption">PROGETTO</span><b>MEMENTO</b></div>
+        <div id="projectInlineMount"></div>
+        <h3 class="slib-h">Libreria — trascina, apri o premi +</h3>
+        <div class="slib" id="sLib"></div>
+
+        <h3 class="slib-h">Shot list · breakdown</h3>
+        <div class="srec" id="sRecipe"></div>
+      </section>
     </div>
   </section>
-
-  <div class="option-dial" id="optionDial" hidden>
-    <div class="option-head"><div><span id="optionState">START</span><b id="optionAxis">—</b></div><button type="button" id="optionClose" aria-label="Chiudi">×</button></div>
-    <div class="dial-window"><div class="snap-dial option-rail" id="optionRail"></div><i class="dial-index" aria-hidden="true"></i></div>
-  </div>
 
   <aside class="recipe-dock seq-recipe-dock" id="seqRecipeDock" hidden>
     <div class="dock-state"><span id="seqDockTitle">SHOT</span></div>
@@ -1423,13 +1559,14 @@
   </aside>
 
   <aside class="dual-recipe-dock" id="shotDualDock" hidden>
-    <div class="dual-statebar">
-      <button type="button" id="editStart" aria-pressed="true">START</button>
-      <button type="button" id="editEnd" aria-pressed="false">END</button>
-      <span id="dualDeltaCount">0 Δ</span>
+    <div class="dual-dock-head"><span id="dualDockCaption">START / END</span><b id="dualDeltaCount">0 Δ</b></div>
+    <div class="dual-row start" data-side="start"><button class="dual-label" id="startRowLabel" type="button">START</button><div class="recipe-rail swipe-edge" id="startRecipeRail"></div></div>
+    <div class="inline-option-panel" id="optionDial" hidden>
+      <div class="inline-option-head"><span id="optionState">START</span><b id="optionAxis">—</b></div>
+      <div class="dial-window"><div class="snap-dial option-rail" id="optionRail"></div><i class="dial-index" aria-hidden="true"></i></div>
     </div>
-    <div class="dual-row"><span class="dual-label">START</span><div class="recipe-rail" id="startRecipeRail"></div></div>
-    <div class="dual-row end"><span class="dual-label">END</span><div class="recipe-rail" id="endRecipeRail"></div></div>
+    <div class="dual-row end" data-side="end"><button class="dual-label" id="endRowLabel" type="button">END</button><div class="recipe-rail swipe-edge" id="endRecipeRail"></div></div>
+    <button id="editStart" hidden></button><button id="editEnd" hidden></button><button id="optionClose" hidden></button>
   </aside>
 
   <div class="sheet-backdrop" id="projectBackdrop" hidden>
@@ -2296,7 +2433,8 @@ const ENG=(function(){
     const motion={none:0,clone:.12,grid:.18,spiral:.28,vortex:.42,kaleido:.45,multi:.40,explode:.36,stack:.24,orbitm:.30,wave:.27,scatter:.42}[q._motion]||0;
     const base={particle:.16,curl:.20,spark:.28,orbitdust:.18,data:.12}[q._atmo]||0;
     const remaining=THREE.MathUtils.clamp(1-light*.58-motion*.24,.16,1);
-    q.fxOpacity=base*remaining*(q.fxIntensity==null?1:THREE.MathUtils.clamp(q.fxIntensity,0,1.25));
+    const atmoBlend=q.atmoBlend==null?1:THREE.MathUtils.clamp(q.atmoBlend,0,1);
+    q.fxOpacity=base*remaining*atmoBlend*(q.fxIntensity==null?1:THREE.MathUtils.clamp(q.fxIntensity,0,1.25));
     q.fxPointScale=.74+.26*remaining; q.lightBudget=remaining;
     return q;
   }
@@ -2412,26 +2550,26 @@ const ENG=(function(){
 
     /* animated curated rigs: a few meaningful systems instead of a free light
        editor. Every motion is seamless over LOOP seconds. */
-    const lm=p._light;
+    const lm=p._light, lb=THREE.MathUtils.clamp(p.lightBlend==null?1:p.lightBlend,0,1);
     if(lm==="sweep"){
-      const a=(-.9+ph*1.8)*Math.PI;
-      rimA.position.set(Math.sin(a)*RR,1.15+Math.sin(ph*Math.PI*2)*.3,Math.cos(a)*RR);
-      rimA.intensity=2.4+1.35*(.5+.5*Math.sin(ph*Math.PI*2));
-      rimB.intensity=.8; keyL.intensity=.28; fillL.intensity=.12;
+      const a=(-.9+ph*1.8)*Math.PI, targetPos=new THREE.Vector3(Math.sin(a)*RR,1.15+Math.sin(ph*Math.PI*2)*.3,Math.cos(a)*RR);
+      rimA.position.lerp(targetPos,lb);
+      rimA.intensity=THREE.MathUtils.lerp(rimA.intensity,2.4+1.35*(.5+.5*Math.sin(ph*Math.PI*2)),lb);
+      rimB.intensity=THREE.MathUtils.lerp(rimB.intensity,.8,lb); keyL.intensity=THREE.MathUtils.lerp(keyL.intensity,.28,lb); fillL.intensity=THREE.MathUtils.lerp(fillL.intensity,.12,lb);
     }else if(lm==="beauty"){
-      const q=Math.sin(ph*Math.PI*2);
-      keyL.position.set(-2.8+q*.55,2.6,3.2); fillL.position.set(3.1-q*.35,.8,2.5);
-      keyL.intensity=1.8; fillL.intensity=1.0; backL2.intensity=1.65;
-      ambStudio.intensity=.42; rimA.intensity=1.1; hemi.intensity=.34;
+      const q=Math.sin(ph*Math.PI*2),kp=new THREE.Vector3(-2.8+q*.55,2.6,3.2),fp=new THREE.Vector3(3.1-q*.35,.8,2.5);
+      keyL.position.lerp(kp,lb);fillL.position.lerp(fp,lb);
+      keyL.intensity=THREE.MathUtils.lerp(keyL.intensity,1.8,lb); fillL.intensity=THREE.MathUtils.lerp(fillL.intensity,1.0,lb); backL2.intensity=THREE.MathUtils.lerp(backL2.intensity,1.65,lb);
+      ambStudio.intensity=THREE.MathUtils.lerp(ambStudio.intensity,.42,lb); rimA.intensity=THREE.MathUtils.lerp(rimA.intensity,1.1,lb); hemi.intensity=THREE.MathUtils.lerp(hemi.intensity,.34,lb);
     }else if(lm==="portal"){
       const pulse=.82+.18*Math.sin(ph*Math.PI*2);
-      backL.intensity=3.35*pulse; rimA.intensity=.92; rimB.intensity=.68;
-      spotL.intensity=4.5; spotL.position.set(0,2.8,-4.4);
-      hemi.intensity=.10; amb.intensity=.14; key.intensity=.10;
+      backL.intensity=THREE.MathUtils.lerp(backL.intensity,3.35*pulse,lb); rimA.intensity=THREE.MathUtils.lerp(rimA.intensity,.92,lb); rimB.intensity=THREE.MathUtils.lerp(rimB.intensity,.68,lb);
+      spotL.intensity=THREE.MathUtils.lerp(spotL.intensity,4.5,lb); spotL.position.lerp(new THREE.Vector3(0,2.8,-4.4),lb);
+      hemi.intensity=THREE.MathUtils.lerp(hemi.intensity,.10,lb); amb.intensity=THREE.MathUtils.lerp(amb.intensity,.14,lb); key.intensity=THREE.MathUtils.lerp(key.intensity,.10,lb);
     }else if(lm==="pulse"){
       const pulse=.5+.5*Math.pow(.5+.5*Math.sin(ph*Math.PI*2),2.0);
-      rimA.intensity=.85+2.35*pulse; topL.intensity=.22+.78*(1-pulse);
-      rimB.intensity=.28+.52*(1-pulse);
+      rimA.intensity=THREE.MathUtils.lerp(rimA.intensity,.85+2.35*pulse,lb); topL.intensity=THREE.MathUtils.lerp(topL.intensity,.22+.78*(1-pulse),lb);
+      rimB.intensity=THREE.MathUtils.lerp(rimB.intensity,.28+.52*(1-pulse),lb);
     }
 
     /* atmosphere — deterministic shared frame budget, never auto-exposure. */
@@ -2498,7 +2636,9 @@ const ENG=(function(){
         m.position.set((r1-0.5)*8,(r2-0.5)*4.6,BACK-(r3*2.2));
         m.scale.setScalar((0.1+r1*0.16)*S);
         m.rotation.set(r2*3,r3*3+ph*0.6,0); }; }
-      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=true; place(m,i);
+      const motionBlend=THREE.MathUtils.clamp(p.motionBlend==null?1:p.motionBlend,0,1);
+      for(let i=0;i<n&&i<CLONE_N;i++){ const m=cloneMesh[i]; m.visible=motionBlend>.002; place(m,i);
+        m.scale.multiplyScalar(Math.max(.001,motionBlend));
         m.userData.localPos.copy(m.position); }
     }
 
@@ -3205,8 +3345,31 @@ function pairRenderAt(A,B,runtime,duration,local,loop){
   const rt=runtimeFrom(runtime),dur=Math.max(.2,duration||rt.duration||2.8); let raw;
   if(loop){const cycle=((local%(dur*2))+(dur*2))%(dur*2);raw=cycle<=dur?cycle/dur:2-cycle/dur;}
   else raw=Math.max(0,Math.min(1,local/dur));
-  const e=easeShot(raw,rt.easing), p=mixP(params(A),params(B),e), fx=rt.fxIntensity||[.06,.12];
-  p.amp=rt.cameraAmplitude==null?1:rt.cameraAmplitude; p.fxIntensity=lerp(fx[0]||0,fx[1]||0,e);
+  /* Back easing is excellent once, but produces a visible kick when a preview
+     ping-pongs. The preview therefore uses a symmetric curve while the actual
+     one-shot timeline keeps the authored easing. */
+  const easing=(loop&&rt.easing==="easeOutBack")?"easeInOutCubic":rt.easing;
+  const e=easeShot(raw,easing),pA=params(A),pB=params(B),p=mixP(pA,pB,e),fx=rt.fxIntensity||[.06,.12];
+  const stableMode=(a,b,fallback)=>a===b?a:(b&&b!=="none"&&b!=="clean"&&b!=="void"?b:(a||fallback));
+  /* Categorical systems no longer flip at 50%. A single camera rig drives the
+     whole move, while motion/atmosphere fade in or out through numeric weights. */
+  p._cam=rt.cameraMode||stableMode(A.cam,B.cam,"static");
+  const cameraBlend=A.cam===B.cam?1:(A.cam==="static"?e:(B.cam==="static"?1-e:1));
+  p._motion=stableMode(A.motion,B.motion,"none");
+  p.motionBlend=A.motion===B.motion?1:(B.motion==="none"?1-e:e);
+  p._atmo=stableMode(A.atmo,B.atmo,"clean");
+  p.atmoBlend=A.atmo===B.atmo?1:(B.atmo==="clean"?1-e:e);
+  /* Different curated light rigs are blended numerically without swapping the
+     animated rig midway through the shot. Identical rigs retain their motion. */
+  const animatedLights=["sweep","beauty","portal","pulse"];
+  if(A.luce===B.luce){p._light=A.luce;p.lightBlend=1;}
+  else if(animatedLights.includes(B.luce)){p._light=B.luce;p.lightBlend=e;}
+  else if(animatedLights.includes(A.luce)){p._light=A.luce;p.lightBlend=1-e;}
+  else{p._light="blend";p.lightBlend=0;}
+  p._env=stableMode(A.env,B.env,"void");
+  p._rot=A.rot===B.rot?A.rot:(B.rot||A.rot);
+  p.amp=(rt.cameraAmplitude==null?1:rt.cameraAmplitude)*cameraBlend;
+  p.fxIntensity=lerp(fx[0]||0,fx[1]||0,e);
   const lp=rt.lightPhase||[0,1],engineTime=lerp(lp[0]||0,lp[1]==null?1:lp[1],e)*3.5;
   return {sel:e<.5?A:B,p,time:engineTime,progress:e,raw};
 }
@@ -3308,7 +3471,7 @@ function cRandLabel(){
   }
 }
 buildAxes(cAxesHost, selC, renderC, {locks:cLocks, excl:cExcl,
-  onLock:__syncLocks, onExcl:__syncLocks});
+  onLock:()=>__syncLocks(), onExcl:()=>__syncLocks()});
 LOCK_HOSTS.push(cAxesHost);
 window.__lockLabel=cRandLabel;
 cRandLabel();
@@ -3704,6 +3867,7 @@ function applyTechnicalPresetData(it,presetId,opts){
   Object.assign(base,p.start||{}); const end=cloneSel(base); Object.assign(end,p.end||{});
   it.start=base; it.end=end; it.technicalPresetId=p.id; it.runtime=runtimeFrom(p.runtime); it.runtime.duration=p.duration||it.runtime.duration;
   it.inheritedEndAxes={}; AXES.forEach(a=>it.inheritedEndAxes[a.id]=base[a.id]===end[a.id]);
+  if(!it.locks)it.locks={}; if(!Array.isArray(it.variants))it.variants=[];
   if(opts.setDuration!==false&&p.duration) it.dur=p.duration;
   return it;
 }
@@ -3711,6 +3875,7 @@ function applyRolePresetData(it,roleId,variantId,opts){
   opts=opts||{}; const r=ROLE_BY_ID[roleId]||ROLE_PRESETS[0], variant=(r.variants||[]).includes(variantId)?variantId:(r.variants&&r.variants[0])||"standard";
   it.role={presetId:r.id,variantId:variant}; it.id=r.base; it.start=roleRecipeById(r.id,variant); it.end=cloneSel(it.start);
   it.runtime=runtimeFrom(); it.inheritedEndAxes={}; AXES.forEach(a=>it.inheritedEndAxes[a.id]=true);
+  it.locks=it.locks||{};it.variants=Array.isArray(it.variants)?it.variants:[];it.activeVariantId=null;
   applyTechnicalPresetData(it,opts.techId||r.tech,{setDuration:opts.setDuration!==false});
   if(opts.keepDuration&&Number.isFinite(opts.oldDuration)) it.dur=opts.oldDuration;
   return it;
@@ -3750,7 +3915,7 @@ const sLib=document.getElementById("sLib"), sEnergy=document.getElementById("sEn
 const LANES={shot:document.getElementById("lane-shot"),
              trans:document.getElementById("lane-trans"),
              audio:document.getElementById("lane-audio")};
-const PROJECT_KEY="memento.visual-reference.project.v3", LEGACY_PROJECT_KEY="memento.visual-reference.project.v2", PROJECT_VERSION=3;
+const PROJECT_KEY="memento.visual-reference.project.v4", LEGACY_PROJECT_KEY="memento.visual-reference.project.v3", PROJECT_VERSION=4;
 const FORMATS=["16:9","9:16","1:1","4:5","2.39:1"];
 let TL=[];               /* {uid,id,role,technicalPresetId,start,end,runtime,img,selected,dur,note} */
 let dragFrom=null, activeShotUid=null, projectFormat="16:9", projectReady=false;
@@ -3781,6 +3946,11 @@ function normalizeItem(raw){
     const f=raw.frame||{};it.start=cloneSel(raw.start||f.A||raw.comp||roleRecipeById(rid,variant));it.end=cloneSel(raw.end||f.B||it.start);
     it.mid=raw.mid?cloneSel(raw.mid):(f.M?cloneSel(f.M):null);it.runtime=runtimeFrom(raw.runtime);
     it.inheritedEndAxes=Object.assign({},raw.inheritedEndAxes||{});AXES.forEach(a=>{if(it.inheritedEndAxes[a.id]==null)it.inheritedEndAxes[a.id]=it.start[a.id]===it.end[a.id]});
+    it.shotType=typeof raw.shotType==="string"?raw.shotType:null;
+    it.locks=Object.assign({},raw.locks||{});
+    it.variants=Array.isArray(raw.variants)?raw.variants.slice(-48).map(v=>({id:v.id||uid(),label:v.label||"Variant",technicalPresetId:v.technicalPresetId||"custom",shotType:v.shotType||it.shotType,
+      start:cloneSel(v.start||it.start),end:cloneSel(v.end||v.start||it.end),runtime:runtimeFrom(v.runtime||it.runtime),duration:Number(v.duration)||it.dur})):[];
+    it.activeVariantId=typeof raw.activeVariantId==="string"?raw.activeVariantId:null;
   }
   return it;
 }
@@ -3802,7 +3972,7 @@ function persistProject(){
 }
 function loadProject(){
   try{
-    const raw=localStorage.getItem(PROJECT_KEY)||localStorage.getItem(LEGACY_PROJECT_KEY); if(!raw) return null;
+    const raw=localStorage.getItem(PROJECT_KEY)||localStorage.getItem(LEGACY_PROJECT_KEY)||localStorage.getItem("memento.visual-reference.project.v2"); if(!raw) return null;
     const data=JSON.parse(raw); if(!data||!Array.isArray(data.timeline)) return null;
     return {timeline:normalizeTimeline(data.timeline),format:FORMATS.includes(data.format)?data.format:"16:9",
       activeShotUid:typeof data.activeShotUid==="string"?data.activeShotUid:null};
@@ -3838,7 +4008,8 @@ function updateContexts(){
 function copyInto(target,src){ AXES.forEach(a=>target[a.id]=cloneSel(src)[a.id]); }
 function loadShotIntoEditor(it,switchMode){
   if(!it||!B(it.id)||B(it.id)[6]!=="shot") return false;
-  activeShotUid=it.uid;shotEditSide="start";copyInto(selC,shotStart(it));syncAxes(cAxesHost,selC);setShotPreviewItem(it);renderC();updateContexts();persistProject();
+  activeShotUid=it.uid;shotEditSide="start";it.shotType=it.shotType||SHOT_TYPE_BY_PRESET[it.technicalPresetId]||"hero";
+  copyInto(selC,shotStart(it));syncAxes(cAxesHost,selC);setShotPreviewItem(it);if(typeof syncLocksFromShot==="function")syncLocksFromShot(it);renderC();updateContexts();persistProject();
   if(typeof renderVNextUI==="function")renderVNextUI();if(switchMode!==false&&window.__setMode)window.__setMode("combo");return true;
 }
 function loadABIntoEditor(it,switchMode){
@@ -4412,10 +4583,38 @@ const OPT_EN={
  atmo:{clean:"Clean void",particle:"Particles",curl:"Curl flow",spark:"Spark burst",orbitdust:"Orbital dust",data:"Data rain"}
 };
 const FAMILY_I18N={reveal:{it:"REVEAL",en:"REVEAL"},detail:{it:"DETAIL",en:"DETAIL"},hero:{it:"HERO",en:"HERO"},technical:{it:"TECHNICAL",en:"TECHNICAL"},graphic:{it:"GRAPHIC",en:"GRAPHIC"},closing:{it:"CLOSING",en:"CLOSING"},subtle:{it:"SUBTLE",en:"SUBTLE"},camera:{it:"CAMERA",en:"CAMERA"},focus:{it:"FOCUS",en:"FOCUS"},subject:{it:"SUBJECT",en:"SUBJECT"}};
+const SHOT_TYPES=[
+ {id:"hero",it:"HERO",en:"HERO",presets:["breathing-studio","push-sweep","beauty-orbit","quarter-turn","slow-light-pass"],
+  vary:["luce","lens","focus","comp","size","rot","view","env","atmo"],pools:{luce:["beauty","sweep","duo","rim","spot"],lens:["normal","tele85"],focus:["shallow","deep"],comp:["center","thirds","extreme"],size:["m","l","xl"],rot:["r0","r45","r90"],view:["quarter","low","macro3q"],env:["void","floor","limbo"],atmo:["clean","particle","orbitdust"]}},
+ {id:"reveal",it:"REVEAL",en:"REVEAL",presets:["rim-sweep","portal-emergence","silhouette-beauty","top-descent","material-graze"],
+  vary:["luce","lens","focus","comp","size","rot","view","env","atmo"],pools:{luce:["silhou","portal","sweep","rim","grazing"],lens:["normal","tele85","macro"],focus:["deep","shallow","rack","macro"],comp:["center","thirds"],size:["s","m","l"],rot:["r0","r45","r90"],view:["center","quarter","high","macro3q"],env:["void","limbo"],atmo:["clean","curl","particle"]}},
+ {id:"motion",it:"MOTION",en:"MOTION",presets:["orbit-short","truck-parallax","crane-descend","pan-reveal","dolly-controlled","quarter-turn","half-turn"],
+  vary:["luce","cam","lens","comp","size","rot","view","env","atmo"],pools:{luce:["rim","beauty","sweep","duo"],cam:["orbit","truck","crane","pan","vertigo","push"],lens:["wide35","normal","tele85"],comp:["center","thirds","neg"],size:["m","l"],rot:["r0","r45","r90","r135"],view:["quarter","offset","low","high"],env:["void","floor"],atmo:["clean","particle","orbitdust"]}},
+ {id:"detail",it:"DETAIL",en:"DETAIL",presets:["macro-rack","macro-form","rack-hero","material-graze","micro-drift"],
+  vary:["luce","lens","focus","comp","size","rot","view","env","atmo"],pools:{luce:["grazing","sweep","hard","rim","beauty"],lens:["macro","tele85"],focus:["macro","rack","shallow"],comp:["center","thirds","extreme"],size:["m","l","xl"],rot:["r45","r90"],view:["shape","macro3q","quarter"],env:["void","limbo"],atmo:["clean","curl"]}},
+ {id:"technical",it:"TECH",en:"TECH",presets:["exploded-open","stack-assembly","data-pulse","truck-parallax","static-settle"],
+  vary:["luce","lens","focus","comp","size","rot","view","motion","env","atmo"],pools:{luce:["beauty","three","top","sweep"],lens:["normal","tele85"],focus:["deep","shallow"],comp:["center","neg","top"],size:["m","l"],rot:["r0","r45","r90"],view:["quarter","ortho","zenith"],motion:["none","explode","stack","grid","multi"],env:["void","floor","limbo"],atmo:["clean","data","orbitdust"]}},
+ {id:"graphic",it:"GRAPHIC",en:"GRAPHIC",presets:["vortex-peak","orbital-system","data-pulse","pattern-wave","kaleido-short","spark-impact"],
+  vary:["luce","cam","lens","focus","comp","size","rot","view","motion","env","atmo"],pools:{luce:["sweep","pulse","portal","duo"],cam:["drift","push","orbit"],lens:["wide35","normal"],focus:["deep","shallow"],comp:["center","top","extreme"],size:["s","m","l"],rot:["r0","r45","spin"],view:["quarter","zenith","center"],motion:["grid","wave","orbitm","vortex","kaleido","multi"],env:["void"],atmo:["clean","curl","spark","orbitdust","data"]}},
+ {id:"closing",it:"CLOSING",en:"CLOSING",presets:["logo-landing","claim-hold","slow-light-pass","fade-void","loop-return"],
+  vary:["luce","cam","lens","focus","comp","size","rot","view","env","atmo"],pools:{luce:["rim","sweep","beauty","silhou"],cam:["static","drift","push"],lens:["normal","tele85"],focus:["deep","shallow"],comp:["neg","center"],size:["s","m","l"],rot:["r0","r45"],view:["center","quarter","offset"],env:["void","limbo"],atmo:["clean"]}}
+];
+const SHOT_TYPE_BY_ID=Object.fromEntries(SHOT_TYPES.map(x=>[x.id,x]));
+const SHOT_TYPE_BY_PRESET={};SHOT_TYPES.forEach(t=>t.presets.forEach(id=>{if(!SHOT_TYPE_BY_PRESET[id])SHOT_TYPE_BY_PRESET[id]=t.id}));
+const TYPE_DELTA_AXES={
+  hero:["luce","focus","rot","size"],
+  reveal:["luce","focus","rot","size","atmo"],
+  motion:["rot","comp","size","luce"],
+  detail:["focus","luce","rot","size"],
+  technical:["motion","rot","luce","atmo"],
+  graphic:["motion","rot","luce","atmo","size"],
+  closing:["luce","focus","size","comp"]
+};
+
 const UI={
  manifesto:{it:"<b>Un'immagine è uno stato.</b> Un movimento è un delta. Una sequenza è una curva.",en:"<b>An image is a state.</b> A movement is a delta. A sequence is a curve."},
- role:{it:"TIPOLOGIA SHOT",en:"SHOT ROLE"},choreo:{it:"COREOGRAFIA",en:"CHOREOGRAPHY"},reset:{it:"RESET",en:"RESET"},add:{it:"AGGIUNGI",en:"ADD"},
- edit:{it:"EDIT SHOT",en:"EDIT SHOT"},project:{it:"⋯ PROGETTO",en:"⋯ PROJECT"},format:{it:"FORMATO",en:"FORMAT"},done:{it:"← SEQ",en:"← SEQ"},
+ role:{it:"TIPOLOGIA SHOT SELEZIONATO",en:"SELECTED SHOT TYPE"},choreo:{it:"TIPOLOGIA DI SHOT",en:"SHOT TYPE"},reset:{it:"RESET",en:"RESET"},add:{it:"AGGIUNGI",en:"ADD"},
+ edit:{it:"EDIT SHOT",en:"EDIT SHOT"},project:{it:"PROGETTO",en:"PROJECT"},format:{it:"FORMATO",en:"FORMAT"},done:{it:"← SEQ",en:"← SEQ"},
  delta:{it:"TEST · DELTA AI",en:"TEST · AI DELTA"},noShot:{it:"Seleziona uno shot",en:"Select a shot"},start:{it:"START",en:"START"},end:{it:"END",en:"END"},
  advanced:{it:"Dettagli avanzati",en:"Advanced details"},close:{it:"Chiudi",en:"Close"},terms:{it:"termini",en:"terms"}
 };
@@ -4443,10 +4642,10 @@ function redo(){if(!REDO.length)return;const cur=projectSnapshot(),n=REDO.pop();
 function updateHistoryButtons(){["seqUndo","shotUndo"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!HISTORY.length});["seqRedo","shotRedo"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!REDO.length})}
 
 let seqDialRoleId="shape-reveal",seqDialVariant="standard",shotPreviewOverride=null,activeOption=null,optionBefore=null;
-let dialGestureBefore=null, suppressEditorSync=false, vnextInit=false, syncingRails=false;
-const seqShotDial=document.getElementById("seqShotDial"),seqVariantDial=document.getElementById("seqVariantDial"),shotTechDial=document.getElementById("shotTechDial");
+let dialGestureBefore=null,suppressEditorSync=false,vnextInit=false,syncingRails=false,activeShotTypeId="hero",activeSequencePreset="teaser",syncingShotLocks=false;
+const seqShotDial=document.getElementById("seqShotDial"),seqVariantDial=document.getElementById("seqVariantDial"),shotTechDial=document.getElementById("shotTechDial"),shotPresetRail=document.getElementById("shotPresetRail");
 const seqRecipeRail=document.getElementById("seqRecipeRail"),startRecipeRail=document.getElementById("startRecipeRail"),endRecipeRail=document.getElementById("endRecipeRail");
-const optionDial=document.getElementById("optionDial"),optionRail=document.getElementById("optionRail");
+const optionDial=document.getElementById("optionDial"),optionRail=document.getElementById("optionRail"),shotVariantGallery=document.getElementById("shotVariantGallery"),seqTemplateDial=document.getElementById("seqTemplateDial");
 
 function nearestDialButton(rail){
   const r=rail.getBoundingClientRect(),cx=r.left+r.width/2;let best=null,dist=1e9;
@@ -4476,7 +4675,7 @@ function addCurrentRole(){const before=projectSnapshot(),it=newItemFromRole(seqD
 function resetSelectedRole(){const it=selectedShot();if(!it){addCurrentRole();return;}const before=projectSnapshot(),r=roleOf(it);applyRolePresetData(it,r.id,roleVariant(it),{setDuration:true});activeShotUid=it.uid;setShotPreviewItem(it);drawTL();pushHistory(before)}
 
 function buildRoleDial(){
-  seqShotDial.innerHTML=ROLE_PRESETS.map(r=>{const b=B(r.base);return '<button class="dial-item" type="button" data-id="'+r.id+'">'+(b?b[5]:"")+'<b>'+escapeHTML(r[currentLang()]||r.it)+'</b><span>'+familyName(r.family)+'</span></button>'}).join("");
+  seqShotDial.innerHTML=ROLE_PRESETS.map(r=>'<button class="dial-item" type="button" data-id="'+r.id+'"><b>'+escapeHTML(r[currentLang()]||r.it)+'</b><span>'+familyName(r.family)+'</span></button>').join("");
   wireSnapDial(seqShotDial,id=>previewRole(id,seqDialVariant),(id,before)=>{if(selectedShot())commitRole(id,seqDialVariant,before)},id=>{if(selectedShot())commitRole(id,seqDialVariant,projectSnapshot());else addCurrentRole()});
 }
 function renderVariantRail(roleId,active){
@@ -4491,38 +4690,129 @@ function syncRoleDialFromSelection(forceCenter){
   const act=document.getElementById("seqRoleAction");if(act)act.textContent=it?tr("reset"):tr("add");
 }
 
-function previewTech(id){
-  const it=activeShot()||selectedShot();if(!it)return;const pv=cloneProjectItem(it);applyTechnicalPresetData(pv,id,{setDuration:true});shotPreviewOverride=pv;setShotPreviewItem(pv);renderShotDocks(pv);renderShotHeader(pv);
+function shotTypeOf(it){
+  const inferred=it&&it.technicalPresetId&&SHOT_TYPE_BY_PRESET[it.technicalPresetId];
+  return SHOT_TYPE_BY_ID[(it&&it.shotType)||inferred]||SHOT_TYPE_BY_ID.hero;
 }
-function commitTech(id,before){
-  const it=activeShot()||selectedShot();if(!it)return;applyTechnicalPresetData(it,id,{setDuration:true});shotPreviewOverride=null;setShotPreviewItem(it);drawTL();pushHistory(before);
+function shotTypeLabel(type){return type?(type[currentLang()]||type.it):"SHOT"}
+function previewShotPreset(id,typeId){
+  const it=activeShot()||selectedShot();if(!it)return;const pv=cloneProjectItem(it);applyTechnicalPresetData(pv,id,{setDuration:true});pv.shotType=typeId||SHOT_TYPE_BY_PRESET[id]||activeShotTypeId;shotPreviewOverride=pv;setShotPreviewItem(pv);renderShotDocks(pv);renderShotHeader(pv);
 }
+function commitShotPreset(id,typeId,before,remember){
+  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();applyTechnicalPresetData(it,id,{setDuration:true});it.shotType=typeId||SHOT_TYPE_BY_PRESET[id]||activeShotTypeId;shotPreviewOverride=null;activeShotTypeId=it.shotType;setShotPreviewItem(it);if(remember)rememberVariant(it,techLabel(techOf(id)));drawTL();pushHistory(before);
+}
+function renderShotPresetRail(typeId,activeId){
+  const type=SHOT_TYPE_BY_ID[typeId]||SHOT_TYPES[0];activeShotTypeId=type.id;
+  shotPresetRail.innerHTML=type.presets.map(id=>{const p=techOf(id);return '<button class="shot-preset '+(id===activeId?'active':'')+'" type="button" data-id="'+id+'"><b>'+escapeHTML(techLabel(p))+'</b><span>'+escapeHTML(shotTypeLabel(type))+' · '+(p.duration||2.8).toFixed(1)+'s</span></button>'}).join("");
+  shotPresetRail.onclick=e=>{const b=e.target.closest(".shot-preset");if(!b)return;const before=projectSnapshot();commitShotPreset(b.dataset.id,type.id,before,true)};
+}
+function previewShotType(typeId){const type=SHOT_TYPE_BY_ID[typeId]||SHOT_TYPES[0],it=activeShot()||selectedShot();activeShotTypeId=type.id;renderShotPresetRail(type.id,type.presets[0]);if(it)previewShotPreset(type.presets[0],type.id)}
+function commitShotType(typeId,before){const type=SHOT_TYPE_BY_ID[typeId]||SHOT_TYPES[0];commitShotPreset(type.presets[0],type.id,before,true)}
 function buildTechDial(){
-  shotTechDial.innerHTML=TECH_PRESETS.map(p=>'<button class="dial-item" type="button" data-id="'+p.id+'"><b>'+escapeHTML(techLabel(p))+'</b><span>'+familyName(p.family)+'</span></button>').join("");
-  wireSnapDial(shotTechDial,previewTech,commitTech,id=>commitTech(id,projectSnapshot()));
+  shotTechDial.innerHTML=SHOT_TYPES.map(t=>'<button class="dial-item" type="button" data-id="'+t.id+'"><b>'+escapeHTML(shotTypeLabel(t))+'</b><span>'+t.presets.length+' '+(currentLang()==="en"?"MOVES":"VARIANTI")+'</span></button>').join("");
+  wireSnapDial(shotTechDial,previewShotType,commitShotType,id=>commitShotType(id,projectSnapshot()));
+  const it=activeShot()||selectedShot(),type=shotTypeOf(it);renderShotPresetRail(type.id,it&&it.technicalPresetId);
 }
-function syncTechDial(forceCenter){const it=activeShot()||selectedShot(),id=it&&TECH_BY_ID[it.technicalPresetId]?it.technicalPresetId:"static-settle";setDialActive(shotTechDial,id);if(forceCenter)centerDial(shotTechDial,id,"auto")}
+function syncTechDial(forceCenter){const it=activeShot()||selectedShot(),type=shotTypeOf(it),id=type.id;activeShotTypeId=id;setDialActive(shotTechDial,id);renderShotPresetRail(id,it&&it.technicalPresetId);if(forceCenter)centerDial(shotTechDial,id,"auto")}
 
-function recipeChip(ax,sel,extra){
-  const op=optOf(ax.id,sel[ax.id]),cl=["recipe-chip"];if(extra&&extra.diff)cl.push("diff");if(extra&&extra.same)cl.push("same");if(extra&&extra.linked)cl.push("linked");
-  return '<button class="'+cl.join(" ")+'" type="button" data-axis="'+ax.id+'" data-side="'+((extra&&extra.side)||"start")+'">'+(op?op[2]:"")+'<span class="axis">'+axisShort(ax.id)+'</span><span class="value">'+escapeHTML(optionName(ax.id,sel[ax.id]))+'</span></button>';
+function pickOne(arr){return arr&&arr.length?arr[Math.floor(Math.random()*arr.length)]:null}
+function shuffled(arr){const a=[...(arr||[])];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function cloneVariantState(v){return {id:v.id,label:v.label,technicalPresetId:v.technicalPresetId,shotType:v.shotType,start:cloneSel(v.start),end:cloneSel(v.end),runtime:runtimeFrom(v.runtime),duration:v.duration}}
+function variantRecord(it,label){return {id:uid(),label:label||"Variant",technicalPresetId:it.technicalPresetId||"custom",shotType:shotTypeOf(it).id,start:shotStart(it),end:shotEnd(it),runtime:runtimeState(it),duration:it.dur}}
+function sameVariant(a,b){return a&&b&&sameSel(a.start,b.start)&&sameSel(a.end,b.end)&&a.technicalPresetId===b.technicalPresetId}
+function rememberVariant(it,label){
+  if(!it)return null;it.variants=Array.isArray(it.variants)?it.variants:[];
+  const v=variantRecord(it,label||((currentLang()==="en"?"Variant ":"Variante ")+(it.variants.length+1)));
+  const last=it.variants[it.variants.length-1];if(last&&sameVariant(last,v)){it.activeVariantId=last.id;return last}
+  it.variants.push(v);if(it.variants.length>48)it.variants.splice(0,it.variants.length-48);it.activeVariantId=v.id;return v;
 }
-function renderSeqDock(){
-  const dock=document.getElementById("seqRecipeDock"),it=selectedShot();dock.hidden=window.__currentMode!=="seq"||!it;if(!it)return;
-  document.getElementById("seqDockTitle").textContent=roleLabel(it);const s=shotStart(it);seqRecipeRail.innerHTML=AXES.map(a=>recipeChip(a,s,{side:"start"})).join("");
-  seqRecipeRail.onclick=e=>{const b=e.target.closest(".recipe-chip");if(b)openOptionDial(it,"start",b.dataset.axis)};
+function applyVariantRecord(it,v,before){
+  if(!it||!v)return;if(typeof closeOptionDial==="function")closeOptionDial();it.start=cloneSel(v.start);it.end=cloneSel(v.end);it.runtime=runtimeFrom(v.runtime);it.dur=v.duration||it.dur;it.technicalPresetId=v.technicalPresetId||"custom";it.shotType=v.shotType||SHOT_TYPE_BY_PRESET[it.technicalPresetId]||it.shotType;it.activeVariantId=v.id;
+  AXES.forEach(a=>it.inheritedEndAxes[a.id]=it.start[a.id]===it.end[a.id]);shotPreviewOverride=null;setShotPreviewItem(it);syncLocksFromShot(it);drawTL();if(before)pushHistory(before)
 }
+function renderVariantThumbs(it,records){
+  requestAnimationFrame(()=>records.forEach((v,i)=>{const cv=shotVariantGallery&&shotVariantGallery.querySelector('canvas[data-variant="'+cssEscape(v.id)+'"]');if(!cv)return;cv.width=240;cv.height=135;
+    setTimeout(()=>{const r=pairRenderAt(v.start,v.end,v.runtime,v.duration||2.8,(v.duration||2.8)*.56,false);draw(cv,r.sel,r.p,r.time)},i*18)}))
+}
+function renderVariantGallery(it){
+  if(!shotVariantGallery)return;if(!it){shotVariantGallery.innerHTML="";return}it.variants=Array.isArray(it.variants)?it.variants:[];
+  const records=it.variants.length?it.variants:[variantRecord(it,currentLang()==="en"?"Current":"Corrente")];
+  shotVariantGallery.innerHTML=records.map((v,i)=>'<button class="shot-variant-card '+((it.activeVariantId===v.id||(!it.activeVariantId&&i===records.length-1))?'active':'')+'" type="button" data-id="'+v.id+'"><canvas data-variant="'+v.id+'"></canvas><b>'+escapeHTML(v.label)+'</b><span>'+escapeHTML(techLabel(techOf(v.technicalPresetId)))+' · '+AXES.filter(a=>v.start[a.id]!==v.end[a.id]).length+' Δ</span></button>').join("");
+  const count=document.getElementById("shotVariantCount");if(count)count.textContent=String(it.variants.length||1);
+  shotVariantGallery.onclick=e=>{const b=e.target.closest(".shot-variant-card");if(!b)return;const rec=it.variants.find(v=>v.id===b.dataset.id);if(rec)applyVariantRecord(it,rec,projectSnapshot())};
+  renderVariantThumbs(it,records)
+}
+function safePairForType(A,Bv,type,runtime){
+  [A,Bv].forEach(sel=>{
+    if(sel.lens==="macro"){if(!["macro","rack","shallow"].includes(sel.focus))sel.focus="macro";if(!["macro3q","shape","quarter"].includes(sel.view))sel.view="macro3q";if(sel.size==="xs"||sel.size==="s")sel.size="m"}
+    if(sel.lens==="wide18"&&sel.focus==="macro")sel.focus="shallow";
+    if(sel.cam==="vertigo"&&!['wide35','tele85'].includes(sel.lens))sel.lens="wide35";
+    if(["vortex","kaleido","multi","explode"].includes(sel.motion)&&["spark","curl","data"].includes(sel.atmo))sel.atmo=sel.motion==="vortex"?"orbitdust":"clean";
+  });
+  if((A.atmo==="spark"||Bv.atmo==="spark")&&(A.luce==="pulse"||Bv.luce==="pulse"||A.luce==="portal"||Bv.luce==="portal"))runtime.fxIntensity=[Math.min(runtime.fxIntensity[0]||0,.12),Math.min(runtime.fxIntensity[1]||0,.32)];
+  const diff=AXES.filter(a=>A[a.id]!==Bv[a.id]);if(diff.length>4)diff.slice(4).forEach(a=>Bv[a.id]=A[a.id]);
+}
+function generateCoherentVariant(it,typeId){
+  if(!it)return;const type=SHOT_TYPE_BY_ID[typeId]||shotTypeOf(it),locks=it.locks||{},oldA=shotStart(it),oldB=shotEnd(it),presetId=pickOne(type.presets)||type.presets[0];
+  const pv=cloneProjectItem(it);applyTechnicalPresetData(pv,presetId,{setDuration:true});pv.shotType=type.id;
+  const common=shuffled(type.vary.filter(ax=>!locks[ax])).slice(0,2+Math.floor(Math.random()*3));
+  common.forEach(ax=>{const val=pickOne(type.pools[ax]);if(val){pv.start[ax]=val;pv.end[ax]=val}});
+  const deltaAxes=TYPE_DELTA_AXES[type.id]||type.vary;
+  const deltaCandidates=shuffled(deltaAxes.filter(ax=>!locks[ax]&&type.pools[ax]&&type.pools[ax].length>1));
+  const desired=1+Math.floor(Math.random()*2);let added=0;
+  for(const ax of deltaCandidates){if(added>=desired)break;const choices=type.pools[ax].filter(v=>v!==pv.start[ax]);if(!choices.length)continue;pv.end[ax]=pickOne(choices);added++}
+  AXES.forEach(a=>{if(locks[a.id]){pv.start[a.id]=oldA[a.id];pv.end[a.id]=oldB[a.id]}});
+  safePairForType(pv.start,pv.end,type,pv.runtime);AXES.forEach(a=>{if(locks[a.id]){pv.start[a.id]=oldA[a.id];pv.end[a.id]=oldB[a.id]}});
+  it.start=cloneSel(pv.start);it.end=cloneSel(pv.end);it.runtime=runtimeFrom(pv.runtime);it.dur=pv.dur;it.technicalPresetId=presetId;it.shotType=type.id;it.activeVariantId=null;
+  AXES.forEach(a=>it.inheritedEndAxes[a.id]=it.start[a.id]===it.end[a.id]);return it
+}
+function generateShotVariant(){
+  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();const before=projectSnapshot();if(!Array.isArray(it.variants)||!it.variants.length)rememberVariant(it,currentLang()==="en"?"Original":"Originale");
+  generateCoherentVariant(it,activeShotTypeId||shotTypeOf(it).id);rememberVariant(it,(currentLang()==="en"?"Variant ":"Variante ")+it.variants.length);shotPreviewOverride=null;setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
+}
+function resetShotToType(){
+  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();const before=projectSnapshot(),type=SHOT_TYPE_BY_ID[activeShotTypeId]||shotTypeOf(it),locks=Object.assign({},it.locks||{}),oldA=shotStart(it),oldB=shotEnd(it);
+  applyTechnicalPresetData(it,type.presets[0],{setDuration:true});it.shotType=type.id;it.locks=locks;AXES.forEach(a=>{if(locks[a.id]){it.start[a.id]=oldA[a.id];it.end[a.id]=oldB[a.id]}});rememberVariant(it,currentLang()==="en"?"Reset":"Reset");setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
+}
+function applySequenceTemplate(key,before){
+  const pre=PRESETS[key];if(!pre)return;activeSequencePreset=key;TL=pre.ids.map(newItem).filter(Boolean);const first=TL.find(x=>B(x.id)&&B(x.id)[6]==="shot");if(first){first.selected=true;activeShotUid=first.uid;setShotPreviewItem(first)}
+  applyProjectFormat(key==="short"?"9:16":"16:9",false);drawTL();setDialActive(seqTemplateDial,key);if(before)pushHistory(before)
+}
+function buildSequenceTemplateDial(){
+  const en=currentLang()==="en",labels={teaser:"Teaser",trailer:"Trailer",intro:"Intro",reveal:en?"Classic reveal":"Reveal classico",tech:"Tech / feature",short:en?"Vertical short":"Short verticale",launch:"Launch",loop:en?"Social loop":"Loop social",spot:"Spot 15s",unbox:"Unboxing",catalog:en?"Catalog":"Catalogo",mood:"Mood film"};
+  seqTemplateDial.innerHTML=Object.keys(PRESETS).map(k=>{const shots=PRESETS[k].ids.filter(id=>B(id)&&B(id)[6]==="shot").length;return '<button class="dial-item" type="button" data-id="'+k+'"><b>'+escapeHTML(labels[k]||PRESETS[k].label)+'</b><span>'+shots+' SHOT</span></button>'}).join("");
+  wireSnapDial(seqTemplateDial,id=>{activeSequencePreset=id},(id,before)=>applySequenceTemplate(id,before),id=>applySequenceTemplate(id,projectSnapshot()));setDialActive(seqTemplateDial,activeSequencePreset);requestAnimationFrame(()=>centerDial(seqTemplateDial,activeSequencePreset,"auto"))
+}
+
+function recipeCell(ax,sel,extra,it){
+  const cl=["recipe-cell"],side=(extra&&extra.side)||"start",diff=!!(extra&&extra.diff),same=!!(extra&&extra.same),active=activeOption&&activeOption.side===side&&activeOption.axis===ax.id;
+  if(diff)cl.push("diff");if(same)cl.push("same");if(active)cl.push("active");if(it&&it.locks&&it.locks[ax.id])cl.push("locked");
+  return '<div class="'+cl.join(" ")+'" data-axis="'+ax.id+'" data-side="'+side+'"><button class="recipe-chip" type="button" data-axis="'+ax.id+'" data-side="'+side+'"><span class="axis">'+axisShort(ax.id)+'</span><span class="value">'+escapeHTML(optionName(ax.id,sel[ax.id]))+'</span></button><button class="axis-lock" type="button" data-lock-axis="'+ax.id+'" aria-label="Lock '+escapeHTML(axisName(ax.id))+'">LOCK</button></div>';
+}
+function syncLocksFromShot(it){
+  if(!it)return;syncingShotLocks=true;Object.keys(LOCKS).forEach(k=>delete LOCKS[k]);Object.assign(LOCKS,it.locks||{});__syncLocks();syncingShotLocks=false;
+}
+const __baseSyncLocks=__syncLocks;
+__syncLocks=function(){
+  __baseSyncLocks();if(syncingShotLocks)return;const it=activeShot()||selectedShot();if(it){it.locks=Object.assign({},LOCKS);persistProject();renderShotDocks(it);renderShotHeader(it)}
+};
+function toggleShotLock(it,axis){
+  if(!it)return;const before=projectSnapshot();it.locks=it.locks||{};it.locks[axis]=!it.locks[axis];if(!it.locks[axis])delete it.locks[axis];syncLocksFromShot(it);renderShotDocks(it);renderShotHeader(it);pushHistory(before);
+}
+function renderSeqDock(){const dock=document.getElementById("seqRecipeDock");if(dock)dock.hidden=true}
 function renderShotDocks(source){
   const dock=document.getElementById("shotDualDock"),it=source||shotPreviewOverride||activeShot()||selectedShot();dock.hidden=window.__currentMode!=="combo"||!it;if(!it)return;
-  const A=shotStart(it),Bv=shotEnd(it);startRecipeRail.innerHTML=AXES.map(a=>recipeChip(a,A,{side:"start"})).join("");
-  endRecipeRail.innerHTML=AXES.map(a=>recipeChip(a,Bv,{side:"end",diff:A[a.id]!==Bv[a.id],same:A[a.id]===Bv[a.id],linked:it.inheritedEndAxes&&it.inheritedEndAxes[a.id]})).join("");
+  const A=shotStart(it),Bv=shotEnd(it);startRecipeRail.innerHTML=AXES.map(a=>recipeCell(a,A,{side:"start",same:A[a.id]===Bv[a.id]},it)).join("");
+  endRecipeRail.innerHTML=AXES.map(a=>recipeCell(a,Bv,{side:"end",diff:A[a.id]!==Bv[a.id],same:A[a.id]===Bv[a.id]},it)).join("");
   const d=AXES.filter(a=>A[a.id]!==Bv[a.id]).length;document.getElementById("dualDeltaCount").textContent=d+" Δ";
-  [startRecipeRail,endRecipeRail].forEach(r=>r.onclick=e=>{const b=e.target.closest(".recipe-chip");if(!b)return;selectEditSide(b.dataset.side);openOptionDial(activeShot()||selectedShot(),b.dataset.side,b.dataset.axis)});
+  [startRecipeRail,endRecipeRail].forEach(r=>r.onclick=e=>{const lock=e.target.closest(".axis-lock");if(lock){toggleShotLock(activeShot()||selectedShot(),lock.dataset.lockAxis);return}const b=e.target.closest(".recipe-chip");if(!b)return;selectEditSide(b.dataset.side);openOptionDial(activeShot()||selectedShot(),b.dataset.side,b.dataset.axis)});
+  document.querySelectorAll("#shotDualDock .dual-row").forEach(row=>row.classList.toggle("active",row.dataset.side===shotEditSide));
 }
 function syncDualRails(src,dst){if(syncingRails)return;syncingRails=true;dst.scrollLeft=src.scrollLeft;requestAnimationFrame(()=>syncingRails=false)}
 function selectEditSide(side){
-  shotEditSide=side==="end"?"end":"start";document.getElementById("editStart").setAttribute("aria-pressed",String(shotEditSide==="start"));document.getElementById("editEnd").setAttribute("aria-pressed",String(shotEditSide==="end"));
+  shotEditSide=side==="end"?"end":"start";document.querySelectorAll("#shotDualDock .dual-row").forEach(row=>row.classList.toggle("active",row.dataset.side===shotEditSide));
   const it=activeShot()||selectedShot();if(!it)return;suppressEditorSync=true;copyInto(selC,shotEditSide==="end"?shotEnd(it):shotStart(it));syncAxes(cAxesHost,selC);renderC();suppressEditorSync=false;
+  const title=document.getElementById("shotParamsTitle");if(title)title.textContent=(currentLang()==="en"?"PARAMETERS ":"PARAMETRI ")+(shotEditSide==="end"?"END":"START");
 }
 function setAxisOnShot(it,side,axis,value,live){
   if(!it)return;it.inheritedEndAxes=it.inheritedEndAxes||{};
@@ -4537,23 +4827,28 @@ function syncEditorSelectionToShot(commit){
   else{it.start=cloneSel(selC);AXES.forEach(a=>{if(it.inheritedEndAxes[a.id]!==false)it.end[a.id]=it.start[a.id]})}
   setShotPreviewItem(it);renderShotDocks(it);renderShotHeader(it);persistProject();if(before)pushHistory(before);
 }
-
 function openOptionDial(it,side,axis){
   if(!it)return;activeOption={it,side,axis};optionBefore=projectSnapshot();const ax=AXMAP[axis],sel=side==="end"?shotEnd(it):shotStart(it);
   document.getElementById("optionState").textContent=side==="end"?tr("end"):tr("start");document.getElementById("optionAxis").textContent=axisName(axis);
-  optionRail.innerHTML=ax.opts.map(o=>'<button class="dial-item" type="button" data-id="'+o[0]+'">'+o[2]+'<b>'+escapeHTML(optionName(axis,o[0]))+'</b></button>').join("");
+  optionRail.innerHTML=ax.opts.map(o=>'<button class="dial-item" type="button" data-id="'+o[0]+'"><b>'+escapeHTML(optionName(axis,o[0]))+'</b></button>').join("");
   optionDial.hidden=false;document.body.classList.add("option-open");
-  wireSnapDial(optionRail,id=>setAxisOnShot(it,side,axis,id,true),(id,before)=>{setAxisOnShot(it,side,axis,id,false);pushHistory(before||optionBefore);optionBefore=projectSnapshot()},id=>{setAxisOnShot(it,side,axis,id,false);pushHistory(optionBefore);closeOptionDial()});
-  setDialActive(optionRail,sel[axis]);requestAnimationFrame(()=>centerDial(optionRail,sel[axis],"auto"));
+  wireSnapDial(optionRail,id=>setAxisOnShot(it,side,axis,id,true),(id,before)=>{setAxisOnShot(it,side,axis,id,false);pushHistory(before||optionBefore);optionBefore=projectSnapshot()},id=>{setAxisOnShot(it,side,axis,id,false);pushHistory(optionBefore);optionBefore=projectSnapshot()});
+  setDialActive(optionRail,sel[axis]);requestAnimationFrame(()=>centerDial(optionRail,sel[axis],"auto"));renderShotDocks(it);
 }
-function closeOptionDial(){optionDial.hidden=true;document.body.classList.remove("option-open");activeOption=null;optionBefore=null}
-
+function closeOptionDial(){optionDial.hidden=true;document.body.classList.remove("option-open");activeOption=null;optionBefore=null;renderShotDocks(activeShot()||selectedShot())}
+function deltaChipHTML(ax,A,Bv){
+  const same=A[ax.id]===Bv[ax.id];return '<div class="delta-chip '+(same?'same':'')+'"><span class="axis">'+axisShort(ax.id)+'</span><div class="flow"><span class="from">'+escapeHTML(optionName(ax.id,A[ax.id]))+'</span><span class="arrow">'+(same?'=':'→')+'</span><span class="to">'+escapeHTML(optionName(ax.id,Bv[ax.id]))+'</span></div></div>';
+}
 function renderShotHeader(it){
-  it=it||shotPreviewOverride||activeShot()||selectedShot();const title=document.getElementById("shotActiveTitle"),fam=document.getElementById("shotRoleFamily"),mini=document.getElementById("shotMiniRecipe");
-  if(!it){title.textContent=tr("noShot");fam.textContent="SHOT";mini.textContent="";return;}
-  title.textContent=roleLabel(it);fam.textContent=familyName(roleOf(it).family);const A=shotStart(it),Bv=shotEnd(it);
-  mini.innerHTML=AXES.map(a=>{const d=A[a.id]!==Bv[a.id];return d?'<b>'+axisShort(a.id)+': '+escapeHTML(optionName(a.id,A[a.id]))+' → '+escapeHTML(optionName(a.id,Bv[a.id]))+'</b>':escapeHTML(optionName(a.id,A[a.id]))}).join(" · ");
+  it=it||shotPreviewOverride||activeShot()||selectedShot();const title=document.getElementById("shotActiveTitle"),fam=document.getElementById("shotRoleFamily"),mini=document.getElementById("shotMiniRecipe"),chips=document.getElementById("shotDeltaChips");
+  if(!it){title.textContent=tr("noShot");fam.textContent="SHOT";if(mini)mini.textContent="";if(chips)chips.innerHTML="";return;}
+  const type=shotTypeOf(it);title.textContent=roleLabel(it);fam.textContent=shotTypeLabel(type);const A=shotStart(it),Bv=shotEnd(it),diffs=AXES.filter(a=>A[a.id]!==Bv[a.id]);
+  if(mini)mini.textContent="";if(chips)chips.innerHTML=(diffs.length?diffs:AXES.slice(0,4)).map(a=>deltaChipHTML(a,A,Bv)).join("");
+  const dc=document.getElementById("shotDeltaCount");if(dc)dc.textContent=diffs.length+" Δ";
+  const lc=document.getElementById("shotLocksCount");if(lc)lc.textContent=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length+" LOCK";
+  renderVariantGallery(it);
 }
+
 function renderDeltaVNext(){
   const it=activeShot()||selectedShot(),rail=document.getElementById("deltaDiffRail"),rt=document.getElementById("deltaRuntime");if(!rail||!rt)return;
   if(!it){document.getElementById("deltaShotTitle").textContent=tr("noShot");rail.innerHTML="";rt.textContent="";return;}
@@ -4585,6 +4880,10 @@ function applyLanguage(lang){
   document.getElementById("seqRoleCaption").textContent=tr("role");document.getElementById("shotTechCaption").textContent=tr("choreo");document.getElementById("seqEditShot").textContent=tr("edit");document.getElementById("seqProjectBtn").textContent=tr("project");
   document.getElementById("formatLabel").textContent=tr("format");document.getElementById("shotDone").textContent=tr("done");document.getElementById("deltaEyebrow").textContent=tr("delta");document.getElementById("deltaBack").textContent=tr("done");
   const en=currentLang()==="en";
+  const labels={shotRecipeCaption:en?"RECIPE · DELTA":"RICETTA · DELTA",shotVariantsCaption:en?"VARIANTS":"VARIANTI",shotReadTitle:en?"Technical readout":"Lettura tecnica",
+    seqTemplateCaption:en?"SEQUENCE PRESET":"PRESET SEQUENZA",seqTemplateClear:en?"CLEAR":"SVUOTA",projectInlineCaption:en?"PROJECT":"PROGETTO",dualDockCaption:"START / END",
+    startRowLabel:"START",endRowLabel:"END"};Object.entries(labels).forEach(([id,txt])=>{const el=document.getElementById(id);if(el)el.textContent=txt});
+  const rand=document.getElementById("cRand"),reset=document.getElementById("cReset");if(rand)rand.textContent=en?"Generate variant":"Genera variante";if(reset)reset.textContent="Reset";
   [["cVpPrev",en?"PREVIEW":"ANTEPRIMA"],["cVpWork",en?"WORK":"LAVORAZIONE"],["abVpPrev",en?"PREVIEW":"ANTEPRIMA"],["abVpWork",en?"WORK":"LAVORAZIONE"],
    ["sClear",en?"Clear":"Svuota"],["sPreviewOpen",en?"Open in Shot":"Apri in Shot"],["sPreviewClean","Playblast"]].forEach(([id,txt])=>{const el=document.getElementById(id);if(el)el.textContent=txt});
   const templateEN={teaser:"Teaser",trailer:"Trailer",intro:"Intro",reveal:"Classic reveal",tech:"Tech / feature",short:"Vertical short",launch:"Launch",loop:"Social loop",spot:"15s spot",unbox:"Unboxing",catalog:"Catalog",mood:"Mood film"};
@@ -4594,44 +4893,43 @@ function applyLanguage(lang){
     sOpen:["Apri in Shot","modifica la clip","Open in Shot","edit selected clip"],sOpenAB:["Test Delta","verifica drift AI","Test Delta","check AI drift"],sCopy:["Copia breakdown","negli appunti","Copy breakdown","to clipboard"],
     sExport:["Esporta .txt","scarica la shot list","Export .txt","download shot list"],sPdf:["Esporta PDF","stampa la shot list","Export PDF","print shot list"],sProjectExport:["Esporta progetto","file .memento.json","Export project",".memento.json file"],sProjectImport:["Importa progetto","riprendi la sessione","Import project","resume session"]};
   Object.entries(toolText).forEach(([id,a])=>{const el=document.getElementById(id),tool=el&&(el.closest(".tool")||el);if(!tool)return;const b=tool.querySelector("b"),s=tool.querySelector("span");if(b)b.textContent=currentLang()==="en"?a[2]:a[0];if(s)s.textContent=currentLang()==="en"?a[3]:a[1]});
-  buildRoleDial();buildTechDial();renderVNextUI();requestAnimationFrame(()=>{syncRoleDialFromSelection(true);syncTechDial(true)});setTimeout(applyGlossaryLanguage,0);setTimeout(applyGlossaryLanguage,240);
+  buildRoleDial();buildTechDial();buildSequenceTemplateDial();renderVNextUI();requestAnimationFrame(()=>{syncRoleDialFromSelection(true);syncTechDial(true)});setTimeout(applyGlossaryLanguage,0);setTimeout(applyGlossaryLanguage,240);
 }
 
 function initVNext(){
   if(vnextInit)return;vnextInit=true;
   const mount=document.getElementById("seqPlayerMount");if(mount&&timeRig)mount.appendChild(timeRig);
-  const body=document.getElementById("projectBody"),seq=document.getElementById("seq");
-  if(body&&seq){const tools=seq.querySelector(".tools"),sbar=seq.querySelector(".sbar"),note=seq.querySelector(".project-note"),lib=seq.querySelector("#sLib"),rec=seq.querySelector("#sRecipe");
-    [tools,sbar,note].forEach(x=>{if(x)body.appendChild(x)});
-    if(lib){const h=[...seq.querySelectorAll(".slib-h")].find(x=>x.nextElementSibling===lib);if(h)body.appendChild(h);body.appendChild(lib)}
-    if(rec){const h=[...seq.querySelectorAll(".slib-h")].find(x=>x.nextElementSibling===rec);if(h)body.appendChild(h);body.appendChild(rec)}
-  }
-  document.getElementById("seqProjectBtn").onclick=openProjectSheet;document.getElementById("projectClose").onclick=closeProjectSheet;document.getElementById("projectBackdrop").onclick=e=>{if(e.target.id==="projectBackdrop")closeProjectSheet()};
+  const seq=document.getElementById("seq"),inline=document.getElementById("projectInlineMount");
+  if(seq&&inline){const tools=seq.querySelector(".tools"),note=seq.querySelector(".project-note"),format=document.querySelector(".project-format");[format,tools,note].forEach(x=>{if(x)inline.appendChild(x)})}
+  document.getElementById("seqProjectBtn").onclick=()=>document.getElementById("projectInline").scrollIntoView({behavior:"smooth",block:"start"});
+  const close=document.getElementById("projectClose"),backdrop=document.getElementById("projectBackdrop");if(close)close.onclick=closeProjectSheet;if(backdrop)backdrop.onclick=e=>{if(e.target.id==="projectBackdrop")closeProjectSheet()};
   document.getElementById("seqEditShot").onclick=()=>{const it=selectedShot();if(it)loadShotIntoEditor(it)};document.getElementById("shotDone").onclick=backToTime;document.getElementById("deltaBack").onclick=backToTime;
-  document.getElementById("seqRoleAction").onclick=()=>selectedShot()?resetSelectedRole():addCurrentRole();document.getElementById("shotTechReset").onclick=()=>{const it=activeShot()||selectedShot();if(!it)return;const before=projectSnapshot();applyTechnicalPresetData(it,roleOf(it).tech,{setDuration:true});setShotPreviewItem(it);drawTL();pushHistory(before)};
-  document.getElementById("shotAdvancedToggle").onclick=function(){const on=!document.getElementById("combo").classList.contains("advanced");document.getElementById("combo").classList.toggle("advanced",on);this.setAttribute("aria-pressed",String(on));this.title=tr("advanced")};
+  document.getElementById("seqRoleAction").onclick=()=>selectedShot()?resetSelectedRole():addCurrentRole();document.getElementById("shotTechReset").onclick=resetShotToType;
+  document.getElementById("cRand").onclick=generateShotVariant;document.getElementById("cReset").onclick=resetShotToType;
   document.getElementById("seqUndo").onclick=document.getElementById("shotUndo").onclick=undo;document.getElementById("seqRedo").onclick=document.getElementById("shotRedo").onclick=redo;
-  document.getElementById("editStart").onclick=()=>selectEditSide("start");document.getElementById("editEnd").onclick=()=>selectEditSide("end");document.getElementById("optionClose").onclick=closeOptionDial;
+  document.getElementById("startRowLabel").onclick=()=>{selectEditSide("start");closeOptionDial()};document.getElementById("endRowLabel").onclick=()=>{selectEditSide("end");closeOptionDial()};
   startRecipeRail.addEventListener("scroll",()=>syncDualRails(startRecipeRail,endRecipeRail),{passive:true});endRecipeRail.addEventListener("scroll",()=>syncDualRails(endRecipeRail,startRecipeRail),{passive:true});
+  cAxesHost.addEventListener("click",e=>{if(!e.target.closest(".lock"))return;setTimeout(()=>{const it=activeShot()||selectedShot();if(it){it.locks=Object.assign({},LOCKS);renderShotDocks(it);renderShotHeader(it);persistProject()}},0)});
   document.getElementById("langToggle").onclick=e=>{const b=e.target.closest("button");if(b)applyLanguage(b.dataset.lang)};
   window.__openSelectedShot=function(switchMode){const it=selectedShot();if(!it)return false;const ok=loadShotIntoEditor(it,switchMode!==false);requestAnimationFrame(()=>syncTechDial(true));return ok};
-  window.__openDeltaForSelected=function(switchMode){const it=selectedShot();if(it){return loadABIntoEditor(it,switchMode!==false)}return false};
+  window.__openDeltaForSelected=function(switchMode){const it=selectedShot();if(it)return loadABIntoEditor(it,switchMode!==false);return false};
   const oldClear=document.getElementById("sClear");if(oldClear)oldClear.onclick=()=>{const before=projectSnapshot();TL=[];activeShotUid=null;drawTL();pushHistory(before)};
-  document.querySelectorAll("#sPresets button").forEach(b=>{const old=b.onclick;b.onclick=e=>{const before=projectSnapshot();old&&old.call(b,e);pushHistory(before)}});
-  const top=document.getElementById("topbar"),sent=document.getElementById("headerSentinel");if(top&&sent&&window.IntersectionObserver){new IntersectionObserver(es=>top.classList.toggle("compact",!es[0].isIntersecting),{threshold:.1}).observe(sent)}
-  buildRoleDial();buildTechDial();const it=selectedShot();if(it){activeShotUid=it.uid;setShotPreviewItem(it)}syncRoleDialFromSelection(true);syncTechDial(true);selectEditSide("start");
+  document.getElementById("seqTemplateClear").onclick=()=>{const before=projectSnapshot();TL=[];activeShotUid=null;drawTL();pushHistory(before)};
+  const top=document.getElementById("topbar");let raf=0;window.addEventListener("scroll",()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;top&&top.classList.toggle("compact",window.scrollY>64)})},{passive:true});
+  buildRoleDial();buildTechDial();buildSequenceTemplateDial();const it=selectedShot();if(it){activeShotUid=it.uid;it.shotType=it.shotType||SHOT_TYPE_BY_PRESET[it.technicalPresetId]||"hero";setShotPreviewItem(it);syncLocksFromShot(it)}
+  syncRoleDialFromSelection(true);syncTechDial(true);selectEditSide("start");
+  window.__lockLabel=()=>{const it=activeShot()||selectedShot();const lc=document.getElementById("shotLocksCount");if(lc&&it)lc.textContent=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length+" LOCK"};
   const lang=localStorage.getItem("memento.ui.lang")==="en"?"en":"it";applyLanguage(lang);updateHistoryButtons();window.__vnextReady=true;renderVNextUI();window.addEventListener("load",()=>setTimeout(applyGlossaryLanguage,260),{once:true});
 }
 
 const restored=loadProject();
 if(restored){
-  TL=restored.timeline; activeShotUid=restored.activeShotUid; applyProjectFormat(restored.format,false);
+  TL=restored.timeline; activeShotUid=restored.activeShotUid; applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid;}
 }else{
-  TL=PRESETS.teaser.ids.map(newItem).filter(Boolean); const first=TL.find(x=>B(x.id)&&B(x.id)[6]==="shot"); if(first) first.selected=true;
-  applyProjectFormat("16:9",false);
+  const hero=newItemFromRole("hero-push","clean");hero.selected=true;hero.shotType="hero";TL=[hero];activeShotUid=hero.uid;applyProjectFormat("16:9",false);
 }
 projectReady=true;drawTL();updateContexts();initVNext();
-if(window.__setMode)window.__setMode(window.__currentMode||"seq");else if(window.__onView)window.__onView("seq");
+if(window.__setMode)window.__setMode(window.__currentMode||"combo");else if(window.__onView)window.__onView("combo");
 if(typeof renderVNextUI==="function")renderVNextUI();
 
 })();
