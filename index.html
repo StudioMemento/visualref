@@ -1236,6 +1236,93 @@
     .project-inline .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
 
+
+
+  /* ========================================================================
+     POLISH PASS II — desktop alignment, conditional swipe cues, compact SEQ
+     ======================================================================== */
+  .top{font-weight:400}
+  .brandrow{width:min(1180px,100%);display:grid;grid-template-columns:1fr minmax(280px,auto) 1fr;align-items:center;gap:18px;max-height:30px}
+  .brandrow .brand{justify-self:start}.brandrow .manifesto{justify-self:center;max-width:620px;font-weight:400}.brandrow .langtoggle{justify-self:end}
+  .brandrow .manifesto b{font-weight:500}.langtoggle button,.modeswitch button{font-weight:500}
+  .navshell{width:min(1180px,100%)}
+  .shot-headbar,.delta-headbar{max-width:980px;margin-left:auto;margin-right:auto}
+  #shotDone{min-width:70px}
+  .prig .vphint{display:none!important}
+
+  /* The fixed START/END control belongs to the same content column as SHOT. */
+  .dual-recipe-dock{padding-inline:0}
+  .dual-recipe-dock>.dual-dock-head,.dual-recipe-dock>.dual-row,.dual-recipe-dock>.inline-option-panel{
+    width:min(980px,calc(100% - 32px));margin-left:auto;margin-right:auto}
+  .app:not(.v-combo) #shotDualDock{display:none!important}
+
+  /* Shot-type categories start from the left; preset cards remain swipeable. */
+  .tech-dial-block .snap-dial{padding:10px 10px 14px;scroll-snap-type:x proximity}
+  .tech-dial-block .dial-item{scroll-snap-align:start;transform:none;opacity:.52;align-items:flex-start;text-align:left;justify-content:center}
+  .tech-dial-block .dial-item.active{transform:none;opacity:1;position:relative}
+  .tech-dial-block .dial-item.active::after{content:"";position:absolute;left:12px;right:12px;bottom:-7px;height:2px;border-radius:2px;background:var(--accent)}
+  .tech-dial-block .dial-index{display:none}
+  .shot-preset{text-align:left}
+
+  /* Generated-variant gallery is deliberately removed; undo/redo is the history. */
+  .shot-variant-section{display:none!important}
+
+  /* Horizontal affordance appears only on the edge that truly clips content. */
+  .swipe-edge,.snap-dial,.trkl,.spresets,.recipe-rail,.shot-preset-rail,.variant-rail,.gchips,.combo .copts,.delta-chip-rail,.delta-diff-rail,.slibgrid{
+    box-shadow:none!important}
+  .dial-window::before,.dial-window::after{opacity:0;transition:opacity .16s var(--ease);border-radius:inherit;background:none}
+  .dial-window.scroll-cue.edge-left::before{opacity:1;background:linear-gradient(90deg,rgba(255,121,80,.16),rgba(255,121,80,0));border-radius:10px 0 0 10px}
+  .dial-window.scroll-cue.edge-right::after{opacity:1;background:linear-gradient(-90deg,rgba(255,121,80,.16),rgba(255,121,80,0));border-radius:0 10px 10px 0}
+  .scroll-cue{--cue-left:0;--cue-right:0;border-radius:10px;
+    box-shadow:inset 22px 0 22px -25px rgba(255,121,80,var(--cue-left)),inset -22px 0 22px -25px rgba(255,121,80,var(--cue-right))!important}
+  .scroll-cue.edge-left{--cue-left:.58}.scroll-cue.edge-right{--cue-right:.58}
+  .dial-window.scroll-cue{box-shadow:none!important}
+
+  /* SEQ card language is left aligned. */
+  .seq .dial-item{align-items:flex-start;text-align:left}.seq .dial-item b,.seq .dial-item span{text-align:left}
+  .seq-template-dial .dial-item{justify-content:center}
+
+  /* Compact reference row: FX and AUDIO share one line. */
+  .trk-reference{display:grid;grid-template-columns:1fr 1fr;min-height:84px;align-items:stretch}
+  .ref-lane{min-width:0;display:flex;align-items:stretch}.ref-lane+ .ref-lane{border-left:1px solid var(--line)}
+  .ref-lane .trkh{width:56px;min-height:84px;padding:0 9px;font-size:9px}.ref-lane .trkl{min-height:84px;padding:7px;gap:5px}
+  .ref-clip{width:78px!important;flex-basis:78px!important;min-height:68px;padding:6px;gap:4px;cursor:grab}
+  .ref-clip .th{height:30px;margin:0}.ref-clip .th svg{width:23px;height:23px}.ref-clip .nm{font-size:8px;-webkit-line-clamp:1}
+  .ref-clip .x{opacity:1}
+
+  /* Timeline shot controls: reroll, delete and explicit movement. */
+  .shot-clip{padding-top:22px;padding-bottom:24px}
+  .shot-clip .clip-tool{position:absolute;appearance:none;border:1px solid var(--line);background:rgba(7,7,9,.94);color:var(--txt-3);border-radius:5px;
+    width:20px;height:20px;display:grid;place-items:center;padding:0;font:700 12px/1 Inter;cursor:pointer;z-index:3}
+  .shot-clip .reroll{left:3px;top:3px}.shot-clip .x{right:3px;top:3px;width:20px;height:20px;opacity:1;border:1px solid var(--line);background:rgba(7,7,9,.94)}
+  .shot-clip .move{bottom:3px}.shot-clip .move-left{left:3px}.shot-clip .move-right{right:3px}
+  .shot-clip .clip-tool:hover,.shot-clip .x:hover{border-color:var(--accent);color:var(--accent);background:#17130f}
+  .clip-add{width:92px!important;flex-basis:92px!important;min-height:110px;align-self:stretch;border-style:dashed;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:7px;color:var(--txt-3);cursor:pointer}
+  .clip-add span{font-size:24px;font-weight:400;color:var(--accent)}.clip-add b{font:600 8px/1.25 var(--mono);letter-spacing:.1em;color:var(--txt-3)}
+  .clip-add:hover{border-color:var(--accent-dim);background:#17130f}
+
+  /* Aspect ratio lives beside Playblast. */
+  .preview-format{display:flex;align-items:center}
+  .preview-format select{appearance:none;height:34px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel);color:var(--txt-2);padding:0 25px 0 9px;
+    font:600 9px/1 var(--mono);cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--txt-3) 50%),linear-gradient(135deg,var(--txt-3) 50%,transparent 50%);
+    background-position:calc(100% - 11px) 48%,calc(100% - 7px) 48%;background-size:4px 4px;background-repeat:no-repeat}
+  .preview-format select:focus{outline:none;border-color:var(--accent)}
+
+  /* Project follows the complete library and precedes the breakdown. */
+  .project-tools-block{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+  .project-inline{margin-top:18px;padding-top:0;border-top:0}
+  .project-inline>.slib-h:first-child{margin-top:0}
+  .seq .srec{max-height:none!important;overflow:visible!important}
+
+  @media(max-width:900px){
+    .brandrow{grid-template-columns:auto minmax(0,1fr) auto;gap:9px}.brandrow .manifesto{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dual-recipe-dock>.dual-dock-head,.dual-recipe-dock>.dual-row,.dual-recipe-dock>.inline-option-panel{width:100%}
+    .trk-reference{grid-template-columns:1fr}.ref-lane+ .ref-lane{border-left:0;border-top:1px solid var(--line)}
+    .ref-lane .trkh{width:52px;min-height:68px}.ref-lane .trkl{min-height:68px}
+    .time-player{flex-wrap:wrap}.preview-format{margin-left:auto}.time-player .pmeta{flex:1 1 160px}.seq-progress{order:9}
+  }
+
 </style>
 </head>
 <body>
@@ -1243,12 +1330,12 @@
   <header class="top" id="topbar">
     <div class="brandrow">
       <div class="brand" aria-label="Memento Studio"><svg viewBox="0 0 1600 100" role="img" aria-label="MEMENTO"><polygon points="109.14,10.45 109.14,89.55 101.23,81.64 101.23,28.91 69.58,60.55 37.94,28.91 37.94,81.64 30.03,89.55 30.03,10.45 69.58,50"/><polygon points="596.08,10.45 596.08,89.55 588.17,81.64 588.17,28.91 556.52,60.55 524.88,28.91 524.88,81.64 516.97,89.55 516.97,10.45 556.52,50"/><polygon points="1077.74,10.45 1077.74,89.55 1017.09,28.91 1017.09,81.65 1009.18,89.55 1009.18,10.45 1069.84,71.09 1069.84,18.36"/><polygon points="344.7,81.64 352.61,89.55 273.5,89.55 281.41,81.64"/><rect x="297.23" y="46.05" width="31.64" height="7.91"/><polygon points="352.61,10.45 344.7,18.36 281.41,18.36 273.5,10.45"/><polygon points="831.64,81.64 839.55,89.55 760.44,89.55 768.35,81.64"/><rect x="784.17" y="46.05" width="31.64" height="7.91"/><polygon points="839.55,10.45 831.64,18.36 768.35,18.36 760.44,10.45"/><polygon points="1247.38,10.45 1326.49,10.45 1318.57,18.36 1290.88,18.36 1290.88,89.55 1282.98,81.64 1282.98,18.36 1255.29,18.36"/><path d="M1530.42,10.45L1530.42,10.45c-21.85,0-39.56,17.71-39.56,39.55c0,21.85,17.71,39.55,39.55,39.55h0 c21.85,0,39.55-17.7,39.55-39.55C1569.97,28.16,1552.27,10.45,1530.42,10.45z M1530.42,81.65L1530.42,81.65 c-17.47,0-31.64-14.17-31.64-31.65c0-17.47,14.17-31.64,31.64-31.64h0c17.48,0,31.64,14.17,31.64,31.64 C1562.06,67.48,1547.9,81.64,1530.42,81.65z"/></svg></div>
+      <div class="manifesto" id="manifesto"><b>Un'immagine è uno stato.</b> Un movimento è un delta. Una sequenza è una curva.</div>
       <div class="langtoggle" id="langToggle" role="group" aria-label="Language">
         <button type="button" data-lang="it" aria-pressed="true">IT</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </div>
-    <div class="manifesto" id="manifesto"><b>Un'immagine è uno stato.</b> Un movimento è un delta. Una sequenza è una curva.</div>
     <div class="navshell">
       <div class="modeswitch" role="group" aria-label="Vista principale">
         <button id="mCombo" aria-pressed="true">SHOT</button>
@@ -1321,7 +1408,7 @@
   <section class="combo" id="combo" aria-label="Shot designer">
     <div class="cfull">
       <div class="shot-headbar">
-        <button class="microbtn" id="shotDone" type="button">← SEQ</button>
+        <button class="microbtn" id="shotDone" type="button">SEQ ›</button>
         <div class="shot-headtitle"><span id="shotRoleFamily">SHOT</span><b id="shotActiveTitle">—</b></div>
         <div class="shot-headtools">
           <button class="microbtn" id="shotUndo" type="button" aria-label="Undo">↶</button>
@@ -1346,20 +1433,15 @@
         <button class="cbtn" id="cReset">Reset</button>
       </div>
 
-      <section class="shot-delta-summary" aria-label="Ricetta e delta">
-        <div class="section-kicker"><span id="shotRecipeCaption">RICETTA · DELTA</span><b id="shotDeltaCount">0 Δ</b></div>
-        <div class="delta-chip-rail swipe-edge" id="shotDeltaChips"></div>
-      </section>
-
       <section class="dial-block tech-dial-block" aria-label="Tipologia di shot">
         <div class="dial-caption"><span id="shotTechCaption">TIPOLOGIA DI SHOT</span><button class="dial-side" id="shotTechReset" type="button">RESET</button></div>
         <div class="dial-window"><div class="snap-dial" id="shotTechDial"></div><i class="dial-index" aria-hidden="true"></i></div>
         <div class="shot-preset-rail swipe-edge" id="shotPresetRail" aria-label="Preset della tipologia"></div>
       </section>
 
-      <section class="shot-variant-section" aria-label="Varianti generate">
-        <div class="section-kicker"><span id="shotVariantsCaption">VARIANTI</span><b id="shotVariantCount">0</b></div>
-        <div class="shot-variant-gallery swipe-edge" id="shotVariantGallery"></div>
+      <section class="shot-delta-summary" aria-label="Ricetta e delta">
+        <div class="section-kicker"><span id="shotRecipeCaption">RICETTA · DELTA</span><b id="shotDeltaCount">0 Δ</b></div>
+        <div class="delta-chip-rail swipe-edge" id="shotDeltaChips"></div>
       </section>
 
       <section class="shot-parameter-section">
@@ -1510,22 +1592,28 @@
           <button class="pctrl" id="sNextShot" type="button" aria-label="Shot successivo">›</button>
           <div class="pmeta"><b id="sPreviewTitle">Nessuno shot</b><span id="sPreviewMeta">Seleziona un'inquadratura</span><div class="seq-progress" aria-hidden="true"><i id="sPreviewProgress"></i></div></div>
           <button class="cbtn clean-shot" id="sPreviewClean" type="button">Playblast</button>
+          <label class="preview-format" aria-label="Aspect ratio"><select id="sPreviewFormat">
+            <option value="16:9">16:9</option><option value="9:16">9:16</option><option value="1:1">1:1</option>
+            <option value="4:5">4:5</option><option value="2.39:1">2.39:1</option>
+          </select></label>
           <button class="cbtn open-shot" id="sPreviewOpen" type="button">Apri in Shot</button>
         </div>
       </div>
 
       <div class="tracks" id="tracks">
-        <div class="trk" data-ty="shot">
+        <div class="trk trk-shot" data-ty="shot">
           <div class="trkh"><span class="dot s"></span>SHOT</div>
           <div class="trkl" id="lane-shot" data-ty="shot"></div>
         </div>
-        <div class="trk" data-ty="trans">
-          <div class="trkh"><span class="dot t"></span>FX</div>
-          <div class="trkl" id="lane-trans" data-ty="trans"></div>
-        </div>
-        <div class="trk" data-ty="audio">
-          <div class="trkh"><span class="dot a"></span>AUDIO</div>
-          <div class="trkl" id="lane-audio" data-ty="audio"></div>
+        <div class="trk trk-reference" aria-label="FX e audio di riferimento">
+          <div class="ref-lane" data-ty="trans">
+            <div class="trkh"><span class="dot t"></span>FX</div>
+            <div class="trkl" id="lane-trans" data-ty="trans"></div>
+          </div>
+          <div class="ref-lane" data-ty="audio">
+            <div class="trkh"><span class="dot a"></span>AUDIO</div>
+            <div class="trkl" id="lane-audio" data-ty="audio"></div>
+          </div>
         </div>
       </div>
       <svg class="senergy" id="sEnergy" viewBox="0 0 800 56" preserveAspectRatio="none" aria-hidden="true"></svg>
@@ -1542,10 +1630,13 @@
       </section>
 
       <section class="project-inline" id="projectInline">
-        <div class="project-inline-head"><span id="projectInlineCaption">PROGETTO</span><b>MEMENTO</b></div>
-        <div id="projectInlineMount"></div>
         <h3 class="slib-h">Libreria — trascina, apri o premi +</h3>
         <div class="slib" id="sLib"></div>
+
+        <div class="project-tools-block">
+          <div class="project-inline-head"><span id="projectInlineCaption">PROGETTO</span><b>MEMENTO</b></div>
+          <div id="projectInlineMount"></div>
+        </div>
 
         <h3 class="slib-h">Shot list · breakdown</h3>
         <div class="srec" id="sRecipe"></div>
@@ -1617,6 +1708,7 @@ function setMode(m){
   setPressed("mSeq",m==="seq"); setPressed("mCombo",m==="combo"); setPressed("mTest",!!testModes[m]);
   for(var k in BTN) if(k!=="seq"&&k!=="combo") setPressed(BTN[k],k===m);
   var sub=document.getElementById("testSubnav"); if(sub) sub.hidden=!testModes[m];
+  var dock=document.getElementById("shotDualDock"); if(dock) dock.hidden=(m!=="combo");
   var h=HOST[m]; if(h){var el=document.getElementById(h);if(el)el.scrollTop=0;}
   if(m==="combo"&&window.__openSelectedShot) window.__openSelectedShot(false);
   if(m==="comb2"&&window.__openDeltaForSelected) window.__openDeltaForSelected(false);
@@ -1630,6 +1722,7 @@ var s=document.getElementById("mSeq");if(s)s.onclick=function(){setMode("seq")};
 var c=document.getElementById("mCombo");if(c)c.onclick=function(){setMode("combo")};
 var t=document.getElementById("mTest");if(t)t.onclick=function(){setMode(lastTest||"comb2")};
 ["comb2","bench","gloss"].forEach(function(k){var b=document.getElementById(BTN[k]);if(b)b.onclick=function(){setMode(k)}});
+window.__currentMode="combo";
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -3495,8 +3588,8 @@ document.getElementById("cBackTime").onclick=()=>backToTime();
     VP.combo.on=on;
     bp.setAttribute("aria-selected",String(!on)); bw.setAttribute("aria-selected",String(on));
     host.classList.toggle("work",on);
-    if(on) hint.textContent="Trascina per orbitare · pizzica o usa la rotella per lo zoom";
-    else cRandLabel();
+    hint.textContent="";
+    if(!on) cRandLabel();
     if(window.__repaint) window.__repaint(); start();
   }
   bp.onclick=()=>set(false); bw.onclick=()=>set(true);
@@ -3663,7 +3756,7 @@ document.querySelectorAll(".abmobiletabs button").forEach(btn=>btn.onclick=()=>{
     VP.comb2.on=on;
     bp.setAttribute("aria-selected",String(!on)); bw.setAttribute("aria-selected",String(on));
     host.classList.toggle("work",on);
-    hint.textContent = on ? "Trascina per orbitare · pizzica o usa la rotella per lo zoom" : "";
+    hint.textContent = "";
     if(window.__repaint) window.__repaint(); start();
   }
   bp.onclick=()=>set(false); bw.onclick=()=>set(true);
@@ -3985,6 +4078,7 @@ function applyProjectFormat(value,save){
   document.documentElement.style.setProperty("--project-scale",String(scale));
   const app=document.querySelector(".app"); if(app) app.dataset.format=value;
   if(formatSelect) formatSelect.value=value;
+  const quickFormat=document.getElementById("sPreviewFormat"); if(quickFormat) quickFormat.value=value;
   sizeAll(); if(window.__repaint) window.__repaint();
   updateTimePreview(); if(save!==false) persistProject();
 }
@@ -4093,78 +4187,63 @@ Object.keys(LANES).forEach(ty=>{
   });
 });
 
+function moveTimelinePeer(index,dir){
+  const it=TL[index],b=B(it&&it.id);if(!it||!b)return false;
+  const peers=[];TL.forEach((x,i)=>{const xb=B(x.id);if(xb&&xb[6]===b[6])peers.push(i)});
+  const p=peers.indexOf(index),q=p+dir;if(p<0||q<0||q>=peers.length)return false;
+  const target=peers[q],tmp=TL[index];TL[index]=TL[target];TL[target]=tmp;return true;
+}
+function randomiseTimelineShot(it){
+  if(!it||!B(it.id)||B(it.id)[6]!=="shot")return;
+  const before=projectSnapshot();generateCoherentVariant(it,shotTypeOf(it).id);it.variants=[];it.activeVariantId=null;
+  activeShotUid=it.uid;TL.forEach(x=>x.selected=x===it);setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before);
+}
 function drawTL(){
   seqPlanCache=null;
   Object.values(LANES).forEach(l=>l.innerHTML="");
   TL.forEach((it,i)=>{
     const b=B(it.id); if(!b) return;
     const lane=LANES[b[6]]; if(!lane) return;
+    const isShot=b[6]==="shot";
     const d=document.createElement("div");
-    d.className="clip"+(it.selected?" sel":""); d.draggable=true; d.dataset.i=i;
+    d.className="clip"+(isShot?" shot-clip":" ref-clip t-"+b[6])+(it.selected?" sel":""); d.draggable=true; d.dataset.i=i;
     const thumb = it.img ? '<img src="'+it.img+'" alt="">' : b[5];
     let state="";
-    if(b[6]==="shot"){const edited=!sameSel(shotStart(it),roleRecipeById(roleOf(it).id,it.role&&it.role.variantId)),da=deltaAnalysis(shotStart(it),shotEnd(it));
+    if(isShot){const edited=!sameSel(shotStart(it),roleRecipeById(roleOf(it).id,it.role&&it.role.variantId)),da=deltaAnalysis(shotStart(it),shotEnd(it));
       if(da.count)state='<span class="state">Δ '+da.count+'</span>';else if(edited)state='<span class="state">EDIT</span>';}
-    d.innerHTML='<div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>'+state+
-      (b[3]>0?'<div class="dur"><input type="number" min="0.1" max="30" step="0.1" value="'+it.dur.toFixed(1)+'"></div>':'')+
-      '<textarea class="note'+(it.note?' has':'')+'" rows="3" placeholder="nota…"></textarea>'+
-      '<button class="x" aria-label="Rimuovi">×</button>';
-    d.querySelector(".x").onclick=e=>{ e.stopPropagation(); if(activeShotUid===it.uid) activeShotUid=null; TL.splice(i,1); drawTL(); updateContexts(); };
+    if(isShot){
+      d.innerHTML='<button class="clip-tool reroll" type="button" aria-label="Genera variante">↻</button>'+ 
+        '<button class="x" aria-label="Rimuovi">×</button><div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>'+state+
+        '<div class="dur"><input type="number" min="0.1" max="30" step="0.1" value="'+it.dur.toFixed(1)+'"></div>'+ 
+        '<textarea class="note'+(it.note?' has':'')+'" rows="3" placeholder="nota…"></textarea>'+ 
+        '<button class="clip-tool move move-left" type="button" aria-label="Sposta a sinistra">‹</button>'+ 
+        '<button class="clip-tool move move-right" type="button" aria-label="Sposta a destra">›</button>';
+    }else{
+      d.innerHTML='<button class="x" aria-label="Rimuovi">×</button><div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>';
+    }
+    const del=d.querySelector(".x");if(del)del.onclick=e=>{e.stopPropagation();const before=projectSnapshot();if(activeShotUid===it.uid)activeShotUid=null;TL.splice(i,1);drawTL();updateContexts();pushHistory(before)};
+    const reroll=d.querySelector(".reroll");if(reroll)reroll.onclick=e=>{e.stopPropagation();randomiseTimelineShot(it)};
+    [[".move-left",-1],[".move-right",1]].forEach(([sel,dir])=>{const btn=d.querySelector(sel);if(btn)btn.onclick=e=>{e.stopPropagation();const before=projectSnapshot();if(moveTimelinePeer(i,dir)){drawTL();pushHistory(before)}}});
     const inp=d.querySelector("input");
-    if(inp){
-      inp.onclick=e=>e.stopPropagation();
-      inp.onchange=()=>{ const v=parseFloat(inp.value);
-        it.dur = isNaN(v)?b[3]:Math.min(30,Math.max(0.1,v)); drawTL(); };
-    }
-    /* annotation: the note lives on the timeline item, travels with reorder,
-       and lands in the breakdown export */
+    if(inp){inp.onclick=e=>e.stopPropagation();inp.onchange=()=>{const before=projectSnapshot(),v=parseFloat(inp.value);it.dur=isNaN(v)?b[3]:Math.min(30,Math.max(.1,v));drawTL();pushHistory(before)}}
     const nt=d.querySelector(".note");
-    if(nt){
-      nt.value=it.note||"";
-      nt.onclick=e=>e.stopPropagation();
-      /* a textarea inside a draggable parent cannot be focused in Firefox
-         unless the drag is disabled while pointing at it */
-      nt.onmousedown=()=>{ d.draggable=false; };
-      nt.onblur=()=>{ d.draggable=true; nt.classList.toggle("has",!!nt.value.trim()); };
-      nt.oninput=()=>{ it.note=nt.value; nt.classList.toggle("has",!!nt.value.trim());
-        recipeOut(); persistProject(); };
-    }
-    d.onclick=()=>{setSelection(it);drawTL();};
-    d.ondblclick=()=>{if(b[6]==="shot")loadShotIntoEditor(it);};
-    d.addEventListener("dragstart",()=>{ dragFrom={kind:"tl",idx:i}; d.classList.add("drag"); });
-    d.addEventListener("dragend",()=>{ dragFrom=null; d.classList.remove("drag");
-      document.querySelectorAll(".clip").forEach(x=>x.classList.remove("over")); });
-    /* A clip accepts BOTH a reorder (from the timeline) and a new block (from
-       the library). Previously it bailed on anything that was not kind==="tl"
-       AND called stopPropagation, so a library drag onto an existing clip fell
-       through to nothing at all: the lane never saw it either. */
-    d.addEventListener("dragover",e=>{
-      if(!dragFrom) return;
-      const src = dragFrom.kind==="lib" ? B(dragFrom.id) : B(TL[dragFrom.idx].id);
-      if(!src || src[6]!==b[6]) return;      /* still type-checked per lane */
-      e.preventDefault(); e.stopPropagation();
-      d.classList.toggle("over-rep", !!e.altKey);
-      d.classList.add("over"); });
+    if(nt){nt.value=it.note||"";nt.onclick=e=>e.stopPropagation();nt.onmousedown=()=>{d.draggable=false};nt.onblur=()=>{d.draggable=true;nt.classList.toggle("has",!!nt.value.trim())};nt.oninput=()=>{it.note=nt.value;nt.classList.toggle("has",!!nt.value.trim());recipeOut();persistProject()}}
+    d.onclick=e=>{if(e.target.closest("button,input,textarea"))return;setSelection(it);drawTL()};
+    d.ondblclick=e=>{if(isShot&&!e.target.closest("button,input,textarea"))loadShotIntoEditor(it)};
+    d.addEventListener("dragstart",e=>{if(e.target.closest("button,input,textarea")){e.preventDefault();return}dragFrom={kind:"tl",idx:i};d.classList.add("drag")});
+    d.addEventListener("dragend",()=>{dragFrom=null;d.classList.remove("drag");document.querySelectorAll(".clip").forEach(x=>x.classList.remove("over"))});
+    d.addEventListener("dragover",e=>{if(!dragFrom)return;const src=dragFrom.kind==="lib"?B(dragFrom.id):B(TL[dragFrom.idx].id);if(!src||src[6]!==b[6])return;e.preventDefault();e.stopPropagation();d.classList.toggle("over-rep",!!e.altKey);d.classList.add("over")});
     d.addEventListener("dragleave",()=>d.classList.remove("over","over-rep"));
-    d.addEventListener("drop",e=>{
-      e.preventDefault(); e.stopPropagation(); d.classList.remove("over","over-rep");
-      if(!dragFrom) return;
-      /* Alt = replace this clip, plain drop = insert before it */
-      const replace=!!e.altKey;
-      if(dragFrom.kind==="lib"){
-        const nb=B(dragFrom.id); if(!nb||nb[6]!==b[6]){ dragFrom=null; return; }
-        const item=newItem(nb[0]); if(!item){ dragFrom=null; return; }
-        if(replace) TL.splice(i,1,item); else TL.splice(i,0,item);
-      }else{
-        if(dragFrom.idx===i){ dragFrom=null; return; }
-        const m=TL.splice(dragFrom.idx,1)[0];
-        const at = dragFrom.idx<i ? i-1 : i;
-        if(replace) TL.splice(at,1,m); else TL.splice(at,0,m);
-      }
-      dragFrom=null; drawTL(); });
+    d.addEventListener("drop",e=>{e.preventDefault();e.stopPropagation();d.classList.remove("over","over-rep");if(!dragFrom)return;const before=projectSnapshot(),replace=!!e.altKey;
+      if(dragFrom.kind==="lib"){const nb=B(dragFrom.id);if(!nb||nb[6]!==b[6]){dragFrom=null;return}const item=newItem(nb[0]);if(!item){dragFrom=null;return}if(replace)TL.splice(i,1,item);else TL.splice(i,0,item)}
+      else{if(dragFrom.idx===i){dragFrom=null;return}const m=TL.splice(dragFrom.idx,1)[0],at=dragFrom.idx<i?i-1:i;if(replace)TL.splice(at,1,m);else TL.splice(at,0,m)}
+      dragFrom=null;drawTL();pushHistory(before)});
     lane.appendChild(d);
   });
-  drawEnergy();recipeOut();updateTimePreview();updateContexts();persistProject();if(typeof renderVNextUI==="function")renderVNextUI();
+  const add=document.createElement("button");add.type="button";add.className="clip clip-add";add.innerHTML='<span>+</span><b>'+(currentLang()==="en"?"NEW SHOT":"NUOVO SHOT")+'</b>';
+  add.onclick=()=>{const before=projectSnapshot(),it=newItemFromRole(seqDialRoleId||"shape-reveal",seqDialVariant||"standard");TL.push(it);setSelection(it);activeShotUid=it.uid;setShotPreviewItem(it);drawTL();pushHistory(before)};
+  LANES.shot.appendChild(add);
+  drawEnergy();recipeOut();updateTimePreview();updateContexts();persistProject();if(typeof renderVNextUI==="function")renderVNextUI();if(window.__refreshScrollCues)requestAnimationFrame(window.__refreshScrollCues);
 }
 
 let seqPreviewUid=null;
@@ -4614,7 +4693,7 @@ const TYPE_DELTA_AXES={
 const UI={
  manifesto:{it:"<b>Un'immagine è uno stato.</b> Un movimento è un delta. Una sequenza è una curva.",en:"<b>An image is a state.</b> A movement is a delta. A sequence is a curve."},
  role:{it:"TIPOLOGIA SHOT SELEZIONATO",en:"SELECTED SHOT TYPE"},choreo:{it:"TIPOLOGIA DI SHOT",en:"SHOT TYPE"},reset:{it:"RESET",en:"RESET"},add:{it:"AGGIUNGI",en:"ADD"},
- edit:{it:"EDIT SHOT",en:"EDIT SHOT"},project:{it:"PROGETTO",en:"PROJECT"},format:{it:"FORMATO",en:"FORMAT"},done:{it:"← SEQ",en:"← SEQ"},
+ edit:{it:"EDIT SHOT",en:"EDIT SHOT"},project:{it:"PROGETTO",en:"PROJECT"},format:{it:"FORMATO",en:"FORMAT"},done:{it:"SEQ ›",en:"SEQ ›"},
  delta:{it:"TEST · DELTA AI",en:"TEST · AI DELTA"},noShot:{it:"Seleziona uno shot",en:"Select a shot"},start:{it:"START",en:"START"},end:{it:"END",en:"END"},
  advanced:{it:"Dettagli avanzati",en:"Advanced details"},close:{it:"Chiudi",en:"Close"},terms:{it:"termini",en:"terms"}
 };
@@ -4699,7 +4778,7 @@ function previewShotPreset(id,typeId){
   const it=activeShot()||selectedShot();if(!it)return;const pv=cloneProjectItem(it);applyTechnicalPresetData(pv,id,{setDuration:true});pv.shotType=typeId||SHOT_TYPE_BY_PRESET[id]||activeShotTypeId;shotPreviewOverride=pv;setShotPreviewItem(pv);renderShotDocks(pv);renderShotHeader(pv);
 }
 function commitShotPreset(id,typeId,before,remember){
-  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();applyTechnicalPresetData(it,id,{setDuration:true});it.shotType=typeId||SHOT_TYPE_BY_PRESET[id]||activeShotTypeId;shotPreviewOverride=null;activeShotTypeId=it.shotType;setShotPreviewItem(it);if(remember)rememberVariant(it,techLabel(techOf(id)));drawTL();pushHistory(before);
+  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();applyTechnicalPresetData(it,id,{setDuration:true});it.shotType=typeId||SHOT_TYPE_BY_PRESET[id]||activeShotTypeId;shotPreviewOverride=null;activeShotTypeId=it.shotType;setShotPreviewItem(it);drawTL();pushHistory(before);
 }
 function renderShotPresetRail(typeId,activeId){
   const type=SHOT_TYPE_BY_ID[typeId]||SHOT_TYPES[0];activeShotTypeId=type.id;
@@ -4710,10 +4789,10 @@ function previewShotType(typeId){const type=SHOT_TYPE_BY_ID[typeId]||SHOT_TYPES[
 function commitShotType(typeId,before){const type=SHOT_TYPE_BY_ID[typeId]||SHOT_TYPES[0];commitShotPreset(type.presets[0],type.id,before,true)}
 function buildTechDial(){
   shotTechDial.innerHTML=SHOT_TYPES.map(t=>'<button class="dial-item" type="button" data-id="'+t.id+'"><b>'+escapeHTML(shotTypeLabel(t))+'</b><span>'+t.presets.length+' '+(currentLang()==="en"?"MOVES":"VARIANTI")+'</span></button>').join("");
-  wireSnapDial(shotTechDial,previewShotType,commitShotType,id=>commitShotType(id,projectSnapshot()));
+  shotTechDial.onclick=e=>{const b=e.target.closest(".dial-item");if(!b)return;const before=projectSnapshot();commitShotType(b.dataset.id,before);setDialActive(shotTechDial,b.dataset.id);b.scrollIntoView({inline:"nearest",block:"nearest",behavior:"smooth"})};
   const it=activeShot()||selectedShot(),type=shotTypeOf(it);renderShotPresetRail(type.id,it&&it.technicalPresetId);
 }
-function syncTechDial(forceCenter){const it=activeShot()||selectedShot(),type=shotTypeOf(it),id=type.id;activeShotTypeId=id;setDialActive(shotTechDial,id);renderShotPresetRail(id,it&&it.technicalPresetId);if(forceCenter)centerDial(shotTechDial,id,"auto")}
+function syncTechDial(forceCenter){const it=activeShot()||selectedShot(),type=shotTypeOf(it),id=type.id;activeShotTypeId=id;setDialActive(shotTechDial,id);renderShotPresetRail(id,it&&it.technicalPresetId);if(forceCenter){const b=shotTechDial.querySelector('[data-id="'+cssEscape(id)+'"]');if(b)b.scrollIntoView({inline:"nearest",block:"nearest"})}}
 
 function pickOne(arr){return arr&&arr.length?arr[Math.floor(Math.random()*arr.length)]:null}
 function shuffled(arr){const a=[...(arr||[])];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -4767,12 +4846,12 @@ function generateCoherentVariant(it,typeId){
   AXES.forEach(a=>it.inheritedEndAxes[a.id]=it.start[a.id]===it.end[a.id]);return it
 }
 function generateShotVariant(){
-  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();const before=projectSnapshot();if(!Array.isArray(it.variants)||!it.variants.length)rememberVariant(it,currentLang()==="en"?"Original":"Originale");
-  generateCoherentVariant(it,activeShotTypeId||shotTypeOf(it).id);rememberVariant(it,(currentLang()==="en"?"Variant ":"Variante ")+it.variants.length);shotPreviewOverride=null;setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
+  const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();const before=projectSnapshot();
+  generateCoherentVariant(it,activeShotTypeId||shotTypeOf(it).id);it.variants=[];it.activeVariantId=null;shotPreviewOverride=null;setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
 }
 function resetShotToType(){
   const it=activeShot()||selectedShot();if(!it)return;if(typeof closeOptionDial==="function")closeOptionDial();const before=projectSnapshot(),type=SHOT_TYPE_BY_ID[activeShotTypeId]||shotTypeOf(it),locks=Object.assign({},it.locks||{}),oldA=shotStart(it),oldB=shotEnd(it);
-  applyTechnicalPresetData(it,type.presets[0],{setDuration:true});it.shotType=type.id;it.locks=locks;AXES.forEach(a=>{if(locks[a.id]){it.start[a.id]=oldA[a.id];it.end[a.id]=oldB[a.id]}});rememberVariant(it,currentLang()==="en"?"Reset":"Reset");setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
+  applyTechnicalPresetData(it,type.presets[0],{setDuration:true});it.shotType=type.id;it.locks=locks;AXES.forEach(a=>{if(locks[a.id]){it.start[a.id]=oldA[a.id];it.end[a.id]=oldB[a.id]}});it.variants=[];it.activeVariantId=null;setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
 }
 function applySequenceTemplate(key,before){
   const pre=PRESETS[key];if(!pre)return;activeSequencePreset=key;TL=pre.ids.map(newItem).filter(Boolean);const first=TL.find(x=>B(x.id)&&B(x.id)[6]==="shot");if(first){first.selected=true;activeShotUid=first.uid;setShotPreviewItem(first)}
@@ -4846,8 +4925,8 @@ function renderShotHeader(it){
   if(mini)mini.textContent="";if(chips)chips.innerHTML=(diffs.length?diffs:AXES.slice(0,4)).map(a=>deltaChipHTML(a,A,Bv)).join("");
   const dc=document.getElementById("shotDeltaCount");if(dc)dc.textContent=diffs.length+" Δ";
   const lc=document.getElementById("shotLocksCount");if(lc)lc.textContent=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length+" LOCK";
-  renderVariantGallery(it);
 }
+
 
 function renderDeltaVNext(){
   const it=activeShot()||selectedShot(),rail=document.getElementById("deltaDiffRail"),rt=document.getElementById("deltaRuntime");if(!rail||!rt)return;
@@ -4880,7 +4959,7 @@ function applyLanguage(lang){
   document.getElementById("seqRoleCaption").textContent=tr("role");document.getElementById("shotTechCaption").textContent=tr("choreo");document.getElementById("seqEditShot").textContent=tr("edit");document.getElementById("seqProjectBtn").textContent=tr("project");
   document.getElementById("formatLabel").textContent=tr("format");document.getElementById("shotDone").textContent=tr("done");document.getElementById("deltaEyebrow").textContent=tr("delta");document.getElementById("deltaBack").textContent=tr("done");
   const en=currentLang()==="en";
-  const labels={shotRecipeCaption:en?"RECIPE · DELTA":"RICETTA · DELTA",shotVariantsCaption:en?"VARIANTS":"VARIANTI",shotReadTitle:en?"Technical readout":"Lettura tecnica",
+  const labels={shotRecipeCaption:en?"RECIPE · DELTA":"RICETTA · DELTA",shotReadTitle:en?"Technical readout":"Lettura tecnica",
     seqTemplateCaption:en?"SEQUENCE PRESET":"PRESET SEQUENZA",seqTemplateClear:en?"CLEAR":"SVUOTA",projectInlineCaption:en?"PROJECT":"PROGETTO",dualDockCaption:"START / END",
     startRowLabel:"START",endRowLabel:"END"};Object.entries(labels).forEach(([id,txt])=>{const el=document.getElementById(id);if(el)el.textContent=txt});
   const rand=document.getElementById("cRand"),reset=document.getElementById("cReset");if(rand)rand.textContent=en?"Generate variant":"Genera variante";if(reset)reset.textContent="Reset";
@@ -4896,12 +4975,27 @@ function applyLanguage(lang){
   buildRoleDial();buildTechDial();buildSequenceTemplateDial();renderVNextUI();requestAnimationFrame(()=>{syncRoleDialFromSelection(true);syncTechDial(true)});setTimeout(applyGlossaryLanguage,0);setTimeout(applyGlossaryLanguage,240);
 }
 
+/* ---- conditional horizontal overflow cues ---- */
+const SCROLL_CUE_SELECTOR="#seqTemplateDial,#seqShotDial,#seqVariantDial,#shotTechDial,#shotPresetRail,#startRecipeRail,#endRecipeRail,#optionRail,.combo .copts,.trkl,.gchips,.delta-chip-rail,.delta-diff-rail,.slibgrid";
+function updateScrollCue(rail){
+  if(!rail||!rail.isConnected)return;const max=Math.max(0,rail.scrollWidth-rail.clientWidth),host=rail.closest(".dial-window")||rail;
+  host.classList.add("scroll-cue");host.classList.toggle("edge-left",max>2&&rail.scrollLeft>2);host.classList.toggle("edge-right",max>2&&rail.scrollLeft<max-2);
+}
+function wireScrollCue(rail){
+  if(!rail||rail.dataset.scrollCueWired)return;rail.dataset.scrollCueWired="1";rail.addEventListener("scroll",()=>updateScrollCue(rail),{passive:true});
+  if(window.ResizeObserver)new ResizeObserver(()=>updateScrollCue(rail)).observe(rail);updateScrollCue(rail);
+}
+function refreshScrollCues(){document.querySelectorAll(SCROLL_CUE_SELECTOR).forEach(wireScrollCue);document.querySelectorAll(SCROLL_CUE_SELECTOR).forEach(updateScrollCue)}
+window.__refreshScrollCues=refreshScrollCues;
+const scrollCueObserver=new MutationObserver(()=>requestAnimationFrame(refreshScrollCues));scrollCueObserver.observe(document.body,{childList:true,subtree:true});
+
 function initVNext(){
   if(vnextInit)return;vnextInit=true;
   const mount=document.getElementById("seqPlayerMount");if(mount&&timeRig)mount.appendChild(timeRig);
   const seq=document.getElementById("seq"),inline=document.getElementById("projectInlineMount");
   if(seq&&inline){const tools=seq.querySelector(".tools"),note=seq.querySelector(".project-note"),format=document.querySelector(".project-format");[format,tools,note].forEach(x=>{if(x)inline.appendChild(x)})}
   document.getElementById("seqProjectBtn").onclick=()=>document.getElementById("projectInline").scrollIntoView({behavior:"smooth",block:"start"});
+  const previewFormat=document.getElementById("sPreviewFormat");if(previewFormat){previewFormat.value=projectFormat;previewFormat.onchange=e=>applyProjectFormat(e.target.value,true)}
   const close=document.getElementById("projectClose"),backdrop=document.getElementById("projectBackdrop");if(close)close.onclick=closeProjectSheet;if(backdrop)backdrop.onclick=e=>{if(e.target.id==="projectBackdrop")closeProjectSheet()};
   document.getElementById("seqEditShot").onclick=()=>{const it=selectedShot();if(it)loadShotIntoEditor(it)};document.getElementById("shotDone").onclick=backToTime;document.getElementById("deltaBack").onclick=backToTime;
   document.getElementById("seqRoleAction").onclick=()=>selectedShot()?resetSelectedRole():addCurrentRole();document.getElementById("shotTechReset").onclick=resetShotToType;
@@ -4919,7 +5013,7 @@ function initVNext(){
   buildRoleDial();buildTechDial();buildSequenceTemplateDial();const it=selectedShot();if(it){activeShotUid=it.uid;it.shotType=it.shotType||SHOT_TYPE_BY_PRESET[it.technicalPresetId]||"hero";setShotPreviewItem(it);syncLocksFromShot(it)}
   syncRoleDialFromSelection(true);syncTechDial(true);selectEditSide("start");
   window.__lockLabel=()=>{const it=activeShot()||selectedShot();const lc=document.getElementById("shotLocksCount");if(lc&&it)lc.textContent=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length+" LOCK"};
-  const lang=localStorage.getItem("memento.ui.lang")==="en"?"en":"it";applyLanguage(lang);updateHistoryButtons();window.__vnextReady=true;renderVNextUI();window.addEventListener("load",()=>setTimeout(applyGlossaryLanguage,260),{once:true});
+  const lang=localStorage.getItem("memento.ui.lang")==="en"?"en":"it";applyLanguage(lang);updateHistoryButtons();window.__vnextReady=true;renderVNextUI();refreshScrollCues();window.addEventListener("load",()=>{setTimeout(applyGlossaryLanguage,260);setTimeout(refreshScrollCues,320)},{once:true});
 }
 
 const restored=loadProject();
