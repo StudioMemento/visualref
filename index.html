@@ -1748,6 +1748,231 @@
     .shot-player-rig .cprev{width:min(100%,calc(64vh * var(--project-scale)))!important}
   }
 
+
+
+  /* ========================================================================
+     POLISH PASS VI — desktop cockpit, semantic chips, reliable interaction
+     ======================================================================== */
+  .app{align-content:start}
+  :root{
+    --memento-shell:1540px;
+    --memento-player:1120px;
+    --param-tool-h:104px;
+    --param-option-h:104px;
+  }
+
+  /* Semantic selectors are choices, not thumbnail galleries. */
+  .tech-dial-block .preview-size-control,
+  .role-dial-block .preview-size-control,
+  .tech-dial-block .preset-thumb-shell,
+  .role-dial-block .preset-thumb-shell,
+  .shot-preset-rail .preset-thumb-shell,
+  .variant-rail .preset-thumb-shell{display:none!important}
+  .tech-dial-block,.role-dial-block{overflow:hidden}
+  .tech-dial-block .dial-caption,.role-dial-block .dial-caption{
+    min-height:38px;padding:8px 10px;margin:0;align-items:center;border-bottom:1px solid var(--line)
+  }
+  .tech-dial-block .dial-caption>span,.role-dial-block .dial-caption>span{
+    font-size:8px;letter-spacing:.17em
+  }
+  .tech-dial-block .dial-window,.role-dial-block .dial-window{background:#0b0b0d}
+  .tech-dial-block .snap-dial,.role-dial-block .snap-dial{
+    gap:6px;padding:8px 10px 10px;scroll-snap-type:x proximity;align-items:stretch
+  }
+  .tech-dial-block .dial-item,.role-dial-block .dial-item{
+    flex:0 0 auto!important;min-width:126px!important;min-height:48px!important;
+    padding:8px 10px!important;border-radius:9px!important;transform:none!important;opacity:1!important;
+    display:grid!important;grid-template-columns:22px minmax(0,1fr)!important;grid-template-rows:auto auto!important;
+    column-gap:8px!important;align-content:center!important;align-items:center!important;justify-content:start!important;
+    text-align:left!important;background:#0e0e11!important;color:var(--txt-3)!important
+  }
+  .role-dial-block .dial-item{min-width:158px!important}
+  .tech-dial-block .dial-item:hover,.role-dial-block .dial-item:hover{
+    border-color:var(--txt-3)!important;background:#121216!important;color:var(--txt)!important
+  }
+  .tech-dial-block .dial-item.active,.role-dial-block .dial-item.active{
+    border-color:var(--accent)!important;background:#17110e!important;color:var(--accent)!important;
+    box-shadow:inset 0 -2px 0 var(--accent)
+  }
+  .tech-dial-block .dial-item.active::after,.role-dial-block .dial-item.active::after{display:none!important}
+  .shot-type-icon{grid-row:1/3;width:21px;height:21px;display:grid;place-items:center;color:currentColor}
+  .shot-type-icon svg{display:block;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+  .tech-dial-block .dial-item>b,.role-dial-block .dial-item>b{
+    grid-column:2;font-size:10px!important;line-height:1.1!important;color:currentColor!important;margin:0!important;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  }
+  .tech-dial-block .dial-item>span:not(.shot-type-icon),.role-dial-block .dial-item>span:not(.shot-type-icon){
+    grid-column:2;font:700 6.8px/1.15 var(--mono)!important;letter-spacing:.12em!important;color:var(--txt-3)!important;margin:3px 0 0!important;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  }
+  .tech-dial-block .dial-item.active>span:not(.shot-type-icon),.role-dial-block .dial-item.active>span:not(.shot-type-icon){color:var(--accent)!important;opacity:.68}
+  .tech-dial-block .dial-index,.role-dial-block .dial-index{display:none!important}
+
+  .shot-preset-rail{
+    gap:6px;padding:8px 10px 10px!important;border-top:1px solid var(--line);background:#09090b;min-height:0!important
+  }
+  .shot-preset-rail .shot-preset{
+    flex:0 0 auto!important;min-width:148px;min-height:42px;padding:8px 10px!important;border-radius:999px!important;
+    display:flex!important;align-items:center!important;gap:7px!important;background:#0e0e11!important;text-align:left!important
+  }
+  .shot-preset-rail .shot-preset b{font-size:9px!important;line-height:1.15!important;margin:0!important;white-space:nowrap}
+  .shot-preset-rail .shot-preset span{font-size:6.8px!important;line-height:1!important;margin:0!important;white-space:nowrap}
+  .shot-preset-rail .shot-preset.active{border-color:var(--accent)!important;background:#17110e!important;box-shadow:inset 0 0 0 1px rgba(255,121,80,.12)}
+
+  .variant-rail{padding:8px 10px 10px!important;border-top:1px solid var(--line);background:#09090b}
+  .variant-rail button{min-height:34px;padding:8px 12px!important}
+
+  /* Conditional edge affordance: visible only where more content exists. */
+  .tech-dial-block .dial-window::before,.tech-dial-block .dial-window::after,
+  .role-dial-block .dial-window::before,.role-dial-block .dial-window::after{width:42px}
+  .global-param-dock .param-axis-rail.scroll-cue{
+    box-shadow:inset 26px 0 22px -28px rgba(0,0,0,var(--cue-left)),inset -26px 0 22px -28px rgba(0,0,0,var(--cue-right))!important
+  }
+  .param-option-drawer .param-option-rail.scroll-cue{
+    box-shadow:inset 26px 0 22px -28px rgba(255,121,80,var(--cue-left)),inset -26px 0 22px -28px rgba(255,121,80,var(--cue-right))!important
+  }
+
+  /* The orange Recipe Tool is one solid operational layer. */
+  body{padding-bottom:calc(var(--param-tool-h) + 22px + var(--safe-bottom))!important}
+  .global-param-dock{
+    min-height:var(--param-tool-h)!important;padding:6px 14px calc(7px + var(--safe-bottom))!important;gap:5px!important;
+    background:var(--accent)!important;color:#080808!important;border-top:1px solid rgba(0,0,0,.22)!important;
+    box-shadow:0 -16px 46px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.26)!important
+  }
+  .global-param-dock::before{display:none!important}
+  .param-tool-head,.param-axis-rail,.param-option-head,.param-option-rail{
+    width:min(var(--memento-shell),calc(100vw - 28px))!important;max-width:none!important;margin-left:auto!important;margin-right:auto!important
+  }
+  .param-tool-head{min-height:23px!important;padding:0 2px!important}
+  .param-context{gap:7px!important}.param-context span{font-size:6.8px!important;opacity:.62}.param-context b{font-size:10px!important;font-weight:750!important}
+  .param-side-toggle{padding:2px!important;border-color:rgba(0,0,0,.24)!important;border-radius:7px!important;background:rgba(255,255,255,.10)!important}
+  .param-side-toggle button{min-height:22px!important;padding:5px 10px!important;font-size:6.8px!important;color:#080808!important}
+  .param-side-toggle button[aria-pressed="true"]{background:#080808!important;color:var(--accent)!important}
+  .param-delta-count{font-size:6.8px!important;color:#080808!important}
+  .param-axis-rail{gap:6px!important;padding:0!important;scroll-padding-inline:2px;touch-action:pan-x}
+  .param-axis-cell{
+    flex:0 0 112px!important;height:58px!important;border:1px solid rgba(0,0,0,.22)!important;border-radius:9px!important;
+    background:rgba(255,255,255,.075)!important;color:#080808!important;overflow:hidden!important
+  }
+  .param-axis-cell:hover{background:rgba(255,255,255,.17)!important}
+  .param-axis-cell.active{background:#080808!important;border-color:#080808!important;color:var(--accent)!important;box-shadow:0 5px 14px rgba(0,0,0,.16)!important}
+  .param-axis-main{padding:7px 22px 7px 8px!important;grid-template-columns:18px minmax(0,1fr)!important;column-gap:7px!important}
+  .param-axis-main>svg{width:18px!important;height:18px!important;stroke-width:1.7!important}
+  .param-axis-main .param-axis-name{font-size:6.5px!important;letter-spacing:.13em!important;opacity:.65!important}
+  .param-axis-main .param-axis-value{font-size:9.5px!important;line-height:1.15!important;margin-top:3px!important}
+  .param-axis-lock{right:3px!important;top:3px!important;width:18px!important;height:18px!important;border-radius:5px!important}
+  .param-axis-lock[aria-pressed="true"]{background:rgba(0,0,0,.14)!important}
+  .param-axis-cell.active .param-axis-lock[aria-pressed="true"]{background:rgba(255,121,80,.14)!important}
+  .global-param-dock button:focus-visible{outline:2px solid #080808!important;outline-offset:-2px!important}
+  .global-param-dock .param-axis-cell.active button:focus-visible{outline-color:var(--accent)!important}
+
+  .param-option-drawer{
+    min-height:var(--param-option-h)!important;padding:8px 14px 10px!important;background:rgba(8,8,10,.985)!important;
+    border-top:1px solid var(--accent)!important;color:var(--accent)!important;box-shadow:0 -16px 44px rgba(0,0,0,.62)!important
+  }
+  .param-option-head{min-height:22px;margin-bottom:6px!important;padding:0 2px!important}
+  .param-option-head span{font-size:6.8px!important}.param-option-head b{font-size:9px!important}
+  .param-option-head button{width:28px!important;height:24px!important;color:var(--accent)!important}
+  .param-option-rail{gap:6px!important;padding:0!important;scroll-padding-inline:2px;touch-action:pan-x}
+  .param-option{flex:0 0 132px!important;min-height:58px!important;padding:7px 9px!important;border-radius:9px!important}
+  .param-option .ic{width:25px!important;height:25px!important}.param-option b{font-size:9px!important}
+  .param-option-drawer button:focus-visible{outline:2px solid var(--accent)!important;outline-offset:2px!important}
+
+  /* Content density: the image stays primary, but no longer consumes the whole desktop. */
+  .combo .cfull,.seq .swrap,.comb2 .cfull,.main,.gbody{
+    padding-bottom:calc(var(--param-tool-h) + 42px + var(--safe-bottom))!important
+  }
+  .shot-primary-actions{margin-bottom:10px!important}.shot-primary-actions .cbtn{min-height:42px!important}
+  .shot-delta-summary{margin-bottom:10px!important}.delta-chip-rail{padding-bottom:4px!important}
+  .advanced-toggle{min-height:42px;margin-bottom:10px!important}
+  .asset-world{margin-bottom:10px!important}
+
+  @media(min-width:901px){
+    .top{padding:9px 18px 8px!important;gap:7px!important}
+    .brandrow{width:min(var(--memento-shell),calc(100vw - 40px))!important}
+    .navshell.top-mode-nav{width:min(760px,calc(100vw - 40px))!important}
+    .combo .cfull{width:min(var(--memento-shell),calc(100vw - 40px));max-width:none!important;padding:10px 0 calc(var(--param-tool-h) + 42px + var(--safe-bottom))!important}
+    .shot-headbar,.shot-player-rig,.shot-primary-actions,.tech-dial-block,.shot-delta-summary,.advanced-toggle,.shot-parameter-section,.asset-world{
+      width:min(var(--memento-player),100%)!important;max-width:none!important;margin-left:auto!important;margin-right:auto!important
+    }
+    .shot-headbar{margin-bottom:8px!important}.shot-headtools{gap:4px!important}.shot-headtools .microbtn{min-height:34px!important}
+    .shot-player-rig .cprev{
+      width:min(100%,var(--memento-player),calc(46vh * var(--project-scale)))!important;
+      min-height:0!important;height:auto!important;max-height:none!important;margin-left:auto!important;margin-right:auto!important
+    }
+    .seq .swrap{width:min(1680px,calc(100vw - 40px));max-width:none!important;padding:10px 0 calc(var(--param-tool-h) + 42px + var(--safe-bottom))!important}
+    .time-rig>.cprev{width:min(100%,1180px,calc(42vh * var(--project-scale)))!important;min-height:0!important;height:auto!important}
+    .seq-template-block,#seqPlayerMount,.seq-quickbar,.timeline-editor,.senergy,.swave-wrap,.role-dial-block,.project-inline{
+      width:100%!important;max-width:none!important;margin-left:auto!important;margin-right:auto!important
+    }
+    .timeline-editor{margin-top:10px!important}
+    .role-dial-block{margin-top:10px!important}
+    .project-inline{margin-top:18px!important}
+  }
+  .shot-cockpit,.shot-cockpit-main,.shot-cockpit-controls{display:contents}
+  @media(min-width:1200px){
+    .combo .cfull{width:min(var(--memento-shell),calc(100vw - 40px))!important}
+    .shot-headbar,.shot-parameter-section,.asset-world{width:100%!important;max-width:none!important}
+    .shot-cockpit{
+      display:grid!important;grid-template-columns:minmax(0,1fr) 390px;gap:14px;align-items:start;
+      width:100%;margin:0 auto 10px
+    }
+    .shot-cockpit-main,.shot-cockpit-controls{display:flex!important;flex-direction:column;min-width:0}
+    .shot-cockpit-main{gap:10px}
+    .shot-cockpit-controls{gap:10px;position:sticky;top:92px}
+    .shot-cockpit .shot-player-rig,.shot-cockpit .shot-primary-actions,
+    .shot-cockpit .tech-dial-block,.shot-cockpit .shot-delta-summary,.shot-cockpit .advanced-toggle{
+      width:100%!important;max-width:none!important;margin:0!important
+    }
+    .shot-cockpit .shot-primary-actions{margin:0!important}
+    .shot-cockpit .shot-delta-summary{padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+    .shot-cockpit .shot-delta-summary .section-kicker{margin-bottom:7px}
+    .shot-cockpit .delta-chip-rail{padding-bottom:0!important}
+  }
+
+  @media(min-width:1100px){
+    .seq .swrap{
+      display:grid!important;grid-template-columns:350px minmax(0,1fr)!important;
+      grid-auto-flow:row;column-gap:12px!important;align-items:start!important
+    }
+    .seq .header-sentinel{grid-column:1/-1}
+    .seq-template-block{grid-column:1;grid-row:2 / span 2;margin:0!important;height:100%}
+    #seqPlayerMount{grid-column:2;grid-row:2;margin:0!important;min-width:0}
+    .seq-quickbar{grid-column:2;grid-row:3;margin:8px 0 10px!important}
+    .seq .timeline-editor,.seq .senergy,.seq .swave-wrap,.seq .role-dial-block,.seq .project-inline{
+      grid-column:1/-1!important
+    }
+    .seq-template-block .dial-window{height:calc(100% - 39px);min-height:0}
+    .seq-template-dial{
+      height:100%;max-height:410px;overflow-x:hidden!important;overflow-y:auto!important;
+      display:flex!important;flex-direction:column!important;gap:6px!important;padding:8px!important;scroll-snap-type:y proximity!important;
+      scrollbar-width:thin;scrollbar-color:#34343a transparent
+    }
+    .seq-template-dial::-webkit-scrollbar{display:block!important;width:6px!important;height:6px!important}
+    .seq-template-dial::-webkit-scrollbar-thumb{background:#34343a;border-radius:8px}
+    .seq-template-dial::-webkit-scrollbar-track{background:transparent}
+    .seq-template-dial .dial-item{
+      width:100%!important;flex:0 0 auto!important;min-height:55px!important;padding:10px 12px!important;
+      scroll-snap-align:start!important;border-radius:9px!important
+    }
+    .seq-template-dial .dial-item b{font-size:11px!important;letter-spacing:.18em!important}
+    .seq-template-dial .dial-item span{font-size:6.8px!important;margin-top:6px!important}
+    .seq-template-block .dial-window::before,.seq-template-block .dial-window::after,.seq-template-block .dial-index{display:none!important}
+    .time-rig>.cprev{width:min(100%,1040px,calc(34vh * var(--project-scale)))!important}
+  }
+  @media(min-width:1420px){
+    .param-axis-rail{justify-content:center}
+  }
+  @media(max-width:900px){
+    :root{--param-tool-h:110px;--param-option-h:110px}
+    .global-param-dock{padding-left:7px!important;padding-right:7px!important}
+    .param-tool-head,.param-axis-rail,.param-option-head,.param-option-rail{width:100%!important}
+    .param-axis-cell{flex-basis:91px!important;height:62px!important}
+    .tech-dial-block .dial-item{min-width:118px!important}
+    .role-dial-block .dial-item{min-width:150px!important}
+    .shot-preset-rail .shot-preset{min-width:142px}
+  }
+
 </style>
 </head>
 <body>
@@ -5506,10 +5731,11 @@ function closeOptionDial(){optionDial.hidden=true;document.body.classList.remove
 function deltaChipHTML(ax,A,Bv){
   const same=A[ax.id]===Bv[ax.id];return '<div class="delta-chip '+(same?'same':'')+'"><span class="axis">'+axisShort(ax.id)+'</span><div class="flow"><span class="from">'+escapeHTML(optionName(ax.id,A[ax.id]))+'</span><span class="arrow">'+(same?'=':'→')+'</span><span class="to">'+escapeHTML(optionName(ax.id,Bv[ax.id]))+'</span></div></div>';
 }
+function shotEditorTitle(it){const p=it&&techOf(it.technicalPresetId);return (p&&techLabel(p))||roleLabel(it)}
 function renderShotHeader(it){
   it=it||shotPreviewOverride||activeShot()||selectedShot();const title=document.getElementById("shotActiveTitle"),fam=document.getElementById("shotRoleFamily"),mini=document.getElementById("shotMiniRecipe"),chips=document.getElementById("shotDeltaChips");
   if(!it){title.textContent=tr("noShot");fam.textContent="SHOT";if(mini)mini.textContent="";if(chips)chips.innerHTML="";return;}
-  const type=shotTypeOf(it);title.textContent=roleLabel(it);fam.textContent=shotTypeLabel(type);const A=shotStart(it),Bv=shotEnd(it),diffs=AXES.filter(a=>A[a.id]!==Bv[a.id]);
+  const type=shotTypeOf(it);title.textContent=shotEditorTitle(it);title.title=roleLabel(it);fam.textContent=shotTypeLabel(type);const A=shotStart(it),Bv=shotEnd(it),diffs=AXES.filter(a=>A[a.id]!==Bv[a.id]);
   if(mini)mini.textContent="";if(chips)chips.innerHTML=(diffs.length?diffs:AXES.slice(0,4)).map(a=>deltaChipHTML(a,A,Bv)).join("");
   const dc=document.getElementById("shotDeltaCount");if(dc)dc.textContent=diffs.length+" Δ";
   lockCountPaint();
@@ -5564,7 +5790,7 @@ function applyLanguage(lang){
 }
 
 /* ---- conditional horizontal overflow cues ---- */
-const SCROLL_CUE_SELECTOR="#seqTemplateDial,#seqShotDial,#seqVariantDial,#shotTechDial,#shotPresetRail,#startRecipeRail,#endRecipeRail,#optionRail,.combo .copts,.trkl,.gchips,.delta-chip-rail,.delta-diff-rail,.slibgrid";
+const SCROLL_CUE_SELECTOR="#seqTemplateDial,#seqShotDial,#seqVariantDial,#shotTechDial,#shotPresetRail,#startRecipeRail,#endRecipeRail,#optionRail,#globalParamAxisRail,#globalParamOptionRail,.combo .copts,.trkl,.gchips,.delta-chip-rail,.delta-diff-rail,.slibgrid";
 function updateScrollCue(rail){
   if(!rail||!rail.isConnected)return;const max=Math.max(0,rail.scrollWidth-rail.clientWidth),host=rail.closest(".dial-window")||rail;
   host.classList.add("scroll-cue");host.classList.toggle("edge-left",max>2&&rail.scrollLeft>2);host.classList.toggle("edge-right",max>2&&rail.scrollLeft<max-2);
@@ -5633,10 +5859,21 @@ function typeBaseRole(typeId){return {hero:"product-full",reveal:"shape-reveal",
 function itemForTech(id,typeId){const it=newItemFromRole(typeBaseRole(typeId),"standard");applyTechnicalPresetData(it,id,{setDuration:true});it.shotType=typeId||SHOT_TYPE_BY_PRESET[id]||"hero";return it}
 function templatePreviewItem(key){const p=PRESETS[key];if(!p)return null;const items=p.ids.map(newItem).filter(x=>x&&B(x.id)&&B(x.id)[6]==="shot");if(!items.length)return null;return items.reduce((best,it)=>roleEnergy(it)>roleEnergy(best)?it:best,items[0])}
 
-function enrichRoleDial(){seqShotDial.querySelectorAll(".dial-item").forEach(b=>{const id=b.dataset.id,it=newItemFromRole(id,seqDialVariant||"standard");attachSnapshot(b,it,snapshotKey(it,"role:"+id+":"+(seqDialVariant||"standard")))})}
-function enrichRoleVariants(){seqVariantDial.querySelectorAll("button").forEach(b=>{b.classList.add("role-variant-card");const id=b.dataset.id,it=newItemFromRole(seqDialRoleId,id);attachSnapshot(b,it,snapshotKey(it,"rolevar:"+seqDialRoleId+":"+id))})}
-function enrichTechDial(){shotTechDial.querySelectorAll(".dial-item").forEach(b=>{const type=SHOT_TYPE_BY_ID[b.dataset.id]||SHOT_TYPES[0],id=type.presets[0],it=itemForTech(id,type.id);attachSnapshot(b,it,snapshotKey(it,"type:"+type.id))})}
-function enrichShotPresetRail(typeId){shotPresetRail.querySelectorAll(".shot-preset").forEach(b=>{const it=itemForTech(b.dataset.id,typeId||activeShotTypeId);attachSnapshot(b,it,snapshotKey(it,"tech:"+b.dataset.id))})}
+const SHOT_TYPE_ICONS={
+  hero:'<svg viewBox="0 0 24 24"><path d="M12 3l2.3 4.7 5.2.8-3.8 3.7.9 5.3L12 15l-4.6 2.5.9-5.3-3.8-3.7 5.2-.8z"/></svg>',
+  reveal:'<svg viewBox="0 0 24 24"><path d="M4 18V6h6c5 0 8 2.7 10 6-2 3.3-5 6-10 6z"/><path d="M9 6c2 3.8 2 8.2 0 12"/></svg>',
+  motion:'<svg viewBox="0 0 24 24"><path d="M3 14c3-7 5 7 8 0s5 7 8 0"/><path d="M17 8l4 6-6 1"/></svg>',
+  detail:'<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21M8 8h5M10.5 5.5v5"/></svg>',
+  technical:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><path d="M10 7.5h4M7 11v3M17 11v3"/></svg>',
+  graphic:'<svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/><path d="M7 2v20M17 2v20M2 7h20M2 17h20"/></svg>',
+  closing:'<svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="7"/></svg>'
+};
+function selectorIconForFamily(family){return SHOT_TYPE_ICONS[family]||SHOT_TYPE_ICONS.hero}
+function stripSelectorSnapshot(button){const shell=button&&button.querySelector(":scope > .preset-thumb-shell");if(shell)shell.remove()}
+function enrichRoleDial(){seqShotDial.querySelectorAll(".dial-item").forEach(b=>{stripSelectorSnapshot(b);b.classList.add("role-chip");const role=ROLE_BY_ID[b.dataset.id]||ROLE_PRESETS[0],family=(role&&role.family)||"hero";let icon=b.querySelector(":scope > .shot-type-icon");if(!icon){icon=document.createElement("span");icon.className="shot-type-icon";b.prepend(icon)}icon.innerHTML=selectorIconForFamily(family);b.title=(role&&(role[currentLang()]||role.it))||b.textContent.trim()})}
+function enrichRoleVariants(){seqVariantDial.querySelectorAll("button").forEach(b=>{stripSelectorSnapshot(b);b.classList.remove("role-variant-card")})}
+function enrichTechDial(){shotTechDial.querySelectorAll(".dial-item").forEach(b=>{stripSelectorSnapshot(b);b.classList.add("type-chip");const type=SHOT_TYPE_BY_ID[b.dataset.id]||SHOT_TYPES[0];let icon=b.querySelector(":scope > .shot-type-icon");if(!icon){icon=document.createElement("span");icon.className="shot-type-icon";b.prepend(icon)}icon.innerHTML=selectorIconForFamily(type.id);b.title=shotTypeLabel(type);b.setAttribute("aria-label",shotTypeLabel(type))})}
+function enrichShotPresetRail(typeId){shotPresetRail.querySelectorAll(".shot-preset").forEach(b=>{stripSelectorSnapshot(b);b.classList.add("preset-chip");const preset=techOf(b.dataset.id);b.title=techLabel(preset)})}
 function enrichTemplateDial(){seqTemplateDial.querySelectorAll(".dial-item").forEach(b=>{const it=templatePreviewItem(b.dataset.id);if(it)attachSnapshot(b,it,snapshotKey(it,"sequence:"+b.dataset.id));else if(b.dataset.id==="empty"&&!b.querySelector(".preset-thumb-shell")){const sh=document.createElement("span");sh.className="preset-thumb-shell empty-template-thumb";sh.innerHTML="<i></i><i></i><i></i>";b.prepend(sh)}})}
 function enrichLibrarySnapshots(){const blocks=BLOCKS.filter(b=>b[6]==="shot");document.querySelectorAll(".scard.t-shot").forEach((c,i)=>{const b=blocks[i];if(!b)return;c.dataset.block=b[0];const svg=c.querySelector(":scope > svg");if(svg)svg.remove();let shell=c.querySelector(":scope > .preset-thumb-shell");if(!shell){shell=document.createElement("span");shell.className="preset-thumb-shell";shell.innerHTML="<canvas aria-hidden=\"true\"></canvas>";c.prepend(shell)}const it=newItem(b[0]),cv=shell.querySelector("canvas"),key=snapshotKey(it,"library:"+b[0]);if(cv.dataset.snapKey!==key){cv.dataset.snapKey=key;observeSnapshot(cv,it,key)}})}
 function enrichTimelineSnapshots(){document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const it=TL[Number(el.dataset.i)],b=B(it&&it.id);if(!it||!b||b[6]!=="shot"||it.img)return;const th=el.querySelector(".th");if(!th)return;let cv=th.querySelector("canvas");if(!cv){th.innerHTML='<canvas class="clip-snapshot" aria-hidden="true"></canvas>';cv=th.querySelector("canvas")}const key=snapshotKey(it,"clip:"+it.uid);if(cv.dataset.snapKey!==key){cv.dataset.snapKey=key;observeSnapshot(cv,it,key)}})}
@@ -5691,7 +5928,7 @@ centerDial=function(rail,id,behavior){centerRailItem(rail,id,behavior)};
 function wireTechDialHorizontal(){shotTechDial.onclick=e=>{const b=e.target.closest(".dial-item");if(!b)return;const before=projectSnapshot();commitShotType(b.dataset.id,before);setDialActive(shotTechDial,b.dataset.id);centerRailItem(shotTechDial,b.dataset.id,"smooth")}}
 
 function setupAdvancedAccordion(){const btn=document.getElementById("shotAdvancedToggle"),sec=document.querySelector(".shot-parameter-section");if(!btn||!sec)return;btn.hidden=false;btn.className="advanced-toggle";btn.innerHTML='<span class="advanced-label">'+uiWord("AVANZATE","ADVANCED")+'</span><span class="advanced-chevron">⌄</span>';sec.parentNode.insertBefore(btn,sec);const set=open=>{btn.setAttribute("aria-expanded",String(open));sec.hidden=!open;localStorage.setItem("memento.ui.advanced",open?"1":"0");if(open)setTimeout(()=>{sizeAll();if(window.__repaint)window.__repaint();if(window.__refreshScrollCues)window.__refreshScrollCues()},30)};set(localStorage.getItem("memento.ui.advanced")==="1");btn.onclick=()=>set(btn.getAttribute("aria-expanded")!=="true")}
-function setupPreviewControls(){const tech=document.querySelector(".tech-dial-block .dial-caption"),role=document.querySelector(".role-dial-block .dial-caption"),template=document.querySelector(".seq-template-block .dial-caption");if(tech&&!tech.querySelector(".preview-size-control"))tech.insertBefore(previewSizeControl("shotThumbSize"),tech.lastElementChild);if(role&&!role.querySelector(".preview-size-control"))role.insertBefore(previewSizeControl("seqThumbSize"),role.lastElementChild);if(template&&!template.querySelector(".preview-size-control"))template.insertBefore(previewSizeControl("templateThumbSize"),template.lastElementChild);setThumbSize(thumbSize)}
+function setupPreviewControls(){document.querySelectorAll(".tech-dial-block .preview-size-control,.role-dial-block .preview-size-control,.seq-template-block .preview-size-control").forEach(x=>x.remove())}
 
 function playerVisualPayload(it){if(!it)return null;return{kind:"memento-player-state-v1",data:{id:it.id,role:it.role?JSON.parse(JSON.stringify(it.role)):null,technicalPresetId:it.technicalPresetId||"custom",shotType:it.shotType||shotTypeOf(it).id,start:shotStart(it),end:shotEnd(it),runtime:runtimeState(it),dur:Number(it.dur)||2.8,locks:Object.assign({},it.locks||{}),inheritedEndAxes:Object.assign({},it.inheritedEndAxes||{})}}}
 function playerItemForContext(ctx){if(ctx==="shot")return shotPreviewOverride||activeShot()||selectedShot();if(seqTimelinePlaying||seqScrubbing){const st=sequenceStateAt(seqPlayhead);if(st)return st.overlay?st.overlay.it:(st.kind==="transition"&&st.p>.5?st.next.it:st.node.it)}return seqPreviewOverride||selectedShot()}
@@ -5714,12 +5951,32 @@ function paintGlobalNav(){[["mCombo","SHOT"],["mSeq","SEQ"],["mTest","TEST"]].fo
 function moveManifestoDown(){const m=document.getElementById("manifesto");if(!m||m.closest(".manifesto-footer"))return;const f=document.createElement("footer");f.className="manifesto-footer";f.id="manifestoFooter";f.appendChild(m);document.body.insertBefore(f,document.querySelector(".global-bottom-nav")||null)}
 function lockCountPaint(){const it=activeShot()||selectedShot(),el=document.getElementById("shotLocksCount");if(!el||!it)return;const n=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length;el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>'+n+'</span>'}
 function enableRailDrag(el){
-  if(!el||el.dataset.dragScroll==="1")return;el.dataset.dragScroll="1";let down=false,startX=0,start=0,moved=false,pid=null;
-  el.addEventListener("pointerdown",e=>{if(e.button!==0||e.target.closest("input,textarea,select"))return;down=true;pid=e.pointerId;startX=e.clientX;start=el.scrollLeft;moved=false;el.classList.add("drag-scrolling");try{el.setPointerCapture(pid)}catch(_){}});
-  el.addEventListener("pointermove",e=>{if(!down)return;const dx=e.clientX-startX;if(Math.abs(dx)>4)moved=true;if(moved){el.scrollLeft=start-dx;e.preventDefault()}});
-  const end=()=>{if(!down)return;down=false;el.classList.remove("drag-scrolling");if(moved)el._suppressClickUntil=performance.now()+220};
+  if(!el||el.dataset.dragScroll==="1")return;
+  el.dataset.dragScroll="1";
+  let pending=null,dragging=false,suppressUntil=0;
+  const clear=()=>{pending=null;dragging=false;el.classList.remove("drag-scrolling")};
+  el.addEventListener("pointerdown",e=>{
+    if(e.button!==0||e.target.closest("input,textarea,select,[contenteditable=true]"))return;
+    pending={id:e.pointerId,x:e.clientX,y:e.clientY,left:el.scrollLeft};dragging=false;
+  });
+  el.addEventListener("pointermove",e=>{
+    if(!pending||pending.id!==e.pointerId)return;
+    const dx=e.clientX-pending.x,dy=e.clientY-pending.y;
+    if(!dragging){
+      if(Math.max(Math.abs(dx),Math.abs(dy))<6)return;
+      if(Math.abs(dy)>Math.abs(dx)){clear();return}
+      dragging=true;el.classList.add("drag-scrolling");
+      try{el.setPointerCapture(e.pointerId)}catch(_){}
+    }
+    el.scrollLeft=pending.left-dx;e.preventDefault();
+  });
+  const end=e=>{
+    if(!pending||(e&&e.pointerId!=null&&pending.id!==e.pointerId))return;
+    if(dragging)suppressUntil=performance.now()+260;
+    clear();
+  };
   el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);el.addEventListener("lostpointercapture",end);
-  el.addEventListener("click",e=>{if((el._suppressClickUntil||0)>performance.now()){e.preventDefault();e.stopImmediatePropagation()}},true);
+  el.addEventListener("click",e=>{if(performance.now()<suppressUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
   el.addEventListener("wheel",e=>{if(el.scrollWidth<=el.clientWidth+2)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){el.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
 }
 function wireDragRails(){document.querySelectorAll(".snap-dial,.shot-preset-rail,.variant-rail,.recipe-rail,.slibgrid,.gchips,.delta-chip-rail").forEach(enableRailDrag)}
@@ -5802,22 +6059,22 @@ function renderGlobalParamOptions(){
   const ax=AXMAP[globalParamAxis],sel=globalParamSide==="end"?shotEnd(it):shotStart(it);if(!ax){drawer.hidden=true;return}
   document.getElementById("globalOptionSide").textContent=globalParamSide==="end"?"END":"START";
   document.getElementById("globalOptionAxis").textContent=axisName(globalParamAxis);
-  rail.innerHTML=ax.opts.map(o=>'<button class="param-option" type="button" data-id="'+o[0]+'" aria-pressed="'+String(sel[globalParamAxis]===o[0])+'">'+o[2]+'<b>'+escapeHTML(optionName(globalParamAxis,o[0]))+'</b></button>').join("");
+  rail.innerHTML=ax.opts.map(o=>'<button class="param-option" type="button" data-id="'+o[0]+'" title="'+escapeHTML(optionName(globalParamAxis,o[0]))+'" aria-pressed="'+String(sel[globalParamAxis]===o[0])+'">'+o[2]+'<b>'+escapeHTML(optionName(globalParamAxis,o[0]))+'</b></button>').join("");
   drawer.hidden=false;enableRailDrag(rail);rail.onclick=e=>{const b=e.target.closest(".param-option");if(!b)return;const target=globalParamTarget();if(!target)return;const before=projectSnapshot();setAxisOnShot(target,globalParamSide,globalParamAxis,b.dataset.id,false);pushHistory(before);renderGlobalParamDock();renderGlobalParamOptions()};
   requestAnimationFrame(()=>{const on=rail.querySelector('[aria-pressed="true"]');if(on)rail.scrollTo({left:Math.max(0,on.offsetLeft-(rail.clientWidth-on.offsetWidth)/2),behavior:"smooth"})});
 }
 function openGlobalParamOptions(axis){const drawer=document.getElementById("globalParamOptions");if(globalParamAxis===axis&&drawer&&!drawer.hidden){closeGlobalParamOptions();return}globalParamAxis=axis;globalParamBefore=projectSnapshot();renderGlobalParamDock();renderGlobalParamOptions();const cell=document.querySelector('#globalParamAxisRail .param-axis-cell[data-axis="'+cssEscape(axis)+'"]');if(cell)cell.classList.add("active")}
 function renderGlobalParamDock(){
   const dock=document.getElementById("globalParamDock"),rail=document.getElementById("globalParamAxisRail");if(!dock||!rail)return;
-  const mode=window.__currentMode,eligible=mode==="combo"||mode==="seq",it=globalParamTarget();dock.hidden=!eligible;if(!eligible){closeGlobalParamOptions();return}
+  const mode=window.__currentMode,it=globalParamTarget(),eligible=mode==="combo"||(mode==="seq"&&!!it);dock.hidden=!eligible;if(!eligible){closeGlobalParamOptions();return}
   document.getElementById("globalParamMode").textContent=mode==="seq"?"SEQ":"SHOT";
-  document.getElementById("globalParamTitle").textContent=it?roleLabel(it):uiWord("SELEZIONA UNO SHOT","SELECT A SHOT");
+  document.getElementById("globalParamTitle").textContent=it?shotEditorTitle(it):uiWord("SELEZIONA UNO SHOT","SELECT A SHOT");
   document.getElementById("globalSideStart").setAttribute("aria-pressed",String(globalParamSide==="start"));
   document.getElementById("globalSideEnd").setAttribute("aria-pressed",String(globalParamSide==="end"));
   const A=it?shotStart(it):null,Bv=it?shotEnd(it):null;document.getElementById("globalParamDelta").textContent=it?AXES.filter(a=>A[a.id]!==Bv[a.id]).length+" Δ":"—";
   const sel=it?(globalParamSide==="end"?Bv:A):null;
   rail.innerHTML=AXES.map(ax=>{const locked=!!(it&&it.locks&&it.locks[ax.id]),active=globalParamAxis===ax.id&&!document.getElementById("globalParamOptions").hidden;
-    return '<div class="param-axis-cell '+(active?'active ':'')+(!it?'disabled':'')+'" data-axis="'+ax.id+'"><button class="param-axis-main" type="button" data-axis="'+ax.id+'">'+(PARAM_AXIS_ICONS[ax.id]||'')+'<span class="param-axis-name">'+escapeHTML(axisShort(ax.id))+'</span><span class="param-axis-value">'+(sel?escapeHTML(optionName(ax.id,sel[ax.id])):'—')+'</span></button><button class="param-axis-lock" type="button" data-lock="'+ax.id+'" aria-pressed="'+String(locked)+'" aria-label="Lock">'+(locked?LOCK_SVG:UNLOCK_SVG)+'</button></div>'}).join("");
+    return '<div class="param-axis-cell '+(active?'active ':'')+(!it?'disabled':'')+'" data-axis="'+ax.id+'"><button class="param-axis-main" type="button" data-axis="'+ax.id+'" title="'+escapeHTML(axisName(ax.id)+' · '+(sel?optionName(ax.id,sel[ax.id]):'—'))+'" aria-expanded="'+String(active)+'">'+(PARAM_AXIS_ICONS[ax.id]||'')+'<span class="param-axis-name">'+escapeHTML(axisShort(ax.id))+'</span><span class="param-axis-value">'+(sel?escapeHTML(optionName(ax.id,sel[ax.id])):'—')+'</span></button><button class="param-axis-lock" type="button" data-lock="'+ax.id+'" aria-pressed="'+String(locked)+'" aria-label="Lock">'+(locked?LOCK_SVG:UNLOCK_SVG)+'</button></div>'}).join("");
   enableRailDrag(rail);rail.onclick=e=>{const lock=e.target.closest(".param-axis-lock"),main=e.target.closest(".param-axis-main"),target=globalParamTarget();if(lock&&target){e.stopPropagation();toggleShotLock(target,lock.dataset.lock);renderGlobalParamDock();return}if(main&&target)openGlobalParamOptions(main.dataset.axis)};
   if(globalParamAxis&&!document.getElementById("globalParamOptions").hidden)renderGlobalParamOptions();
 }
@@ -5827,6 +6084,7 @@ function setupGlobalParamDock(){
   endB.onclick=()=>{globalParamSide="end";selectEditSide("end");renderGlobalParamDock();if(globalParamAxis)renderGlobalParamOptions()};
   close.onclick=closeGlobalParamOptions;
   document.addEventListener("pointerdown",e=>{const drawer=document.getElementById("globalParamOptions");if(!drawer||drawer.hidden)return;if(!e.target.closest("#globalParamDock"))closeGlobalParamOptions()},true);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeGlobalParamOptions()});
   renderGlobalParamDock();
 }
 
@@ -5841,7 +6099,7 @@ setupGlobalNav=function(){
 
 /* No snapshots on sequence chapters; keep image previews for shot choices. */
 enrichTemplateDial=function(){seqTemplateDial.querySelectorAll(".preset-thumb-shell").forEach(x=>x.remove())};
-setupPreviewControls=function(){const tech=document.querySelector(".tech-dial-block .dial-caption"),role=document.querySelector(".role-dial-block .dial-caption");if(tech&&!tech.querySelector(".preview-size-control"))tech.insertBefore(previewSizeControl("shotThumbSize"),tech.lastElementChild);if(role&&!role.querySelector(".preview-size-control"))role.insertBefore(previewSizeControl("seqThumbSize"),role.lastElementChild);document.querySelectorAll(".seq-template-block .preview-size-control,.seq-template-block .preset-thumb-shell").forEach(x=>x.remove());setThumbSize(thumbSize)};
+setupPreviewControls=function(){document.querySelectorAll(".tech-dial-block .preview-size-control,.role-dial-block .preview-size-control,.seq-template-block .preview-size-control").forEach(x=>x.remove());document.querySelectorAll(".seq-template-block .preset-thumb-shell").forEach(x=>x.remove())};
 
 /* Advanced and custom assets: both closed by default, assets last. */
 setupAdvancedAccordion=function(){const btn=document.getElementById("shotAdvancedToggle"),sec=document.querySelector(".shot-parameter-section");if(!btn||!sec)return;btn.hidden=false;btn.className="advanced-toggle";btn.innerHTML='<span class="advanced-label">'+uiWord("AVANZATE","ADVANCED")+'</span><span class="advanced-chevron">⌄</span>';sec.parentNode.insertBefore(btn,sec);const set=open=>{btn.setAttribute("aria-expanded",String(open));sec.hidden=!open;if(open)setTimeout(()=>{sizeAll();if(window.__repaint)window.__repaint();if(window.__refreshScrollCues)window.__refreshScrollCues()},30)};set(false);localStorage.removeItem("memento.ui.advanced");btn.onclick=()=>set(btn.getAttribute("aria-expanded")!=="true")};
@@ -5849,6 +6107,14 @@ function arrangeAssetAccordion(){
   const sec=document.querySelector(".shot-parameter-section"),asset=document.getElementById("assetWorld"),body=document.getElementById("assetWorldBody"),col=document.getElementById("assetCollapse"),head=asset&&asset.querySelector(".asset-world-head");if(!sec||!asset||!body||!col)return;
   sec.after(asset);body.hidden=true;col.setAttribute("aria-expanded","false");col.textContent="⌄";const k=document.getElementById("assetWorldKicker");if(k)k.textContent=uiWord("CUSTOM 3D ASSET","CUSTOM 3D ASSET");
   if(head&&!head.dataset.fullToggle){head.dataset.fullToggle="1";head.addEventListener("click",e=>{if(e.target.closest("button,label,input"))return;col.click()})}
+}
+function arrangeShotCockpit(){
+  const cfull=document.querySelector(".combo .cfull"),player=document.querySelector(".shot-player-rig"),actions=document.querySelector(".shot-primary-actions"),tech=document.querySelector(".tech-dial-block"),delta=document.querySelector(".shot-delta-summary"),advanced=document.querySelector(".advanced-toggle");
+  if(!cfull||!player||!actions||!tech||!delta||document.getElementById("shotCockpit"))return;
+  const deck=document.createElement("section");deck.className="shot-cockpit";deck.id="shotCockpit";deck.setAttribute("aria-label",uiWord("Controlli shot","Shot controls"));
+  const main=document.createElement("div");main.className="shot-cockpit-main";
+  const controls=document.createElement("aside");controls.className="shot-cockpit-controls";
+  cfull.insertBefore(deck,player);main.append(player,actions);controls.append(tech,delta);if(advanced)controls.appendChild(advanced);deck.append(main,controls);
 }
 
 /* Absolute starts: trimming or moving one clip never ripples the rest. */
@@ -5907,7 +6173,7 @@ function setShotFocus(on){document.body.classList.toggle("shot-focus",!!on);cons
 function setupShotFocus(){const tools=document.querySelector(".shot-headtools");if(tools&&!document.getElementById("shotFullscreen")){const b=document.createElement("button");b.className="microbtn shot-fullscreen-toggle";b.id="shotFullscreen";b.type="button";b.title=uiWord("Modalità player","Player mode");b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';b.onclick=()=>setShotFocus(true);tools.prepend(b)}document.getElementById("shotFocusExit").onclick=()=>setShotFocus(false);document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&document.body.classList.contains("shot-focus")){document.body.classList.remove("shot-focus");document.getElementById("shotFocusExit").hidden=true;refreshPlayerGeometry()}});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("shot-focus"))setShotFocus(false)})}
 function setManifestoLines(){const m=document.getElementById("manifesto");if(!m)return;m.innerHTML=currentLang()==="en"?"An image is a state.<br>A movement is a delta.<br>A sequence is a curve.":"Un'immagine è uno stato.<br>Un movimento è un delta.<br>Una sequenza è una curva."}
 
-function initPolishV(){if(polishVReady)return;polishVReady=true;setupGlobalParamDock();arrangeAssetAccordion();setupShotFocus();setManifestoLines();document.querySelector(".seq-template-block .preview-size-control")?.remove();document.querySelectorAll(".seq-template-block .preset-thumb-shell").forEach(x=>x.remove());enableRailDrag(seqTemplateDial);const top=document.getElementById("topbar");window.addEventListener("scroll",()=>requestAnimationFrame(()=>top&&top.classList.remove("compact")),{passive:true});const oldView=window.__onView;window.__onView=v=>{const r=oldView&&oldView(v);requestAnimationFrame(()=>{closeGlobalParamOptions();renderGlobalParamDock();refreshPlayerGeometry()});return r};renderGlobalParamDock();decorateTimelineClips();layoutTimeline()}
+function initPolishV(){if(polishVReady)return;polishVReady=true;setupGlobalParamDock();arrangeAssetAccordion();arrangeShotCockpit();setupShotFocus();setManifestoLines();document.querySelector(".seq-template-block .preview-size-control")?.remove();document.querySelectorAll(".seq-template-block .preset-thumb-shell").forEach(x=>x.remove());enableRailDrag(seqTemplateDial);const top=document.getElementById("topbar");window.addEventListener("scroll",()=>requestAnimationFrame(()=>top&&top.classList.remove("compact")),{passive:true});const oldView=window.__onView;window.__onView=v=>{const r=oldView&&oldView(v);requestAnimationFrame(()=>{closeGlobalParamOptions();renderGlobalParamDock();refreshPlayerGeometry()});return r};renderGlobalParamDock();decorateTimelineClips();layoutTimeline()}
 
 /* Keep new tools in sync with every state mutation. */
 const __drawTLP5=drawTL;drawTL=function(){ensureAbsoluteTimelineStarts();const r=__drawTLP5();requestAnimationFrame(()=>{decorateTimelineClips();renderGlobalParamDock();layoutTimeline()});return r};
