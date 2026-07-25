@@ -1462,6 +1462,292 @@
     .time-player .player-transfer{order:8;margin-left:0}.time-player .player-transfer .microbtn{min-width:50px}
   }
 
+
+
+  /* ========================================================================
+     POLISH PASS IV — Asset World + layered timeline + navigation instrument
+     ======================================================================== */
+  :root{--global-nav-h:82px;--timeline-label-w:58px}
+  body{padding-bottom:calc(var(--global-nav-h) + 24px + var(--safe-bottom))}
+
+  /* Header becomes only identity + locale. The manifesto is deliberately buried. */
+  .brandrow{grid-template-columns:auto minmax(0,1fr) auto!important;width:min(1600px,100%)}
+  .brandrow>.manifesto{display:none!important}.brandrow .langtoggle{grid-column:3}
+  .manifesto-footer{max-width:1600px;margin:90px auto 0;padding:76px 24px calc(var(--global-nav-h) + 60px + var(--safe-bottom));border-top:1px solid var(--line);text-align:center}
+  .manifesto-footer .manifesto{display:block!important;color:#3f3f44;font-size:10px;letter-spacing:.13em;line-height:1.8;opacity:.72}
+  .manifesto-footer .manifesto b{color:#68686e;font-weight:500}
+
+  /* Full-viewport global tool: luminous optical glass, clearly above the product. */
+  .navshell.global-bottom-nav{z-index:400;left:0;right:0;bottom:0;translate:0;width:100%;max-width:none;padding:9px 12px calc(9px + var(--safe-bottom));border:0;border-top:1px solid rgba(255,255,255,.14);border-radius:22px 22px 0 0;
+    background:linear-gradient(180deg,rgba(36,36,43,.72),rgba(10,10,13,.91));backdrop-filter:blur(30px) saturate(170%);box-shadow:0 -22px 70px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.08);overflow:hidden;isolation:isolate}
+  .navshell.global-bottom-nav::before{content:"";position:absolute;inset:0;z-index:-2;background:
+    radial-gradient(70% 110% at 18% -20%,rgba(255,255,255,.13),transparent 58%),
+    radial-gradient(52% 120% at 78% 130%,rgba(255,121,80,.16),transparent 66%),
+    linear-gradient(100deg,rgba(255,255,255,.035),transparent 38%,rgba(255,255,255,.025));pointer-events:none}
+  .navshell.global-bottom-nav::after{content:"";position:absolute;z-index:-1;inset:1px 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);opacity:.65}
+  .global-bottom-nav .modeswitch{width:min(760px,100%);min-width:0;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;border:0;background:transparent;padding:0}
+  .global-bottom-nav .modeswitch button{min-width:0;min-height:52px;padding:7px 12px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:9px;color:#8f8f98;font-size:10px;letter-spacing:.13em}
+  .global-bottom-nav .modeswitch button svg{width:18px;height:18px;flex:none;opacity:.72;filter:drop-shadow(0 1px 8px rgba(0,0,0,.45))}
+  .global-bottom-nav .modeswitch button span{line-height:1}
+  .global-bottom-nav .modeswitch button[aria-pressed="true"]{color:#fff;background:linear-gradient(180deg,rgba(255,121,80,.22),rgba(255,121,80,.08));box-shadow:inset 0 0 0 1px rgba(255,121,80,.34),0 8px 24px rgba(0,0,0,.24)}
+  .global-bottom-nav .modeswitch button[aria-pressed="true"] svg{color:var(--accent);opacity:1;filter:drop-shadow(0 0 10px rgba(255,121,80,.3))}
+  .testsubnav.global-test-nav{z-index:390;bottom:calc(var(--global-nav-h) + 12px + var(--safe-bottom))}
+  .dual-recipe-dock{z-index:380;bottom:calc(var(--global-nav-h) + 16px + var(--safe-bottom))}
+  .copy-toast{z-index:450}
+
+  /* Tiny locks: recognisable but no repeated word noise. */
+  .axis-lock{width:18px!important;height:18px!important;display:grid!important;place-items:center!important;padding:0!important;font-size:0!important;opacity:.42}
+  .axis-lock svg{width:9px;height:9px;display:block}.recipe-cell.locked .axis-lock{opacity:1;filter:drop-shadow(0 0 8px rgba(255,121,80,.35))}
+  #shotLocksCount{display:flex;align-items:center;gap:5px}#shotLocksCount svg{width:10px;height:10px;color:var(--accent)}
+
+  /* Desktop rails behave like real camera dials: click-drag, wheel and touch. */
+  .snap-dial,.shot-preset-rail,.variant-rail,.recipe-rail,.slibgrid,.gchips,.delta-chip-rail{cursor:grab;user-select:none}
+  .drag-scrolling{cursor:grabbing!important;scroll-snap-type:none!important}.drag-scrolling *{pointer-events:none!important}
+  input[type=range]{touch-action:none}
+
+  /* Left alignment across SEQ controls. */
+  .seq .dial-caption,.seq .dial-window,.seq .dial-item,.seq-template-dial .dial-item{justify-content:flex-start;text-align:left;align-items:flex-start}
+  .seq-template-dial .dial-item b,.seq-template-dial .dial-item span,.seq .section-kicker,.seq .slib-h{text-align:left}
+  .empty-template-thumb{display:grid!important;grid-template-columns:repeat(3,1fr);gap:5px;padding:14px;background:linear-gradient(145deg,#0b0b0e,#060607)}
+  .empty-template-thumb i{display:block;border:1px dashed #34343a;border-radius:5px;background:#0d0d10}.empty-template-thumb i:nth-child(2){opacity:.65}.empty-template-thumb i:nth-child(3){opacity:.35}
+
+  /* Asset World. */
+  .asset-world{width:min(1120px,100%);margin:0 auto 15px;border:1px solid var(--line-2);border-radius:12px;background:linear-gradient(180deg,#101014,#0b0b0d);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+  .asset-world-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border-bottom:1px solid var(--line)}
+  .asset-world-head>div{min-width:0;display:flex;align-items:baseline;gap:10px}.asset-world-head span{font:700 8px/1 var(--mono);letter-spacing:.18em;color:var(--txt-3)}
+  .asset-world-head b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 9.5px/1.2 var(--mono);color:var(--accent);letter-spacing:.04em}
+  .asset-collapse{width:27px;height:27px;border:1px solid var(--line-2);border-radius:7px;background:var(--panel);color:var(--txt-2);cursor:pointer}
+  .asset-world-body{padding:10px}.asset-world-body[hidden]{display:none!important}
+  .asset-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+  .asset-action{appearance:none;min-width:0;min-height:62px;border:1px solid var(--line);border-radius:9px;background:#0c0c0f;color:var(--txt-2);padding:9px 10px;display:flex;align-items:center;gap:9px;text-align:left;cursor:pointer;transition:.16s var(--ease)}
+  .asset-action:hover{border-color:var(--accent-dim);background:#15110f;translate:0 -1px}.asset-action svg{width:19px;height:19px;flex:none;color:var(--accent)}
+  .asset-action span{min-width:0;display:flex;flex-direction:column;gap:3px}.asset-action b{font-size:9.5px;letter-spacing:.07em;color:var(--txt);white-space:nowrap}.asset-action small{font-size:8.5px;color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .asset-action[aria-pressed="true"]{border-color:var(--accent);background:#19120f}.asset-action.danger:hover{border-color:#9a4d3a}
+  .asset-status-line{padding:8px 2px 2px;color:var(--txt-3);font:500 8.5px/1.45 var(--mono);letter-spacing:.035em}.asset-status-line.busy{color:var(--accent)}
+  .asset-chip-list{display:flex;gap:6px;overflow-x:auto;padding:7px 0 1px;scrollbar-width:none}.asset-chip-list::-webkit-scrollbar{display:none}
+  .asset-chip{flex:none;display:flex;align-items:center;gap:6px;max-width:250px;border:1px solid var(--line);border-radius:999px;background:#0a0a0c;padding:5px 8px;color:var(--txt-2)}
+  .asset-chip i{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(255,121,80,.35)}.asset-chip.secondary i{background:#65b0d8}.asset-chip.hdri i{background:#d6a663}
+  .asset-chip b{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8.5px}.asset-chip small{font:600 7px/1 var(--mono);color:var(--txt-3)}.asset-chip.muted{opacity:.42}
+  .asset-chip button{width:18px;height:18px;border:0;background:transparent;color:var(--txt-3);padding:0;cursor:pointer}.asset-chip button:hover{color:var(--accent)}
+
+  /* Real layered timeline: FX over video, two video layers, two audio layers. */
+  .timeline-editor{--track-h:78px;border-radius:14px;background:#070709}
+  .timeline-scroll{overscroll-behavior-x:contain}.timeline-inner{background:#070709}
+  .timeline-editor .tracks{display:flex!important;flex-direction:column;width:100%;background:#070709}
+  .timeline-editor .trk{height:var(--track-h);min-height:var(--track-h);background:#08080a}
+  .timeline-editor .trkh,.timeline-editor .trkl{height:var(--track-h)!important;min-height:var(--track-h)!important}
+  .timeline-editor .trkh{align-items:flex-start;justify-content:flex-start;padding:13px 8px;font-size:8px;background:rgba(15,15,18,.97)}
+  .timeline-editor .track-code{display:grid;place-items:center;width:28px;height:24px;border:1px solid var(--line-2);border-radius:6px;color:#a3a3aa;background:#0a0a0d}
+  .timeline-editor .trk-fx .track-code{color:#e1a67c;border-color:rgba(201,138,94,.35)}
+  .timeline-editor .trk-v2 .track-code{color:#9db0ff;border-color:rgba(111,146,255,.35)}
+  .timeline-editor .trk-v1 .track-code{color:var(--accent);border-color:rgba(255,121,80,.35)}
+  .timeline-editor .trk-a2 .track-code,.timeline-editor .trk-a1 .track-code{color:#7eb3df;border-color:rgba(106,144,184,.35)}
+  .timeline-editor .trkl{top:0;background-image:linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:var(--timeline-grid,86px) 100%}
+  .timeline-editor .trk-fx{order:1}.timeline-editor .trk-v2{order:2}.timeline-editor .trk-v1{order:3}.timeline-editor .trk-a2{order:4}.timeline-editor .trk-a1{order:5}
+  .timeline-editor .trk-fx .trkl{background-color:rgba(201,138,94,.025)}.timeline-editor .trk-v2 .trkl{background-color:rgba(111,146,255,.025)}
+  .timeline-editor .clip{top:6px;height:66px;background:linear-gradient(180deg,var(--clip-bg,#111114),#0b0b0e);border-radius:7px}
+  .timeline-editor .clip .th{height:28px}.timeline-editor .clip .clip-track,.timeline-editor .clip .clip-blend{position:absolute;z-index:4;top:3px;height:16px;min-width:22px;border:1px solid rgba(255,255,255,.12);border-radius:4px;background:rgba(5,5,7,.88);color:var(--clip-color,#ff7950);font:700 6.5px/1 var(--mono);cursor:pointer;padding:0 4px}
+  .timeline-editor .clip .clip-track{left:24px}.timeline-editor .clip .clip-blend{left:49px;color:#9db0ff}
+  .timeline-editor .clip[data-track="v2"]{box-shadow:inset 0 2px 0 #6f92ff}.timeline-editor .clip[data-track="a2"]{box-shadow:inset 0 2px 0 #6a90b8}
+  .timeline-editor .clip[data-track="fx"]{box-shadow:inset 0 2px 0 #c98a5e}
+  .timeline-editor .timeline-playhead{z-index:35;pointer-events:none}.timeline-editor .timeline-hit{z-index:34}
+  .timeline-editor .clip-add{top:6px;height:66px;min-height:66px}
+
+  @media(max-width:900px){
+    :root{--global-nav-h:76px}.global-bottom-nav .modeswitch button{min-height:48px;padding:6px 8px;gap:6px}.global-bottom-nav .modeswitch button svg{width:16px;height:16px}
+    .manifesto-footer{margin-top:55px;padding-inline:16px}.asset-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.asset-action.compact{min-height:54px}
+    .asset-world-head>div{align-items:flex-start;flex-direction:column;gap:4px}.asset-world-head b{max-width:74vw}
+    .timeline-editor{--track-h:68px}.timeline-editor .clip{height:58px}.timeline-editor .clip .th{height:23px}
+  }
+
+
+
+  /* ========================================================================
+     POLISH PASS V — top mode nav, global recipe tool, non-ripple timeline
+     ======================================================================== */
+  :root{
+    --param-tool-h:116px;
+    --param-option-h:116px;
+    --timeline-shot:#4e83ff;
+    --timeline-shot-2:#729dff;
+    --timeline-fx:#e4c34a;
+    --timeline-audio:#48bd78;
+  }
+  body{padding-bottom:calc(var(--param-tool-h) + 28px + var(--safe-bottom))!important}
+
+  /* SHOT / SEQ / TEST belongs to the product header, directly under identity. */
+  .top{z-index:430!important;padding:12px 18px 10px!important;gap:10px!important;
+    background:rgba(6,6,6,.92)!important;backdrop-filter:blur(20px) saturate(125%)!important;
+    border-bottom:1px solid rgba(255,255,255,.075)!important}
+  .top.compact{padding:12px 18px 10px!important;gap:10px!important;min-height:auto!important;
+    background:rgba(6,6,6,.92)!important;backdrop-filter:blur(20px) saturate(125%)!important;
+    border-bottom:1px solid rgba(255,255,255,.075)!important}
+  .top.compact .brandrow{display:grid!important}
+  .brandrow{max-height:none!important}
+  .navshell.top-mode-nav{position:static!important;inset:auto!important;translate:none!important;width:min(760px,100%)!important;
+    max-width:100%!important;margin:0 auto!important;padding:3px!important;border:1px solid var(--line)!important;
+    border-radius:11px!important;background:#0c0c0f!important;box-shadow:none!important;backdrop-filter:none!important;overflow:visible!important}
+  .top-mode-nav::before,.top-mode-nav::after{display:none!important}
+  .top-mode-nav .modeswitch{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important;
+    width:100%!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+  .top-mode-nav .modeswitch button{min-width:0!important;min-height:38px!important;padding:8px 12px!important;border-radius:8px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;color:var(--txt-3)!important;
+    font-size:9px!important;letter-spacing:.16em!important;background:transparent!important;box-shadow:none!important}
+  .top-mode-nav .modeswitch button svg{width:14px!important;height:14px!important;opacity:.62!important;filter:none!important}
+  .top-mode-nav .modeswitch button[aria-pressed="true"]{color:var(--accent)!important;background:#17110e!important;
+    box-shadow:inset 0 0 0 1px rgba(255,121,80,.18)!important}
+  .top-mode-nav .modeswitch button[aria-pressed="true"] svg{color:var(--accent)!important;opacity:1!important;filter:none!important}
+  .testsubnav.top-test-nav{position:static!important;inset:auto!important;translate:none!important;width:min(520px,100%);margin:0 auto!important;
+    padding:3px!important;border:1px solid var(--line)!important;border-radius:9px!important;background:#0a0a0d!important;box-shadow:none!important;backdrop-filter:none!important}
+  .testsubnav.top-test-nav button{flex:1;min-width:0!important;padding:8px 10px!important}
+  .navshell.global-bottom-nav{display:none!important}
+
+  /* The old dual dock is superseded by one universal orange instrument. */
+  .dual-recipe-dock,.seq-recipe-dock{display:none!important}
+  .global-param-dock{position:fixed;z-index:500;left:0;right:0;bottom:0;min-height:var(--param-tool-h);
+    padding:8px 12px calc(8px + var(--safe-bottom));background:var(--accent);color:#080808;
+    border-top:1px solid rgba(255,255,255,.42);box-shadow:0 -22px 64px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.38);
+    isolation:isolate;display:flex;flex-direction:column;gap:6px}
+  .global-param-dock[hidden]{display:none!important}
+  .global-param-dock::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(80% 130% at 12% -55%,rgba(255,255,255,.34),transparent 58%),
+      linear-gradient(105deg,rgba(255,255,255,.08),transparent 42%,rgba(0,0,0,.06));mix-blend-mode:soft-light}
+  .param-tool-head{display:flex;align-items:center;gap:10px;min-height:24px;max-width:1600px;width:100%;margin:0 auto}
+  .param-context{min-width:0;display:flex;align-items:baseline;gap:8px;color:#0a0a0a}
+  .param-context span{font:800 7px/1 var(--mono);letter-spacing:.18em;opacity:.62}
+  .param-context b{min-width:0;max-width:44vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;font-weight:700}
+  .param-side-toggle{margin-left:auto;display:flex;gap:3px;padding:2px;border:1px solid rgba(0,0,0,.2);border-radius:8px;background:rgba(255,255,255,.12)}
+  .param-side-toggle button{appearance:none;border:0;border-radius:6px;background:transparent;color:#111;padding:5px 10px;
+    font:800 7px/1 var(--mono);letter-spacing:.14em;cursor:pointer;opacity:.58}
+  .param-side-toggle button[aria-pressed="true"]{background:#080808;color:var(--accent);opacity:1}
+  .param-delta-count{font:800 7px/1 var(--mono);letter-spacing:.12em;color:#0a0a0a;opacity:.7;min-width:28px;text-align:right}
+  .param-axis-rail{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+    max-width:1600px;width:100%;margin:0 auto;padding:0 1px 1px;cursor:grab;user-select:none}
+  .param-axis-rail::-webkit-scrollbar,.param-option-rail::-webkit-scrollbar{display:none}
+  .param-axis-cell{position:relative;flex:0 0 104px;min-width:0;height:65px;border:1px solid rgba(0,0,0,.17);border-radius:10px;
+    background:rgba(255,255,255,.08);overflow:hidden;transition:.15s var(--ease)}
+  .param-axis-cell:hover{background:rgba(255,255,255,.17)}
+  .param-axis-cell.active{background:#080808;border-color:#080808;color:var(--accent);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  .param-axis-cell.disabled{opacity:.42;pointer-events:none}
+  .param-axis-main{appearance:none;border:0;background:transparent;color:inherit;width:100%;height:100%;padding:8px 23px 7px 8px;
+    display:grid;grid-template-columns:20px minmax(0,1fr);grid-template-rows:auto auto;column-gap:7px;align-content:center;text-align:left;cursor:pointer}
+  .param-axis-main>svg{grid-row:1/3;width:19px;height:19px;align-self:center;stroke:currentColor;fill:none;stroke-width:1.55}
+  .param-axis-main .param-axis-name{font:800 6.6px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;opacity:.62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .param-axis-main .param-axis-value{font-size:9.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+  .param-axis-lock{position:absolute;right:4px;top:4px;width:18px;height:18px;border:0;border-radius:5px;background:transparent;color:inherit;
+    display:grid;place-items:center;cursor:pointer;opacity:.43;padding:0}
+  .param-axis-lock svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:2}
+  .param-axis-lock[aria-pressed="true"]{background:rgba(0,0,0,.14);opacity:1}
+  .param-axis-cell.active .param-axis-lock[aria-pressed="true"]{background:rgba(255,121,80,.15)}
+  .param-option-drawer{position:absolute;left:0;right:0;bottom:100%;min-height:var(--param-option-h);padding:9px 12px 11px;
+    border-top:1px solid rgba(255,121,80,.42);background:rgba(7,7,8,.97);color:var(--accent);
+    box-shadow:0 -18px 50px rgba(0,0,0,.58);backdrop-filter:blur(22px) saturate(130%)}
+  .param-option-drawer[hidden]{display:none!important}
+  .param-option-head{display:flex;align-items:center;gap:8px;max-width:1600px;margin:0 auto 7px;font:800 7px/1 var(--mono);letter-spacing:.15em}
+  .param-option-head span{opacity:.62}.param-option-head b{font-size:9px}.param-option-head button{margin-left:auto;width:26px;height:23px;border:1px solid #30241f;border-radius:6px;background:#130f0d;color:var(--accent);cursor:pointer}
+  .param-option-rail{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;max-width:1600px;margin:0 auto;padding:0 1px 2px;cursor:grab;user-select:none}
+  .param-option{appearance:none;flex:0 0 122px;min-height:67px;border:1px solid #2a2220;border-radius:9px;background:#0e0e11;color:#8b8b90;
+    padding:8px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;transition:.14s var(--ease)}
+  .param-option:hover{border-color:var(--accent-dim);color:#c3c3c8}.param-option[aria-pressed="true"]{border-color:var(--accent);background:#1a120f;color:var(--accent)}
+  .param-option .ic{width:27px;height:27px;flex:none}.param-option b{font-size:9px;line-height:1.2}
+
+  /* Keep page content clear of the global parameter tool. */
+  .combo .cfull,.seq .swrap,.comb2 .cfull,.main,.gbody{padding-bottom:calc(var(--param-tool-h) + 54px + var(--safe-bottom))!important}
+
+  /* Sequence presets are chapters, not image cards. */
+  .seq-template-block .preview-size-control,.seq-template-block .preset-thumb-shell{display:none!important}
+  .seq-template-dial{gap:9px!important}
+  .seq-template-dial .dial-item{flex:0 0 210px!important;min-height:92px!important;padding:18px 17px!important;
+    justify-content:center!important;align-items:flex-start!important;text-align:left!important;border-radius:11px!important;
+    background:linear-gradient(145deg,#101014,#09090b)!important}
+  .seq-template-dial .dial-item b{font-size:14px!important;font-weight:600!important;line-height:1.25!important;
+    letter-spacing:.28em!important;text-transform:uppercase!important;color:var(--txt)!important}
+  .seq-template-dial .dial-item span{font:600 7.5px/1 var(--mono)!important;letter-spacing:.18em!important;text-transform:uppercase!important;color:var(--txt-3)!important;margin-top:9px!important}
+  .seq-template-dial .dial-item.active{background:#17120f!important;border-color:var(--accent)!important}
+  .seq-template-dial .dial-item.active b{color:var(--accent)!important}
+
+  /* Advanced and custom assets remain compact accordions. */
+  .asset-world{margin-top:0!important;margin-bottom:14px!important}
+  .asset-world-head{cursor:pointer;background:var(--panel)}
+  .asset-world-head span{font-size:9px!important}.asset-world-head b{font-weight:400!important}
+  .asset-world-body[hidden]{display:none!important}
+
+  /* True aspect ratios in both players. */
+  .time-rig>.cprev,.shot-player-rig .cprev{height:auto!important;aspect-ratio:var(--project-ratio)!important;max-height:none!important}
+  .time-rig>.cprev{width:min(100%,calc(72dvh * var(--project-scale)));margin-left:auto!important;margin-right:auto!important}
+  .shot-player-rig{background:#000}
+  .shot-player-rig .cprev{width:min(100%,calc(76dvh * var(--project-scale)));margin-left:auto!important;margin-right:auto!important}
+
+  /* Non-ripple DaVinci-like timeline. */
+  .timeline-editor{--track-h:72px;--shot-color:var(--timeline-shot);--fx-color:var(--timeline-fx);--audio-color:var(--timeline-audio)}
+  .timeline-scroll{touch-action:pan-y;cursor:grab;overscroll-behavior:auto contain}
+  .timeline-scroll.panning{cursor:grabbing;user-select:none}
+  .timeline-ruler{touch-action:none;cursor:ew-resize}
+  .timeline-editor .trk-v1 .track-code,.timeline-editor .trk-v2 .track-code{color:var(--timeline-shot)!important;border-color:color-mix(in srgb,var(--timeline-shot) 42%,transparent)!important}
+  .timeline-editor .trk-fx .track-code{color:var(--timeline-fx)!important;border-color:color-mix(in srgb,var(--timeline-fx) 42%,transparent)!important}
+  .timeline-editor .trk-a1 .track-code,.timeline-editor .trk-a2 .track-code{color:var(--timeline-audio)!important;border-color:color-mix(in srgb,var(--timeline-audio) 42%,transparent)!important}
+  .timeline-editor .trk-v1 .trkl,.timeline-editor .trk-v2 .trkl{background-color:rgba(78,131,255,.028)!important}
+  .timeline-editor .trk-fx .trkl{background-color:rgba(228,195,74,.028)!important}
+  .timeline-editor .trk-a1 .trkl,.timeline-editor .trk-a2 .trkl{background-color:rgba(72,189,120,.028)!important}
+  .timeline-editor .clip{top:6px;height:60px;padding:5px 10px;touch-action:none;cursor:grab;overflow:hidden;min-width:46px}
+  .timeline-editor .clip.dragging-time{cursor:grabbing;opacity:.86;z-index:30;box-shadow:0 10px 26px rgba(0,0,0,.42)}
+  .timeline-editor .clip .clip-track,.timeline-editor .clip .move,.timeline-editor .clip .dur{display:none!important}
+  .timeline-editor .clip .th{height:27px;margin:0 0 4px;border-radius:4px}
+  .timeline-editor .clip .nm{font-size:7.5px;line-height:1.1;padding:0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d0d0d4}
+  .timeline-editor .clip .state{left:5px!important;bottom:4px!important;font-size:6px!important;padding:1px 3px!important}
+  .timeline-editor .clip .reroll{left:3px!important;top:3px!important;opacity:.78!important;background:rgba(5,5,7,.82)}
+  .timeline-editor .clip .x{right:3px!important;top:3px!important;opacity:.78!important;background:rgba(5,5,7,.82)}
+  .timeline-editor .clip .clip-blend{left:24px!important;top:3px!important;opacity:.82;font-size:6px!important}
+  .clip-duration-readout{position:absolute;right:6px;bottom:5px;font:700 6.5px/1 var(--mono);color:var(--clip-color,#fff);font-variant-numeric:tabular-nums}
+  .trim-handle{position:absolute;z-index:18;top:0;bottom:0;width:9px;cursor:ew-resize;touch-action:none}
+  .trim-handle::after{content:"";position:absolute;top:9px;bottom:9px;width:2px;border-radius:2px;background:var(--clip-color,#fff);opacity:.18;transition:.12s}
+  .trim-handle:hover::after,.clip.sel .trim-handle::after{opacity:.72}.trim-handle.start{left:0}.trim-handle.end{right:0}.trim-handle.start::after{left:2px}.trim-handle.end::after{right:2px}
+  .timeline-editor .clip-add{height:60px!important;min-height:60px!important}
+
+  /* SHOT fullscreen: player + global recipe tool, nothing else. */
+  .shot-fullscreen-toggle{display:grid;place-items:center;width:34px;height:34px;padding:0!important}
+  .shot-fullscreen-toggle svg{width:15px;height:15px}
+  .shot-focus-exit{position:fixed;z-index:620;right:14px;top:14px;width:38px;height:38px;border:1px solid rgba(255,255,255,.2);border-radius:10px;
+    background:rgba(8,8,10,.72);backdrop-filter:blur(16px);color:#fff;cursor:pointer;font-size:18px}
+  .shot-focus-exit[hidden]{display:none!important}
+  body.shot-focus{overflow:hidden!important;background:#000}
+  body.shot-focus .top,body.shot-focus .manifesto-footer,body.shot-focus .global-test-nav,body.shot-focus .top-test-nav{display:none!important}
+  body.shot-focus .app{display:block!important}
+  body.shot-focus .main,body.shot-focus .seq,body.shot-focus .comb2,body.shot-focus .glossary{display:none!important}
+  body.shot-focus .combo{display:block!important;position:fixed;z-index:470;inset:0;background:#000;overflow:hidden}
+  body.shot-focus .combo .cfull{position:absolute;inset:0 0 calc(var(--param-tool-h) + var(--safe-bottom)) 0;padding:0!important;max-width:none!important;display:grid;place-items:center;background:#000}
+  body.shot-focus .combo .cfull>*{display:none!important}
+  body.shot-focus .combo .shot-player-rig{display:flex!important;position:absolute;inset:0;margin:0!important;border:0!important;border-radius:0!important;background:#000;align-items:center;justify-content:center}
+  body.shot-focus .combo .shot-player-rig .vpbar{display:none!important}
+  body.shot-focus .combo .shot-player-rig .cprev{display:block!important;width:min(100vw,calc((100dvh - var(--param-tool-h) - var(--safe-bottom)) * var(--project-scale)))!important;
+    height:auto!important;aspect-ratio:var(--project-ratio)!important;max-height:calc(100dvh - var(--param-tool-h) - var(--safe-bottom))!important;border:0!important}
+  body.shot-focus .global-param-dock{display:flex!important}
+
+  /* Hidden-gem manifesto: three light lines. */
+  .manifesto-footer{padding-bottom:calc(var(--param-tool-h) + 64px + var(--safe-bottom))!important}
+  .manifesto-footer .manifesto{font-weight:300!important;font-size:11px!important;line-height:2.05!important;letter-spacing:.11em!important;color:#505057!important;opacity:.78!important}
+  .manifesto-footer .manifesto b{font-weight:300!important;color:inherit!important}
+
+  @media(max-width:900px){
+    :root{--param-tool-h:112px;--param-option-h:112px}
+    .top{padding:10px 12px 9px!important}.brandrow{width:100%!important}.top-mode-nav .modeswitch button{min-height:40px!important;padding:7px 5px!important;gap:6px!important}
+    .top-mode-nav .modeswitch button span{font-size:8.5px}.top-mode-nav .modeswitch button svg{width:13px!important;height:13px!important}
+    .global-param-dock{padding-left:7px;padding-right:7px}.param-tool-head{padding:0 2px}.param-context b{max-width:40vw}
+    .param-axis-cell{flex-basis:91px;height:63px}.param-axis-main{grid-template-columns:18px minmax(0,1fr);column-gap:5px;padding-left:7px}.param-axis-main>svg{width:17px;height:17px}
+    .param-option-drawer{padding-left:7px;padding-right:7px}.param-option{flex-basis:112px;min-height:65px}
+    .seq-template-dial .dial-item{flex-basis:176px!important;min-height:84px!important}.seq-template-dial .dial-item b{font-size:12px!important}
+    .time-rig>.cprev{width:min(100%,calc(68dvh * var(--project-scale)))}
+    .shot-player-rig .cprev{width:min(100%,calc(70dvh * var(--project-scale)))}
+    .timeline-editor{--track-h:66px}.timeline-editor .clip{height:54px;top:6px;padding-inline:9px}.timeline-editor .clip .th{height:22px}.timeline-editor .clip-add{height:54px!important;min-height:54px!important}
+    .manifesto-footer .manifesto{font-size:10px!important}
+  }
+
+
+  @media(min-width:901px){
+    .time-rig>.cprev{width:min(100%,calc(48vh * var(--project-scale)))!important}
+    .shot-player-rig .cprev{width:min(100%,calc(64vh * var(--project-scale)))!important}
+  }
+
 </style>
 </head>
 <body>
@@ -1571,6 +1857,42 @@
         <button class="cbtn pri" id="cRand">Genera variante</button>
         <button class="cbtn" id="cReset">Reset</button>
       </div>
+
+      <section class="asset-world" id="assetWorld" aria-label="Asset scene">
+        <div class="asset-world-head">
+          <div><span id="assetWorldKicker">ASSET SCENE</span><b id="assetHeroStatus">CUBE DEFAULT</b></div>
+          <button class="asset-collapse" id="assetCollapse" type="button" aria-expanded="true" aria-label="Collapse assets">⌃</button>
+        </div>
+        <div class="asset-world-body" id="assetWorldBody">
+          <div class="asset-actions">
+            <label class="asset-action hero" for="assetHeroInput">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
+              <span><b id="assetHeroLabel">HERO GLB</b><small id="assetHeroSub">replace the proxy</small></span>
+              <input id="assetHeroInput" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" hidden>
+            </label>
+            <label class="asset-action secondary" for="assetSecondaryInput">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="8" height="8" rx="1"/><rect x="13" y="4" width="8" height="8" rx="1"/><rect x="13" y="14" width="8" height="7" rx="1"/></svg>
+              <span><b id="assetSecondaryLabel">SECONDARY</b><small id="assetSecondarySub">add scene props</small></span>
+              <input id="assetSecondaryInput" type="file" multiple accept=".glb,.gltf,model/gltf-binary,model/gltf+json" hidden>
+            </label>
+            <label class="asset-action hdri" for="assetHdriInput">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4.5 6 4.5 9S15 18 12 21M12 3c-3 3-4.5 6-4.5 9S9 18 12 21"/></svg>
+              <span><b id="assetHdriLabel">HDRI</b><small id="assetHdriSub">light and reflections</small></span>
+              <input id="assetHdriInput" type="file" accept=".hdr,image/vnd.radiance" hidden>
+            </label>
+            <button class="asset-action compact" id="assetBgToggle" type="button" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m5 16 5-5 4 4 2-2 3 3"/></svg>
+              <span><b id="assetBgLabel">HDRI BG</b><small id="assetBgSub">hidden</small></span>
+            </button>
+            <button class="asset-action compact danger" id="assetSceneReset" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M5.5 15a7 7 0 0 0 11.7 2.6L20 14M4 10l2.8-3.6A7 7 0 0 1 18.5 9"/></svg>
+              <span><b id="assetResetLabel">RESET</b><small id="assetResetSub">proxy scene</small></span>
+            </button>
+          </div>
+          <div class="asset-status-line" id="assetStatusLine">GLB statici o animati · max 8 secondary · HDRI 1K/2K consigliato</div>
+          <div class="asset-chip-list" id="assetChipList"></div>
+        </div>
+      </section>
 
       <section class="dial-block tech-dial-block" aria-label="Tipologia di shot">
         <div class="dial-caption"><span id="shotTechCaption">TIPOLOGIA DI SHOT</span><button class="dial-side" id="shotTechReset" type="button">RESET</button></div>
@@ -1799,6 +2121,25 @@
     <button id="editStart" hidden></button><button id="editEnd" hidden></button><button id="optionClose" hidden></button>
   </aside>
 
+
+
+  <aside class="global-param-dock" id="globalParamDock" aria-label="Recipe tool" hidden>
+    <div class="param-option-drawer" id="globalParamOptions" hidden>
+      <div class="param-option-head"><span id="globalOptionSide">START</span><b id="globalOptionAxis">—</b><button id="globalOptionClose" type="button" aria-label="Close">⌄</button></div>
+      <div class="param-option-rail" id="globalParamOptionRail"></div>
+    </div>
+    <div class="param-tool-head">
+      <div class="param-context"><span id="globalParamMode">SHOT</span><b id="globalParamTitle">—</b></div>
+      <div class="param-side-toggle" role="group" aria-label="Start end">
+        <button id="globalSideStart" type="button" aria-pressed="true">START</button>
+        <button id="globalSideEnd" type="button" aria-pressed="false">END</button>
+      </div>
+      <b class="param-delta-count" id="globalParamDelta">0 Δ</b>
+    </div>
+    <div class="param-axis-rail" id="globalParamAxisRail"></div>
+  </aside>
+  <button class="shot-focus-exit" id="shotFocusExit" type="button" aria-label="Exit fullscreen" hidden>×</button>
+
   <div class="sheet-backdrop" id="projectBackdrop" hidden>
     <section class="project-sheet" id="projectSheet" role="dialog" aria-modal="true" aria-labelledby="projectSheetTitle">
       <div class="sheet-head"><div><span>PROJECT</span><b id="projectSheetTitle">MEMENTO</b></div><button type="button" id="projectClose" aria-label="Chiudi">×</button></div>
@@ -1865,6 +2206,9 @@ window.__currentMode="combo";
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
 <script>
 (function(){
 "use strict";
@@ -2411,19 +2755,113 @@ const ENG=(function(){
   const BASE_RADIUS=(CUBE.boundingSphere&&CUBE.boundingSphere.radius)||0.98;
 
   const subject=new THREE.Group();
-  const hero=new THREE.Mesh(CUBE,mat); subject.add(hero);
-  scene.add(subject);
+  const heroRoot=new THREE.Group();
+  const defaultHero=new THREE.Mesh(CUBE,mat); defaultHero.name="MEMENTO_PROXY";
+  heroRoot.add(defaultHero); subject.add(heroRoot); scene.add(subject);
+  let heroIsDefault=true, heroHalf=.575, heroRadius=BASE_RADIUS, heroMixer=null, heroAnimDuration=0;
+  let heroMeta={name:"MEMENTO proxy",meshes:1,triangles:Math.round((CUBE.index?CUBE.index.count:CUBE.attributes.position.count)/3),animated:false,proxyClones:false};
 
-  /* Clones stay opaque. Semi-transparent intersecting meshes caused sorting
-     artefacts and the impression of seeing through geometry; hierarchy now comes
-     from darker shading, smaller scale and depth — not broken alpha ordering. */
+  const secondaryRoot=new THREE.Group(); secondaryRoot.name="MEMENTO_SECONDARY"; scene.add(secondaryRoot);
+  const secondaryAssets=new Map();
+  let secondarySerial=0;
+
+  /* Clones stay opaque. Imported low/medium complexity heroes are cloned with
+     shared geometry/material references; heavy or skinned assets automatically
+     fall back to the lightweight proxy so motion-design presets stay mobile-safe. */
   const clones=new THREE.Group(); scene.add(clones);
   const cloneMat=mat.clone(); cloneMat.transparent=false; cloneMat.opacity=1;
   cloneMat.color.set(0x0d0f12); cloneMat.roughness=0.68; cloneMat.metalness=0.28;
   cloneMat.envMapIntensity=0.36; cloneMat.emissive.set(0x020202); cloneMat.emissiveIntensity=0.12;
   const CLONE_N=26, cloneMesh=[];
-  for(let i=0;i<CLONE_N;i++){ const m=new THREE.Mesh(CUBE,cloneMat); m.visible=false;
-    m.userData.localPos=new THREE.Vector3(); clones.add(m); cloneMesh.push(m); }
+
+  function objectStats(root){
+    let meshes=0,triangles=0,skinned=false;
+    root.traverse(o=>{if(!o.isMesh)return;meshes++;if(o.isSkinnedMesh)skinned=true;const g=o.geometry;if(g){const n=g.index?g.index.count:(g.attributes.position?g.attributes.position.count:0);triangles+=Math.floor(n/3)}});
+    return {meshes,triangles,skinned};
+  }
+  function prepareImported(root){
+    const remove=[];
+    root.traverse(o=>{
+      if(o.isLight||o.isCamera){remove.push(o);return}
+      if(!o.isMesh)return;
+      o.castShadow=false;o.receiveShadow=false;o.frustumCulled=true;
+      const mats=Array.isArray(o.material)?o.material:[o.material];
+      mats.filter(Boolean).forEach(m=>{
+        if(m.map&&"encoding" in m.map)m.map.encoding=THREE.sRGBEncoding;
+        if(m.emissiveMap&&"encoding" in m.emissiveMap)m.emissiveMap.encoding=THREE.sRGBEncoding;
+        if("envMapIntensity" in m&&(!Number.isFinite(m.envMapIntensity)||m.envMapIntensity<.15))m.envMapIntensity=1;
+        if(m.transparent&&m.opacity>=.995){m.transparent=false;m.depthWrite=true}
+        m.needsUpdate=true;
+      });
+    });
+    remove.forEach(o=>o.parent&&o.parent.remove(o));
+  }
+  function normalizeObject(root,target){
+    root.updateMatrixWorld(true);let box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3());
+    const max=Math.max(size.x,size.y,size.z,.0001),scale=(target||1.15)/max;root.scale.multiplyScalar(scale);root.updateMatrixWorld(true);
+    box=new THREE.Box3().setFromObject(root);const center=box.getCenter(new THREE.Vector3());root.position.sub(center);root.updateMatrixWorld(true);
+    box=new THREE.Box3().setFromObject(root);size=box.getSize(new THREE.Vector3());const sphere=box.getBoundingSphere(new THREE.Sphere());
+    return {half:Math.max(.05,size.y/2),radius:Math.max(.08,sphere.radius),size};
+  }
+  function darkCloneSource(){
+    const source=heroRoot.clone(true),mats=new Map();
+    source.traverse(o=>{if(!o.isMesh)return;const src=Array.isArray(o.material)?o.material:[o.material];const out=src.map(m=>{
+      if(!m)return m;if(mats.has(m.uuid))return mats.get(m.uuid);const c=m.clone();
+      if(c.color)c.color.multiplyScalar(.34);if(c.emissive)c.emissive.multiplyScalar(.18);if("envMapIntensity" in c)c.envMapIntensity*=.42;
+      c.transparent=false;c.opacity=1;c.depthWrite=true;mats.set(m.uuid,c);return c;
+    });o.material=Array.isArray(o.material)?out:out[0]});
+    return source;
+  }
+  function clearCloneObjects(){while(clones.children.length)clones.remove(clones.children[0]);cloneMesh.length=0}
+  function rebuildClones(){
+    clearCloneObjects();const st=objectStats(heroRoot),useHero=!heroIsDefault&&!st.skinned&&st.triangles<=90000&&st.meshes<=18;
+    const source=useHero?darkCloneSource():null;
+    for(let i=0;i<CLONE_N;i++){
+      const o=useHero?source.clone(true):new THREE.Mesh(CUBE,cloneMat);o.visible=false;o.userData.localPos=new THREE.Vector3();clones.add(o);cloneMesh.push(o);
+    }
+    heroMeta.proxyClones=!useHero&&!heroIsDefault;
+  }
+  rebuildClones();
+
+  function disposeImported(root){
+    if(!root)return;const geos=new Set(),mats=new Set(),tex=new Set();
+    root.traverse(o=>{if(!o.isMesh)return;if(o.geometry)geos.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).filter(Boolean).forEach(m=>{mats.add(m);["map","normalMap","roughnessMap","metalnessMap","aoMap","emissiveMap","alphaMap"].forEach(k=>m[k]&&tex.add(m[k]))})});
+    tex.forEach(t=>{try{t.dispose()}catch(_){}});mats.forEach(m=>{try{m.dispose()}catch(_){}});geos.forEach(g=>{try{g.dispose()}catch(_){}});
+  }
+  function setHeroObject(root,clips,meta){
+    if(!root)return null;const previous=!heroIsDefault&&heroRoot.children[0];clearCloneObjects();while(heroRoot.children.length)heroRoot.remove(heroRoot.children[0]);
+    prepareImported(root);const bounds=normalizeObject(root,1.15);heroRoot.add(root);heroIsDefault=false;heroHalf=bounds.half;heroRadius=bounds.radius;
+    const st=objectStats(root);heroMeta={name:(meta&&meta.name)||root.name||"Imported hero",meshes:st.meshes,triangles:st.triangles,animated:!!(clips&&clips.length),proxyClones:false};
+    heroMixer=null;heroAnimDuration=0;if(clips&&clips.length){heroMixer=new THREE.AnimationMixer(root);clips.forEach(c=>{const a=heroMixer.clipAction(c);a.play();heroAnimDuration=Math.max(heroAnimDuration,c.duration||0)})}
+    rebuildClones();layoutSecondary();if(previous)disposeImported(previous);return Object.assign({},heroMeta,{half:heroHalf,radius:heroRadius});
+  }
+  function resetHeroObject(){
+    const previous=!heroIsDefault&&heroRoot.children[0];clearCloneObjects();while(heroRoot.children.length)heroRoot.remove(heroRoot.children[0]);heroRoot.add(defaultHero);
+    heroIsDefault=true;heroHalf=.575;heroRadius=BASE_RADIUS;heroMixer=null;heroAnimDuration=0;heroMeta={name:"MEMENTO proxy",meshes:1,triangles:Math.round((CUBE.index?CUBE.index.count:CUBE.attributes.position.count)/3),animated:false,proxyClones:false};
+    rebuildClones();layoutSecondary();if(previous)disposeImported(previous);return Object.assign({},heroMeta);
+  }
+  function layoutSecondary(){
+    const items=[...secondaryAssets.values()];items.forEach((a,i)=>{const ring=Math.floor(i/6),slot=i%6,count=Math.min(6,items.length-ring*6),ang=(slot/Math.max(1,count))*Math.PI*2+.55;
+      const r=2.15+ring*1.35;a.root.position.set(Math.cos(ang)*r,-heroHalf+a.half,Math.sin(ang)*r-1.25);a.root.rotation.y=-ang+.3});
+  }
+  function addSecondary(root,clips,meta){
+    if(!root||secondaryAssets.size>=8)return null;prepareImported(root);const bounds=normalizeObject(root,.66),st=objectStats(root),id=(meta&&meta.id)||("sec_"+(++secondarySerial)+"_"+Date.now().toString(36));
+    root.name=(meta&&meta.name)||root.name||id;secondaryRoot.add(root);let mixer=null,duration=0;if(clips&&clips.length){mixer=new THREE.AnimationMixer(root);clips.forEach(c=>{mixer.clipAction(c).play();duration=Math.max(duration,c.duration||0)})}
+    secondaryAssets.set(id,{id,root,name:root.name,half:bounds.half,radius:bounds.radius,meshes:st.meshes,triangles:st.triangles,mixer,duration,visible:true});layoutSecondary();return {id,name:root.name,meshes:st.meshes,triangles:st.triangles};
+  }
+  function removeSecondary(id){const a=secondaryAssets.get(id);if(!a)return false;secondaryRoot.remove(a.root);secondaryAssets.delete(id);disposeImported(a.root);layoutSecondary();return true}
+  function clearSecondary(){[...secondaryAssets.keys()].forEach(removeSecondary)}
+  function setSecondaryVisible(id,on){const a=secondaryAssets.get(id);if(!a)return false;a.visible=!!on;a.root.visible=!!on;return true}
+
+  const pmrem=new THREE.PMREMGenerator(gl);pmrem.compileEquirectangularShader();
+  let hdriSource=null,hdriRT=null,hdriName="",hdriBackground=false;
+  function setHDRI(tex,name){
+    if(!tex)return false;if(hdriRT)hdriRT.dispose();if(hdriSource)hdriSource.dispose();hdriSource=tex;hdriName=name||"HDRI";
+    tex.mapping=THREE.EquirectangularReflectionMapping;hdriRT=pmrem.fromEquirectangular(tex);scene.environment=hdriRT.texture;scene.background=hdriBackground?hdriSource:null;return true;
+  }
+  function setHDRIBackground(on){hdriBackground=!!on;scene.background=hdriBackground&&hdriSource?hdriSource:null;return hdriBackground}
+  function clearHDRI(){if(hdriRT)hdriRT.dispose();if(hdriSource)hdriSource.dispose();hdriRT=null;hdriSource=null;hdriName="";hdriBackground=false;scene.environment=studioEnv;scene.background=null}
+  function assetState(){return {hero:Object.assign({},heroMeta),secondary:[...secondaryAssets.values()].map(a=>({id:a.id,name:a.name,meshes:a.meshes,triangles:a.triangles,visible:a.visible})),hdri:{name:hdriName,loaded:!!hdriSource,background:hdriBackground}}}
 
   /* ---- starfield: reads camera movement. Two shells at different depths so
      orbit/truck produce real parallax instead of a flat drift. ---- */
@@ -2520,7 +2958,7 @@ const ENG=(function(){
      Everything hangs off the subject's own half-height so the cube RESTS on the
      ground instead of hovering: the old fixed GY=-1.05 left half a unit of gap
      under a 1.15 cube, and scaling (macro = 1.7x) made it worse. */
-  const SUB=1.15, HALF=SUB/2;
+  const SUB=1.15;
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60),
     new THREE.MeshStandardMaterial({color:0x090909,roughness:0.28,metalness:0.7}));
   floor.rotation.x=-Math.PI/2; floor.visible=false;
@@ -2626,7 +3064,7 @@ const ENG=(function(){
   grid.material.transparent=true; grid.material.opacity=0.5;
   grid.visible=false; rig.add(grid);   /* y set per-frame, see applyScene */
   const axesH=new THREE.AxesHelper(1.1); axesH.visible=false; rig.add(axesH);
-  const subjWire=wire(CUBE,0x5c5c61,0.35); subjWire.visible=false; scene.add(subjWire);
+  const subjWire=new THREE.BoxHelper(subject,0x5c5c61); subjWire.material.transparent=true; subjWire.material.opacity=.42; subjWire.visible=false; scene.add(subjWire);
 
   /* ---- The camera rig. ONE function decides where the camera is at time t,
      used by the preview, by the dashed path overlay, and by the work-view
@@ -2641,7 +3079,7 @@ const ENG=(function(){
      so portrait projects receive horizontal safety too. */
   function resolveParams(p,aspect){
     const q=Object.assign({},p), asp=Math.max(.24,aspect||16/9);
-    const radius=BASE_RADIUS*Math.max(.2,q.sscale||1);
+    const radius=heroRadius*Math.max(.2,q.sscale||1);
     const vf=THREE.MathUtils.degToRad(Math.max(4,Math.min(110,q.fov||38)));
     const hf=2*Math.atan(Math.tan(vf/2)*asp);
     const limiting=Math.max(.07,Math.min(vf,hf));
@@ -2737,12 +3175,14 @@ const ENG=(function(){
     const spin = (p.srot===-1) ? ph*Math.PI*2 : (p.srot||0);
     subject.rotation.set(0, spin, 0);
     subject.scale.setScalar(p.sscale||1);
-    hero.visible=true;
+    heroRoot.visible=true;
+    if(heroMixer)heroMixer.setTime(heroAnimDuration>0?(t%heroAnimDuration):t);
+    secondaryAssets.forEach(a=>{if(a.mixer)a.mixer.setTime(a.duration>0?(t%a.duration):t)});
+    scene.background=forWork?null:(hdriBackground&&hdriSource?hdriSource:null);
 
     /* ground follows the subject's real size */
     const anyEnv=(p.floor>0.5)||(p.cove>0.5);
-    const halfDiag=HALF*Math.SQRT2*(p.sscale||1);
-    const gy=-halfDiag-0.02;
+    const gy=-(heroHalf*(p.sscale||1))-0.02;
     subject.position.set(0,0,0);
     floor.visible=p.floor>0.5&&!forWork; floor.position.y=gy;
     cove.visible=p.cove>0.5&&!forWork; cove.position.y=gy;
@@ -2923,8 +3363,7 @@ const ENG=(function(){
       camGiz.quaternion.copy(shadowCam.quaternion);
       gizA.position.copy(rimA.position); gizA.visible=rp.rimA>0.02;
       gizB.position.copy(rimB.position); gizB.visible=rp.rimB>0.02;
-      subjWire.visible=true;
-      subjWire.rotation.copy(subject.rotation); subjWire.scale.copy(subject.scale);
+      subjWire.visible=true; subjWire.update();
       /* dashed camera path + a dot riding it at the current phase */
       buildPath(rp);
       const moving = rp._cam && rp._cam!=="static";
@@ -2958,7 +3397,7 @@ const ENG=(function(){
       ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     }
   }
-  return {renderTo:renderTo};
+  return {renderTo:renderTo,setHeroObject:setHeroObject,resetHeroObject:resetHeroObject,addSecondary:addSecondary,removeSecondary:removeSecondary,clearSecondary:clearSecondary,setSecondaryVisible:setSecondaryVisible,setHDRI:setHDRI,setHDRIBackground:setHDRIBackground,clearHDRI:clearHDRI,assetState:assetState};
 })();
 
 "use strict";
@@ -4124,6 +4563,7 @@ function blockLabel(it){
 }
 
 const PRESETS={
+ empty:{label:"Vuoto",ids:[]},
  teaser:{label:"Teaser",ids:["dark","a_riser","shapereveal","t_whip","a_whoosh","macro","t_flash","drop","a_impact","logo","outro"]},
  trailer:{label:"Trailer",ids:["dark","a_score","shapereveal","t_dissolve","macro","form","t_smear","feature","full","t_whip","a_whoosh","variant","fx","t_flash","drop","a_sub","pattern","logo","claim","outro","credits"]},
  intro:{label:"Intro",ids:["shapereveal","t_morph","form","t_flash","a_impact","logo"]},
@@ -4163,15 +4603,15 @@ function newItem(id){
   const b=B(id); if(!b) return null;
   if(b[6]==="shot"){
     const roleId=DEFAULT_ROLE_BY_BLOCK[b[0]]||"product-full";
-    const it={uid:uid(),id:b[0],img:null,selected:false,dur:b[3],note:""};
+    const it={uid:uid(),id:b[0],img:null,selected:false,dur:b[3],note:"",track:"v1",timelineStart:null,blend:"normal"};
     return applyRolePresetData(it,roleId,null,{setDuration:true});
   }
-  return {uid:uid(),id:b[0],img:null,selected:false,dur:b[3],note:""};
+  return {uid:uid(),id:b[0],img:null,selected:false,dur:b[3],note:"",track:b[6]==="audio"?"a1":"fx",timelineStart:null,blend:"normal"};
 }
 function normalizeItem(raw){
   if(!raw||!B(raw.id)) return null;
   const b=B(raw.id),dur=Number(raw.dur),it={uid:typeof raw.uid==="string"&&raw.uid?raw.uid:uid(),id:b[0],
-    img:typeof raw.img==="string"?raw.img:null,selected:!!raw.selected,dur:Number.isFinite(dur)?Math.max(0,Math.min(30,dur)):b[3],note:typeof raw.note==="string"?raw.note:""};
+    img:typeof raw.img==="string"?raw.img:null,selected:!!raw.selected,dur:Number.isFinite(dur)?Math.max(0,Math.min(30,dur)):b[3],note:typeof raw.note==="string"?raw.note:"",track:typeof raw.track==="string"?raw.track:(b[6]==="shot"?"v1":b[6]==="audio"?"a1":"fx"),timelineStart:Number.isFinite(Number(raw.timelineStart))?Math.max(0,Number(raw.timelineStart)):null,blend:["normal","screen","add"].includes(raw.blend)?raw.blend:"normal"};
   if(b[6]==="shot"){
     const rid=raw.role&&ROLE_BY_ID[raw.role.presetId]?raw.role.presetId:(DEFAULT_ROLE_BY_BLOCK[b[0]]||"product-full");
     const variant=raw.role&&raw.role.variantId||"standard";it.role={presetId:rid,variantId:variant};it.technicalPresetId=raw.technicalPresetId||"custom";
@@ -4328,7 +4768,7 @@ Object.keys(LANES).forEach(ty=>{
 
 function moveTimelinePeer(index,dir){
   const it=TL[index],b=B(it&&it.id);if(!it||!b)return false;
-  const peers=[];TL.forEach((x,i)=>{const xb=B(x.id);if(xb&&xb[6]===b[6])peers.push(i)});
+  const peers=[];TL.forEach((x,i)=>{const xb=B(x.id);if(xb&&xb[6]===b[6]&&(x.track||"")===(it.track||""))peers.push(i)});
   const p=peers.indexOf(index),q=p+dir;if(p<0||q<0||q>=peers.length)return false;
   const target=peers[q],tmp=TL[index];TL[index]=TL[target];TL[target]=tmp;return true;
 }
@@ -4337,12 +4777,19 @@ function randomiseTimelineShot(it){
   const before=projectSnapshot();generateCoherentVariant(it,shotTypeOf(it).id);it.variants=[];it.activeVariantId=null;
   activeShotUid=it.uid;TL.forEach(x=>x.selected=x===it);setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before);
 }
+function laneForTimelineItem(it,b){
+  if(!it||!b)return null;if(b[6]==="shot"&&it.track==="v2")return document.getElementById("lane-v2")||LANES.shot;
+  if(b[6]==="audio"&&it.track==="a2")return document.getElementById("lane-a2")||LANES.audio;return LANES[b[6]];
+}
+function timelineTrackLabel(it,b){if(!b)return "";if(b[6]==="shot")return it.track==="v2"?"V2":"V1";if(b[6]==="audio")return it.track==="a2"?"A2":"A1";return "FX"}
+function cycleTimelineTrack(it,index){const b=B(it&&it.id);if(!b)return;const before=projectSnapshot(),p=timelineLayoutData().map.get(index);if(b[6]==="shot"){if(it.track==="v2"){it.track="v1";it.timelineStart=null}else{it.timelineStart=p?p.start:0;it.track="v2"}}else if(b[6]==="audio"){it.timelineStart=p?p.start:0;it.track=it.track==="a2"?"a1":"a2"}drawTL();pushHistory(before)}
+function cycleBlend(it){const before=projectSnapshot(),m=["normal","screen","add"],i=m.indexOf(it.blend||"normal");it.blend=m[(i+1)%m.length];drawTL();pushHistory(before)}
 function drawTL(){
   seqPlanCache=null;
-  Object.values(LANES).forEach(l=>l.innerHTML="");
+  document.querySelectorAll("#tracks .trkl").forEach(l=>l.innerHTML="");
   TL.forEach((it,i)=>{
     const b=B(it.id); if(!b) return;
-    const lane=LANES[b[6]]; if(!lane) return;
+    const lane=laneForTimelineItem(it,b); if(!lane) return;
     const isShot=b[6]==="shot";
     const d=document.createElement("div");
     d.className="clip"+(isShot?" shot-clip":" ref-clip t-"+b[6])+(it.selected?" sel":""); d.draggable=true; d.dataset.i=i;
@@ -4352,16 +4799,19 @@ function drawTL(){
       if(da.count)state='<span class="state">Δ '+da.count+'</span>';else if(edited)state='<span class="state">EDIT</span>';}
     if(isShot){
       d.innerHTML='<button class="clip-tool reroll" type="button" aria-label="Genera variante">↻</button>'+ 
-        '<button class="x" aria-label="Rimuovi">×</button><div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>'+state+
+        '<button class="x" aria-label="Rimuovi">×</button><button class="clip-track" type="button" aria-label="Cambia traccia">'+timelineTrackLabel(it,b)+'</button>'+ 
+        (it.track==="v2"?'<button class="clip-blend" type="button" aria-label="Blend mode">'+(it.blend||"normal").slice(0,1).toUpperCase()+'</button>':'')+
+        '<div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>'+state+
         '<div class="dur"><input type="number" min="0.1" max="30" step="0.1" value="'+it.dur.toFixed(1)+'"></div>'+ 
         '<textarea class="note'+(it.note?' has':'')+'" rows="3" placeholder="nota…"></textarea>'+ 
         '<button class="clip-tool move move-left" type="button" aria-label="Sposta a sinistra">‹</button>'+ 
         '<button class="clip-tool move move-right" type="button" aria-label="Sposta a destra">›</button>';
     }else{
-      d.innerHTML='<button class="x" aria-label="Rimuovi">×</button><div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>';
+      d.innerHTML='<button class="x" aria-label="Rimuovi">×</button>'+ (b[6]==="audio"?'<button class="clip-track" type="button" aria-label="Cambia traccia">'+timelineTrackLabel(it,b)+'</button>':'') +'<div class="th">'+thumb+'</div><div class="nm">'+blockLabel(it)+'</div>';
     }
     const del=d.querySelector(".x");if(del)del.onclick=e=>{e.stopPropagation();const before=projectSnapshot();if(activeShotUid===it.uid)activeShotUid=null;TL.splice(i,1);drawTL();updateContexts();pushHistory(before)};
     const reroll=d.querySelector(".reroll");if(reroll)reroll.onclick=e=>{e.stopPropagation();randomiseTimelineShot(it)};
+    const trk=d.querySelector(".clip-track");if(trk)trk.onclick=e=>{e.stopPropagation();cycleTimelineTrack(it,i)};const blend=d.querySelector(".clip-blend");if(blend)blend.onclick=e=>{e.stopPropagation();cycleBlend(it)};
     [[".move-left",-1],[".move-right",1]].forEach(([sel,dir])=>{const btn=d.querySelector(sel);if(btn)btn.onclick=e=>{e.stopPropagation();const before=projectSnapshot();if(moveTimelinePeer(i,dir)){drawTL();pushHistory(before)}}});
     const inp=d.querySelector("input");
     if(inp){inp.onclick=e=>e.stopPropagation();inp.onchange=()=>{const before=projectSnapshot(),v=parseFloat(inp.value);it.dur=isNaN(v)?b[3]:Math.min(30,Math.max(.1,v));drawTL();pushHistory(before)}}
@@ -4381,7 +4831,7 @@ function drawTL(){
   });
   const add=document.createElement("button");add.type="button";add.className="clip clip-add";add.innerHTML='<span>+</span><b>'+(currentLang()==="en"?"NEW SHOT":"NUOVO SHOT")+'</b>';
   add.onclick=()=>{const before=projectSnapshot(),it=newItemFromRole(seqDialRoleId||"shape-reveal",seqDialVariant||"standard");TL.push(it);setSelection(it);activeShotUid=it.uid;setShotPreviewItem(it);drawTL();pushHistory(before)};
-  LANES.shot.appendChild(add);
+  (document.getElementById("lane-v1")||LANES.shot).appendChild(add);
   drawEnergy();recipeOut();updateTimePreview();updateContexts();persistProject();if(typeof renderVNextUI==="function")renderVNextUI();if(window.__refreshScrollCues)requestAnimationFrame(window.__refreshScrollCues);
 }
 
@@ -4392,43 +4842,41 @@ let seqPreviewUid=null;
    interpreted as: shot → optional transition → next shot. Audio markers do not
    alter timing; a loaded music track can play alongside the preview. */
 function buildSequencePlan(){
-  const nodes=[]; let pending=null;
-  TL.forEach(it=>{ const b=B(it.id); if(!b) return;
-    if(b[6]==="shot"){
-      if(nodes.length&&pending) nodes[nodes.length-1].transition=pending;
-      nodes.push({it,dur:Math.max(.1,Number(it.dur)||b[3]||1),transition:null}); pending=null;
-    }else if(b[6]==="trans"){ pending={it,type:b[0],dur:Math.max(0,Number(it.dur)||b[3]||0)}; }
+  const layout=timelineLayoutData(),nodes=[],overlays=[],transitions=[];
+  TL.forEach((it,i)=>{const b=B(it.id),p=layout.map.get(i);if(!b||!p)return;
+    if(b[6]==="shot"){const n={it,start:p.start,dur:p.dur,track:p.track};(p.track==="v2"?overlays:nodes).push(n)}
+    else if(b[6]==="trans")transitions.push({it,type:b[0],start:p.start,dur:p.dur});
   });
-  let cursor=0; nodes.forEach((n,i)=>{ n.start=cursor; cursor+=n.dur;
-    if(i<nodes.length-1&&n.transition&&n.transition.dur>0){ n.transition.start=cursor; cursor+=n.transition.dur; }
-  });
-  return {nodes,total:cursor};
+  nodes.sort((a,b)=>a.start-b.start);overlays.sort((a,b)=>a.start-b.start);transitions.sort((a,b)=>a.start-b.start);
+  return{nodes,overlays,transitions,total:layout.total};
 }
 function sequenceStateAt(t){
-  const plan=seqPlanCache||buildSequencePlan(); if(!plan.nodes.length) return null;
-  const tt=Math.max(0,Math.min(plan.total,t));
-  for(let i=0;i<plan.nodes.length;i++){ const n=plan.nodes[i], next=plan.nodes[i+1];
-    if(tt<=n.start+n.dur||!next) return {kind:"shot",node:n,index:i,local:Math.max(0,tt-n.start),plan};
-    const tr=n.transition;
-    if(tr&&tr.dur>0&&tt<=tr.start+tr.dur) return {kind:"transition",node:n,next,index:i,tr,
-      p:Math.max(0,Math.min(1,(tt-tr.start)/tr.dur)),local:n.dur+(tt-tr.start),plan};
-  }
-  const n=plan.nodes[plan.nodes.length-1]; return {kind:"shot",node:n,index:plan.nodes.length-1,local:n.dur,plan};
+  const plan=seqPlanCache||buildSequencePlan();if(!plan.nodes.length&&!plan.overlays.length)return null;const tt=Math.max(0,Math.min(plan.total,t));
+  let node=null,index=-1;for(let i=0;i<plan.nodes.length;i++){const n=plan.nodes[i];if(tt>=n.start&&tt<=n.start+n.dur+.0001){node=n;index=i}else if(n.start<=tt){node=n;index=i}}
+  let overlay=null;for(const o of plan.overlays)if(tt>=o.start&&tt<=o.start+o.dur+.0001)overlay=o;
+  if(!node&&overlay){node=overlay;index=plan.nodes.indexOf(overlay)}
+  let tr=null;for(const x of plan.transitions)if(tt>=x.start&&tt<=x.start+x.dur+.0001){tr=x;break}
+  let next=null;if(tr){next=plan.nodes.find(n=>n.start>=tr.start+tr.dur*.35&&n!==node)||plan.nodes[index+1]||null}
+  return{kind:tr&&next?"transition":"shot",node,next,index,tr,p:tr?Math.max(0,Math.min(1,(tt-tr.start)/tr.dur)):0,
+    local:Math.max(0,tt-(node?node.start:0)),overlay,overlayLocal:overlay?Math.max(0,tt-overlay.start):0,plan};
 }
 function fitTemp(cv,W,H){ if(cv.width!==W) cv.width=W; if(cv.height!==H) cv.height=H; }
-function drawSequenceFrame(cv,t){
-  const st=sequenceStateAt(t);if(!st)return;
-  const cur=shotRenderAt(st.node.it,Math.min(st.node.dur,st.local),false);
-  if(st.kind!=="transition"||!st.next){draw(cv,cur.sel,cur.p,cur.time);return;}
-  const nxt=shotRenderAt(st.next.it,0,false),q=st.p<.5?2*st.p*st.p:1-Math.pow(-2*st.p+2,2)/2;
-  if(st.tr.type==="t_morph"){draw(cv,q<.5?cur.sel:nxt.sel,mixP(cur.p,nxt.p,q),lerp(cur.time,nxt.time,q));return;}
+function drawSequenceBase(cv,st){
+  if(!st||!st.node)return;const cur=shotRenderAt(st.node.it,Math.min(st.node.dur,st.local),false);
+  if(st.kind!=="transition"||!st.next){draw(cv,cur.sel,cur.p,cur.time);return}
+  const nxt=shotRenderAt(st.next.it,Math.max(0,st.p*st.next.dur*.08),false),q=st.p<.5?2*st.p*st.p:1-Math.pow(-2*st.p+2,2)/2;
+  if(st.tr.type==="t_morph"){draw(cv,q<.5?cur.sel:nxt.sel,mixP(cur.p,nxt.p,q),lerp(cur.time,nxt.time,q));return}
   const W=cv.width,H=cv.height,ctx=cv.getContext("2d");if(!ctx)return;fitTemp(seqBlendA,W,H);fitTemp(seqBlendB,W,H);
-  draw(seqBlendA,cur.sel,cur.p,cur.time);draw(seqBlendB,nxt.sel,nxt.p,nxt.time);
-  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.filter="none";ctx.clearRect(0,0,W,H);
-  if(st.tr.type==="t_flash"){const k=st.p<.5?st.p*2:(1-st.p)*2;ctx.drawImage(st.p<.5?seqBlendA:seqBlendB,0,0);ctx.fillStyle="rgba(255,244,238,"+Math.min(.88,k).toFixed(3)+")";ctx.fillRect(0,0,W,H);}
-  else if(st.tr.type==="t_whip"){const blur=Math.sin(st.p*Math.PI)*18,off=W*.12*Math.sin(st.p*Math.PI);ctx.save();ctx.filter="blur("+blur.toFixed(1)+"px)";ctx.globalAlpha=1-st.p;ctx.drawImage(seqBlendA,-off,0);ctx.globalAlpha=st.p;ctx.drawImage(seqBlendB,W*.12-off,0);ctx.restore();}
-  else if(st.tr.type==="t_smear"){ctx.save();ctx.filter="blur("+(Math.sin(st.p*Math.PI)*11).toFixed(1)+"px)";ctx.globalAlpha=1-st.p;ctx.drawImage(seqBlendA,0,0);ctx.globalAlpha=st.p;ctx.drawImage(seqBlendB,0,0);ctx.restore();}
-  else{ctx.drawImage(seqBlendA,0,0);ctx.globalAlpha=q;ctx.drawImage(seqBlendB,0,0);ctx.globalAlpha=1;}
+  draw(seqBlendA,cur.sel,cur.p,cur.time);draw(seqBlendB,nxt.sel,nxt.p,nxt.time);ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.filter="none";ctx.clearRect(0,0,W,H);
+  if(st.tr.type==="t_flash"){const k=st.p<.5?st.p*2:(1-st.p)*2;ctx.drawImage(st.p<.5?seqBlendA:seqBlendB,0,0);ctx.fillStyle="rgba(255,244,238,"+Math.min(.88,k).toFixed(3)+")";ctx.fillRect(0,0,W,H)}
+  else if(st.tr.type==="t_whip"){const blur=Math.sin(st.p*Math.PI)*18,off=W*.12*Math.sin(st.p*Math.PI);ctx.save();ctx.filter="blur("+blur.toFixed(1)+"px)";ctx.globalAlpha=1-st.p;ctx.drawImage(seqBlendA,-off,0);ctx.globalAlpha=st.p;ctx.drawImage(seqBlendB,W*.12-off,0);ctx.restore()}
+  else if(st.tr.type==="t_smear"){ctx.save();ctx.filter="blur("+(Math.sin(st.p*Math.PI)*11).toFixed(1)+"px)";ctx.globalAlpha=1-st.p;ctx.drawImage(seqBlendA,0,0);ctx.globalAlpha=st.p;ctx.drawImage(seqBlendB,0,0);ctx.restore()}
+  else{ctx.drawImage(seqBlendA,0,0);ctx.globalAlpha=q;ctx.drawImage(seqBlendB,0,0);ctx.globalAlpha=1}
+}
+function drawSequenceFrame(cv,t){
+  const st=sequenceStateAt(t);if(!st)return;drawSequenceBase(cv,st);
+  if(st.overlay&&st.overlay!==st.node){const W=cv.width,H=cv.height,ctx=cv.getContext("2d");if(!ctx)return;fitTemp(seqBlendA,W,H);const ov=shotRenderAt(st.overlay.it,Math.min(st.overlay.dur,st.overlayLocal),false);draw(seqBlendA,ov.sel,ov.p,ov.time);
+    ctx.save();ctx.globalAlpha=.78;const mode=st.overlay.it.blend||"normal";ctx.globalCompositeOperation=mode==="screen"?"screen":mode==="add"?"lighter":"source-over";ctx.drawImage(seqBlendA,0,0);ctx.restore()}
 }
 function highlightSequenceShot(it){
   TL.forEach(x=>x.selected=x===it);
@@ -4436,7 +4884,7 @@ function highlightSequenceShot(it){
 }
 function updateSequenceHUD(){
   if(!seqTimelinePlaying&&!seqScrubbing) return; const st=sequenceStateAt(seqPlayhead); if(!st) return;
-  const it=st.kind==="transition"&&st.p>.5?st.next.it:st.node.it, b=B(it.id);
+  const it=st.overlay?st.overlay.it:(st.kind==="transition"&&st.p>.5?st.next.it:st.node.it), b=B(it.id);
   if(b){sPreviewTitle.textContent=st.kind==="transition"?blockLabel(it)+" · "+blockLabel(st.tr.it):blockLabel(it);
     sPreviewMeta.textContent=seqPlayhead.toFixed(1)+"s / "+st.plan.total.toFixed(1)+"s · realtime playblast";}
   if(sPreviewProgress) sPreviewProgress.style.width=(st.plan.total?seqPlayhead/st.plan.total*100:0).toFixed(2)+"%";
@@ -4498,8 +4946,8 @@ document.addEventListener("fullscreenchange",()=>{ if(timeRig&&!document.fullscr
 
 function drawEnergy(){
   const W=800,H=56;
-  const shots=TL.filter(x=>B(x.id)&&B(x.id)[6]==="shot");
-  const tot=TL.reduce((s,x)=>s+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0);
+  const shots=TL.filter(x=>B(x.id)&&B(x.id)[6]==="shot"&&x.track!=="v2");
+  const tot=(typeof timelineLayoutData==="function"?timelineLayoutData().total:TL.reduce((s,x)=>s+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0));
   const nT=TL.filter(x=>B(x.id)&&B(x.id)[6]==="trans").length;
   const nA=TL.filter(x=>B(x.id)&&B(x.id)[6]==="audio").length;
   sTime.innerHTML="<b>"+tot.toFixed(1)+"s</b> · "+shots.length+" shot · "+nT+" fx · "+nA+" audio · "+projectFormat;
@@ -4557,7 +5005,7 @@ function breakdownText(){
     } else if(b[6]==="trans"){ txt+="  >> FX: "+b[1]+(b[3]>0?" ("+x.dur.toFixed(2)+"s)":"")+
       (x.note?"  [nota: "+x.note+"]":"")+"\n\n"; }
     else { txt+="  >> AUDIO: "+b[1]+(x.note?"  [nota: "+x.note+"]":"")+"\n\n"; } });
-  const tot=TL.reduce((s,x)=>s+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0);
+  const tot=(typeof timelineLayoutData==="function"?timelineLayoutData().total:TL.reduce((s,x)=>s+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0));
   txt+="------------------\nDurata totale: "+tot.toFixed(1)+"s · "+n+" inquadrature\n";
   return txt;
 }
@@ -4593,7 +5041,7 @@ function drawWave(){
   x.stroke();
   x.globalAlpha=1;
   /* timeline length marker: where the edit ends relative to the track */
-  const tot=TL.reduce((a,it)=>a+(B(it.id)&&B(it.id)[3]>0?it.dur:0),0);
+  const tot=(typeof timelineLayoutData==="function"?timelineLayoutData().total:TL.reduce((a,it)=>a+(B(it.id)&&B(it.id)[3]>0?it.dur:0),0));
   if(AUD_DUR>0.01 && tot>0.01){
     const px=Math.min(1,tot/AUD_DUR)*w;
     x.strokeStyle="#ededed"; x.globalAlpha=.5; x.setLineDash([3,3]);
@@ -4657,7 +5105,7 @@ if(document.getElementById("sPdf")) document.getElementById("sPdf").onclick=func
   if(!shots.length){ flash(this,"Timeline vuota"); return; }
   const old=document.querySelector(".printsheet"); if(old) old.remove();
   const sheet=document.createElement("div"); sheet.className="printsheet";
-  const tot=TL.reduce((a,x)=>a+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0);
+  const tot=(typeof timelineLayoutData==="function"?timelineLayoutData().total:TL.reduce((a,x)=>a+(B(x.id)&&B(x.id)[3]>0?x.dur:0),0));
 
   /* head */
   let h='<div class="printhead"><h1>SHOT LIST</h1><p>'+shots.length+
@@ -4860,7 +5308,7 @@ function redo(){if(!REDO.length)return;const cur=projectSnapshot(),n=REDO.pop();
 function updateHistoryButtons(){["seqUndo","shotUndo"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!HISTORY.length});["seqRedo","shotRedo"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!REDO.length})}
 
 let seqDialRoleId="shape-reveal",seqDialVariant="standard",shotPreviewOverride=null,activeOption=null,optionBefore=null;
-let dialGestureBefore=null,suppressEditorSync=false,vnextInit=false,syncingRails=false,activeShotTypeId="hero",activeSequencePreset="teaser",syncingShotLocks=false;
+let dialGestureBefore=null,suppressEditorSync=false,vnextInit=false,syncingRails=false,activeShotTypeId="hero",activeSequencePreset="empty",syncingShotLocks=false;
 const seqShotDial=document.getElementById("seqShotDial"),seqVariantDial=document.getElementById("seqVariantDial"),shotTechDial=document.getElementById("shotTechDial"),shotPresetRail=document.getElementById("shotPresetRail");
 const seqRecipeRail=document.getElementById("seqRecipeRail"),startRecipeRail=document.getElementById("startRecipeRail"),endRecipeRail=document.getElementById("endRecipeRail");
 const optionDial=document.getElementById("optionDial"),optionRail=document.getElementById("optionRail"),shotVariantGallery=document.getElementById("shotVariantGallery"),seqTemplateDial=document.getElementById("seqTemplateDial");
@@ -4993,11 +5441,12 @@ function resetShotToType(){
   applyTechnicalPresetData(it,type.presets[0],{setDuration:true});it.shotType=type.id;it.locks=locks;AXES.forEach(a=>{if(locks[a.id]){it.start[a.id]=oldA[a.id];it.end[a.id]=oldB[a.id]}});it.variants=[];it.activeVariantId=null;setShotPreviewItem(it);syncLocksFromShot(it);drawTL();pushHistory(before)
 }
 function applySequenceTemplate(key,before){
-  const pre=PRESETS[key];if(!pre)return;activeSequencePreset=key;TL=pre.ids.map(newItem).filter(Boolean);const first=TL.find(x=>B(x.id)&&B(x.id)[6]==="shot");if(first){first.selected=true;activeShotUid=first.uid;setShotPreviewItem(first)}
+  const pre=PRESETS[key];if(!pre)return;activeSequencePreset=key;TL=pre.ids.map(newItem).filter(Boolean);const first=TL.find(x=>B(x.id)&&B(x.id)[6]==="shot");
+  activeShotUid=first?first.uid:null;if(first){first.selected=true;setShotPreviewItem(first)}else{seqPreviewOverride=null;shotPreviewOverride=null;seqPlayhead=0;seqPlanCache=null;}
   applyProjectFormat(key==="short"?"9:16":"16:9",false);drawTL();setDialActive(seqTemplateDial,key);if(before)pushHistory(before)
 }
 function buildSequenceTemplateDial(){
-  const en=currentLang()==="en",labels={teaser:"Teaser",trailer:"Trailer",intro:"Intro",reveal:en?"Classic reveal":"Reveal classico",tech:"Tech / feature",short:en?"Vertical short":"Short verticale",launch:"Launch",loop:en?"Social loop":"Loop social",spot:"Spot 15s",unbox:"Unboxing",catalog:en?"Catalog":"Catalogo",mood:"Mood film"};
+  const en=currentLang()==="en",labels={empty:en?"Empty":"Vuoto",teaser:"Teaser",trailer:"Trailer",intro:"Intro",reveal:en?"Classic reveal":"Reveal classico",tech:"Tech / feature",short:en?"Vertical short":"Short verticale",launch:"Launch",loop:en?"Social loop":"Loop social",spot:"Spot 15s",unbox:"Unboxing",catalog:en?"Catalog":"Catalogo",mood:"Mood film"};
   seqTemplateDial.innerHTML=Object.keys(PRESETS).map(k=>{const shots=PRESETS[k].ids.filter(id=>B(id)&&B(id)[6]==="shot").length;return '<button class="dial-item" type="button" data-id="'+k+'"><b>'+escapeHTML(labels[k]||PRESETS[k].label)+'</b><span>'+shots+' SHOT</span></button>'}).join("");
   wireSnapDial(seqTemplateDial,id=>{activeSequencePreset=id},(id,before)=>applySequenceTemplate(id,before),id=>applySequenceTemplate(id,projectSnapshot()));setDialActive(seqTemplateDial,activeSequencePreset);requestAnimationFrame(()=>centerDial(seqTemplateDial,activeSequencePreset,"auto"))
 }
@@ -5005,7 +5454,7 @@ function buildSequenceTemplateDial(){
 function recipeCell(ax,sel,extra,it){
   const cl=["recipe-cell"],side=(extra&&extra.side)||"start",diff=!!(extra&&extra.diff),same=!!(extra&&extra.same),active=activeOption&&activeOption.side===side&&activeOption.axis===ax.id;
   if(diff)cl.push("diff");if(same)cl.push("same");if(active)cl.push("active");if(it&&it.locks&&it.locks[ax.id])cl.push("locked");
-  return '<div class="'+cl.join(" ")+'" data-axis="'+ax.id+'" data-side="'+side+'"><button class="recipe-chip" type="button" data-axis="'+ax.id+'" data-side="'+side+'"><span class="axis">'+axisShort(ax.id)+'</span><span class="value">'+escapeHTML(optionName(ax.id,sel[ax.id]))+'</span></button><button class="axis-lock" type="button" data-lock-axis="'+ax.id+'" aria-label="Lock '+escapeHTML(axisName(ax.id))+'">LOCK</button></div>';
+  return '<div class="'+cl.join(" ")+'" data-axis="'+ax.id+'" data-side="'+side+'"><button class="recipe-chip" type="button" data-axis="'+ax.id+'" data-side="'+side+'"><span class="axis">'+axisShort(ax.id)+'</span><span class="value">'+escapeHTML(optionName(ax.id,sel[ax.id]))+'</span></button><button class="axis-lock" type="button" data-lock-axis="'+ax.id+'" aria-label="Lock '+escapeHTML(axisName(ax.id))+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button></div>';
 }
 function syncLocksFromShot(it){
   if(!it)return;syncingShotLocks=true;Object.keys(LOCKS).forEach(k=>delete LOCKS[k]);Object.assign(LOCKS,it.locks||{});__syncLocks();syncingShotLocks=false;
@@ -5063,7 +5512,7 @@ function renderShotHeader(it){
   const type=shotTypeOf(it);title.textContent=roleLabel(it);fam.textContent=shotTypeLabel(type);const A=shotStart(it),Bv=shotEnd(it),diffs=AXES.filter(a=>A[a.id]!==Bv[a.id]);
   if(mini)mini.textContent="";if(chips)chips.innerHTML=(diffs.length?diffs:AXES.slice(0,4)).map(a=>deltaChipHTML(a,A,Bv)).join("");
   const dc=document.getElementById("shotDeltaCount");if(dc)dc.textContent=diffs.length+" Δ";
-  const lc=document.getElementById("shotLocksCount");if(lc)lc.textContent=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length+" LOCK";
+  lockCountPaint();
 }
 
 
@@ -5151,7 +5600,7 @@ function initVNext(){
   const top=document.getElementById("topbar");let raf=0;window.addEventListener("scroll",()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;top&&top.classList.toggle("compact",window.scrollY>64)})},{passive:true});
   buildRoleDial();buildTechDial();buildSequenceTemplateDial();const it=selectedShot();if(it){activeShotUid=it.uid;it.shotType=it.shotType||SHOT_TYPE_BY_PRESET[it.technicalPresetId]||"hero";setShotPreviewItem(it);syncLocksFromShot(it)}
   syncRoleDialFromSelection(true);syncTechDial(true);selectEditSide("start");
-  window.__lockLabel=()=>{const it=activeShot()||selectedShot();const lc=document.getElementById("shotLocksCount");if(lc&&it)lc.textContent=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length+" LOCK"};
+  window.__lockLabel=()=>lockCountPaint();
   const lang=localStorage.getItem("memento.ui.lang")==="en"?"en":"it";applyLanguage(lang);updateHistoryButtons();window.__vnextReady=true;renderVNextUI();refreshScrollCues();window.addEventListener("load",()=>{setTimeout(applyGlossaryLanguage,260);setTimeout(refreshScrollCues,320)},{once:true});
 }
 
@@ -5188,17 +5637,54 @@ function enrichRoleDial(){seqShotDial.querySelectorAll(".dial-item").forEach(b=>
 function enrichRoleVariants(){seqVariantDial.querySelectorAll("button").forEach(b=>{b.classList.add("role-variant-card");const id=b.dataset.id,it=newItemFromRole(seqDialRoleId,id);attachSnapshot(b,it,snapshotKey(it,"rolevar:"+seqDialRoleId+":"+id))})}
 function enrichTechDial(){shotTechDial.querySelectorAll(".dial-item").forEach(b=>{const type=SHOT_TYPE_BY_ID[b.dataset.id]||SHOT_TYPES[0],id=type.presets[0],it=itemForTech(id,type.id);attachSnapshot(b,it,snapshotKey(it,"type:"+type.id))})}
 function enrichShotPresetRail(typeId){shotPresetRail.querySelectorAll(".shot-preset").forEach(b=>{const it=itemForTech(b.dataset.id,typeId||activeShotTypeId);attachSnapshot(b,it,snapshotKey(it,"tech:"+b.dataset.id))})}
-function enrichTemplateDial(){seqTemplateDial.querySelectorAll(".dial-item").forEach(b=>{const it=templatePreviewItem(b.dataset.id);if(it)attachSnapshot(b,it,snapshotKey(it,"sequence:"+b.dataset.id))})}
+function enrichTemplateDial(){seqTemplateDial.querySelectorAll(".dial-item").forEach(b=>{const it=templatePreviewItem(b.dataset.id);if(it)attachSnapshot(b,it,snapshotKey(it,"sequence:"+b.dataset.id));else if(b.dataset.id==="empty"&&!b.querySelector(".preset-thumb-shell")){const sh=document.createElement("span");sh.className="preset-thumb-shell empty-template-thumb";sh.innerHTML="<i></i><i></i><i></i>";b.prepend(sh)}})}
 function enrichLibrarySnapshots(){const blocks=BLOCKS.filter(b=>b[6]==="shot");document.querySelectorAll(".scard.t-shot").forEach((c,i)=>{const b=blocks[i];if(!b)return;c.dataset.block=b[0];const svg=c.querySelector(":scope > svg");if(svg)svg.remove();let shell=c.querySelector(":scope > .preset-thumb-shell");if(!shell){shell=document.createElement("span");shell.className="preset-thumb-shell";shell.innerHTML="<canvas aria-hidden=\"true\"></canvas>";c.prepend(shell)}const it=newItem(b[0]),cv=shell.querySelector("canvas"),key=snapshotKey(it,"library:"+b[0]);if(cv.dataset.snapKey!==key){cv.dataset.snapKey=key;observeSnapshot(cv,it,key)}})}
 function enrichTimelineSnapshots(){document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const it=TL[Number(el.dataset.i)],b=B(it&&it.id);if(!it||!b||b[6]!=="shot"||it.img)return;const th=el.querySelector(".th");if(!th)return;let cv=th.querySelector("canvas");if(!cv){th.innerHTML='<canvas class="clip-snapshot" aria-hidden="true"></canvas>';cv=th.querySelector("canvas")}const key=snapshotKey(it,"clip:"+it.uid);if(cv.dataset.snapKey!==key){cv.dataset.snapKey=key;observeSnapshot(cv,it,key)}})}
 
 function clipPalette(it,b){if(!b)return ["#8b8b90","rgba(139,139,144,.12)"];if(b[6]==="trans")return["#c98a5e","rgba(201,138,94,.13)"];if(b[6]==="audio")return["#6a90b8","rgba(106,144,184,.13)"];const family=(roleOf(it)||{}).family||shotTypeOf(it).id;const m={hero:"#ff7950",reveal:"#e89a55",motion:"#6f92ff",detail:"#a87cff",technical:"#4cc5b7",graphic:"#ef6fc5",closing:"#8b8b90"};return[m[family]||"#ff7950","rgba(255,121,80,.12)"]}
-function timelineLayoutData(){let cursor=0;const map=new Map(),audio=[];TL.forEach((it,i)=>{const b=B(it.id);if(!b)return;if(b[6]==="shot"){const dur=Math.max(.1,Number(it.dur)||b[3]||1);map.set(i,{start:cursor,dur,type:"shot"});cursor+=dur}else if(b[6]==="trans"){const dur=Math.max(.08,Number(it.dur)||b[3]||.2);map.set(i,{start:cursor,dur,type:"trans"});cursor+=dur}else audio.push([i,it,b,cursor])});const total=Math.max(.1,cursor);audio.forEach(([i,it,b,at])=>{const bed=b[0]==="a_score"||b[0]==="a_amb";map.set(i,{start:bed?0:Math.min(at,total),dur:bed?total:Math.max(.55,Number(it.dur)||.8),type:"audio"})});return{map,total}}
+function timelineLayoutData(){
+  let cursor=0,lastBaseStart=0;const map=new Map(),deferred=[];
+  TL.forEach((it,i)=>{const b=B(it.id);if(!b)return;const ty=b[6],track=it.track||(ty==="shot"?"v1":ty==="audio"?"a1":"fx");
+    if(ty==="shot"&&track!=="v2"){const dur=Math.max(.1,Number(it.dur)||b[3]||1),start=cursor;map.set(i,{start,dur,type:"shot",track:"v1"});lastBaseStart=start;cursor+=dur;}
+    else deferred.push([i,it,b,track,cursor,lastBaseStart]);
+  });
+  let total=Math.max(.1,cursor);
+  deferred.forEach(([i,it,b,track,at,last])=>{const ty=b[6];let dur,start;
+    if(ty==="shot"){dur=Math.max(.1,Number(it.dur)||b[3]||1);start=Number.isFinite(it.timelineStart)?it.timelineStart:last;track="v2";}
+    else if(ty==="trans"){dur=Math.max(.08,Number(it.dur)||b[3]||.2);start=Number.isFinite(it.timelineStart)?it.timelineStart:Math.max(0,at-dur*.5);track="fx";}
+    else{const bed=b[0]==="a_score"||b[0]==="a_amb";dur=bed?Math.max(total,.1):Math.max(.55,Number(it.dur)||.8);start=bed?0:(Number.isFinite(it.timelineStart)?it.timelineStart:Math.max(0,at-.08));track=track==="a2"?"a2":"a1";}
+    map.set(i,{start,dur,type:ty,track});total=Math.max(total,start+dur);
+  });
+  return{map,total:Math.max(.1,total)}
+}
 function renderTimelineRuler(total,width){if(!timelineRuler)return;const major=timelinePPS<58?5:timelinePPS<92?2:1,minor=major>=5?1:.5;let html="";for(let t=0;t<=total+.001;t+=minor){const isMajor=Math.abs(t/major-Math.round(t/major))<.001;html+='<i class="timeline-tick '+(isMajor?'major':'')+'" style="left:'+(t*timelinePPS).toFixed(1)+'px">'+(isMajor?'<span>'+formatClock(t)+'</span>':'')+'</i>'}timelineRuler.innerHTML=html;timelineRuler.style.width=width+"px"}
-function layoutTimeline(){if(!timelineEditor)return;const data=timelineLayoutData(),content=Math.max((timelineScroll?timelineScroll.clientWidth:800)-72,data.total*timelinePPS+150);timelineInner.style.width=(content+72)+"px";document.getElementById("tracks").style.width=(content+72)+"px";renderTimelineRuler(data.total,content);document.querySelectorAll("#tracks .trk").forEach(tr=>{tr.style.width=(content+72)+"px";const lane=tr.querySelector(".trkl");if(lane){lane.style.width=content+"px";lane.style.setProperty("--timeline-grid",timelinePPS+"px")}});document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const i=Number(el.dataset.i),p=data.map.get(i),it=TL[i],b=B(it&&it.id);if(!p||!it||!b)return;const min=b[6]==="shot"?58:b[6]==="trans"?36:48;el.style.left=(p.start*timelinePPS+2)+"px";el.style.width=Math.max(min,p.dur*timelinePPS-4)+"px";const pal=clipPalette(it,b);el.style.setProperty("--clip-color",pal[0]);el.style.setProperty("--clip-bg",pal[1])});const add=document.querySelector("#lane-shot .clip-add");if(add){add.style.left=(data.total*timelinePPS+8)+"px";add.style.width="72px"}updateTimelinePlayhead();enrichTimelineSnapshots()}
+function layoutTimeline(){if(!timelineEditor)return;const data=timelineLayoutData(),content=Math.max((timelineScroll?timelineScroll.clientWidth:800)-72,data.total*timelinePPS+150);timelineInner.style.width=(content+72)+"px";document.getElementById("tracks").style.width=(content+72)+"px";renderTimelineRuler(data.total,content);document.querySelectorAll("#tracks .trk").forEach(tr=>{tr.style.width=(content+72)+"px";const lane=tr.querySelector(".trkl");if(lane){lane.style.width=content+"px";lane.style.setProperty("--timeline-grid",timelinePPS+"px")}});document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const i=Number(el.dataset.i),p=data.map.get(i),it=TL[i],b=B(it&&it.id);if(!p||!it||!b)return;const min=b[6]==="shot"?58:b[6]==="trans"?36:48;el.dataset.track=p.track;el.style.left=(p.start*timelinePPS+2)+"px";el.style.width=Math.max(min,p.dur*timelinePPS-4)+"px";const pal=clipPalette(it,b);el.style.setProperty("--clip-color",pal[0]);el.style.setProperty("--clip-bg",pal[1])});const add=document.querySelector("#lane-v1 .clip-add");if(add){add.style.left=(data.total*timelinePPS+8)+"px";add.style.width="72px"}updateTimelinePlayhead();enrichTimelineSnapshots()}
 function updateTimelinePlayhead(){if(!timelinePlayhead)return;timelinePlayhead.style.left=(72+seqPlayhead*timelinePPS)+"px";if(timelineTimecode)timelineTimecode.textContent=formatClock(seqPlayhead);if(seqTimelinePlaying&&timelineScroll){const x=72+seqPlayhead*timelinePPS,l=timelineScroll.scrollLeft,r=l+timelineScroll.clientWidth;if(x>r-90)timelineScroll.scrollLeft=Math.max(0,x-timelineScroll.clientWidth+120);else if(x<l+82)timelineScroll.scrollLeft=Math.max(0,x-100)}}
 function seekTimelineFromEvent(e){if(!timelineScroll||e.target.closest(".clip,.trkh,button,input,textarea,label"))return;const rect=timelineScroll.getBoundingClientRect(),x=timelineScroll.scrollLeft+e.clientX-rect.left-72,data=timelineLayoutData();seqPlayhead=Math.max(0,Math.min(data.total,x/timelinePPS));seqPlanCache=buildSequencePlan();seqTimelinePlaying=false;seqScrubbing=true;seqPreviewPlaying=false;if(AUDIO_EL)AUDIO_EL.pause();updateSequenceHUD();updateTimelinePlayhead();if(window.__repaint)window.__repaint();start()}
-function setupTimelineEditor(){if(timelineEditor)return;const tracks=document.getElementById("tracks");if(!tracks)return;const originalParent=tracks.parentNode,originalNext=tracks.nextSibling,shot=LANES.shot,trans=LANES.trans,audio=LANES.audio;timelineEditor=document.createElement("section");timelineEditor.className="timeline-editor";const toolbar=document.createElement("div");toolbar.className="timeline-toolbar";toolbar.innerHTML='<span class="timeline-title">TIMELINE</span><b class="timeline-timecode" id="timelineTimecode">00:00.0</b><label class="timeline-zoom"><span>ZOOM</span><input id="timelineZoom" type="range" min="44" max="180" step="2" value="'+timelinePPS+'"></label>';timelineScroll=document.createElement("div");timelineScroll.className="timeline-scroll";timelineScroll.id="timelineScroll";timelineInner=document.createElement("div");timelineInner.className="timeline-inner";timelineRuler=document.createElement("div");timelineRuler.className="timeline-ruler";timelineRuler.id="timelineRuler";timelinePlayhead=document.createElement("div");timelinePlayhead.className="timeline-playhead";timelinePlayhead.id="timelinePlayhead";const hit=document.createElement("div");hit.className="timeline-hit";originalParent.insertBefore(timelineEditor,originalNext);timelineEditor.append(toolbar,timelineScroll);timelineScroll.appendChild(timelineInner);timelineInner.append(timelineRuler,tracks,timelinePlayhead,hit);tracks.innerHTML="";[["shot",shot,"SHOT"],["trans",trans,"FX"],["audio",audio,"AUDIO"]].forEach(([ty,lane,label])=>{const tr=document.createElement("div");tr.className="trk trk-"+ty;tr.dataset.ty=ty;const h=document.createElement("div");h.className="trkh";h.textContent=label;tr.append(h,lane);tracks.appendChild(tr)});timelineTimecode=toolbar.querySelector("#timelineTimecode");timelineZoom=toolbar.querySelector("#timelineZoom");timelineZoom.oninput=e=>{timelinePPS=Number(e.target.value);localStorage.setItem("memento.ui.timelinePPS",String(timelinePPS));layoutTimeline()};let seeking=false;timelineScroll.addEventListener("pointerdown",e=>{if(e.target.closest(".clip,.trkh,button,input,textarea,label"))return;seeking=true;timelineScroll.setPointerCapture&&timelineScroll.setPointerCapture(e.pointerId);seekTimelineFromEvent(e)});timelineScroll.addEventListener("pointermove",e=>{if(seeking)seekTimelineFromEvent(e)});timelineScroll.addEventListener("pointerup",()=>seeking=false);timelineScroll.addEventListener("pointercancel",()=>seeking=false);layoutTimeline()}
+function wireExtraTimelineLane(lane,ty,track){
+  if(!lane||lane.dataset.wired==="1")return;lane.dataset.wired="1";
+  lane.addEventListener("dragover",e=>{const src=dragFrom&&(dragFrom.kind==="lib"?B(dragFrom.id):B(TL[dragFrom.idx]&&TL[dragFrom.idx].id));if(!src||src[6]!==ty)return;e.preventDefault();lane.classList.add("dragover")});
+  lane.addEventListener("dragleave",()=>lane.classList.remove("dragover"));
+  lane.addEventListener("drop",e=>{e.preventDefault();lane.classList.remove("dragover");if(!dragFrom)return;const before=projectSnapshot();
+    if(dragFrom.kind==="lib"){const b=B(dragFrom.id);if(!b||b[6]!==ty)return;const it=newItem(b[0]);if(it){it.track=track;it.timelineStart=Math.max(0,seqPlayhead||0);TL.push(it);if(ty==="shot")setSelection(it)}}
+    else{const it=TL[dragFrom.idx],b=B(it&&it.id);if(it&&b&&b[6]===ty){const p=timelineLayoutData().map.get(dragFrom.idx);it.track=track;it.timelineStart=p?p.start:Math.max(0,seqPlayhead||0)}}
+    dragFrom=null;drawTL();pushHistory(before)});
+}
+function setupTimelineEditor(){
+  if(timelineEditor)return;const tracks=document.getElementById("tracks");if(!tracks)return;
+  const originalParent=tracks.parentNode,originalNext=tracks.nextSibling,shot=LANES.shot,trans=LANES.trans,audio=LANES.audio;
+  const v2=document.createElement("div");v2.className="trkl";v2.id="lane-v2";v2.dataset.ty="shot";v2.dataset.track="v2";
+  const a2=document.createElement("div");a2.className="trkl";a2.id="lane-a2";a2.dataset.ty="audio";a2.dataset.track="a2";
+  shot.id="lane-v1";shot.dataset.track="v1";audio.id="lane-a1";audio.dataset.track="a1";trans.dataset.track="fx";
+  timelineEditor=document.createElement("section");timelineEditor.className="timeline-editor";
+  const toolbar=document.createElement("div");toolbar.className="timeline-toolbar";toolbar.innerHTML='<span class="timeline-title">TIMELINE</span><b class="timeline-timecode" id="timelineTimecode">00:00.0</b><label class="timeline-zoom"><span>ZOOM</span><input id="timelineZoom" type="range" min="44" max="180" step="2" value="'+timelinePPS+'"></label>';
+  timelineScroll=document.createElement("div");timelineScroll.className="timeline-scroll";timelineScroll.id="timelineScroll";timelineInner=document.createElement("div");timelineInner.className="timeline-inner";
+  timelineRuler=document.createElement("div");timelineRuler.className="timeline-ruler";timelineRuler.id="timelineRuler";timelinePlayhead=document.createElement("div");timelinePlayhead.className="timeline-playhead";timelinePlayhead.id="timelinePlayhead";
+  const hit=document.createElement("div");hit.className="timeline-hit";originalParent.insertBefore(timelineEditor,originalNext);timelineEditor.append(toolbar,timelineScroll);timelineScroll.appendChild(timelineInner);timelineInner.append(timelineRuler,tracks,timelinePlayhead,hit);tracks.innerHTML="";
+  [["trans",trans,"FX","fx"],["shot",v2,"V2","v2"],["shot",shot,"V1","v1"],["audio",a2,"A2","a2"],["audio",audio,"A1","a1"]].forEach(([ty,lane,label,track])=>{const tr=document.createElement("div");tr.className="trk trk-"+track;tr.dataset.ty=ty;tr.dataset.track=track;const h=document.createElement("div");h.className="trkh";h.innerHTML='<span class="track-code">'+label+'</span>';tr.append(h,lane);tracks.appendChild(tr);wireExtraTimelineLane(lane,ty,track)});
+  timelineTimecode=toolbar.querySelector("#timelineTimecode");timelineZoom=toolbar.querySelector("#timelineZoom");timelineZoom.oninput=e=>{timelinePPS=Number(e.target.value);localStorage.setItem("memento.ui.timelinePPS",String(timelinePPS));layoutTimeline()};
+  let seeking=false;timelineScroll.addEventListener("pointerdown",e=>{if(e.target.closest(".clip,.trkh,button,input,textarea,label"))return;seeking=true;timelineScroll.setPointerCapture&&timelineScroll.setPointerCapture(e.pointerId);seekTimelineFromEvent(e)});timelineScroll.addEventListener("pointermove",e=>{if(seeking)seekTimelineFromEvent(e)});timelineScroll.addEventListener("pointerup",()=>seeking=false);timelineScroll.addEventListener("pointercancel",()=>seeking=false);layoutTimeline();
+}
 
 function centerRailItem(rail,id,behavior){if(!rail)return;const b=rail.querySelector('[data-id="'+cssEscape(id)+'"]');if(!b)return;rail._suppress=true;const left=Math.max(0,b.offsetLeft-(rail.clientWidth-b.offsetWidth)/2);rail.scrollTo({left,behavior:behavior||"auto"});setTimeout(()=>rail._suppress=false,260)}
 centerDial=function(rail,id,behavior){centerRailItem(rail,id,behavior)};
@@ -5208,7 +5694,7 @@ function setupAdvancedAccordion(){const btn=document.getElementById("shotAdvance
 function setupPreviewControls(){const tech=document.querySelector(".tech-dial-block .dial-caption"),role=document.querySelector(".role-dial-block .dial-caption"),template=document.querySelector(".seq-template-block .dial-caption");if(tech&&!tech.querySelector(".preview-size-control"))tech.insertBefore(previewSizeControl("shotThumbSize"),tech.lastElementChild);if(role&&!role.querySelector(".preview-size-control"))role.insertBefore(previewSizeControl("seqThumbSize"),role.lastElementChild);if(template&&!template.querySelector(".preview-size-control"))template.insertBefore(previewSizeControl("templateThumbSize"),template.lastElementChild);setThumbSize(thumbSize)}
 
 function playerVisualPayload(it){if(!it)return null;return{kind:"memento-player-state-v1",data:{id:it.id,role:it.role?JSON.parse(JSON.stringify(it.role)):null,technicalPresetId:it.technicalPresetId||"custom",shotType:it.shotType||shotTypeOf(it).id,start:shotStart(it),end:shotEnd(it),runtime:runtimeState(it),dur:Number(it.dur)||2.8,locks:Object.assign({},it.locks||{}),inheritedEndAxes:Object.assign({},it.inheritedEndAxes||{})}}}
-function playerItemForContext(ctx){if(ctx==="shot")return shotPreviewOverride||activeShot()||selectedShot();if(seqTimelinePlaying||seqScrubbing){const st=sequenceStateAt(seqPlayhead);if(st)return st.kind==="transition"&&st.p>.5?st.next.it:st.node.it}return seqPreviewOverride||selectedShot()}
+function playerItemForContext(ctx){if(ctx==="shot")return shotPreviewOverride||activeShot()||selectedShot();if(seqTimelinePlaying||seqScrubbing){const st=sequenceStateAt(seqPlayhead);if(st)return st.overlay?st.overlay.it:(st.kind==="transition"&&st.p>.5?st.next.it:st.node.it)}return seqPreviewOverride||selectedShot()}
 async function copyPlayerState(ctx){const payload=playerVisualPayload(playerItemForContext(ctx));if(!payload){showCopyToast(uiWord("NESSUNO SHOT","NO SHOT"));return}playerClipboard=payload;localStorage.setItem("memento.player.clipboard",JSON.stringify(payload));try{await navigator.clipboard.writeText(JSON.stringify(payload))}catch(_){}showCopyToast(uiWord("PLAYER COPIATO","PLAYER COPIED"))}
 async function readPlayerPayload(){if(playerClipboard)return playerClipboard;try{const p=JSON.parse(localStorage.getItem("memento.player.clipboard")||"null");if(p&&p.kind==="memento-player-state-v1")return p}catch(_){}try{const t=await navigator.clipboard.readText(),p=JSON.parse(t);if(p&&p.kind==="memento-player-state-v1")return p}catch(_){}return null}
 function applyPlayerPayload(target,payload){const d=payload&&payload.data;if(!d)return null;const keep={uid:target.uid,img:target.img,note:target.note,selected:target.selected};target.id=B(d.id)&&B(d.id)[6]==="shot"?d.id:target.id;target.role=d.role?JSON.parse(JSON.stringify(d.role)):target.role;target.technicalPresetId=d.technicalPresetId||"custom";target.shotType=d.shotType||SHOT_TYPE_BY_PRESET[target.technicalPresetId]||"hero";target.start=cloneSel(d.start);target.end=cloneSel(d.end||d.start);target.runtime=runtimeFrom(d.runtime);target.dur=Math.max(.1,Number(d.dur)||target.dur||2.8);target.locks=Object.assign({},d.locks||{});target.inheritedEndAxes=Object.assign({},d.inheritedEndAxes||{});AXES.forEach(a=>{if(target.inheritedEndAxes[a.id]==null)target.inheritedEndAxes[a.id]=target.start[a.id]===target.end[a.id]});Object.assign(target,keep);return target}
@@ -5216,18 +5702,70 @@ async function pastePlayerState(ctx){const payload=await readPlayerPayload();if(
 function transferGroup(ctx,prefix){const g=document.createElement("div");g.className="player-transfer";g.innerHTML='<button class="microbtn" id="'+prefix+'Copy" type="button">'+uiWord("COPIA","COPY")+'</button><button class="microbtn" id="'+prefix+'Paste" type="button">'+uiWord("INCOLLA","PASTE")+'</button>';g.querySelector("#"+prefix+"Copy").onclick=()=>copyPlayerState(ctx);g.querySelector("#"+prefix+"Paste").onclick=()=>pastePlayerState(ctx);return g}
 function setupTransferControls(){const sh=document.querySelector(".shot-headtools"),tp=document.querySelector(".time-player");if(sh&&!document.getElementById("shotCopy"))sh.prepend(transferGroup("shot","shot"));if(tp&&!document.getElementById("seqCopy")){const g=transferGroup("seq","seq"),anchor=document.getElementById("sPreviewClean");tp.insertBefore(g,anchor||null)}document.addEventListener("keydown",e=>{if(e.target.closest("input,textarea,select,[contenteditable=true]"))return;if(!(e.ctrlKey||e.metaKey))return;const ctx=window.__currentMode==="seq"?"seq":"shot";if(e.key.toLowerCase()==="c"){e.preventDefault();copyPlayerState(ctx)}else if(e.key.toLowerCase()==="v"){e.preventDefault();pastePlayerState(ctx)}})}
 
-function setupGlobalNav(){const nav=document.querySelector(".navshell"),test=document.getElementById("testSubnav");if(nav&&!nav.classList.contains("global-bottom-nav")){nav.classList.add("global-bottom-nav");document.body.appendChild(nav)}if(test&&!test.classList.contains("global-test-nav")){test.classList.add("global-test-nav");document.body.appendChild(test)}const mc=document.getElementById("mCombo"),ms=document.getElementById("mSeq");if(mc&&!mc.dataset.instantWired){mc.dataset.instantWired="1";mc.addEventListener("click",()=>{const it=selectedShot();if(it)loadShotIntoEditor(it,false)},true)}if(ms&&!ms.dataset.instantWired){ms.dataset.instantWired="1";ms.addEventListener("click",()=>{const it=activeShot();if(it){TL.forEach(x=>x.selected=x===it);seqScrubbing=false;drawTL()}},true)}}
-function updatePolishIIILabels(){document.querySelectorAll(".advanced-label").forEach(x=>x.textContent=uiWord("AVANZATE","ADVANCED"));const labels=[["shotCopy","COPIA","COPY"],["shotPaste","INCOLLA","PASTE"],["seqCopy","COPIA","COPY"],["seqPaste","INCOLLA","PASTE"]];labels.forEach(([id,it,en])=>{const b=document.getElementById(id);if(b)b.textContent=uiWord(it,en)});const title=document.querySelector(".timeline-title");if(title)title.textContent=uiWord("TIMELINE","TIMELINE");document.querySelectorAll(".timeline-zoom span").forEach(x=>x.textContent=uiWord("ZOOM","ZOOM"))}
-function initPolishIII(){if(polishIIIReady)return;polishIIIReady=true;setupGlobalNav();setupAdvancedAccordion();setupPreviewControls();setupTransferControls();setupTimelineEditor();updatePolishIIILabels();enrichLibrarySnapshots();enrichRoleDial();enrichRoleVariants();enrichTechDial();enrichShotPresetRail(activeShotTypeId);enrichTemplateDial();layoutTimeline();requestAnimationFrame(()=>{if(window.__refreshScrollCues)window.__refreshScrollCues()})}
+function setupGlobalNav(){const nav=document.querySelector(".navshell"),test=document.getElementById("testSubnav");if(nav&&!nav.classList.contains("global-bottom-nav")){nav.classList.add("global-bottom-nav");document.body.appendChild(nav)}paintGlobalNav();if(test&&!test.classList.contains("global-test-nav")){test.classList.add("global-test-nav");document.body.appendChild(test)}const mc=document.getElementById("mCombo"),ms=document.getElementById("mSeq");if(mc&&!mc.dataset.instantWired){mc.dataset.instantWired="1";mc.addEventListener("click",()=>{const it=selectedShot();if(it)loadShotIntoEditor(it,false)},true)}if(ms&&!ms.dataset.instantWired){ms.dataset.instantWired="1";ms.addEventListener("click",()=>{const it=activeShot();if(it){TL.forEach(x=>x.selected=x===it);seqScrubbing=false;drawTL()}},true)}}
+function updatePolishIIILabels(){paintGlobalNav();updateAssetLabels();lockCountPaint();document.querySelectorAll(".advanced-label").forEach(x=>x.textContent=uiWord("AVANZATE","ADVANCED"));const labels=[["shotCopy","COPIA","COPY"],["shotPaste","INCOLLA","PASTE"],["seqCopy","COPIA","COPY"],["seqPaste","INCOLLA","PASTE"]];labels.forEach(([id,it,en])=>{const b=document.getElementById(id);if(b)b.textContent=uiWord(it,en)});const title=document.querySelector(".timeline-title");if(title)title.textContent=uiWord("TIMELINE","TIMELINE");document.querySelectorAll(".timeline-zoom span").forEach(x=>x.textContent=uiWord("ZOOM","ZOOM"))}
+
+const NAV_ICON={
+  mCombo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M7 19v2M17 19v2"/></svg>',
+  mSeq:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/><rect x="7" y="4" width="5" height="4" rx="1"/><rect x="11" y="10" width="7" height="4" rx="1"/><rect x="5" y="16" width="9" height="4" rx="1"/></svg>',
+  mTest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3h6M10 3v5l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 17l-5-9V3"/><path d="M7.5 15h9"/></svg>'
+};
+function paintGlobalNav(){[["mCombo","SHOT"],["mSeq","SEQ"],["mTest","TEST"]].forEach(([id,label])=>{const b=document.getElementById(id);if(b)b.innerHTML=NAV_ICON[id]+'<span>'+label+'</span>'})}
+function moveManifestoDown(){const m=document.getElementById("manifesto");if(!m||m.closest(".manifesto-footer"))return;const f=document.createElement("footer");f.className="manifesto-footer";f.id="manifestoFooter";f.appendChild(m);document.body.insertBefore(f,document.querySelector(".global-bottom-nav")||null)}
+function lockCountPaint(){const it=activeShot()||selectedShot(),el=document.getElementById("shotLocksCount");if(!el||!it)return;const n=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length;el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>'+n+'</span>'}
+function enableRailDrag(el){
+  if(!el||el.dataset.dragScroll==="1")return;el.dataset.dragScroll="1";let down=false,startX=0,start=0,moved=false,pid=null;
+  el.addEventListener("pointerdown",e=>{if(e.button!==0||e.target.closest("input,textarea,select"))return;down=true;pid=e.pointerId;startX=e.clientX;start=el.scrollLeft;moved=false;el.classList.add("drag-scrolling");try{el.setPointerCapture(pid)}catch(_){}});
+  el.addEventListener("pointermove",e=>{if(!down)return;const dx=e.clientX-startX;if(Math.abs(dx)>4)moved=true;if(moved){el.scrollLeft=start-dx;e.preventDefault()}});
+  const end=()=>{if(!down)return;down=false;el.classList.remove("drag-scrolling");if(moved)el._suppressClickUntil=performance.now()+220};
+  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);el.addEventListener("lostpointercapture",end);
+  el.addEventListener("click",e=>{if((el._suppressClickUntil||0)>performance.now()){e.preventDefault();e.stopImmediatePropagation()}},true);
+  el.addEventListener("wheel",e=>{if(el.scrollWidth<=el.clientWidth+2)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){el.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
+}
+function wireDragRails(){document.querySelectorAll(".snap-dial,.shot-preset-rail,.variant-rail,.recipe-rail,.slibgrid,.gchips,.delta-chip-rail").forEach(enableRailDrag)}
+
+const ASSET_DB_NAME="memento.asset-world.v1",ASSET_STORE="files";let assetDbPromise=null,assetWorldReady=false,assetBgOn=localStorage.getItem("memento.asset.hdriBg")==="1";
+function assetDb(){if(assetDbPromise)return assetDbPromise;assetDbPromise=new Promise((resolve,reject)=>{const q=indexedDB.open(ASSET_DB_NAME,1);q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(ASSET_STORE))q.result.createObjectStore(ASSET_STORE,{keyPath:"id"})};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)});return assetDbPromise}
+async function assetPut(rec){try{const db=await assetDb();await new Promise((res,rej)=>{const tx=db.transaction(ASSET_STORE,"readwrite");tx.objectStore(ASSET_STORE).put(rec);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){console.warn("Asset cache:",e)}}
+async function assetDelete(id){try{const db=await assetDb();await new Promise((res,rej)=>{const tx=db.transaction(ASSET_STORE,"readwrite");tx.objectStore(ASSET_STORE).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){}}
+async function assetAll(){try{const db=await assetDb();return await new Promise((res,rej)=>{const q=db.transaction(ASSET_STORE).objectStore(ASSET_STORE).getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error)})}catch(e){return[]}}
+function humanBytes(n){if(!Number.isFinite(n))return"";if(n<1e6)return Math.round(n/1024)+" KB";return(n/1e6).toFixed(1)+" MB"}
+function assetSetStatus(text,busy){const el=document.getElementById("assetStatusLine");if(el){el.textContent=text;el.classList.toggle("busy",!!busy)}}
+function gltfLoader(){if(!THREE.GLTFLoader)throw new Error("GLTFLoader unavailable");const l=new THREE.GLTFLoader();if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");l.setDRACOLoader(d)}return l}
+function loadGLTFFile(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),loader=gltfLoader();loader.load(url,g=>{URL.revokeObjectURL(url);resolve(g)},undefined,e=>{URL.revokeObjectURL(url);reject(e)})})}
+function loadHDRFile(file){return new Promise((resolve,reject)=>{if(!THREE.RGBELoader)return reject(new Error("RGBELoader unavailable"));const url=URL.createObjectURL(file),l=new THREE.RGBELoader();l.load(url,t=>{URL.revokeObjectURL(url);resolve(t)},undefined,e=>{URL.revokeObjectURL(url);reject(e)})})}
+function renderAssetWorld(){if(!ENG||!ENG.assetState)return;const st=ENG.assetState(),hero=document.getElementById("assetHeroStatus"),chips=document.getElementById("assetChipList"),bg=document.getElementById("assetBgToggle");if(hero){const h=st.hero;hero.textContent=h.name+" · "+h.meshes+"M · "+Math.round(h.triangles/1000)+"K△"+(h.animated?" · ANIM":"")+(h.proxyClones?" · PROXY FX":"")}
+  if(bg){bg.setAttribute("aria-pressed",String(!!st.hdri.background));const sub=document.getElementById("assetBgSub");if(sub)sub.textContent=st.hdri.background?uiWord("visibile","visible"):uiWord("nascosto","hidden")}
+  if(chips){const heroChip='<span class="asset-chip hero"><i></i><b>'+escapeHTML(st.hero.name)+'</b><small>'+Math.round(st.hero.triangles/1000)+'K△</small></span>';
+    const sec=st.secondary.map(a=>'<span class="asset-chip secondary '+(a.visible?'':'muted')+'" data-secondary="'+a.id+'"><button class="asset-eye" type="button" aria-label="Visibility">'+(a.visible?'◉':'○')+'</button><b>'+escapeHTML(a.name)+'</b><small>'+Math.round(a.triangles/1000)+'K△</small><button class="asset-remove" type="button" aria-label="Remove">×</button></span>').join("");
+    const hdr=st.hdri.loaded?'<span class="asset-chip hdri"><i></i><b>'+escapeHTML(st.hdri.name)+'</b><button class="asset-remove-hdri" type="button" aria-label="Remove HDRI">×</button></span>':'';chips.innerHTML=heroChip+sec+hdr;
+    chips.querySelectorAll(".asset-remove").forEach(b=>b.onclick=async e=>{const id=e.currentTarget.closest("[data-secondary]").dataset.secondary;ENG.removeSecondary(id);await assetDelete(id);renderAssetWorld();if(window.__repaint)window.__repaint()});
+    chips.querySelectorAll(".asset-eye").forEach(b=>b.onclick=e=>{const chip=e.currentTarget.closest("[data-secondary]"),state=ENG.assetState().secondary.find(x=>x.id===chip.dataset.secondary);ENG.setSecondaryVisible(chip.dataset.secondary,!state.visible);renderAssetWorld();if(window.__repaint)window.__repaint()});
+    const rh=chips.querySelector(".asset-remove-hdri");if(rh)rh.onclick=async()=>{ENG.clearHDRI();await assetDelete("hdri");assetBgOn=false;localStorage.removeItem("memento.asset.hdriBg");renderAssetWorld();if(window.__repaint)window.__repaint()};
+  }}
+async function importHeroAsset(file,cache=true){if(!ENG)return;assetSetStatus(uiWord("Carico il modello…","Loading model…"),true);try{const gltf=await loadGLTFFile(file),info=ENG.setHeroObject(gltf.scene,gltf.animations,{name:file.name});if(cache)await assetPut({id:"hero",kind:"hero",name:file.name,blob:file,size:file.size});renderAssetWorld();assetSetStatus(file.name+" · "+info.meshes+" mesh · "+Math.round(info.triangles/1000)+"K tris"+(info.animated?" · animation":""),false);SNAP_CACHE.clear();drawTL();if(window.__repaint)window.__repaint()}catch(e){console.error(e);assetSetStatus(uiWord("GLB non leggibile. Usa GLB binario o glTF con risorse incorporate.","Could not read GLB. Use binary GLB or embedded glTF."),false)}}
+async function importSecondaryAsset(file,cache=true,idHint=null){if(!ENG)return;assetSetStatus(uiWord("Aggiungo secondary…","Adding secondary…"),true);try{const gltf=await loadGLTFFile(file),info=ENG.addSecondary(gltf.scene,gltf.animations,{name:file.name,id:idHint});if(!info)throw new Error("Secondary limit reached");if(cache)await assetPut({id:idHint||info.id,engineId:info.id,kind:"secondary",name:file.name,blob:file,size:file.size});renderAssetWorld();assetSetStatus(file.name+" · "+Math.round(info.triangles/1000)+"K tris",false);if(window.__repaint)window.__repaint()}catch(e){console.error(e);assetSetStatus(uiWord("Secondary non caricato — limite o file incompatibile.","Secondary not loaded — limit or incompatible file."),false)}}
+async function importHDRIAsset(file,cache=true){if(!ENG)return;assetSetStatus(uiWord("Precalcolo HDRI…","Preparing HDRI…"),true);try{const tex=await loadHDRFile(file);ENG.setHDRI(tex,file.name);ENG.setHDRIBackground(assetBgOn);if(cache)await assetPut({id:"hdri",kind:"hdri",name:file.name,blob:file,size:file.size});renderAssetWorld();assetSetStatus(file.name+" · "+humanBytes(file.size),false);SNAP_CACHE.clear();if(window.__repaint)window.__repaint()}catch(e){console.error(e);assetSetStatus(uiWord("HDRI non leggibile.","Could not read HDRI."),false)}}
+async function restoreAssetWorld(){const all=await assetAll();const hero=all.find(x=>x.kind==="hero"),hdri=all.find(x=>x.kind==="hdri");if(hero&&hero.blob)await importHeroAsset(new File([hero.blob],hero.name||"hero.glb",{type:hero.blob.type}),false);for(const rec of all.filter(x=>x.kind==="secondary")){if(rec.blob)await importSecondaryAsset(new File([rec.blob],rec.name||"secondary.glb",{type:rec.blob.type}),false,rec.id)}if(hdri&&hdri.blob)await importHDRIAsset(new File([hdri.blob],hdri.name||"environment.hdr",{type:hdri.blob.type}),false);renderAssetWorld()}
+function updateAssetLabels(){const en=currentLang()==="en",set=(id,a,b)=>{const x=document.getElementById(id);if(x)x.textContent=en?b:a};set("assetWorldKicker","ASSET SCENE","ASSET SCENE");set("assetHeroLabel","HERO GLB","HERO GLB");set("assetHeroSub","sostituisce il proxy","replace the proxy");set("assetSecondaryLabel","SECONDARY","SECONDARY");set("assetSecondarySub","aggiungi props","add scene props");set("assetHdriLabel","HDRI","HDRI");set("assetHdriSub","luce e riflessi","light and reflections");set("assetBgLabel","SFONDO HDRI","HDRI BG");set("assetResetLabel","RESET","RESET");set("assetResetSub","scena proxy","proxy scene")}
+function initAssetWorld(){if(assetWorldReady||!document.getElementById("assetWorld"))return;assetWorldReady=true;const hero=document.getElementById("assetHeroInput"),sec=document.getElementById("assetSecondaryInput"),hdr=document.getElementById("assetHdriInput");
+  hero.onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)importHeroAsset(f);e.target.value=""};sec.onchange=async e=>{for(const f of [...(e.target.files||[])].slice(0,8))await importSecondaryAsset(f);e.target.value=""};hdr.onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)importHDRIAsset(f);e.target.value=""};
+  document.getElementById("assetBgToggle").onclick=()=>{assetBgOn=!assetBgOn;localStorage.setItem("memento.asset.hdriBg",assetBgOn?"1":"0");ENG&&ENG.setHDRIBackground(assetBgOn);renderAssetWorld();if(window.__repaint)window.__repaint()};
+  document.getElementById("assetSceneReset").onclick=async()=>{if(ENG){ENG.resetHeroObject();ENG.clearSecondary();ENG.clearHDRI()}const all=await assetAll();for(const a of all)await assetDelete(a.id);assetBgOn=false;localStorage.removeItem("memento.asset.hdriBg");renderAssetWorld();assetSetStatus(uiWord("Scena proxy ripristinata","Proxy scene restored"),false);SNAP_CACHE.clear();drawTL();if(window.__repaint)window.__repaint()};
+  const col=document.getElementById("assetCollapse"),body=document.getElementById("assetWorldBody");col.onclick=()=>{const open=col.getAttribute("aria-expanded")!=="true";col.setAttribute("aria-expanded",String(open));col.textContent=open?"⌃":"⌄";body.hidden=!open};
+  const tools=document.querySelector(".project-tools-block .tools");if(tools&&!document.getElementById("projectAssetShortcut")){const b=document.createElement("button");b.className="tool";b.id="projectAssetShortcut";b.type="button";b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg><div><b>Asset scene</b><span>GLB · secondary · HDRI</span></div>';b.onclick=()=>{window.__setMode&&window.__setMode("combo");setTimeout(()=>document.getElementById("assetWorld").scrollIntoView({behavior:"smooth",block:"center"}),80)};tools.prepend(b)}
+  updateAssetLabels();renderAssetWorld();restoreAssetWorld();
+}
+function initPolishIII(){if(polishIIIReady)return;polishIIIReady=true;setupGlobalNav();moveManifestoDown();paintGlobalNav();setupAdvancedAccordion();setupPreviewControls();setupTransferControls();setupTimelineEditor();initAssetWorld();wireDragRails();updatePolishIIILabels();enrichLibrarySnapshots();enrichRoleDial();enrichRoleVariants();enrichTechDial();enrichShotPresetRail(activeShotTypeId);enrichTemplateDial();layoutTimeline();requestAnimationFrame(()=>{if(window.__refreshScrollCues)window.__refreshScrollCues()})}
 
 /* Re-render enrichments without duplicating the existing interaction logic. */
-const __drawTLP3=drawTL;drawTL=function(){const r=__drawTLP3();setupTimelineEditor();requestAnimationFrame(()=>{layoutTimeline();enrichLibrarySnapshots();enrichTimelineSnapshots()});return r};
-const __buildRoleDialP3=buildRoleDial;buildRoleDial=function(){const r=__buildRoleDialP3();enrichRoleDial();return r};
+const __drawTLP3=drawTL;drawTL=function(){const r=__drawTLP3();setupTimelineEditor();requestAnimationFrame(()=>{layoutTimeline();enrichLibrarySnapshots();enrichTimelineSnapshots();wireDragRails();lockCountPaint()});return r};
+const __buildRoleDialP3=buildRoleDial;buildRoleDial=function(){const r=__buildRoleDialP3();enrichRoleDial();wireDragRails();return r};
 const __renderVariantRailP3=renderVariantRail;renderVariantRail=function(roleId,active){const r=__renderVariantRailP3(roleId,active);enrichRoleVariants();return r};
-const __buildTechDialP3=buildTechDial;buildTechDial=function(){const r=__buildTechDialP3();wireTechDialHorizontal();enrichTechDial();return r};
+const __buildTechDialP3=buildTechDial;buildTechDial=function(){const r=__buildTechDialP3();wireTechDialHorizontal();enrichTechDial();wireDragRails();return r};
 const __syncTechDialP3=syncTechDial;syncTechDial=function(forceCenter){const r=__syncTechDialP3(false);if(forceCenter){const it=activeShot()||selectedShot(),type=shotTypeOf(it);centerRailItem(shotTechDial,type.id,"auto")}return r};
 const __renderShotPresetRailP3=renderShotPresetRail;renderShotPresetRail=function(typeId,activeId){const r=__renderShotPresetRailP3(typeId,activeId);enrichShotPresetRail(typeId);return r};
-const __buildSequenceTemplateDialP3=buildSequenceTemplateDial;buildSequenceTemplateDial=function(){const r=__buildSequenceTemplateDialP3();enrichTemplateDial();return r};
+const __buildSequenceTemplateDialP3=buildSequenceTemplateDial;buildSequenceTemplateDial=function(){const r=__buildSequenceTemplateDialP3();enrichTemplateDial();wireDragRails();return r};
 const __applyLanguageP3=applyLanguage;applyLanguage=function(lang){const r=__applyLanguageP3(lang);updatePolishIIILabels();enrichRoleDial();enrichRoleVariants();enrichTechDial();enrichShotPresetRail(activeShotTypeId);enrichTemplateDial();return r};
 const __applyProjectFormatP3=applyProjectFormat;applyProjectFormat=function(value,save){const r=__applyProjectFormatP3(value,save);requestAnimationFrame(()=>{layoutTimeline();enrichTimelineSnapshots()});return r};
 const __startSequenceP3=startSequence;startSequence=function(fromStart){seqScrubbing=false;return __startSequenceP3(fromStart)};
@@ -5235,6 +5773,152 @@ const __pauseSequenceP3=pauseSequence;pauseSequence=function(resumePreview){cons
 const __setSelectionP3=setSelection;setSelection=function(it){seqScrubbing=false;return __setSelectionP3(it)};
 const __updateSequenceHUDP3=updateSequenceHUD;updateSequenceHUD=function(){const r=__updateSequenceHUDP3();updateTimelinePlayhead();return r};
 const __initVNextP3=initVNext;initVNext=function(){const r=__initVNextP3();initPolishIII();return r};
+
+
+/* ================= POLISH PASS V · PLAYGROUND TOOL / NON-RIPPLE TIMELINE ================= */
+let polishVReady=false,globalParamSide="start",globalParamAxis=null,globalParamBefore=null;
+const PARAM_AXIS_ICONS={
+  luce:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>',
+  cam:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="15" height="12" rx="2"/><path d="m18 10 3-2v8l-3-2z"/><circle cx="10.5" cy="12" r="3"/></svg>',
+  lens:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5M19 12h-5M12 20v-5M5 12h5"/></svg>',
+  focus:'<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><circle cx="12" cy="12" r="3"/></svg>',
+  comp:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M9 4v16M15 4v16M3 9.3h18M3 14.7h18"/></svg>',
+  size:'<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10"/><path d="M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg>',
+  rot:'<svg viewBox="0 0 24 24"><path d="M20 8a8 8 0 1 0 .4 7"/><path d="M20 3v5h-5"/></svg>',
+  view:'<svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="3"/></svg>',
+  motion:'<svg viewBox="0 0 24 24"><path d="M2 14c3-7 5 7 8 0s5 7 8 0 3-2 4-1"/></svg>',
+  env:'<svg viewBox="0 0 24 24"><path d="M3 18h18M3 18c3-7 6-10 9-10s6 3 9 10"/><path d="M12 8V3"/></svg>',
+  atmo:'<svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="1.4"/><circle cx="15" cy="5" r="1.2"/><circle cx="18" cy="13" r="1.5"/><circle cx="9" cy="16" r="1.1"/><path d="M3 20c4-3 7 2 11-1s5 0 7-1"/></svg>'
+};
+const LOCK_SVG='<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
+const UNLOCK_SVG='<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/></svg>';
+
+function directSelectedShotV(){return TL.find(x=>x.selected&&B(x.id)&&B(x.id)[6]==="shot")||null}
+function globalParamTarget(){if(window.__currentMode==="combo")return activeShot()||directSelectedShotV()||selectedShot();if(window.__currentMode==="seq")return directSelectedShotV();return null}
+function closeGlobalParamOptions(){const d=document.getElementById("globalParamOptions");if(d)d.hidden=true;globalParamAxis=null;globalParamBefore=null;document.querySelectorAll("#globalParamAxisRail .param-axis-cell").forEach(x=>x.classList.remove("active"))}
+function renderGlobalParamOptions(){
+  const drawer=document.getElementById("globalParamOptions"),rail=document.getElementById("globalParamOptionRail"),it=globalParamTarget();
+  if(!drawer||!rail||!it||!globalParamAxis){if(drawer)drawer.hidden=true;return}
+  const ax=AXMAP[globalParamAxis],sel=globalParamSide==="end"?shotEnd(it):shotStart(it);if(!ax){drawer.hidden=true;return}
+  document.getElementById("globalOptionSide").textContent=globalParamSide==="end"?"END":"START";
+  document.getElementById("globalOptionAxis").textContent=axisName(globalParamAxis);
+  rail.innerHTML=ax.opts.map(o=>'<button class="param-option" type="button" data-id="'+o[0]+'" aria-pressed="'+String(sel[globalParamAxis]===o[0])+'">'+o[2]+'<b>'+escapeHTML(optionName(globalParamAxis,o[0]))+'</b></button>').join("");
+  drawer.hidden=false;enableRailDrag(rail);rail.onclick=e=>{const b=e.target.closest(".param-option");if(!b)return;const target=globalParamTarget();if(!target)return;const before=projectSnapshot();setAxisOnShot(target,globalParamSide,globalParamAxis,b.dataset.id,false);pushHistory(before);renderGlobalParamDock();renderGlobalParamOptions()};
+  requestAnimationFrame(()=>{const on=rail.querySelector('[aria-pressed="true"]');if(on)rail.scrollTo({left:Math.max(0,on.offsetLeft-(rail.clientWidth-on.offsetWidth)/2),behavior:"smooth"})});
+}
+function openGlobalParamOptions(axis){const drawer=document.getElementById("globalParamOptions");if(globalParamAxis===axis&&drawer&&!drawer.hidden){closeGlobalParamOptions();return}globalParamAxis=axis;globalParamBefore=projectSnapshot();renderGlobalParamDock();renderGlobalParamOptions();const cell=document.querySelector('#globalParamAxisRail .param-axis-cell[data-axis="'+cssEscape(axis)+'"]');if(cell)cell.classList.add("active")}
+function renderGlobalParamDock(){
+  const dock=document.getElementById("globalParamDock"),rail=document.getElementById("globalParamAxisRail");if(!dock||!rail)return;
+  const mode=window.__currentMode,eligible=mode==="combo"||mode==="seq",it=globalParamTarget();dock.hidden=!eligible;if(!eligible){closeGlobalParamOptions();return}
+  document.getElementById("globalParamMode").textContent=mode==="seq"?"SEQ":"SHOT";
+  document.getElementById("globalParamTitle").textContent=it?roleLabel(it):uiWord("SELEZIONA UNO SHOT","SELECT A SHOT");
+  document.getElementById("globalSideStart").setAttribute("aria-pressed",String(globalParamSide==="start"));
+  document.getElementById("globalSideEnd").setAttribute("aria-pressed",String(globalParamSide==="end"));
+  const A=it?shotStart(it):null,Bv=it?shotEnd(it):null;document.getElementById("globalParamDelta").textContent=it?AXES.filter(a=>A[a.id]!==Bv[a.id]).length+" Δ":"—";
+  const sel=it?(globalParamSide==="end"?Bv:A):null;
+  rail.innerHTML=AXES.map(ax=>{const locked=!!(it&&it.locks&&it.locks[ax.id]),active=globalParamAxis===ax.id&&!document.getElementById("globalParamOptions").hidden;
+    return '<div class="param-axis-cell '+(active?'active ':'')+(!it?'disabled':'')+'" data-axis="'+ax.id+'"><button class="param-axis-main" type="button" data-axis="'+ax.id+'">'+(PARAM_AXIS_ICONS[ax.id]||'')+'<span class="param-axis-name">'+escapeHTML(axisShort(ax.id))+'</span><span class="param-axis-value">'+(sel?escapeHTML(optionName(ax.id,sel[ax.id])):'—')+'</span></button><button class="param-axis-lock" type="button" data-lock="'+ax.id+'" aria-pressed="'+String(locked)+'" aria-label="Lock">'+(locked?LOCK_SVG:UNLOCK_SVG)+'</button></div>'}).join("");
+  enableRailDrag(rail);rail.onclick=e=>{const lock=e.target.closest(".param-axis-lock"),main=e.target.closest(".param-axis-main"),target=globalParamTarget();if(lock&&target){e.stopPropagation();toggleShotLock(target,lock.dataset.lock);renderGlobalParamDock();return}if(main&&target)openGlobalParamOptions(main.dataset.axis)};
+  if(globalParamAxis&&!document.getElementById("globalParamOptions").hidden)renderGlobalParamOptions();
+}
+function setupGlobalParamDock(){
+  const startB=document.getElementById("globalSideStart"),endB=document.getElementById("globalSideEnd"),close=document.getElementById("globalOptionClose");
+  startB.onclick=()=>{globalParamSide="start";selectEditSide("start");renderGlobalParamDock();if(globalParamAxis)renderGlobalParamOptions()};
+  endB.onclick=()=>{globalParamSide="end";selectEditSide("end");renderGlobalParamDock();if(globalParamAxis)renderGlobalParamOptions()};
+  close.onclick=closeGlobalParamOptions;
+  document.addEventListener("pointerdown",e=>{const drawer=document.getElementById("globalParamOptions");if(!drawer||drawer.hidden)return;if(!e.target.closest("#globalParamDock"))closeGlobalParamOptions()},true);
+  renderGlobalParamDock();
+}
+
+/* Keep the mode navigation in the sticky header. */
+setupGlobalNav=function(){
+  const nav=document.querySelector(".navshell"),top=document.getElementById("topbar"),brand=top&&top.querySelector(".brandrow"),test=document.getElementById("testSubnav");
+  if(nav&&top){nav.classList.remove("global-bottom-nav");nav.classList.add("top-mode-nav");if(nav.parentNode!==top)top.insertBefore(nav,brand?brand.nextSibling:top.firstChild)}
+  if(test&&top){test.classList.remove("global-test-nav");test.classList.add("top-test-nav");if(test.parentNode!==top)top.insertBefore(test,nav?nav.nextSibling:null)}
+  paintGlobalNav();
+  const mc=document.getElementById("mCombo"),ms=document.getElementById("mSeq");if(mc&&!mc.dataset.instantWired){mc.dataset.instantWired="1";mc.addEventListener("click",()=>{const it=directSelectedShotV()||selectedShot();if(it)loadShotIntoEditor(it,false)},true)}if(ms&&!ms.dataset.instantWired){ms.dataset.instantWired="1";ms.addEventListener("click",()=>{const it=activeShot();if(it){TL.forEach(x=>x.selected=x===it);seqScrubbing=false;drawTL()}},true)}
+};
+
+/* No snapshots on sequence chapters; keep image previews for shot choices. */
+enrichTemplateDial=function(){seqTemplateDial.querySelectorAll(".preset-thumb-shell").forEach(x=>x.remove())};
+setupPreviewControls=function(){const tech=document.querySelector(".tech-dial-block .dial-caption"),role=document.querySelector(".role-dial-block .dial-caption");if(tech&&!tech.querySelector(".preview-size-control"))tech.insertBefore(previewSizeControl("shotThumbSize"),tech.lastElementChild);if(role&&!role.querySelector(".preview-size-control"))role.insertBefore(previewSizeControl("seqThumbSize"),role.lastElementChild);document.querySelectorAll(".seq-template-block .preview-size-control,.seq-template-block .preset-thumb-shell").forEach(x=>x.remove());setThumbSize(thumbSize)};
+
+/* Advanced and custom assets: both closed by default, assets last. */
+setupAdvancedAccordion=function(){const btn=document.getElementById("shotAdvancedToggle"),sec=document.querySelector(".shot-parameter-section");if(!btn||!sec)return;btn.hidden=false;btn.className="advanced-toggle";btn.innerHTML='<span class="advanced-label">'+uiWord("AVANZATE","ADVANCED")+'</span><span class="advanced-chevron">⌄</span>';sec.parentNode.insertBefore(btn,sec);const set=open=>{btn.setAttribute("aria-expanded",String(open));sec.hidden=!open;if(open)setTimeout(()=>{sizeAll();if(window.__repaint)window.__repaint();if(window.__refreshScrollCues)window.__refreshScrollCues()},30)};set(false);localStorage.removeItem("memento.ui.advanced");btn.onclick=()=>set(btn.getAttribute("aria-expanded")!=="true")};
+function arrangeAssetAccordion(){
+  const sec=document.querySelector(".shot-parameter-section"),asset=document.getElementById("assetWorld"),body=document.getElementById("assetWorldBody"),col=document.getElementById("assetCollapse"),head=asset&&asset.querySelector(".asset-world-head");if(!sec||!asset||!body||!col)return;
+  sec.after(asset);body.hidden=true;col.setAttribute("aria-expanded","false");col.textContent="⌄";const k=document.getElementById("assetWorldKicker");if(k)k.textContent=uiWord("CUSTOM 3D ASSET","CUSTOM 3D ASSET");
+  if(head&&!head.dataset.fullToggle){head.dataset.fullToggle="1";head.addEventListener("click",e=>{if(e.target.closest("button,label,input"))return;col.click()})}
+}
+
+/* Absolute starts: trimming or moving one clip never ripples the rest. */
+function ensureAbsoluteTimelineStarts(){
+  let cursor=0,lastShot=0;
+  TL.forEach(it=>{const b=B(it.id);if(!b)return;const ty=b[6],track=it.track||(ty==="shot"?"v1":ty==="audio"?"a1":"fx"),dur=ty==="shot"?Math.max(.1,Number(it.dur)||b[3]||1):ty==="trans"?Math.max(.08,Number(it.dur)||b[3]||.2):Math.max(.1,Number(it.dur)||.8);
+    if(ty==="shot"&&track!=="v2"){if(!Number.isFinite(it.timelineStart))it.timelineStart=cursor;lastShot=it.timelineStart;cursor=Math.max(cursor,it.timelineStart+dur)}
+    else if(ty==="shot"){if(!Number.isFinite(it.timelineStart))it.timelineStart=lastShot}
+    else if(ty==="trans"){if(!Number.isFinite(it.timelineStart))it.timelineStart=Math.max(0,cursor-dur*.5)}
+    else{const bed=b[0]==="a_score"||b[0]==="a_amb";if(!Number.isFinite(it.timelineStart))it.timelineStart=bed?0:Math.max(0,cursor-.08)}
+  });
+}
+timelineLayoutData=function(){
+  ensureAbsoluteTimelineStarts();const map=new Map();let baseTotal=.1,total=.1;
+  TL.forEach((it,i)=>{const b=B(it.id);if(!b)return;const ty=b[6],track=it.track||(ty==="shot"?"v1":ty==="audio"?"a1":"fx");if(ty==="shot"&&track!=="v2"){const dur=Math.max(.1,Number(it.dur)||b[3]||1),start=Math.max(0,Number(it.timelineStart)||0);baseTotal=Math.max(baseTotal,start+dur)}});
+  TL.forEach((it,i)=>{const b=B(it.id);if(!b)return;const ty=b[6],track=it.track||(ty==="shot"?"v1":ty==="audio"?"a1":"fx"),start=Math.max(0,Number(it.timelineStart)||0);let dur;
+    if(ty==="shot")dur=Math.max(.1,Number(it.dur)||b[3]||1);else if(ty==="trans")dur=Math.max(.08,Number(it.dur)||b[3]||.2);else{const bed=b[0]==="a_score"||b[0]==="a_amb";dur=bed?Math.max(baseTotal,.1):Math.max(.55,Number(it.dur)||.8)}
+    map.set(i,{start,dur,type:ty,track});total=Math.max(total,start+dur)
+  });return{map,total:Math.max(.1,total)}
+};
+function timelineLabelWidth(){const n=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--timeline-label-w"));return Number.isFinite(n)?n:58}
+layoutTimeline=function(){if(!timelineEditor)return;const labelW=timelineLabelWidth(),data=timelineLayoutData(),content=Math.max((timelineScroll?timelineScroll.clientWidth:800)-labelW,data.total*timelinePPS+180);timelineInner.style.width=(content+labelW)+"px";document.getElementById("tracks").style.width=(content+labelW)+"px";renderTimelineRuler(data.total,content);document.querySelectorAll("#tracks .trk").forEach(tr=>{tr.style.width=(content+labelW)+"px";const lane=tr.querySelector(".trkl");if(lane){lane.style.width=content+"px";lane.style.setProperty("--timeline-grid",timelinePPS+"px")}});document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const i=Number(el.dataset.i),p=data.map.get(i),it=TL[i],b=B(it&&it.id);if(!p||!it||!b)return;const min=b[6]==="shot"?46:b[6]==="trans"?30:40;el.dataset.track=p.track;el.style.left=(p.start*timelinePPS+2)+"px";el.style.width=Math.max(min,p.dur*timelinePPS-4)+"px";const pal=clipPalette(it,b);el.style.setProperty("--clip-color",pal[0]);el.style.setProperty("--clip-bg",pal[1]);const r=el.querySelector(".clip-duration-readout");if(r)r.textContent=p.dur.toFixed(1)+"s"});const add=document.querySelector("#lane-v1 .clip-add");if(add){add.style.left=(data.total*timelinePPS+10)+"px";add.style.width="72px"}updateTimelinePlayhead();enrichTimelineSnapshots()};
+updateTimelinePlayhead=function(){if(!timelinePlayhead)return;const labelW=timelineLabelWidth();timelinePlayhead.style.left=(labelW+seqPlayhead*timelinePPS)+"px";if(timelineTimecode)timelineTimecode.textContent=formatClock(seqPlayhead);if(seqTimelinePlaying&&timelineScroll){const x=labelW+seqPlayhead*timelinePPS,l=timelineScroll.scrollLeft,r=l+timelineScroll.clientWidth;if(x>r-90)timelineScroll.scrollLeft=Math.max(0,x-timelineScroll.clientWidth+120);else if(x<l+82)timelineScroll.scrollLeft=Math.max(0,x-100)}};
+function scrubTimelineAt(clientX){if(!timelineRuler)return;const rect=timelineRuler.getBoundingClientRect(),data=timelineLayoutData(),x=Math.max(0,Math.min(rect.width,clientX-rect.left));seqPlayhead=Math.max(0,Math.min(data.total,x/timelinePPS));seqPlanCache=buildSequencePlan();seqTimelinePlaying=false;seqScrubbing=true;seqPreviewPlaying=false;if(AUDIO_EL)AUDIO_EL.pause();updateSequenceHUD();updateTimelinePlayhead();if(window.__repaint)window.__repaint();start()}
+setupTimelineEditor=function(){
+  if(timelineEditor)return;const tracks=document.getElementById("tracks");if(!tracks)return;const originalParent=tracks.parentNode,originalNext=tracks.nextSibling,shot=LANES.shot,trans=LANES.trans,audio=LANES.audio;
+  const v2=document.createElement("div");v2.className="trkl";v2.id="lane-v2";v2.dataset.ty="shot";v2.dataset.track="v2";const a2=document.createElement("div");a2.className="trkl";a2.id="lane-a2";a2.dataset.ty="audio";a2.dataset.track="a2";
+  shot.id="lane-v1";shot.dataset.track="v1";audio.id="lane-a1";audio.dataset.track="a1";trans.dataset.track="fx";
+  timelineEditor=document.createElement("section");timelineEditor.className="timeline-editor";const toolbar=document.createElement("div");toolbar.className="timeline-toolbar";toolbar.innerHTML='<span class="timeline-title">TIMELINE</span><b class="timeline-timecode" id="timelineTimecode">00:00.0</b><label class="timeline-zoom"><span>ZOOM</span><input id="timelineZoom" type="range" min="44" max="180" step="2" value="'+timelinePPS+'"></label>';
+  timelineScroll=document.createElement("div");timelineScroll.className="timeline-scroll";timelineScroll.id="timelineScroll";timelineInner=document.createElement("div");timelineInner.className="timeline-inner";timelineRuler=document.createElement("div");timelineRuler.className="timeline-ruler";timelineRuler.id="timelineRuler";timelinePlayhead=document.createElement("div");timelinePlayhead.className="timeline-playhead";timelinePlayhead.id="timelinePlayhead";
+  originalParent.insertBefore(timelineEditor,originalNext);timelineEditor.append(toolbar,timelineScroll);timelineScroll.appendChild(timelineInner);timelineInner.append(timelineRuler,tracks,timelinePlayhead);tracks.innerHTML="";
+  [["trans",trans,"FX","fx"],["shot",v2,"V2","v2"],["shot",shot,"V1","v1"],["audio",a2,"A2","a2"],["audio",audio,"A1","a1"]].forEach(([ty,lane,label,track])=>{const tr=document.createElement("div");tr.className="trk trk-"+track;tr.dataset.ty=ty;tr.dataset.track=track;const h=document.createElement("div");h.className="trkh";h.innerHTML='<span class="track-code">'+label+'</span>';tr.append(h,lane);tracks.appendChild(tr);wireExtraTimelineLane(lane,ty,track)});
+  timelineTimecode=toolbar.querySelector("#timelineTimecode");timelineZoom=toolbar.querySelector("#timelineZoom");timelineZoom.oninput=e=>{timelinePPS=Number(e.target.value);localStorage.setItem("memento.ui.timelinePPS",String(timelinePPS));layoutTimeline()};
+  let scrubbing=false;timelineRuler.addEventListener("pointerdown",e=>{scrubbing=true;timelineRuler.setPointerCapture&&timelineRuler.setPointerCapture(e.pointerId);scrubTimelineAt(e.clientX);e.preventDefault()});timelineRuler.addEventListener("pointermove",e=>{if(scrubbing){scrubTimelineAt(e.clientX);e.preventDefault()}});timelineRuler.addEventListener("pointerup",()=>scrubbing=false);timelineRuler.addEventListener("pointercancel",()=>scrubbing=false);
+  let pan=null;timelineScroll.addEventListener("pointerdown",e=>{if(e.target.closest(".clip,.trkh,.timeline-ruler,button,input,textarea,label"))return;pan={id:e.pointerId,x:e.clientX,y:e.clientY,left:timelineScroll.scrollLeft,locked:false};});timelineScroll.addEventListener("pointermove",e=>{if(!pan||pan.id!==e.pointerId)return;const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(!pan.locked){if(Math.max(Math.abs(dx),Math.abs(dy))<5)return;if(Math.abs(dy)>Math.abs(dx)){pan=null;return}pan.locked=true;timelineScroll.classList.add("panning");try{timelineScroll.setPointerCapture(e.pointerId)}catch(_){}}timelineScroll.scrollLeft=pan.left-dx;e.preventDefault()});const endPan=()=>{pan=null;timelineScroll.classList.remove("panning")};timelineScroll.addEventListener("pointerup",endPan);timelineScroll.addEventListener("pointercancel",endPan);timelineScroll.addEventListener("lostpointercapture",endPan);
+  timelineScroll.addEventListener("wheel",e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&timelineScroll.scrollWidth>timelineScroll.clientWidth){timelineScroll.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});layoutTimeline();
+};
+
+clipPalette=function(it,b){if(!b)return["#8b8b90","rgba(139,139,144,.12)"];if(b[6]==="trans")return["#e4c34a","rgba(228,195,74,.14)"];if(b[6]==="audio")return["#48bd78","rgba(72,189,120,.14)"];return[it&&it.track==="v2"?"#729dff":"#4e83ff","rgba(78,131,255,.15)"]};
+function laneTrackFromPoint(x,y,b){const el=document.elementFromPoint(x,y),lane=el&&el.closest&&el.closest(".trkl");if(!lane||!b)return null;const ty=lane.dataset.ty,track=lane.dataset.track;if(ty!==b[6])return null;return track||null}
+function decorateTimelineClips(){
+  document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const idx=Number(el.dataset.i),it=TL[idx],b=B(it&&it.id);if(!it||!b)return;el.draggable=false;el.querySelectorAll(".move,.clip-track,.dur").forEach(x=>x.remove());if(!el.querySelector(".clip-duration-readout")){const r=document.createElement("span");r.className="clip-duration-readout";el.appendChild(r)}if(!el.querySelector(".trim-handle.start")){const a=document.createElement("i"),z=document.createElement("i");a.className="trim-handle start";z.className="trim-handle end";el.append(a,z)}
+    const startHandle=el.querySelector(".trim-handle.start"),endHandle=el.querySelector(".trim-handle.end");
+    const begin=(e,kind)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();setSelection(it);const before=projectSnapshot(),p=timelineLayoutData().map.get(idx);if(!p)return;const sx=e.clientX,sy=e.clientY,baseStart=p.start,baseDur=p.dur,pid=e.pointerId;let moved=false,lastX=e.clientX,lastY=e.clientY;el.classList.add("dragging-time");try{el.setPointerCapture(pid)}catch(_){ }
+      const move=ev=>{if(ev.pointerId!==pid)return;lastX=ev.clientX;lastY=ev.clientY;const delta=(ev.clientX-sx)/timelinePPS;if(Math.abs(ev.clientX-sx)>2||Math.abs(ev.clientY-sy)>2)moved=true;if(kind==="move"){it.timelineStart=Math.max(0,Math.round((baseStart+delta)*20)/20);el.style.transform="translateY("+(ev.clientY-sy)+"px)"}else if(kind==="end"){it.dur=Math.max(.1,Math.round((baseDur+delta)*20)/20)}else{const ns=Math.max(0,Math.min(baseStart+baseDur-.1,Math.round((baseStart+delta)*20)/20));it.timelineStart=ns;it.dur=Math.max(.1,Math.round((baseDur+(baseStart-ns))*20)/20)}seqPlanCache=null;layoutTimeline();ev.preventDefault()};
+      const end=ev=>{if(ev.pointerId!==pid)return;el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);el.classList.remove("dragging-time");el.style.transform="";if(kind==="move"){const tr=laneTrackFromPoint(lastX,lastY,b);if(tr)it.track=tr}if(moved){drawTL();pushHistory(before)}else{renderGlobalParamDock()} };
+      el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end)
+    };
+    startHandle.onpointerdown=e=>begin(e,"start");endHandle.onpointerdown=e=>begin(e,"end");el.addEventListener("pointerdown",e=>{if(e.target.closest("button,input,textarea,.trim-handle"))return;begin(e,"move")},{capture:true});
+  });layoutTimeline();
+}
+
+/* True player aspect and SHOT focus mode. */
+function refreshPlayerGeometry(){requestAnimationFrame(()=>{sizeAll();if(window.__repaint)window.__repaint();setTimeout(()=>{sizeAll();if(window.__repaint)window.__repaint()},80)})}
+function setShotFocus(on){document.body.classList.toggle("shot-focus",!!on);const exit=document.getElementById("shotFocusExit");if(exit)exit.hidden=!on;if(on){window.__setMode&&window.__setMode("combo");try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(_){}}else if(document.fullscreenElement){try{document.exitFullscreen()}catch(_){}}refreshPlayerGeometry();renderGlobalParamDock()}
+function setupShotFocus(){const tools=document.querySelector(".shot-headtools");if(tools&&!document.getElementById("shotFullscreen")){const b=document.createElement("button");b.className="microbtn shot-fullscreen-toggle";b.id="shotFullscreen";b.type="button";b.title=uiWord("Modalità player","Player mode");b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';b.onclick=()=>setShotFocus(true);tools.prepend(b)}document.getElementById("shotFocusExit").onclick=()=>setShotFocus(false);document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&document.body.classList.contains("shot-focus")){document.body.classList.remove("shot-focus");document.getElementById("shotFocusExit").hidden=true;refreshPlayerGeometry()}});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("shot-focus"))setShotFocus(false)})}
+function setManifestoLines(){const m=document.getElementById("manifesto");if(!m)return;m.innerHTML=currentLang()==="en"?"An image is a state.<br>A movement is a delta.<br>A sequence is a curve.":"Un'immagine è uno stato.<br>Un movimento è un delta.<br>Una sequenza è una curva."}
+
+function initPolishV(){if(polishVReady)return;polishVReady=true;setupGlobalParamDock();arrangeAssetAccordion();setupShotFocus();setManifestoLines();document.querySelector(".seq-template-block .preview-size-control")?.remove();document.querySelectorAll(".seq-template-block .preset-thumb-shell").forEach(x=>x.remove());enableRailDrag(seqTemplateDial);const top=document.getElementById("topbar");window.addEventListener("scroll",()=>requestAnimationFrame(()=>top&&top.classList.remove("compact")),{passive:true});const oldView=window.__onView;window.__onView=v=>{const r=oldView&&oldView(v);requestAnimationFrame(()=>{closeGlobalParamOptions();renderGlobalParamDock();refreshPlayerGeometry()});return r};renderGlobalParamDock();decorateTimelineClips();layoutTimeline()}
+
+/* Keep new tools in sync with every state mutation. */
+const __drawTLP5=drawTL;drawTL=function(){ensureAbsoluteTimelineStarts();const r=__drawTLP5();requestAnimationFrame(()=>{decorateTimelineClips();renderGlobalParamDock();layoutTimeline()});return r};
+const __renderVNextUIP5=renderVNextUI;renderVNextUI=function(){const r=__renderVNextUIP5();renderGlobalParamDock();return r};
+const __setSelectionP5=setSelection;setSelection=function(it){const r=__setSelectionP5(it);closeGlobalParamOptions();renderGlobalParamDock();return r};
+const __setAxisOnShotP5=setAxisOnShot;setAxisOnShot=function(it,side,axis,value,live){const r=__setAxisOnShotP5(it,side,axis,value,live);renderGlobalParamDock();return r};
+const __toggleShotLockP5=toggleShotLock;toggleShotLock=function(it,axis){const r=__toggleShotLockP5(it,axis);renderGlobalParamDock();return r};
+const __applyProjectFormatP5=applyProjectFormat;applyProjectFormat=function(value,save){const r=__applyProjectFormatP5(value,save);refreshPlayerGeometry();return r};
+const __updateAssetLabelsP5=updateAssetLabels;updateAssetLabels=function(){const r=__updateAssetLabelsP5();const k=document.getElementById("assetWorldKicker");if(k)k.textContent="CUSTOM 3D ASSET";const shortcut=document.querySelector("#projectAssetShortcut b");if(shortcut)shortcut.textContent="Custom 3D Asset";return r};
+const __applyLanguageP5=applyLanguage;applyLanguage=function(lang){const r=__applyLanguageP5(lang);setManifestoLines();updateAssetLabels();renderGlobalParamDock();return r};
+const __initPolishIIIP5=initPolishIII;initPolishIII=function(){const r=__initPolishIIIP5();initPolishV();return r};
 
 
 const restored=loadProject();
