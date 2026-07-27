@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MEMENTO — Pocket Previs · Workspace V11</title>
+<title>MEMENTO — Pocket Previs · Workspace V12</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2577,10 +2577,120 @@
   @media(max-width:520px){.workspace-tab-op span{display:none}.workspace-tabs-op,.seq-tabs-op{grid-template-columns:repeat(4,minmax(52px,1fr))!important}.workspace-tab-op svg{width:16px;height:16px}.seq-library-body-op .library-list{grid-template-columns:1fr!important}}
   @media(max-height:720px){:root{--op-header-h:46px}.shot-player-rig .vpbar{flex-basis:30px!important;min-height:30px!important}.shot-player-rig>.shot-commandbar{flex-basis:42px!important;min-height:42px!important}.workspace-tabs-op{--op-tab-h:34px}.time-player.seq-controls-op{min-height:40px!important}}
 
+
+  /* ========================================================================
+     MEMENTO WORKSPACE V12 — refined editing and self-contained TIMELINE
+     EDIT-first SHOT controls, direct START/END assignment, timeline presets.
+     ======================================================================== */
+  .workspace-tabs-op.tab-count-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+
+  /* SHOT command strip: RANDOM + VARIANT are distinct creative actions. */
+  .shot-variant-op{border-color:rgba(255,255,255,.16)!important;background:#101014!important;color:var(--txt)!important}
+  .shot-variant-op:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:#17110e!important}
+  .shot-random-op svg,.shot-variant-op svg{width:15px!important;height:15px!important}
+
+  /* EDIT options compare both states at once. Shared = white, delta = orange. */
+  .shot-panel-advanced-op,.seq-edit-panel-v12{overflow:auto!important;background:#08080a!important}
+  .seq-edit-panel-v12{padding:0!important}
+  .seq-edit-panel-v12 .shot-advanced-toolbar-op{top:0}
+  .seq-edit-panel-v12 .shot-parameter-section{display:block!important}
+  .seq-edit-panel-v12 .cgrp{margin-bottom:11px!important}
+  .seq-edit-panel-v12 .cgrp-h{min-height:28px;margin:0 0 6px!important;font-size:8px!important}
+  .seq-edit-panel-v12 .cgrp-h .lock{width:28px!important;height:28px!important}
+  .seq-edit-panel-v12 .copts{display:flex!important;gap:5px!important;overflow-x:auto!important;padding:1px 1px 5px!important;scrollbar-width:none!important;scroll-snap-type:x proximity!important}
+  .seq-edit-panel-v12 .copts::-webkit-scrollbar{display:none}
+  .seq-edit-panel-v12 .copt{min-width:0!important;width:100%!important;min-height:38px!important;padding:7px 48px 7px 9px!important;font-size:8.5px!important;text-align:left!important}
+
+  .copts>.copt-wrap-v12{position:relative;flex:0 0 116px;min-width:116px;scroll-snap-align:start}
+  .copt-wrap-v12>.copt{width:100%!important;min-width:0!important;min-height:38px!important;padding-right:48px!important}
+  .copt-wrap-v12>.copt.shared-value-v12{
+    border-color:rgba(255,255,255,.68)!important;background:#151519!important;color:#f3f3f5!important;
+    box-shadow:inset 0 -2px 0 rgba(255,255,255,.9)!important
+  }
+  .copt-wrap-v12>.copt.delta-value-v12{
+    border-color:var(--accent)!important;background:#17110e!important;color:var(--accent)!important;
+    box-shadow:inset 0 -2px 0 var(--accent)!important
+  }
+  .copt-wrap-v12>.copt:not(.shared-value-v12):not(.delta-value-v12)[aria-pressed="true"]{
+    border-color:var(--line-2)!important;background:#101014!important;color:var(--txt-2)!important;box-shadow:none!important
+  }
+  .axis-side-picks-v12{position:absolute;z-index:5;right:4px;top:50%;translate:0 -50%;display:flex;gap:2px}
+  .axis-side-pick-v12{
+    appearance:none;width:19px;height:24px;padding:0;border:1px solid var(--line-2);border-radius:5px;
+    background:rgba(6,6,8,.88);color:var(--txt-3);display:grid;place-items:center;cursor:pointer
+  }
+  .axis-side-pick-v12 svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .axis-side-pick-v12:hover{border-color:var(--txt-2);color:var(--txt)}
+  .axis-side-pick-v12[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17110e}
+  .copt-wrap-v12.shared-value-v12 .axis-side-pick-v12[aria-pressed="true"]{border-color:rgba(255,255,255,.62);color:#fff;background:#17171b}
+  .copt-wrap-v12 .copt .x{top:auto!important;right:3px!important;bottom:-7px!important;z-index:8!important}
+
+  /* TIMELINE preset rail sits directly above the edit board. */
+  .seq .swrap{grid-template-rows:minmax(0,1fr)!important}
+  .seq-workspace-op{grid-row:1!important}
+  .seq-timeline-panel-op.active{display:grid!important;grid-template-rows:auto minmax(0,1fr)!important;overflow:hidden!important}
+  .seq-preset-bar-op.seq-preset-slider-v12{
+    position:relative!important;grid-column:auto!important;grid-row:auto!important;width:100%!important;height:auto!important;min-height:62px!important;
+    display:grid!important;grid-template-rows:22px 40px!important;gap:0!important;padding:0!important;border:0!important;border-bottom:1px solid var(--line)!important;
+    border-radius:0!important;background:#09090b!important;overflow:hidden!important
+  }
+  .seq-preset-head-v12{display:flex;align-items:center;gap:7px;padding:3px 7px 2px;border-bottom:1px solid rgba(255,255,255,.035)}
+  .seq-preset-head-v12>span{font:750 6.7px/1 var(--mono);letter-spacing:.14em;color:var(--txt-3);white-space:nowrap}
+  .seq-preset-meta-op{font:650 6.5px/1 var(--mono)!important;color:var(--txt-3)!important}
+  .seq-preset-clear-op{margin-left:auto!important;min-height:18px!important;height:18px!important;padding:3px 7px!important;font-size:6.2px!important;border-radius:5px!important}
+  .seq-preset-rail-v12{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;padding:4px 7px 5px;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x;cursor:grab}
+  .seq-preset-rail-v12::-webkit-scrollbar{display:none}
+  .seq-preset-card-v12{
+    appearance:none;flex:0 0 126px;min-width:126px;height:31px;border:1px solid var(--line);border-radius:7px;background:#0e0e11;color:var(--txt-3);
+    padding:4px 7px;display:grid;grid-template-columns:18px minmax(0,1fr);grid-template-rows:auto auto;column-gap:6px;align-content:center;text-align:left;cursor:pointer
+  }
+  .seq-preset-card-v12:hover{border-color:var(--txt-3);color:var(--txt)}
+  .seq-preset-card-v12.active{border-color:var(--accent);background:#17110e;color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+  .seq-preset-card-v12 .seq-preset-icon-v12{grid-row:1/3;width:16px;height:16px;display:grid;place-items:center;color:currentColor}
+  .seq-preset-card-v12 .seq-preset-icon-v12 svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+  .seq-preset-card-v12 b{font-size:7.6px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:currentColor}
+  .seq-preset-card-v12 small{font:650 5.9px/1 var(--mono);letter-spacing:.08em;color:var(--txt-3)}
+  .seq-preset-card-v12.active small{color:var(--accent);opacity:.72}
+  .seq-timeline-shell-op{grid-row:2;min-height:0}
+
+  /* Consistent icon system under the TIMELINE player. */
+  .time-player.seq-controls-op button svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .time-player.seq-controls-op .pctrl{display:grid!important;place-items:center!important;font-size:0!important}
+  .time-player.seq-controls-op .player-transfer .microbtn{display:grid!important;place-items:center!important;font-size:0!important}
+  .time-player.seq-controls-op #seqEditVII[aria-pressed="true"]{border-color:var(--accent)!important;color:var(--accent)!important;background:#17110e!important}
+  #sPreviewOpen{display:none!important}
+
+  /* Reliable TIMELINE player fullscreen with the command strip retained. */
+  body.seq-focus-v12{overflow:hidden!important;background:#000!important}
+  body.seq-focus-v12 .top,body.seq-focus-v12 .manifesto-footer{display:none!important}
+  body.seq-focus-v12 .combo,body.seq-focus-v12 .main,body.seq-focus-v12 .comb2,body.seq-focus-v12 .glossary{display:none!important}
+  body.seq-focus-v12 .seq{display:block!important;position:fixed!important;z-index:800!important;inset:0!important;background:#000!important;overflow:hidden!important}
+  body.seq-focus-v12 .seq .swrap{display:block!important;position:absolute!important;inset:0!important;padding:0!important}
+  body.seq-focus-v12 .seq-workspace-op{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+  body.seq-focus-v12 .seq-splitter-op,body.seq-focus-v12 .seq-editor-pane-op{display:none!important}
+  body.seq-focus-v12 .seq-player-pane-op,body.seq-focus-v12 #seqPlayerMount{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;padding:0!important}
+  body.seq-focus-v12 #seqPlayerMount .time-rig{width:100%!important;height:100%!important;border:0!important;border-radius:0!important;background:#000!important;display:flex!important;flex-direction:column!important}
+  body.seq-focus-v12 #seqPlayerMount .time-rig>.cprev{
+    flex:1 1 auto!important;width:min(100vw,calc((100dvh - 48px) * var(--project-scale)))!important;height:auto!important;
+    max-height:calc(100dvh - 48px)!important;margin:auto!important;background:#000!important
+  }
+  body.seq-focus-v12 #seqPlayerMount .time-player.seq-controls-op{flex:0 0 48px!important;min-height:48px!important;border-radius:0!important;border-top:1px solid var(--line)!important;background:rgba(9,9,11,.98)!important}
+
+  @media(max-width:900px){
+    .seq-tabs-op{grid-template-columns:repeat(5,minmax(96px,1fr))!important}
+    .seq-preset-bar-op.seq-preset-slider-v12{min-height:58px!important;grid-template-rows:20px 38px!important}
+    .seq-preset-card-v12{flex-basis:112px;min-width:112px;height:29px}
+    .copts>.copt-wrap-v12{flex-basis:108px;min-width:108px}
+  }
+  @media(max-width:520px){
+    .seq-tabs-op{grid-template-columns:repeat(5,minmax(52px,1fr))!important}
+    .seq-preset-head-v12>span{display:none}
+  }
+
 </style>
-  <!-- MEMENTO workspace V11 · 27 July 2026 -->
+  <!-- MEMENTO workspace V12 · 27 July 2026 -->
 </head>
-<body data-memento-build="v11-workspace">
+<body data-memento-build="v12-refined">
 <div class="app v-combo" data-format="16:9">
   <header class="top" id="topbar">
     <div class="brandrow">
@@ -7363,6 +7473,131 @@ function initOperationalWorkspace(){
   window.addEventListener("resize",()=>requestAnimationFrame(()=>{arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();refreshPlayerGeometry();layoutTimeline()}),{passive:true});requestAnimationFrame(()=>{drawTL();refreshPlayerGeometry()})
 }
 const __initPolishVOperational=initPolishV;initPolishV=function(){const r=__initPolishVOperational();initOperationalWorkspace();return r};
+
+
+/* ================= MEMENTO WORKSPACE V12 · REFINED EDITING ================= */
+operationalShotPanel=localStorage.getItem("memento.ui.shotPanelV12")||"advanced";
+operationalSeqPanel=localStorage.getItem("memento.ui.seqPanelV12")||"timeline";
+
+const V12_ICON={
+  variant:'<svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/><path d="m16.5 4.5 3 3M18 3v6M4.5 16.5l3 3M3 18h6"/></svg>',
+  start:'<svg viewBox="0 0 24 24"><path d="M5 4v16"/><rect x="8" y="6" width="11" height="12" rx="2"/></svg>',
+  end:'<svg viewBox="0 0 24 24"><path d="M19 4v16"/><rect x="5" y="6" width="11" height="12" rx="2"/></svg>',
+  prev:'<svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5"/><path d="M6 6v12"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><path d="m9 6 9 6-9 6z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="m10 7 5 5-5 5"/><path d="M18 6v12"/></svg>',
+  playblast:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>',
+  edit:OP_ICON.advanced
+};
+
+function setTabLabelV12(button,label){if(!button)return;const span=button.querySelector("span");if(span)span.textContent=label;button.setAttribute("aria-label",label)}
+function ensureShotTabsV12(){
+  const nav=document.getElementById("shotTabsOp");if(!nav)return;
+  ["advanced","type","read","asset"].forEach(key=>{const b=nav.querySelector('[data-shot-tab="'+key+'"]');if(b)nav.appendChild(b)});
+  setTabLabelV12(nav.querySelector('[data-shot-tab="advanced"]'),"EDIT");
+  setTabLabelV12(nav.querySelector('[data-shot-tab="type"]'),"PRESET");
+  setTabLabelV12(nav.querySelector('[data-shot-tab="read"]'),uiWord("ANALISI","ANALYSIS"));
+  setTabLabelV12(nav.querySelector('[data-shot-tab="asset"]'),uiWord("ASSET 3D","3D ASSET"));
+}
+function ensureSeqTabsV12(){
+  const nav=document.getElementById("seqTabsOp"),panels=document.getElementById("seqPanelsOp");if(!nav||!panels)return;
+  let edit=nav.querySelector('[data-seq-tab="edit"]');if(!edit){edit=tabButtonOperational("edit","EDIT",V12_ICON.edit,"seq");nav.appendChild(edit)}
+  let panel=panels.querySelector('[data-panel="edit"]');if(!panel){panel=document.createElement("section");panel.className="seq-panel-op seq-edit-panel-v12";panel.dataset.panel="edit";panel.setAttribute("role","tabpanel");panels.appendChild(panel)}
+  ["timeline","type","edit","breakdown","project"].forEach(key=>{const b=nav.querySelector('[data-seq-tab="'+key+'"]');if(b)nav.appendChild(b)});
+  nav.classList.remove("tab-count-4");nav.classList.add("tab-count-5");
+  setTabLabelV12(nav.querySelector('[data-seq-tab="timeline"]'),"TIMELINE");
+  setTabLabelV12(nav.querySelector('[data-seq-tab="type"]'),"PRESET");
+  setTabLabelV12(edit,"EDIT");
+  setTabLabelV12(nav.querySelector('[data-seq-tab="breakdown"]'),"BREAKDOWN");
+  setTabLabelV12(nav.querySelector('[data-seq-tab="project"]'),uiWord("PROGETTO","PROJECT"));
+}
+
+function editorTargetV12(){
+  const seq=window.__currentMode==="seq",it=seq?selectedShot():(activeShot()||selectedShot());
+  if(seq&&it&&activeShotUid!==it.uid){activeShotUid=it.uid;setShotPreviewItem(it);syncLocksFromShot(it)}
+  return it
+}
+function mountAdvancedEditorV12(){
+  const params=document.querySelector(".shot-parameter-section"),toolbar=document.getElementById("shotAdvancedToolbarOp");if(!params||!toolbar)return;
+  const seq=window.__currentMode==="seq",host=seq?document.querySelector('.seq-panel-op[data-panel="edit"]'):document.querySelector('.shot-panel-op[data-panel="advanced"]');
+  if(host){host.append(toolbar,params)}
+  const it=editorTargetV12();if(it){syncAdvancedFromShotVII(it);updateAdvancedSideOperational()}
+  decorateAdvancedOptionsV12()
+}
+function assignAxisSideV12(axis,value,side){
+  const it=editorTargetV12();if(!it||!AXMAP[axis])return;const state=side==="end"?shotEnd(it):shotStart(it);if(state[axis]===value){selectEditSide(side);decorateAdvancedOptionsV12();return}
+  const before=projectSnapshot();it.inheritedEndAxes=it.inheritedEndAxes||{};if(side==="start")it.inheritedEndAxes[axis]=false;
+  setAxisOnShot(it,side,axis,value,false);pushHistory(before);selectEditSide(side);requestAnimationFrame(decorateAdvancedOptionsV12)
+}
+function ensureAdvancedSideControlsV12(){
+  if(!cAxesHost)return;cAxesHost.querySelectorAll(".copt").forEach(opt=>{
+    if(opt.closest(".copt-wrap-v12"))return;const wrap=document.createElement("div");wrap.className="copt-wrap-v12";opt.parentNode.insertBefore(wrap,opt);wrap.appendChild(opt);
+    const picks=document.createElement("div");picks.className="axis-side-picks-v12";picks.innerHTML='<button class="axis-side-pick-v12" type="button" data-side-pick="start" aria-label="START">'+V12_ICON.start+'</button><button class="axis-side-pick-v12" type="button" data-side-pick="end" aria-label="END">'+V12_ICON.end+'</button>';wrap.appendChild(picks)
+  });
+  if(!cAxesHost.dataset.sidePicksV12){cAxesHost.dataset.sidePicksV12="1";cAxesHost.addEventListener("click",e=>{const pick=e.target.closest(".axis-side-pick-v12");if(!pick)return;const wrap=pick.closest(".copt-wrap-v12"),opt=wrap&&wrap.querySelector(".copt");if(!opt)return;e.preventDefault();e.stopPropagation();assignAxisSideV12(opt.dataset.ax,opt.dataset.op,pick.dataset.sidePick)},true)}
+}
+function decorateAdvancedOptionsV12(){
+  const it=editorTargetV12();if(!it||!cAxesHost)return;ensureAdvancedSideControlsV12();const A=shotStart(it),Bv=shotEnd(it);
+  cAxesHost.querySelectorAll(".copt-wrap-v12").forEach(wrap=>{const opt=wrap.querySelector(".copt");if(!opt)return;const s=A[opt.dataset.ax]===opt.dataset.op,e=Bv[opt.dataset.ax]===opt.dataset.op,shared=s&&e,delta=s!==e;
+    wrap.classList.toggle("shared-value-v12",shared);wrap.classList.toggle("delta-value-v12",delta);opt.classList.toggle("shared-value-v12",shared);opt.classList.toggle("delta-value-v12",delta);opt.setAttribute("aria-pressed",String((shotEditSide==="end"?e:s)));
+    wrap.querySelectorAll(".axis-side-pick-v12").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sidePick==="start"?s:e)))
+  })
+}
+
+function ensureShotVariantCommandV12(){
+  const bar=document.getElementById("shotCommandbar"),full=document.getElementById("shotFullscreenVII"),spacer=bar&&bar.querySelector(".command-spacer");if(!bar)return;
+  let variant=document.getElementById("shotVariantOp");if(!variant){variant=buttonVII("shotVariantOp",uiWord("GENERA VARIANTE","GENERATE VARIANT"),V12_ICON.variant,"shot-variant-op");variant.onclick=()=>generateShotVariant()}
+  const label=variant.querySelector(".command-label")||variant.querySelector("span");if(label)label.textContent=uiWord("GENERA VARIANTE","GENERATE VARIANT");variant.title=uiWord("Genera una variante con gli stessi principi","Generate a variant with the same principles");
+  bar.insertBefore(variant,spacer||full||null)
+}
+
+function seqPresetShotCountV12(key){return (PRESETS[key]?.ids||[]).filter(id=>{const b=B(id);return b&&b[6]==="shot"}).length}
+updateSequencePresetBarOperational=function(){
+  const rail=document.getElementById("seqPresetRailV12"),meta=document.getElementById("seqPresetMetaOp");if(rail){rail.innerHTML=Object.keys(PRESETS).map(key=>{const active=key===activeSequencePreset,label=sequencePresetLabelOperational(key),n=seqPresetShotCountV12(key);return '<button class="seq-preset-card-v12 '+(active?'active':'')+'" type="button" data-preset="'+key+'"><span class="seq-preset-icon-v12">'+(SEQ_PRESET_ICON[key]||SEQ_PRESET_ICON.empty)+'</span><b>'+escapeHTML(label)+'</b><small>'+n+' SHOT</small></button>'}).join("");enableRailDrag(rail)}
+  if(meta){const shots=TL.filter(x=>{const b=B(x.id);return b&&b[6]==="shot"}).length;meta.textContent=shots+" SHOT"}
+};
+createSequencePresetBarOperational=function(swrap){
+  let bar=document.getElementById("seqPresetBarOp");if(!bar){bar=document.createElement("section");bar.id="seqPresetBarOp";bar.className="seq-preset-bar-op seq-preset-slider-v12";bar.innerHTML='<div class="seq-preset-head-v12"><span>'+uiWord("PRESET TIMELINE","TIMELINE PRESET")+'</span><b id="seqPresetMetaOp" class="seq-preset-meta-op">0 SHOT</b><button id="seqPresetClearOp" class="seq-preset-clear-op" type="button">'+uiWord("SVUOTA","CLEAR")+'</button></div><div class="seq-preset-rail-v12" id="seqPresetRailV12"></div>';swrap.prepend(bar);bar.addEventListener("click",e=>{const b=e.target.closest("[data-preset]");if(b)applySequenceTemplate(b.dataset.preset,projectSnapshot())});bar.querySelector("#seqPresetClearOp").onclick=()=>applySequenceTemplate("empty",projectSnapshot())}updateSequencePresetBarOperational();return bar
+};
+function positionSequencePresetSliderV12(){const panel=document.querySelector('.seq-panel-op[data-panel="timeline"]'),shell=document.getElementById("seqTimelineShellOp"),bar=document.getElementById("seqPresetBarOp");if(panel&&shell&&bar&&bar.parentNode!==panel)panel.insertBefore(bar,shell)}
+
+function setIconButtonV12(id,icon,label){const b=document.getElementById(id);if(!b)return null;b.innerHTML=icon;b.title=label;b.setAttribute("aria-label",label);return b}
+function updateSeqPlayIconV12(){const b=document.getElementById("sPreviewPlay");if(!b)return;const playing=!!seqTimelinePlaying;b.innerHTML=playing?V12_ICON.pause:V12_ICON.play;b.classList.toggle("playing",playing);b.setAttribute("aria-label",uiWord(playing?"Pausa timeline":"Riproduci timeline",playing?"Pause timeline":"Play timeline"))}
+function enhanceSeqPlayerControlsV12(){
+  const timePlayer=document.querySelector("#seqPlayerMount .time-player");if(!timePlayer)return;
+  setIconButtonV12("sPrevShot",V12_ICON.prev,uiWord("Shot precedente","Previous shot"));setIconButtonV12("sNextShot",V12_ICON.next,uiWord("Shot successivo","Next shot"));updateSeqPlayIconV12();
+  setIconButtonV12("seqCopy",OP_COMMAND_ICON.copy,uiWord("Copia","Copy"));setIconButtonV12("seqPaste",OP_COMMAND_ICON.paste,uiWord("Incolla","Paste"));setIconButtonV12("sPreviewClean",V12_ICON.playblast,"Playblast");
+  setIconButtonV12("seqUndoVII",OP_COMMAND_ICON.undo,uiWord("Annulla","Undo"));setIconButtonV12("seqRedoVII",OP_COMMAND_ICON.redo,uiWord("Ripeti","Redo"));
+  const edit=setIconButtonV12("seqEditVII",V12_ICON.edit,"EDIT");if(edit){edit.onclick=()=>activateSeqPanelOperational("edit");edit.setAttribute("aria-pressed",String(operationalSeqPanel==="edit"))}
+  const full=setIconButtonV12("seqFullscreenVII",OP_COMMAND_ICON.full,"Fullscreen");if(full)full.onclick=()=>setSeqFocusV12(true,false);
+  const old=document.getElementById("sPreviewOpen");if(old)old.hidden=true
+}
+
+function setSeqFocusV12(on,play){
+  on=!!on;document.body.classList.toggle("seq-focus-v12",on);document.body.classList.remove("seq-focus-vii");const exit=document.getElementById("seqFocusExitVII");if(exit){exit.hidden=!on;exit.onclick=()=>setSeqFocusV12(false,false)}
+  if(on){window.__setMode&&window.__setMode("seq");if(play)startSequence(true);const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;if(!(document.fullscreenElement||document.webkitFullscreenElement)&&request){try{const p=request.call(root);if(p&&p.catch)p.catch(()=>{})}catch(_){}}}
+  else if(document.fullscreenElement||document.webkitFullscreenElement){try{const fn=document.exitFullscreen||document.webkitExitFullscreen,p=fn&&fn.call(document);if(p&&p.catch)p.catch(()=>{})}catch(_){}}
+  refreshPlayerGeometry()
+}
+setSeqFocusVII=setSeqFocusV12;
+
+const __activateShotPanelV12=activateShotPanelOperational;activateShotPanelOperational=function(key,save=true){const r=__activateShotPanelV12(key,false);operationalShotPanel=key;if(save)localStorage.setItem("memento.ui.shotPanelV12",key);mountAdvancedEditorV12();return r};
+const __activateSeqPanelV12=activateSeqPanelOperational;activateSeqPanelOperational=function(key,save=true){const r=__activateSeqPanelV12(key,false);operationalSeqPanel=key;if(save)localStorage.setItem("memento.ui.seqPanelV12",key);if(key==="edit")mountAdvancedEditorV12();enhanceSeqPlayerControlsV12();return r};
+const __enhanceShotCommandbarV12=enhanceShotCommandbarOperational;enhanceShotCommandbarOperational=function(workspace,bar){const r=__enhanceShotCommandbarV12(workspace,bar);ensureShotVariantCommandV12();return r};
+const __arrangeShotV12=arrangeShotOperational;arrangeShotOperational=function(){const r=__arrangeShotV12();ensureShotTabsV12();ensureShotVariantCommandV12();if(window.__currentMode==="combo"){mountAdvancedEditorV12();activateShotPanelOperational(["advanced","type","read","asset"].includes(operationalShotPanel)?operationalShotPanel:"advanced",false)}decorateAdvancedOptionsV12();return r};
+const __arrangeSeqV12=arrangeSeqOperational;arrangeSeqOperational=function(){const r=__arrangeSeqV12();ensureSeqTabsV12();positionSequencePresetSliderV12();enhanceSeqPlayerControlsV12();if(window.__currentMode==="seq"){activateSeqPanelOperational(["timeline","type","edit","breakdown","project"].includes(operationalSeqPanel)?operationalSeqPanel:"timeline",false);mountAdvancedEditorV12()}return r};
+const __selectEditSideV12=selectEditSide;selectEditSide=function(side){const r=__selectEditSideV12(side);requestAnimationFrame(decorateAdvancedOptionsV12);return r};
+const __syncAxesV12=syncAxes;syncAxes=function(host,sel){const r=__syncAxesV12(host,sel);if(host===cAxesHost)requestAnimationFrame(decorateAdvancedOptionsV12);return r};
+const __renderCV12=renderC;renderC=function(){const r=__renderCV12();requestAnimationFrame(decorateAdvancedOptionsV12);return r};
+const __startSequenceV12=startSequence;startSequence=function(fromStart){const r=__startSequenceV12(fromStart);requestAnimationFrame(updateSeqPlayIconV12);return r};
+const __pauseSequenceV12=pauseSequence;pauseSequence=function(resumePreview){const r=__pauseSequenceV12(resumePreview);requestAnimationFrame(updateSeqPlayIconV12);return r};
+const __updateSequenceHUDV12=updateSequenceHUD;updateSequenceHUD=function(){const r=__updateSequenceHUDV12();updateSeqPlayIconV12();return r};
+const __updateOperationalLabelsV12=updateOperationalLabels;updateOperationalLabels=function(){const r=__updateOperationalLabelsV12();ensureShotTabsV12();ensureSeqTabsV12();ensureShotVariantCommandV12();updateSequencePresetBarOperational();enhanceSeqPlayerControlsV12();decorateAdvancedOptionsV12();return r};
+const __drawTLV12=drawTL;drawTL=function(){const r=__drawTLV12();requestAnimationFrame(()=>{ensureShotTabsV12();ensureSeqTabsV12();positionSequencePresetSliderV12();enhanceSeqPlayerControlsV12();mountAdvancedEditorV12();decorateAdvancedOptionsV12();updateSequencePresetBarOperational()});return r};
+const __renderVNextUIV12=renderVNextUI;renderVNextUI=function(){const r=__renderVNextUIV12();requestAnimationFrame(()=>{mountAdvancedEditorV12();decorateAdvancedOptionsV12();enhanceSeqPlayerControlsV12()});return r};
+const __applyLanguageV12=applyLanguage;applyLanguage=function(lang){const r=__applyLanguageV12(lang);requestAnimationFrame(()=>{ensureShotTabsV12();ensureSeqTabsV12();updateOperationalLabels();updateSequencePresetBarOperational();decorateAdvancedOptionsV12()});return r};
+const __initOperationalWorkspaceV12=initOperationalWorkspace;initOperationalWorkspace=function(){const r=__initOperationalWorkspaceV12();if(!document.documentElement.dataset.v12Listeners){document.documentElement.dataset.v12Listeners="1";document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&document.body.classList.contains("seq-focus-v12")){document.body.classList.remove("seq-focus-v12");const exit=document.getElementById("seqFocusExitVII");if(exit)exit.hidden=true;refreshPlayerGeometry()}});document.addEventListener("webkitfullscreenchange",()=>{if(!document.webkitFullscreenElement&&document.body.classList.contains("seq-focus-v12")){document.body.classList.remove("seq-focus-v12");const exit=document.getElementById("seqFocusExitVII");if(exit)exit.hidden=true;refreshPlayerGeometry()}});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("seq-focus-v12"))setSeqFocusV12(false,false)})}requestAnimationFrame(()=>{arrangeShotOperational();arrangeSeqOperational();updateOperationalLabels();updateSequencePresetBarOperational()});return r};
 
 const restored=loadProject();
 if(restored){TL=restored.timeline;activeShotUid=restored.activeShotUid;applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid}}
