@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MEMENTO — Pocket Previs · Operational Workspace V10</title>
+<title>MEMENTO — Pocket Previs · Workspace V11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2313,18 +2313,19 @@
 
 
   /* ========================================================================
-     MEMENTO OPERATIONAL WORKSPACE — desktop-first, viewport-contained UI
-     One header row, permanent SHOT split, fixed five-track SEQ, no bottom dock.
+     MEMENTO OPERATIONAL WORKSPACE V11 — tabbed desktop workspace
+     Draggable SHOT/TIMELINE splitters, right-side tools, viewport-filling tracks.
      ======================================================================== */
   :root{
     --op-header-h:52px;
     --op-gutter:clamp(6px,.7vw,12px);
-    --op-gap:8px;
-    --shot-player-pct:50%;
-    --seq-player-pct:42%;
+    --op-gap:7px;
+    --op-tab-h:38px;
+    --shot-player-pct:62%;
+    --seq-player-pct:34%;
     --timeline-label-w:52px;
-    --timeline-track-h:58px;
-    --op-drawer-w:min(340px,42%);
+    --timeline-track-h:72px;
+    --op-drawer-w:min(390px,45%);
   }
 
   html,body{height:100%;min-height:100%;overflow:hidden!important}
@@ -2348,7 +2349,7 @@
   }
   .brandrow,.top.compact .brandrow{
     width:100%!important;height:100%!important;max-height:none!important;
-    display:grid!important;grid-template-columns:minmax(112px,1fr) minmax(300px,520px) minmax(112px,1fr)!important;
+    display:grid!important;grid-template-columns:minmax(112px,1fr) minmax(340px,560px) minmax(112px,1fr)!important;
     align-items:center!important;gap:14px!important;opacity:1!important;transform:none!important;
   }
   .brandrow .brand{grid-column:1;justify-self:start!important}
@@ -2387,9 +2388,10 @@
     box-shadow:0 18px 42px rgba(0,0,0,.55)!important;z-index:450!important;
   }
 
-  /* Remove the bottom Recipe Tool and every legacy bottom-navigation surface. */
+  /* Remove legacy foreground instruments and runtime layouts. */
   .global-param-dock,.dual-recipe-dock,.seq-recipe-dock,.navshell.global-bottom-nav,
-  .option-dial,.param-option-drawer,.copy-toast{display:none!important}
+  .option-dial,.param-option-drawer,.copy-toast,.shot-workspace-viii,.seq-workspace-viii,
+  .shot-split-placeholder-viii,.shot-player-sentinel,.seq-player-sentinel{display:none!important}
 
   /* Viewport-contained views. */
   .combo,.seq,.comb2,.glossary,.main{
@@ -2401,21 +2403,55 @@
     margin:0!important;padding:var(--op-gutter)!important;overflow:hidden!important;
   }
   .comb2 .cfull,.glossary,.main{overflow:auto!important;overscroll-behavior:contain}
-  .combo .cfull>*:not(.shot-workspace-op){display:none!important}
+  .combo .cfull>*:not(.shot-workspace-op):not(#shotDone){display:none!important}
   .seq .swrap>*:not(.seq-preset-bar-op):not(.seq-workspace-op):not(.header-sentinel){display:none!important}
-  .shot-headbar,.shot-player-sentinel,.shot-split-placeholder-viii,.seq-player-sentinel,
-  .seq-template-block,.seq-quickbar,.senergy,.swave-wrap,.sequence-analysis,.project-note{display:none!important}
+  .shot-headbar,.seq-template-block,.seq-quickbar,.senergy,.swave-wrap,.sequence-analysis,.project-note{display:none!important}
+  #shotDone{display:none!important}
+
+  /* Shared tab grammar — visually identical to RENDER / VIEWPORT. */
+  .workspace-tabs-op{
+    height:var(--op-tab-h);min-height:var(--op-tab-h);display:grid;align-items:stretch;
+    border:1px solid var(--line);border-radius:10px 10px 0 0;background:#0a0a0c;overflow:hidden;
+  }
+  .workspace-tabs-op.tab-count-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .workspace-tab-op{
+    appearance:none;min-width:0;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;
+    color:var(--txt-3);padding:0 8px;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;
+    position:relative;font:700 7.2px/1 var(--mono);letter-spacing:.105em;text-transform:uppercase;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;transition:background .15s var(--ease),color .15s var(--ease);
+  }
+  .workspace-tab-op:last-child{border-right:0}
+  .workspace-tab-op svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+  .workspace-tab-op:hover{background:#101014;color:var(--txt-2)}
+  .workspace-tab-op[aria-selected="true"]{background:#17110e;color:var(--accent)}
+  .workspace-tab-op[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
+  .workspace-panel-stack-op{
+    min-width:0;min-height:0;height:100%;border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;
+    background:#08080a;overflow:hidden;position:relative;
+  }
+  .workspace-panel-op{position:absolute;inset:0;display:none;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#2c2c31 transparent}
+  .workspace-panel-op.active{display:block}
+  .workspace-panel-op::-webkit-scrollbar{width:7px;height:7px}.workspace-panel-op::-webkit-scrollbar-thumb{background:#2c2c31;border-radius:8px}
 
   /* ---------------- SHOT ---------------- */
   .shot-workspace-op{
     --shot-player-pct-local:var(--shot-player-pct);
     width:100%;height:100%;min-height:0;display:grid;
-    grid-template-columns:minmax(300px,var(--shot-player-pct-local)) 8px minmax(350px,1fr);
+    grid-template-columns:minmax(340px,var(--shot-player-pct-local)) 10px minmax(380px,1fr);
     align-items:stretch;overflow:hidden;
   }
   .shot-player-pane-op,.shot-control-pane-op{min-width:0;min-height:0;height:100%}
-  .shot-divider-op{position:relative;min-width:8px;height:100%;pointer-events:none}
-  .shot-divider-op::after{content:"";position:absolute;left:50%;top:10px;bottom:10px;width:1px;background:var(--line);translate:-50% 0}
+  .shot-control-pane-op{display:grid;grid-template-rows:var(--op-tab-h) minmax(0,1fr);min-width:0;min-height:0}
+  .shot-splitter-op,.seq-splitter-op{
+    position:relative;width:10px;height:100%;border:0;background:transparent;cursor:col-resize;touch-action:none;outline:none;
+  }
+  .shot-splitter-op::after,.seq-splitter-op::after{
+    content:"";position:absolute;left:50%;top:10px;bottom:10px;width:2px;border-radius:2px;background:#25252a;
+    translate:-50% 0;transition:width .15s var(--ease),background .15s var(--ease);
+  }
+  .shot-splitter-op:hover::after,.shot-splitter-op:focus-visible::after,.shot-splitter-op.dragging::after,
+  .seq-splitter-op:hover::after,.seq-splitter-op:focus-visible::after,.seq-splitter-op.dragging::after{width:4px;background:var(--accent)}
+
   .shot-player-rig{
     position:relative!important;inset:auto!important;top:auto!important;z-index:20!important;
     width:100%!important;height:100%!important;max-width:none!important;min-height:0!important;
@@ -2430,410 +2466,121 @@
     flex:1 1 auto!important;min-height:0!important;height:auto!important;
     width:min(100%,calc((100dvh - var(--op-header-h) - 88px) * var(--project-scale)))!important;
     max-height:calc(100dvh - var(--op-header-h) - 88px)!important;
-    margin:auto!important;aspect-ratio:var(--project-ratio)!important;border:0!important;border-radius:0!important;
-    background:#000!important;
+    margin:auto!important;aspect-ratio:var(--project-ratio)!important;border:0!important;border-radius:0!important;background:#000!important;
   }
   .shot-player-rig>.shot-commandbar{
     order:9!important;flex:0 0 48px!important;width:100%!important;min-height:48px!important;
     margin:0!important;padding:5px!important;border:0!important;border-top:1px solid var(--line)!important;
-    border-radius:0!important;background:#0b0b0e!important;display:flex!important;align-items:center!important;gap:4px!important;
-    overflow:hidden!important;
+    border-radius:0!important;background:#0b0b0e!important;display:flex!important;align-items:center!important;gap:4px!important;overflow:hidden!important;
   }
   .shot-player-rig>.shot-commandbar .microbtn{
-    flex:0 0 auto;min-height:36px!important;height:36px!important;padding:7px 9px!important;border-radius:7px!important;
+    flex:0 0 auto;min-height:36px!important;height:36px!important;padding:7px 10px!important;border-radius:7px!important;
     display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
   }
-  .shot-player-rig>.shot-commandbar .microbtn svg{width:13px!important;height:13px!important}
+  .shot-player-rig>.shot-commandbar .microbtn svg{width:15px!important;height:15px!important;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .shot-player-rig>.shot-commandbar .command-label{font:700 7.5px/1 var(--mono)!important;letter-spacing:.065em!important}
-  #shotUndoVII,#shotRedoVII,#shotCopyVII,#shotPasteVII{width:36px!important;padding:7px!important}
+  #shotUndoVII,#shotRedoVII,#shotCopyVII,#shotPasteVII{width:38px!important;padding:7px!important}
   #shotUndoVII .command-label,#shotRedoVII .command-label,#shotCopyVII .command-label,#shotPasteVII .command-label{display:none!important}
-  .shot-player-rig>.shot-commandbar .primary-command{margin-left:0!important}
+  .shot-player-rig>.shot-commandbar .command-spacer{display:block;flex:1;min-width:4px}
   .shot-random-op{border-color:rgba(255,121,80,.42)!important;background:#17110e!important;color:var(--accent)!important}
-  .shot-player-size-op{
-    margin-left:auto;display:flex;align-items:center;gap:7px;height:36px;padding:0 8px;
-    border:1px solid var(--line-2);border-radius:7px;background:#0e0e11;color:var(--txt-3);
-    font:700 7px/1 var(--mono);letter-spacing:.1em;white-space:nowrap;
-  }
-  .shot-player-size-op input{width:78px!important;height:3px!important}
-  .shot-player-size-op output{min-width:28px;color:var(--txt-2);text-align:right;font-variant-numeric:tabular-nums}
 
-  .shot-control-pane-op{
-    display:flex;flex-direction:column;gap:6px;padding-left:0;overflow:hidden;overscroll-behavior:contain;
-  }
-  .shot-accordion-op{
-    flex:0 0 auto;min-width:0;min-height:0;border:1px solid var(--line);border-radius:10px;
-    background:#0b0b0e;overflow:hidden;
-  }
-  .shot-accordion-op>summary{
-    list-style:none;display:flex;align-items:center;gap:8px;min-height:40px;padding:8px 10px;
-    cursor:pointer;color:var(--txt-2);user-select:none;background:#0b0b0e;
-  }
-  .shot-accordion-op>summary::-webkit-details-marker{display:none}
-  .shot-accordion-op>summary svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
-  .shot-accordion-op>summary b{font:700 8px/1 var(--mono);letter-spacing:.14em;color:inherit}
-  .shot-accordion-op>summary span{min-width:0;margin-left:auto;font:600 7px/1 var(--mono);color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .shot-accordion-op>summary i{font-style:normal;color:var(--accent);transition:transform .15s var(--ease)}
-  .shot-control-pane-op>.shot-accordion-op:not([open]){flex:0 0 40px;height:40px}
-  .shot-accordion-op[open]{position:relative;flex:1 1 0!important;height:0;max-height:100%;display:flex;flex-direction:column;min-height:0!important}
-  .shot-accordion-op[open]>summary{flex:0 0 40px;color:var(--accent);border-bottom:1px solid var(--line)}
-  .shot-accordion-op[open]>summary i{transform:rotate(180deg)}
-  .shot-accordion-op[open]>.shot-accordion-body-op{position:absolute!important;inset:40px 0 0!important;height:auto!important;min-height:0!important;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#2c2c31 transparent}
-  .shot-accordion-body-op::-webkit-scrollbar{width:7px;height:7px}
-  .shot-accordion-body-op::-webkit-scrollbar-thumb{background:#2c2c31;border-radius:8px}
-
-  .shot-accordion-body-op .tech-dial-block{
-    margin:0!important;border:0!important;border-radius:0!important;background:#08080a!important;overflow:visible!important;
-  }
-  .shot-accordion-body-op .tech-dial-block>.dial-caption{display:none!important}
-  .tech-dial-block .snap-dial{gap:5px!important;padding:7px 8px 8px!important;scroll-snap-type:x proximity!important}
+  /* SHOT panel content. */
+  .shot-panel-type-op .tech-dial-block{height:100%;margin:0!important;border:0!important;border-radius:0!important;background:#08080a!important;overflow:auto!important}
+  .shot-panel-type-op .tech-dial-block>.dial-caption{display:none!important}
+  .tech-dial-block .snap-dial{gap:5px!important;padding:8px 9px 9px!important;scroll-snap-type:x proximity!important}
   .tech-dial-block .dial-item{
-    flex:0 0 118px!important;min-width:118px!important;min-height:44px!important;padding:7px 8px!important;
+    flex:0 0 118px!important;min-width:118px!important;min-height:46px!important;padding:7px 8px!important;
     grid-template-columns:19px minmax(0,1fr)!important;column-gap:7px!important;border-radius:8px!important;
   }
   .tech-dial-block .shot-type-icon,.tech-dial-block .shot-type-icon svg{width:18px!important;height:18px!important}
-  .tech-dial-block .dial-item>b{font-size:9px!important}
-  .tech-dial-block .dial-item>span:not(.shot-type-icon){font-size:6.4px!important}
-  .shot-preset-rail{
-    min-height:0!important;gap:6px!important;padding:7px 8px 8px!important;border-top:1px solid var(--line)!important;
-    background:#08080a!important;
-  }
-  .shot-preset-rail .shot-preset{
-    flex:0 0 154px!important;min-width:154px!important;min-height:94px!important;padding:5px!important;
-    border-radius:8px!important;background:#0d0d10!important;
-  }
+  .tech-dial-block .dial-item>b{font-size:9px!important}.tech-dial-block .dial-item>span:not(.shot-type-icon){font-size:6.4px!important}
+  .shot-preset-rail{min-height:0!important;gap:6px!important;padding:8px 9px 9px!important;border-top:1px solid var(--line)!important;background:#08080a!important}
+  .shot-preset-rail .shot-preset{flex:0 0 158px!important;min-width:158px!important;min-height:98px!important;padding:5px!important;border-radius:8px!important;background:#0d0d10!important}
   .shot-preset-rail .preset-thumb-shell{margin-bottom:5px!important;border-radius:5px!important}
-  .shot-preset-rail .shot-preset b{font-size:8.5px!important;margin-bottom:2px!important}
-  .shot-preset-rail .shot-preset span{font-size:6.4px!important}
+  .shot-preset-rail .shot-preset b{font-size:8.5px!important;margin-bottom:2px!important}.shot-preset-rail .shot-preset span{font-size:6.4px!important}
   .tech-dial-block .shot-primary-actions{
     position:sticky;z-index:4;bottom:0;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
     gap:6px!important;margin:0!important;padding:7px 8px!important;border-top:1px solid var(--line)!important;background:#09090b!important;
   }
   .tech-dial-block .shot-primary-actions .cbtn{min-height:38px!important;justify-content:center!important;font-size:9px!important}
-  #cRand{display:flex!important;flex-direction:column;gap:2px;line-height:1.05}
-  #cRand small{font:600 6.5px/1 var(--mono);letter-spacing:.08em;color:var(--txt-3)}
+  #cRand{display:flex!important;flex-direction:column;gap:2px;line-height:1.05}#cRand small{font:600 6.5px/1 var(--mono);letter-spacing:.08em;color:var(--txt-3)}
 
-  .shot-advanced-toolbar-op{
-    position:sticky;z-index:6;top:0;display:flex;align-items:center;gap:7px;min-height:42px;padding:6px 8px;
-    border-bottom:1px solid var(--line);background:#0a0a0d;
-  }
+  .shot-advanced-toolbar-op{position:sticky;z-index:6;top:0;display:flex;align-items:center;gap:7px;min-height:42px;padding:6px 8px;border-bottom:1px solid var(--line);background:#0a0a0d}
   .shot-side-toggle-op{display:flex;gap:2px;padding:2px;border:1px solid var(--line-2);border-radius:7px;background:#0d0d10}
-  .shot-side-toggle-op button{
-    min-height:28px;padding:6px 10px;border:0;border-radius:5px;background:transparent;color:var(--txt-3);
-    font:700 7px/1 var(--mono);letter-spacing:.12em;cursor:pointer;
-  }
+  .shot-side-toggle-op button{min-height:28px;padding:6px 10px;border:0;border-radius:5px;background:transparent;color:var(--txt-3);font:700 7px/1 var(--mono);letter-spacing:.12em;cursor:pointer}
   .shot-side-toggle-op button[aria-pressed="true"]{background:#17110e;color:var(--accent)}
   .shot-advanced-status-op{margin-left:auto;font:700 7px/1 var(--mono);letter-spacing:.1em;color:var(--txt-3)}
-  .shot-parameter-section{margin:0!important;padding:8px!important;background:#08080a!important}
-  .shot-parameter-section>.parameter-kicker{display:none!important}
-  .shot-parameter-section .cread{display:none!important}
-  .combo .cgrp{margin-bottom:11px!important}
-  .combo .cgrp-h{min-height:28px;margin:0 0 6px!important;font-size:8px!important}
-  .combo .cgrp-h .lock{width:28px!important;height:28px!important}
-  .combo .copts{gap:5px!important;padding-bottom:5px!important}
-  .combo .copt{min-width:104px!important;min-height:36px!important;padding:7px 9px!important;font-size:8.5px!important}
-  .technical-readout-op .cread{display:block!important;margin:0!important;padding:10px!important;border:0!important;background:#08080a!important}
-  .technical-readout-op .creadgrid #cNotes{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-  .technical-readout-op .cmetrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .custom-assets-op{padding:8px;background:#08080a}
-  .custom-assets-op .asset-world-body{display:block!important;padding:0!important}
-  .custom-assets-op .asset-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
-  .custom-assets-op .asset-action{min-height:52px!important;padding:7px 8px!important}
-  .custom-assets-op .asset-action b{font-size:8px!important}.custom-assets-op .asset-action small{font-size:7px!important}
+  .shot-parameter-section{margin:0!important;padding:8px!important;background:#08080a!important}.shot-parameter-section>.parameter-kicker{display:none!important}.shot-parameter-section .cread{display:none!important}
+  .combo .cgrp{margin-bottom:11px!important}.combo .cgrp-h{min-height:28px;margin:0 0 6px!important;font-size:8px!important}.combo .cgrp-h .lock{width:28px!important;height:28px!important}.combo .copts{gap:5px!important;padding-bottom:5px!important}.combo .copt{min-width:104px!important;min-height:36px!important;padding:7px 9px!important;font-size:8.5px!important}
+  .technical-readout-op .cread{display:block!important;margin:0!important;padding:10px!important;border:0!important;background:#08080a!important}.technical-readout-op .creadgrid #cNotes{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.technical-readout-op .cmetrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .custom-assets-op{padding:8px;background:#08080a}.custom-assets-op .asset-world-body{display:block!important;padding:0!important}.custom-assets-op .asset-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}.custom-assets-op .asset-action{min-height:52px!important;padding:7px 8px!important}.custom-assets-op .asset-action b{font-size:8px!important}.custom-assets-op .asset-action small{font-size:7px!important}
 
-  /* ---------------- SEQ ---------------- */
-  .seq .swrap{
-    display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:36px minmax(0,1fr)!important;gap:6px!important;
-  }
-  .seq-preset-bar-op{grid-column:1!important;grid-row:1!important}
-  .seq-workspace-op{grid-column:1!important;grid-row:2!important}
-  .seq-preset-bar-op{
-    min-width:0;height:36px;display:flex;align-items:center;gap:7px;padding:4px 6px;
-    border:1px solid var(--line);border-radius:9px;background:#0b0b0e;
-  }
-  .seq-preset-bar-op>span{font:700 7px/1 var(--mono);letter-spacing:.14em;color:var(--txt-3);white-space:nowrap}
-  .seq-preset-select-op{
-    min-width:140px;max-width:260px;height:27px;border:1px solid var(--line-2);border-radius:6px;
-    background:#101014;color:var(--txt);padding:0 28px 0 9px;font:600 9px Inter;cursor:pointer;
-  }
-  .seq-preset-meta-op{font:600 7px/1 var(--mono);letter-spacing:.08em;color:var(--txt-3)}
-  .seq-preset-clear-op{margin-left:auto;min-height:27px;padding:5px 9px;border:1px solid var(--line-2);border-radius:6px;background:#0d0d10;color:var(--txt-2);font:700 7px/1 var(--mono);letter-spacing:.1em;cursor:pointer}
-  .seq-preset-clear-op:hover{border-color:var(--accent);color:var(--accent)}
+  /* ---------------- TIMELINE ---------------- */
+  .seq .swrap{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:36px minmax(0,1fr)!important;gap:6px!important}
+  .seq-preset-bar-op{grid-column:1!important;grid-row:1!important;min-width:0;height:36px;display:flex;align-items:center;gap:7px;padding:4px 6px;border:1px solid var(--line);border-radius:9px;background:#0b0b0e}
+  .seq-preset-bar-op>span{font:700 7px/1 var(--mono);letter-spacing:.14em;color:var(--txt-3);white-space:nowrap}.seq-preset-select-op{min-width:140px;max-width:260px;height:27px;border:1px solid var(--line-2);border-radius:6px;background:#101014;color:var(--txt);padding:0 28px 0 9px;font:600 9px Inter;cursor:pointer}.seq-preset-meta-op{font:600 7px/1 var(--mono);letter-spacing:.08em;color:var(--txt-3)}.seq-preset-clear-op{margin-left:auto;min-height:27px;padding:5px 9px;border:1px solid var(--line-2);border-radius:6px;background:#0d0d10;color:var(--txt-2);font:700 7px/1 var(--mono);letter-spacing:.1em;cursor:pointer}.seq-preset-clear-op:hover{border-color:var(--accent);color:var(--accent)}
 
   .seq-workspace-op{
-    --seq-player-pct-local:var(--seq-player-pct);
+    --seq-player-pct-local:var(--seq-player-pct);grid-column:1!important;grid-row:2!important;
     width:100%;height:100%;min-height:0;display:grid;
-    grid-template-columns:minmax(320px,var(--seq-player-pct-local)) 8px minmax(430px,1fr);
-    align-items:stretch;overflow:hidden;
+    grid-template-columns:minmax(300px,var(--seq-player-pct-local)) 10px minmax(480px,1fr);align-items:stretch;overflow:hidden;
   }
   .seq-player-pane-op,.seq-editor-pane-op{min-width:0;min-height:0;height:100%}
-  .seq-player-pane-op{display:grid;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(230px,1fr) minmax(148px,36%);gap:6px;padding-right:0;overflow:hidden}
-  .seq-splitter-op{
-    position:relative;width:8px;height:100%;border:0;background:transparent;cursor:col-resize;touch-action:none;outline:none;
-  }
-  .seq-splitter-op::after{content:"";position:absolute;left:50%;top:10px;bottom:10px;width:2px;border-radius:2px;background:#25252a;translate:-50% 0;transition:.15s}
-  .seq-splitter-op:hover::after,.seq-splitter-op:focus-visible::after,.seq-splitter-op.dragging::after{width:3px;background:var(--accent)}
-  #seqPlayerMount{
-    position:static!important;inset:auto!important;top:auto!important;z-index:20!important;
-    width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;
-    background:transparent!important;box-shadow:none!important;overflow:hidden!important;
-  }
+  .seq-player-pane-op{display:block;padding:0;overflow:hidden}
+  #seqPlayerMount{position:static!important;inset:auto!important;top:auto!important;z-index:20!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important}
   #seqPlayerMount.is-stuck{box-shadow:none!important}
-  .time-rig{
-    width:100%!important;height:100%!important;min-height:0!important;margin:0!important;
-    display:flex!important;flex-direction:column!important;border-radius:10px!important;overflow:hidden!important;
-  }
-  .time-rig>.cprev,#seqPlayerMount.is-stuck .time-rig>.cprev{
-    flex:1 1 auto!important;min-height:0!important;height:auto!important;width:min(100%,calc((100dvh - var(--op-header-h) - 174px) * var(--project-scale)))!important;
-    max-height:calc(100dvh - var(--op-header-h) - 174px)!important;margin:auto!important;aspect-ratio:var(--project-ratio)!important;
-  }
-  .time-player.seq-controls-op{
-    flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:4px!important;flex-wrap:nowrap!important;
-    padding:5px!important;min-height:44px!important;background:#0d0d10!important;overflow-x:auto!important;scrollbar-width:none;
-  }
-  .time-player.seq-controls-op::-webkit-scrollbar{display:none}
-  .time-player.seq-controls-op .pctrl{width:32px!important;height:32px!important;flex:none}
-  .time-player.seq-controls-op .pmeta{flex:1 1 82px!important;min-width:72px!important;margin-left:2px!important}
-  .time-player.seq-controls-op .pmeta b{font-size:10px!important}.time-player.seq-controls-op .pmeta span{font-size:7px!important}
-  .time-player.seq-controls-op .seq-progress{display:none!important}
-  .time-player.seq-controls-op .cbtn,.time-player.seq-controls-op .microbtn{flex:0 0 32px!important;width:32px!important;min-width:32px!important;min-height:32px!important;height:32px!important;padding:6px!important;border-radius:6px!important}
-  .time-player.seq-controls-op .player-transfer{display:flex!important;gap:4px!important;flex:0 0 auto!important}
-  .time-player.seq-controls-op .player-transfer .command-label,.time-player.seq-controls-op .manage-label,.time-player.seq-controls-op .seq-icon-label-op{display:none!important}
-  .time-player.seq-controls-op .manage-grow{flex:0 0 32px!important;min-width:32px!important}
-  .time-player.seq-controls-op .clean-shot{font-size:0!important;display:grid!important;place-items:center!important}
-  .time-player.seq-controls-op .clean-shot svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}
-  .time-player.seq-controls-op .preview-format{flex:0 0 52px!important}
-  .time-player.seq-controls-op .preview-format select{width:52px!important;height:32px!important;padding-left:6px!important;padding-right:19px!important}
-  .time-player.seq-controls-op>.seq-management-bar{display:contents!important}
-  .time-player.seq-controls-op .seq-project-dropdown{display:none!important}
+  .time-rig{width:100%!important;height:100%!important;min-height:0!important;margin:0!important;display:flex!important;flex-direction:column!important;border-radius:10px!important;overflow:hidden!important}
+  .time-rig>.cprev,#seqPlayerMount.is-stuck .time-rig>.cprev{flex:1 1 auto!important;min-height:0!important;height:auto!important;width:min(100%,calc((100dvh - var(--op-header-h) - 132px) * var(--project-scale)))!important;max-height:calc(100dvh - var(--op-header-h) - 132px)!important;margin:auto!important;aspect-ratio:var(--project-ratio)!important}
+  .time-player.seq-controls-op{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:4px!important;flex-wrap:nowrap!important;padding:5px!important;min-height:44px!important;background:#0d0d10!important;overflow-x:auto!important;scrollbar-width:none}.time-player.seq-controls-op::-webkit-scrollbar{display:none}.time-player.seq-controls-op .pctrl{width:32px!important;height:32px!important;flex:none}.time-player.seq-controls-op .pmeta{flex:1 1 82px!important;min-width:72px!important;margin-left:2px!important}.time-player.seq-controls-op .pmeta b{font-size:10px!important}.time-player.seq-controls-op .pmeta span{font-size:7px!important}.time-player.seq-controls-op .seq-progress{display:none!important}.time-player.seq-controls-op .cbtn,.time-player.seq-controls-op .microbtn{flex:0 0 32px!important;width:32px!important;min-width:32px!important;min-height:32px!important;height:32px!important;padding:6px!important;border-radius:6px!important}.time-player.seq-controls-op .player-transfer{display:flex!important;gap:4px!important;flex:0 0 auto!important}.time-player.seq-controls-op .player-transfer .command-label,.time-player.seq-controls-op .manage-label,.time-player.seq-controls-op .seq-icon-label-op{display:none!important}.time-player.seq-controls-op .manage-grow{flex:0 0 32px!important;min-width:32px!important}.time-player.seq-controls-op .clean-shot{font-size:0!important;display:grid!important;place-items:center!important}.time-player.seq-controls-op .clean-shot svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}.time-player.seq-controls-op .preview-format{flex:0 0 52px!important}.time-player.seq-controls-op .preview-format select{width:52px!important;height:32px!important;padding-left:6px!important;padding-right:19px!important}.time-player.seq-controls-op>.seq-management-bar{display:contents!important}.time-player.seq-controls-op .seq-project-dropdown{display:none!important}
 
-  .seq-shot-accordion-op{
-    min-height:0;border:1px solid var(--line);border-radius:10px;background:#0b0b0e;overflow:hidden;
-    display:flex;flex-direction:column;
-  }
-  .seq-shot-accordion-op>summary{
-    list-style:none;flex:0 0 36px;display:flex;align-items:center;gap:8px;padding:7px 9px;cursor:pointer;color:var(--accent);border-bottom:1px solid var(--line);
-  }
-  .seq-shot-accordion-op>summary::-webkit-details-marker{display:none}
-  .seq-shot-accordion-op>summary svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6}
-  .seq-shot-accordion-op>summary b{font:700 7.5px/1 var(--mono);letter-spacing:.13em}
-  .seq-shot-accordion-op>summary span{margin-left:auto;font:600 6.7px/1 var(--mono);color:var(--txt-3)}
-  .seq-shot-accordion-op>summary i{font-style:normal;transition:.15s}.seq-shot-accordion-op[open]>summary i{transform:rotate(180deg)}
-  .seq-shot-accordion-op .seq-shot-body-op{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
-  .seq-shot-accordion-op:not([open]) .seq-shot-body-op{display:none!important}
-  .seq-shot-body-op .role-dial-block{margin:0!important;border:0!important;border-radius:0!important;background:#08080a!important}
-  .seq-shot-body-op .role-dial-block>.dial-caption{display:none!important}
-  .seq-shot-body-op .seq-role-actions{min-height:34px!important;padding:5px 7px!important;gap:5px!important}
-  .seq-shot-body-op .seq-role-actions .cbtn{min-height:27px!important;padding:5px 8px!important;font-size:7px!important}
-  .seq-shot-body-op .role-dial-block .snap-dial{padding:6px 7px!important;gap:5px!important}
-  .seq-shot-body-op .role-dial-block .dial-item{min-width:105px!important;min-height:40px!important;padding:6px 7px!important}
-  .seq-shot-body-op #seqVariantDial{min-height:0!important;padding:6px 7px!important;gap:6px!important}
-  .seq-shot-body-op #seqVariantDial .seq-type-preset{flex-basis:130px!important;min-width:130px!important;min-height:76px!important;padding:5px!important}
-  .seq-shot-body-op #seqVariantDial .preset-thumb-shell{margin-bottom:4px!important}
+  .seq-editor-pane-op{display:grid;grid-template-rows:var(--op-tab-h) minmax(0,1fr);overflow:hidden}
+  .seq-panels-op{min-width:0;min-height:0;height:100%;border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:#08080a;overflow:hidden;position:relative}
+  .seq-panel-op{position:absolute;inset:0;display:none;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#2c2c31 transparent}.seq-panel-op.active{display:block}.seq-panel-op::-webkit-scrollbar{width:7px;height:7px}.seq-panel-op::-webkit-scrollbar-thumb{background:#2c2c31;border-radius:8px}
+  .seq-timeline-panel-op{overflow:hidden!important}.seq-timeline-shell-op{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden}
 
-  .seq-editor-pane-op{
-    position:relative;display:grid;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) auto;gap:6px;overflow:hidden;
-  }
-  #seqPlayerMount,.seq-shot-accordion-op,.seq-timeline-shell-op,.seq-inspectors-op{grid-column:1!important;grid-row:auto!important}
-  .seq-timeline-shell-op{position:relative;min-width:0;min-height:0;height:100%;overflow:hidden}
-  .timeline-editor{
-    width:100%!important;height:100%!important;min-height:0!important;margin:0!important;
-    display:flex!important;flex-direction:column!important;border-radius:10px!important;overflow:hidden!important;background:#070709!important;
-  }
-  .timeline-toolbar{
-    flex:0 0 38px!important;min-height:38px!important;padding:4px 6px!important;gap:7px!important;
-    display:flex!important;align-items:center!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none!important;
-  }
-  .timeline-toolbar::-webkit-scrollbar{display:none}
-  .timeline-home-op,.timeline-library-toggle-op{
-    flex:none;width:29px;height:29px;border:1px solid var(--line-2);border-radius:6px;background:#101014;color:var(--txt-2);cursor:pointer;
-  }
-  .timeline-library-toggle-op{width:auto;padding:0 9px;display:flex;align-items:center;gap:6px;font:700 7px/1 var(--mono);letter-spacing:.09em}
-  .timeline-library-toggle-op svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6}
-  .timeline-library-toggle-op[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17110e}
-  .timeline-title{font:700 7.5px/1 var(--mono)!important;letter-spacing:.13em!important}
-  .timeline-fps{font-size:6.5px!important;padding:4px 6px!important}
-  .timeline-timecode{min-width:86px!important;font-size:9.5px!important}
-  .timeline-zoom{margin-left:auto!important;display:flex!important;align-items:center!important;gap:6px!important;font:700 6.5px/1 var(--mono)!important}
-  .timeline-zoom input{width:76px!important}
-  .timeline-scroll{
-    flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:auto!important;
-    overscroll-behavior:contain!important;touch-action:pan-y!important;cursor:default!important;
-    scrollbar-width:thin;scrollbar-color:#2b2b31 #09090b;
-  }
-  .timeline-scroll::-webkit-scrollbar{height:8px;width:8px}.timeline-scroll::-webkit-scrollbar-track{background:#09090b}.timeline-scroll::-webkit-scrollbar-thumb{background:#2b2b31;border-radius:8px}
-  .timeline-inner{position:relative;min-width:100%;min-height:100%;background:#070709}
-  .timeline-ruler{height:24px!important;margin-left:var(--timeline-label-w)!important;cursor:ew-resize!important}
-  .timeline-editor .tracks{display:flex!important;flex-direction:column!important;width:100%;height:auto!important;margin:0!important;border:0!important;border-radius:0!important;overflow:visible!important}
-  .timeline-editor .trk{
-    position:relative!important;display:block!important;height:var(--timeline-track-h)!important;min-height:var(--timeline-track-h)!important;
-    border-bottom:1px solid var(--line)!important;background:#08080a!important;
-  }
-  .timeline-editor .trkh,.timeline-editor .trkl{height:var(--timeline-track-h)!important;min-height:var(--timeline-track-h)!important}
-  .timeline-editor .trkh{
-    position:sticky!important;left:0!important;z-index:18!important;width:var(--timeline-label-w)!important;
-    display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;
-    border-right:1px solid var(--line-2)!important;background:rgba(15,15,18,.98)!important;
-  }
-  .timeline-editor .track-code{width:30px;height:23px;font-size:7px!important}
-  .timeline-editor .track-height-tools,.track-remove-viii,.timeline-vsize-viii,.timeline-track-add-viii{display:none!important}
-  .timeline-editor .trkl{
-    position:absolute!important;left:var(--timeline-label-w)!important;top:0!important;display:block!important;
-    overflow:visible!important;padding:0!important;background-size:var(--timeline-grid,76px) 100%!important;
-  }
-  .timeline-editor .clip{
-    position:absolute!important;top:4px!important;height:calc(var(--timeline-track-h) - 8px)!important;min-width:1px!important;
-    margin:0!important;padding:4px 7px!important;border-radius:6px!important;overflow:hidden!important;touch-action:none!important;cursor:grab!important;
-  }
-  .timeline-editor .clip.dragging-op{z-index:80!important;cursor:grabbing!important;opacity:.88!important;box-shadow:0 12px 28px rgba(0,0,0,.55)!important}
-  .timeline-editor .clip .th{height:calc(100% - 22px)!important;margin:0!important;border-radius:4px!important;opacity:.72}
-  .timeline-editor .clip .nm{font-size:7px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-  .timeline-editor .shot-clip>.nm,.timeline-editor .shot-clip>.note{display:none!important}
-  .clip-preset-name{
-    position:absolute!important;z-index:8!important;left:6px!important;top:5px!important;max-width:calc(100% - 44px)!important;
-    font:800 6.5px/1 var(--mono)!important;letter-spacing:.09em!important;color:#e0e0e4!important;text-transform:uppercase;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px #000;
-  }
-  .clip-alias{
-    position:absolute!important;z-index:9!important;left:6px!important;bottom:5px!important;width:calc(100% - 48px)!important;height:17px!important;
-    border:0!important;border-radius:4px!important;background:rgba(4,4,6,.82)!important;color:#d7d7db!important;
-    padding:2px 5px!important;font:600 7px/1 Inter!important;outline:none!important;
-  }
-  .timeline-editor .clip:not(.shot-clip) .clip-alias{display:none!important}
-  .timeline-editor .clip .state{left:auto!important;right:5px!important;top:5px!important;bottom:auto!important;font-size:6px!important}
-  .clip-duration-readout{right:5px!important;bottom:6px!important;font-size:6.5px!important}
-  .timeline-editor .clip .reroll{left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:25px!important;height:25px!important;opacity:.34!important}
-  .timeline-editor .clip:hover .reroll,.timeline-editor .clip.sel .reroll{opacity:1!important}
-  .timeline-editor .clip .x{right:3px!important;top:3px!important;width:17px!important;height:17px!important;opacity:0!important}
-  .timeline-editor .clip:hover .x,.timeline-editor .clip.sel .x{opacity:.9!important}
-  .trim-handle{width:8px!important}.trim-handle::after{top:7px!important;bottom:7px!important}
-  .timeline-editor .clip.is-narrow .th,.timeline-editor .clip.is-narrow .clip-preset-name,
-  .timeline-editor .clip.is-narrow .clip-alias,.timeline-editor .clip.is-narrow .clip-duration-readout,
-  .timeline-editor .clip.is-narrow .state{display:none!important}
-  .timeline-editor .clip.is-narrow .reroll{display:grid!important}
+  /* TIMELINE shot type is intentionally the same component language as SHOT. */
+  .seq-type-panel-op{padding:0!important;background:#08080a}.seq-type-panel-op .role-dial-block{height:100%;margin:0!important;border:0!important;border-radius:0!important;background:#08080a!important;display:flex!important;flex-direction:column!important;overflow:auto!important}.seq-type-panel-op .role-dial-block>.dial-caption{display:none!important}.seq-type-panel-op .role-dial-block .dial-window{flex:0 0 auto;background:#0b0b0d}.seq-type-panel-op .role-dial-block .snap-dial{gap:5px!important;padding:8px 9px 9px!important;scroll-snap-type:x proximity!important}.seq-type-panel-op .role-dial-block .dial-item{flex:0 0 118px!important;min-width:118px!important;min-height:46px!important;padding:7px 8px!important;grid-template-columns:19px minmax(0,1fr)!important;column-gap:7px!important;border-radius:8px!important}.seq-type-panel-op .role-dial-block .shot-type-icon,.seq-type-panel-op .role-dial-block .shot-type-icon svg{width:18px!important;height:18px!important}.seq-type-panel-op .role-dial-block .dial-item>b{font-size:9px!important}.seq-type-panel-op .role-dial-block .dial-item>span:not(.shot-type-icon){font-size:6.4px!important}
+  .seq-type-panel-op #seqVariantDial{display:flex!important;flex:0 0 auto;gap:6px!important;overflow-x:auto!important;padding:8px 9px 9px!important;border-top:1px solid var(--line)!important;background:#08080a!important;scroll-snap-type:x proximity!important;min-height:0!important}.seq-type-panel-op #seqVariantDial .seq-type-preset{flex:0 0 158px!important;min-width:158px!important;min-height:98px!important;padding:5px!important;border:1px solid var(--line)!important;border-radius:8px!important;background:#0d0d10!important;color:var(--txt-2)!important;text-align:left!important;scroll-snap-align:start!important;cursor:pointer}.seq-type-panel-op #seqVariantDial .seq-type-preset.active{border-color:var(--accent)!important;background:#17110e!important}.seq-type-panel-op #seqVariantDial .preset-thumb-shell{display:block!important;width:100%!important;aspect-ratio:16/9!important;max-height:68px!important;margin:0 0 5px!important;border-radius:5px!important;overflow:hidden!important;background:#030304!important}.seq-type-panel-op #seqVariantDial .preset-thumb-shell canvas{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}.seq-type-panel-op #seqVariantDial .seq-type-preset b{display:block;font-size:8.5px!important;margin:0 0 2px!important}.seq-type-panel-op #seqVariantDial .seq-type-preset span{display:block;font:600 6.4px/1.2 var(--mono)!important;color:var(--txt-3)!important}
+  .seq-type-panel-op .seq-role-actions{position:sticky;bottom:0;order:9;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:6px!important;min-height:0!important;margin:0!important;padding:7px 8px!important;border-top:1px solid var(--line)!important;background:#09090b!important}.seq-type-panel-op .seq-role-actions .cbtn{min-height:38px!important;padding:7px 10px!important;justify-content:center!important;font-size:9px!important}.seq-type-panel-op #seqRandomVII{display:flex!important;flex-direction:column!important;gap:2px!important}.seq-type-panel-op #seqRandomVII small{font:600 6.5px/1 var(--mono);letter-spacing:.08em;color:var(--txt-3)}
+  .seq-breakdown-panel-op,.seq-project-panel-op{padding:10px;background:#08080a}.seq-breakdown-panel-op .srec{max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}.seq-project-panel-op .tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin:0!important}.seq-project-panel-op .tool{min-height:56px!important;padding:9px 10px!important}.seq-project-panel-op .project-format{margin:0 0 9px!important}.project-inline{display:none!important}
 
-  .seq-library-drawer-op{
-    position:absolute;z-index:90;top:0;right:0;bottom:0;width:var(--op-drawer-w);min-width:280px;
-    display:flex;flex-direction:column;border-left:1px solid var(--line-2);background:rgba(9,9,11,.985);
-    box-shadow:-18px 0 48px rgba(0,0,0,.62);translate:100% 0;visibility:hidden;transition:translate .18s var(--ease),visibility .18s;
-  }
-  .seq-library-drawer-op.open{translate:0 0;visibility:visible}
-  .seq-library-head-op{flex:0 0 40px;display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid var(--line)}
-  .seq-library-head-op b{font:700 8px/1 var(--mono);letter-spacing:.14em;color:var(--txt-2)}
-  .seq-library-head-op button{margin-left:auto;width:28px;height:28px;border:1px solid var(--line-2);border-radius:6px;background:#101014;color:var(--txt-2);cursor:pointer}
-  .seq-library-body-op{flex:1;min-height:0;overflow:auto;padding:7px;overscroll-behavior:contain;scrollbar-width:thin}
-  .seq-library-body-op .library-accordion{margin-bottom:6px!important}
-  .seq-library-body-op .library-accordion summary{min-height:38px!important;padding:7px 9px!important}
-  .seq-library-body-op .library-list{grid-template-columns:1fr!important;padding:6px!important}
-  .seq-library-body-op .library-item{min-height:48px!important}
+  /* Timeline fills the complete active panel. */
+  .timeline-editor{width:100%!important;height:100%!important;min-height:0!important;margin:0!important;display:flex!important;flex-direction:column!important;border:0!important;border-radius:0!important;overflow:hidden!important;background:#070709!important}
+  .timeline-toolbar{flex:0 0 38px!important;min-height:38px!important;padding:4px 6px!important;gap:7px!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none!important}.timeline-toolbar::-webkit-scrollbar{display:none}
+  .timeline-home-op,.timeline-library-toggle-op{flex:none;width:29px;height:29px;border:1px solid var(--line-2);border-radius:6px;background:#101014;color:var(--txt-2);cursor:pointer}.timeline-library-toggle-op{width:auto;padding:0 9px;display:flex;align-items:center;gap:6px;font:700 7px/1 var(--mono);letter-spacing:.09em}.timeline-library-toggle-op svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6}.timeline-library-toggle-op[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#17110e}.timeline-title{display:none!important}.timeline-fps{font-size:6.5px!important;padding:4px 6px!important}.timeline-timecode{min-width:86px!important;font-size:9.5px!important}.timeline-zoom{margin-left:auto!important;display:flex!important;align-items:center!important;gap:6px!important;font:700 6.5px/1 var(--mono)!important}.timeline-zoom input{width:76px!important}
+  .timeline-scroll{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:auto!important;overscroll-behavior:contain!important;touch-action:pan-y!important;cursor:default!important;scrollbar-width:thin;scrollbar-color:#2b2b31 #09090b}.timeline-scroll::-webkit-scrollbar{height:8px;width:8px}.timeline-scroll::-webkit-scrollbar-track{background:#09090b}.timeline-scroll::-webkit-scrollbar-thumb{background:#2b2b31;border-radius:8px}
+  .timeline-inner{position:relative;min-width:100%;height:100%;min-height:100%;background:#070709}.timeline-ruler{height:24px!important;margin-left:var(--timeline-label-w)!important;cursor:ew-resize!important}.timeline-editor .tracks{display:flex!important;flex-direction:column!important;width:100%;height:calc(100% - 24px)!important;margin:0!important;border:0!important;border-radius:0!important;overflow:visible!important}.timeline-editor .trk{position:relative!important;display:block!important;height:var(--timeline-track-h)!important;min-height:var(--timeline-track-h)!important;border-bottom:1px solid var(--line)!important;background:#08080a!important}.timeline-editor .trkh,.timeline-editor .trkl{height:var(--timeline-track-h)!important;min-height:var(--timeline-track-h)!important}.timeline-editor .trkh{position:sticky!important;left:0!important;z-index:18!important;width:var(--timeline-label-w)!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;border-right:1px solid var(--line-2)!important;background:rgba(15,15,18,.98)!important}.timeline-editor .track-code{width:30px;height:23px;font-size:7px!important}.timeline-editor .track-height-tools,.track-remove-viii,.timeline-vsize-viii,.timeline-track-add-viii{display:none!important}.timeline-editor .trkl{position:absolute!important;left:var(--timeline-label-w)!important;top:0!important;display:block!important;overflow:visible!important;padding:0!important;background-size:var(--timeline-grid,76px) 100%!important}
+  .timeline-editor .clip{position:absolute!important;top:5px!important;height:calc(var(--timeline-track-h) - 10px)!important;min-width:1px!important;margin:0!important;padding:5px 8px!important;border-radius:7px!important;overflow:hidden!important;touch-action:none!important;cursor:grab!important}.timeline-editor .clip.dragging-op{z-index:80!important;cursor:grabbing!important;opacity:.88!important;box-shadow:0 12px 28px rgba(0,0,0,.55)!important}.timeline-editor .clip .th{height:calc(100% - 24px)!important;margin:0!important;border-radius:5px!important;opacity:.82}.timeline-editor .clip .nm{font-size:7px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.timeline-editor .shot-clip>.nm,.timeline-editor .shot-clip>.note{display:none!important}.clip-preset-name{position:absolute!important;z-index:8!important;left:7px!important;top:6px!important;max-width:calc(100% - 48px)!important;font:800 7px/1 var(--mono)!important;letter-spacing:.09em!important;color:#e0e0e4!important;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px #000}.clip-alias{position:absolute!important;z-index:9!important;left:7px!important;bottom:6px!important;width:calc(100% - 54px)!important;height:19px!important;border:0!important;border-radius:4px!important;background:rgba(4,4,6,.82)!important;color:#d7d7db!important;padding:3px 5px!important;font:600 7.5px/1 Inter!important;outline:none!important}.timeline-editor .clip:not(.shot-clip) .clip-alias{display:none!important}.timeline-editor .clip .state{left:auto!important;right:6px!important;top:6px!important;bottom:auto!important;font-size:6.5px!important}.clip-duration-readout{right:6px!important;bottom:7px!important;font-size:7px!important}.timeline-editor .clip .reroll{left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:28px!important;height:28px!important;opacity:.34!important}.timeline-editor .clip:hover .reroll,.timeline-editor .clip.sel .reroll{opacity:1!important}.timeline-editor .clip .x{right:4px!important;top:4px!important;width:18px!important;height:18px!important;opacity:0!important}.timeline-editor .clip:hover .x,.timeline-editor .clip.sel .x{opacity:.9!important}.trim-handle{width:9px!important}.trim-handle::after{top:9px!important;bottom:9px!important}.timeline-editor .clip.is-narrow .th,.timeline-editor .clip.is-narrow .clip-preset-name,.timeline-editor .clip.is-narrow .clip-alias,.timeline-editor .clip.is-narrow .clip-duration-readout,.timeline-editor .clip.is-narrow .state{display:none!important}.timeline-editor .clip.is-narrow .reroll{display:grid!important}
 
-  .seq-inspectors-op{display:flex;align-items:flex-end;gap:6px;min-height:36px;overflow:hidden}
-  .seq-inspector-op{
-    flex:1 1 0;min-width:0;border:1px solid var(--line);border-radius:9px;background:#0b0b0e;overflow:hidden;
-  }
-  .seq-inspector-op>summary{
-    list-style:none;display:flex;align-items:center;gap:8px;min-height:35px;padding:7px 9px;cursor:pointer;color:var(--txt-2);
-  }
-  .seq-inspector-op>summary::-webkit-details-marker{display:none}
-  .seq-inspector-op>summary svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6}
-  .seq-inspector-op>summary b{font:700 7px/1 var(--mono);letter-spacing:.13em}
-  .seq-inspector-op>summary span{margin-left:auto;font:600 6.5px/1 var(--mono);color:var(--txt-3)}
-  .seq-inspector-op[open]{position:absolute;z-index:70;left:0;right:0;bottom:0;max-height:min(290px,48%);display:flex;flex-direction:column;box-shadow:0 -18px 44px rgba(0,0,0,.62)}
-  .seq-inspector-op[open]>summary{flex:0 0 36px;color:var(--accent);border-bottom:1px solid var(--line)}
-  .seq-inspector-body-op{flex:1;min-height:0;overflow:auto;padding:8px;background:#08080a;overscroll-behavior:contain;scrollbar-width:thin}
-  .seq-inspector-op:not([open]) .seq-inspector-body-op{display:none!important}
-  .seq-inspector-body-op .tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;margin:0!important}
-  .seq-inspector-body-op .tool{min-height:48px!important;padding:8px 9px!important}
-  .seq-inspector-body-op .tool b{font-size:9px!important}.seq-inspector-body-op .tool span{font-size:7.5px!important}
-  .seq-inspector-body-op .project-format{margin:0 0 8px!important;padding:8px!important}
-  .seq-inspector-body-op .srec{max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
-  .project-inline{display:none!important}
+  /* Library drawer: card grid, icon + title. */
+  .seq-library-drawer-op{position:absolute;z-index:90;top:0;right:0;bottom:0;width:var(--op-drawer-w);min-width:310px;display:flex;flex-direction:column;border-left:1px solid var(--line-2);background:rgba(9,9,11,.985);box-shadow:-18px 0 48px rgba(0,0,0,.62);translate:100% 0;visibility:hidden;transition:translate .18s var(--ease),visibility .18s}.seq-library-drawer-op.open{translate:0 0;visibility:visible}.seq-library-head-op{flex:0 0 40px;display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid var(--line)}.seq-library-head-op b{font:700 8px/1 var(--mono);letter-spacing:.14em;color:var(--txt-2)}.seq-library-head-op button{margin-left:auto;width:28px;height:28px;border:1px solid var(--line-2);border-radius:6px;background:#101014;color:var(--txt-2);cursor:pointer}.seq-library-body-op{flex:1;min-height:0;overflow:auto;padding:7px;overscroll-behavior:contain;scrollbar-width:thin}.seq-library-body-op .library-accordion{margin-bottom:6px!important}.seq-library-body-op .library-accordion summary{min-height:38px!important;padding:7px 9px!important}.seq-library-body-op .library-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:7px!important}.seq-library-body-op .library-item{min-width:0!important;min-height:92px!important;padding:10px 34px 9px 9px!important;display:grid!important;grid-template-columns:1fr!important;grid-template-rows:34px auto!important;place-items:center!important;text-align:center!important;cursor:grab}.seq-library-body-op .library-item>svg{grid-column:1!important;grid-row:1!important;width:28px!important;height:28px!important;margin:0!important}.seq-library-body-op .library-item .nm{grid-column:1!important;grid-row:2!important;font-size:9px!important;line-height:1.2!important;text-align:center!important}.seq-library-body-op .library-item .du{display:none!important}.seq-library-body-op .library-item .add{right:7px!important;top:7px!important;translate:0 0!important;width:25px!important;height:25px!important}
 
-  /* Focus modes keep only the player and a minimal exit control. */
-  body.shot-focus-op,body.seq-focus-vii{overflow:hidden!important;background:#000!important}
-  body.shot-focus-op .top,body.shot-focus-op .manifesto-footer{display:none!important}
-  body.shot-focus-op .combo{display:block!important;position:fixed!important;z-index:800!important;inset:0!important;background:#000!important}
-  body.shot-focus-op .combo .cfull{padding:0!important}
-  body.shot-focus-op .shot-workspace-op{display:block!important;position:absolute!important;inset:0!important}
-  body.shot-focus-op .shot-control-pane-op,body.shot-focus-op .shot-divider-op{display:none!important}
-  body.shot-focus-op .shot-player-pane-op,body.shot-focus-op .shot-player-rig{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;border-radius:0!important}
-  body.shot-focus-op .shot-player-rig .vpbar,body.shot-focus-op .shot-commandbar{display:none!important}
-  body.shot-focus-op .shot-player-rig .cprev{width:min(100vw,calc(100dvh * var(--project-scale)))!important;max-height:100dvh!important}
-  .focus-exit-vii{z-index:940!important}
+  /* Focus modes keep only the player and exit. */
+  body.shot-focus-op,body.seq-focus-vii{overflow:hidden!important;background:#000!important}body.shot-focus-op .top,body.shot-focus-op .manifesto-footer{display:none!important}body.shot-focus-op .combo{display:block!important;position:fixed!important;z-index:800!important;inset:0!important;background:#000!important}body.shot-focus-op .combo .cfull{padding:0!important}body.shot-focus-op .shot-workspace-op{display:block!important;position:absolute!important;inset:0!important}body.shot-focus-op .shot-control-pane-op,body.shot-focus-op .shot-splitter-op{display:none!important}body.shot-focus-op .shot-player-pane-op,body.shot-focus-op .shot-player-rig{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;border-radius:0!important}body.shot-focus-op .shot-player-rig .vpbar,body.shot-focus-op .shot-commandbar{display:none!important}body.shot-focus-op .shot-player-rig .cprev{width:min(100vw,calc(100dvh * var(--project-scale)))!important;max-height:100dvh!important}.focus-exit-vii{z-index:940!important}
 
   @media(max-width:1180px) and (min-width:901px){
-    .shot-player-rig>.shot-commandbar .command-label{display:none!important}
-    .shot-player-rig>.shot-commandbar .microbtn{width:36px!important;padding:7px!important}
-    .shot-player-size-op span{display:none}
-    .seq-workspace-op{grid-template-columns:minmax(300px,var(--seq-player-pct-local)) 7px minmax(390px,1fr)}
-    .time-player.seq-controls-op .manage-label,.time-player.seq-controls-op .command-label{display:none!important}
-    .time-player.seq-controls-op .microbtn,.time-player.seq-controls-op .cbtn{width:32px!important;padding:6px!important}
+    .shot-workspace-op{grid-template-columns:minmax(310px,var(--shot-player-pct-local)) 8px minmax(350px,1fr)}
+    .seq-workspace-op{grid-template-columns:minmax(280px,var(--seq-player-pct-local)) 8px minmax(430px,1fr)}
+    .workspace-tab-op{padding-inline:5px;font-size:6.7px}.workspace-tab-op svg{width:13px;height:13px}
+    .shot-player-rig>.shot-commandbar .command-label{display:none!important}.shot-player-rig>.shot-commandbar .microbtn{width:38px!important;padding:7px!important}.shot-random-op{width:auto!important;padding-inline:9px!important}.shot-random-op .command-label{display:inline!important}
+    .time-player.seq-controls-op .manage-label,.time-player.seq-controls-op .command-label{display:none!important}.time-player.seq-controls-op .microbtn,.time-player.seq-controls-op .cbtn{width:32px!important;padding:6px!important}
   }
 
-  /* Mobile/tablet portrait: vertical split, player above, controls/editor below. */
+  /* Mobile/tablet portrait: vertical split, player above, tabbed controls below. */
   @media(max-width:900px){
-    :root{--op-header-h:48px;--op-gutter:6px;--timeline-label-w:46px;--op-drawer-w:min(88vw,360px)}
-    .top,.top.compact{height:var(--op-header-h)!important;min-height:var(--op-header-h)!important;padding:0 8px!important}
-    .brandrow,.top.compact .brandrow{grid-template-columns:72px minmax(0,1fr) 58px!important;gap:7px!important}
-    .brandrow .brand svg{height:8px!important;max-width:70px}
-    .top-mode-nav .modeswitch button{min-height:32px!important;padding:6px 3px!important;gap:4px!important;font-size:7.5px!important}
-    .top-mode-nav .modeswitch button svg{width:11px!important;height:11px!important}
-    .langtoggle button{min-width:25px!important;padding:4px 5px!important;font-size:6.5px!important}
-
-    .shot-workspace-op{
-      grid-template-columns:1fr!important;grid-template-rows:minmax(210px,43%) minmax(0,1fr)!important;gap:6px!important;
-    }
-    .shot-divider-op{display:none!important}
-    .shot-player-rig .cprev,.shot-player-rig.is-stuck .cprev{
-      width:min(100%,calc((43dvh - 82px) * var(--project-scale)))!important;max-height:calc(43dvh - 82px)!important;
-    }
-    .shot-player-rig>.shot-commandbar{min-height:43px!important;flex-basis:43px!important}
-    .shot-player-rig>.shot-commandbar .command-label{display:none!important}
-    .shot-player-rig>.shot-commandbar .microbtn{width:33px!important;height:32px!important;min-height:32px!important;padding:6px!important}
-    .shot-player-size-op{display:none!important}
-    .shot-control-pane-op{gap:5px!important}
-    .shot-accordion-op>summary{min-height:37px!important;padding:7px 9px!important}
-    .shot-accordion-op[open]>summary{flex-basis:37px!important}
-    .shot-accordion-op[open]>.shot-accordion-body-op{inset:37px 0 0!important}
-    .shot-preset-rail .shot-preset{flex-basis:68vw!important;min-width:68vw!important}
-    .technical-readout-op .creadgrid #cNotes{grid-template-columns:1fr!important}
-
-    .seq .swrap{grid-template-rows:34px minmax(0,1fr)!important;gap:5px!important}
-    .seq-preset-bar-op{height:34px!important}.seq-preset-bar-op>span,.seq-preset-meta-op{display:none!important}
-    .seq-preset-select-op{min-width:0;max-width:none;flex:1}
-    .seq-workspace-op{
-      grid-template-columns:1fr!important;grid-template-rows:minmax(265px,46%) minmax(0,1fr)!important;gap:6px!important;
-    }
-    .seq-splitter-op{display:none!important}
-    .seq-player-pane-op{grid-template-rows:minmax(150px,1fr) minmax(108px,39%)!important;gap:5px!important}
-    .time-rig>.cprev,#seqPlayerMount.is-stuck .time-rig>.cprev{
-      width:min(100%,calc((46dvh - 155px) * var(--project-scale)))!important;max-height:calc(46dvh - 155px)!important;
-    }
-    .time-player.seq-controls-op .pmeta{min-width:88px!important}
-    .time-player.seq-controls-op .manage-label,.time-player.seq-controls-op .command-label{display:none!important}
-    .time-player.seq-controls-op .microbtn,.time-player.seq-controls-op .cbtn{width:31px!important;padding:5px!important}
-    .seq-shot-accordion-op>summary{flex-basis:33px!important;padding:6px 8px!important}
-    .seq-shot-body-op .role-dial-block .dial-item{min-width:96px!important}
-    .seq-shot-body-op #seqVariantDial .seq-type-preset{flex-basis:54vw!important;min-width:54vw!important}
-    .timeline-toolbar{flex-basis:36px!important;min-height:36px!important}
-    .timeline-library-toggle-op span,.timeline-title,.timeline-fps{display:none!important}
-    .timeline-zoom input{width:58px!important}
-    .seq-inspectors-op{min-height:34px!important}
-    .seq-inspector-op>summary{min-height:33px!important}
-    .seq-inspector-op[open]{max-height:64%!important}
+    :root{--op-header-h:48px;--op-gutter:6px;--timeline-label-w:46px;--op-drawer-w:min(90vw,380px)}
+    .top,.top.compact{height:var(--op-header-h)!important;min-height:var(--op-header-h)!important;padding:0 8px!important}.brandrow,.top.compact .brandrow{grid-template-columns:72px minmax(0,1fr) 58px!important;gap:7px!important}.brandrow .brand svg{height:8px!important;max-width:70px}.top-mode-nav .modeswitch button{min-height:32px!important;padding:6px 3px!important;gap:4px!important;font-size:7.2px!important}.top-mode-nav .modeswitch button svg{width:11px!important;height:11px!important}.langtoggle button{min-width:25px!important;padding:4px 5px!important;font-size:6.5px!important}
+    .shot-workspace-op{grid-template-columns:1fr!important;grid-template-rows:minmax(210px,43%) minmax(0,1fr)!important;gap:6px!important}.shot-splitter-op{display:none!important}.shot-player-rig .cprev,.shot-player-rig.is-stuck .cprev{width:min(100%,calc((43dvh - 82px) * var(--project-scale)))!important;max-height:calc(43dvh - 82px)!important}.shot-player-rig>.shot-commandbar{min-height:43px!important;flex-basis:43px!important}.shot-player-rig>.shot-commandbar .command-label{display:none!important}.shot-player-rig>.shot-commandbar .microbtn{width:33px!important;height:32px!important;min-height:32px!important;padding:6px!important}.shot-random-op{width:auto!important;padding-inline:8px!important}.shot-random-op .command-label{display:inline!important}.workspace-tabs-op{overflow-x:auto;grid-template-columns:repeat(4,minmax(106px,1fr))!important;scrollbar-width:none}.workspace-tabs-op::-webkit-scrollbar{display:none}.workspace-tab-op{font-size:6.6px;padding-inline:7px}.shot-preset-rail .shot-preset,.seq-type-panel-op #seqVariantDial .seq-type-preset{flex-basis:68vw!important;min-width:68vw!important}.technical-readout-op .creadgrid #cNotes{grid-template-columns:1fr!important}
+    .seq .swrap{grid-template-rows:34px minmax(0,1fr)!important;gap:5px!important}.seq-preset-bar-op{height:34px!important}.seq-preset-bar-op>span,.seq-preset-meta-op{display:none!important}.seq-preset-select-op{min-width:0;max-width:none;flex:1}.seq-workspace-op{grid-template-columns:1fr!important;grid-template-rows:minmax(245px,43%) minmax(0,1fr)!important;gap:6px!important}.seq-splitter-op{display:none!important}.time-rig>.cprev,#seqPlayerMount.is-stuck .time-rig>.cprev{width:min(100%,calc((43dvh - 92px) * var(--project-scale)))!important;max-height:calc(43dvh - 92px)!important}.time-player.seq-controls-op .pmeta{min-width:88px!important}.time-player.seq-controls-op .manage-label,.time-player.seq-controls-op .command-label{display:none!important}.time-player.seq-controls-op .microbtn,.time-player.seq-controls-op .cbtn{width:31px!important;padding:5px!important}.seq-editor-pane-op{min-height:0}.seq-tabs-op{overflow-x:auto;grid-template-columns:repeat(4,minmax(112px,1fr))!important;scrollbar-width:none}.seq-tabs-op::-webkit-scrollbar{display:none}.timeline-toolbar{flex-basis:36px!important;min-height:36px!important}.timeline-library-toggle-op span,.timeline-fps{display:none!important}.timeline-zoom input{width:58px!important}.seq-library-body-op .library-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   }
 
-  @media(max-height:720px){
-    :root{--op-header-h:46px;--timeline-track-h:48px}
-    .shot-player-rig .vpbar{flex-basis:30px!important;min-height:30px!important}
-    .shot-player-rig>.shot-commandbar{flex-basis:42px!important;min-height:42px!important}
-    .shot-accordion-op>summary{min-height:36px!important}
-    .seq-player-pane-op{grid-template-rows:minmax(190px,1fr) minmax(126px,35%)}
-    .seq-shot-accordion-op>summary{flex-basis:32px!important}
-  }
+  @media(max-width:520px){.workspace-tab-op span{display:none}.workspace-tabs-op,.seq-tabs-op{grid-template-columns:repeat(4,minmax(52px,1fr))!important}.workspace-tab-op svg{width:16px;height:16px}.seq-library-body-op .library-list{grid-template-columns:1fr!important}}
+  @media(max-height:720px){:root{--op-header-h:46px}.shot-player-rig .vpbar{flex-basis:30px!important;min-height:30px!important}.shot-player-rig>.shot-commandbar{flex-basis:42px!important;min-height:42px!important}.workspace-tabs-op{--op-tab-h:34px}.time-player.seq-controls-op{min-height:40px!important}}
+
 </style>
-  <!-- MEMENTO canonical consolidation · 27 July 2026 -->
+  <!-- MEMENTO workspace V11 · 27 July 2026 -->
 </head>
-<body data-memento-build="v10-operational">
+<body data-memento-build="v11-workspace">
 <div class="app v-combo" data-format="16:9">
   <header class="top" id="topbar">
     <div class="brandrow">
@@ -7391,10 +7138,13 @@ const __applyLanguageVII=applyLanguage;
 applyLanguage=function(lang){const r=__applyLanguageVII(lang);requestAnimationFrame(()=>{buildRoleDial();syncRoleDialFromSelection(false);buildSequenceTemplateDial();decorateSequencePresetsVII();rebuildLibraryAccordionVII();updateVIIStrings();arrangeShotVII();arrangeSeqVII();renderGlobalParamDock()});return r};
 
 
-/* ================= MEMENTO OPERATIONAL WORKSPACE · DESKTOP FIRST ================= */
+/* ================= MEMENTO OPERATIONAL WORKSPACE V11 · TABBED DESKTOP ================= */
 let operationalReady=false,operationalViewHooked=false,operationalTimelineDrag=null,operationalLayoutRAF=0;
-let operationalShotPct=Math.max(36,Math.min(68,Number(localStorage.getItem("memento.ui.shotPlayerPctOp"))||50));
-let operationalSeqPct=Math.max(32,Math.min(68,Number(localStorage.getItem("memento.ui.seqPlayerPctOp"))||42));
+let operationalShotPct=Math.max(38,Math.min(74,Number(localStorage.getItem("memento.ui.shotPlayerPctOp"))||62));
+let operationalSeqPct=Math.max(28,Math.min(68,Number(localStorage.getItem("memento.ui.seqPlayerPctOp"))||34));
+let operationalShotPanel=localStorage.getItem("memento.ui.shotPanelOp")||"type";
+let operationalSeqPanel=localStorage.getItem("memento.ui.seqPanelOp")||"timeline";
+let operationalResizeObserver=null;
 
 const OP_ICON={
   type:'<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h11M4 17h7"/><path d="m18 14 2 2-2 2"/></svg>',
@@ -7403,43 +7153,58 @@ const OP_ICON={
   asset:'<svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>',
   library:'<svg viewBox="0 0 24 24"><path d="M4 5h6l2 2h8v12H4z"/><path d="M8 11h8M8 15h5"/></svg>',
   breakdown:'<svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 11h6M9 15h6M9 19h4"/></svg>',
+  project:'<svg viewBox="0 0 24 24"><path d="M4 5h6l2 2h8v12H4z"/><path d="M8 11h8M8 15h5"/></svg>',
+  timeline:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><rect x="6" y="4" width="6" height="4" rx="1"/><rect x="10" y="10" width="8" height="4" rx="1"/><rect x="5" y="16" width="10" height="4" rx="1"/></svg>',
   random:'<svg viewBox="0 0 24 24"><path d="M4 7h3c4 0 5 10 9 10h4"/><path d="m17 14 3 3-3 3M4 17h3c1.4 0 2.5-1.2 3.5-2.8M14 7.8C15 7.3 15.8 7 17 7h3"/><path d="m17 4 3 3-3 3"/></svg>'
+};
+const OP_COMMAND_ICON={
+  undo:'<svg viewBox="0 0 24 24"><path d="M9 8H4V3"/><path d="M4 8c2.8-3.4 8.1-4.5 12.1-2.1A8 8 0 0 1 19 17"/></svg>',
+  redo:'<svg viewBox="0 0 24 24"><path d="M15 8h5V3"/><path d="M20 8c-2.8-3.4-8.1-4.5-12.1-2.1A8 8 0 0 0 5 17"/></svg>',
+  copy:'<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>',
+  paste:'<svg viewBox="0 0 24 24"><path d="M9 5h6l1.2 2H20v14H4V7h3.8z"/><path d="M9 3h6v4H9z"/><path d="M12 11v6M9.5 14.5 12 17l2.5-2.5"/></svg>',
+  full:'<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>'
 };
 
 function clampOperational(v,min,max){return Math.max(min,Math.min(max,Number(v)||0))}
 function hideLegacyDockOperational(){
   const dock=document.getElementById("globalParamDock"),opts=document.getElementById("globalParamOptions"),dual=document.getElementById("shotDualDock"),seqDock=document.getElementById("seqRecipeDock");
   if(opts)opts.hidden=true;if(dock)dock.hidden=true;if(dual)dual.hidden=true;if(seqDock)seqDock.hidden=true;
-  document.body.classList.remove("option-open","shot-split-viii");
-  return null
+  document.body.classList.remove("option-open","shot-split-viii");return null
 }
-renderGlobalParamDock=hideLegacyDockOperational;
-renderGlobalParamOptions=hideLegacyDockOperational;
-closeGlobalParamOptions=hideLegacyDockOperational;
+renderGlobalParamDock=hideLegacyDockOperational;renderGlobalParamOptions=hideLegacyDockOperational;closeGlobalParamOptions=hideLegacyDockOperational;
 
-/* Keep the identity, main modes and locale in one physical row. */
+function updatePrimaryModeLabelsOperational(){
+  const modes=[["mCombo","SHOT",NAV_ICON.mCombo],["mSeq",uiWord("TIMELINE","TIMELINE"),NAV_ICON.mSeq],["mTest","TEST",NAV_ICON.mTest]];
+  modes.forEach(([id,label,icon])=>{const b=document.getElementById(id);if(b){b.innerHTML=(icon||"")+'<span>'+label+'</span>';b.setAttribute("aria-label",label)}})
+}
 function arrangeHeaderOperational(){
   const top=document.getElementById("topbar"),row=top&&top.querySelector(".brandrow"),nav=document.querySelector(".navshell"),lang=document.getElementById("langToggle"),manifesto=document.getElementById("manifesto");
-  if(!top||!row||!nav)return;
-  nav.classList.remove("global-bottom-nav");nav.classList.add("top-mode-nav");
-  if(nav.parentNode!==row)row.insertBefore(nav,lang||null);
-  if(manifesto)manifesto.hidden=true;
-  const footer=document.querySelector(".manifesto-footer");if(footer)footer.hidden=true;
-  top.classList.remove("compact")
+  if(!top||!row||!nav)return;nav.classList.remove("global-bottom-nav");nav.classList.add("top-mode-nav");if(nav.parentNode!==row)row.insertBefore(nav,lang||null);
+  if(manifesto)manifesto.hidden=true;const footer=document.querySelector(".manifesto-footer");if(footer)footer.hidden=true;top.classList.remove("compact");updatePrimaryModeLabelsOperational()
 }
 
-function detailsOperational(id,cls,label,icon,summary){
-  let d=document.getElementById(id);if(d)return d;
-  d=document.createElement("details");d.id=id;d.className=cls;
-  d.innerHTML='<summary>'+icon+'<b>'+label+'</b><span>'+summary+'</span><i>⌄</i></summary><div class="shot-accordion-body-op"></div>';
-  return d
+function tabButtonOperational(key,label,icon,kind){
+  const b=document.createElement("button");b.type="button";b.className="workspace-tab-op";b.dataset[kind+"Tab"]=key;b.setAttribute("role","tab");b.innerHTML=icon+'<span>'+label+'</span>';return b
 }
-function wireExclusiveOperational(host,selector){
-  const all=[...host.querySelectorAll(selector)];all.forEach(d=>{if(d.dataset.exclusiveOp)return;d.dataset.exclusiveOp="1";d.addEventListener("toggle",()=>{
-    if(d.open)all.forEach(x=>{if(x!==d)x.open=false});
-    if(d.id==="shotAdvancedAccordionOp"&&d.open){selectEditSide(shotEditSide||"start");syncAdvancedFromShotVII(activeShot()||selectedShot())}
-    requestAnimationFrame(()=>{refreshPlayerGeometry();refreshScrollCues();layoutTimeline()})
-  })})
+function activateShotPanelOperational(key,save=true){
+  const controls=document.getElementById("shotControlPaneOp");if(!controls)return;operationalShotPanel=key;
+  controls.querySelectorAll("[data-shot-tab]").forEach(b=>{const on=b.dataset.shotTab===key;b.setAttribute("aria-selected",String(on));b.tabIndex=on?0:-1});
+  controls.querySelectorAll(".shot-panel-op").forEach(p=>p.classList.toggle("active",p.dataset.panel===key));
+  if(save)localStorage.setItem("memento.ui.shotPanelOp",key);
+  if(key==="advanced"){selectEditSide(shotEditSide||"start");syncAdvancedFromShotVII(activeShot()||selectedShot());updateAdvancedSideOperational()}
+  if(key==="type"){syncTechDial(true);refreshScrollCues()}
+  requestAnimationFrame(()=>{refreshPlayerGeometry();refreshScrollCues()})
+}
+function activateSeqPanelOperational(key,save=true){
+  const right=document.getElementById("seqEditorPaneOp");if(!right)return;operationalSeqPanel=key;
+  right.querySelectorAll("[data-seq-tab]").forEach(b=>{const on=b.dataset.seqTab===key;b.setAttribute("aria-selected",String(on));b.tabIndex=on?0:-1});
+  right.querySelectorAll(".seq-panel-op").forEach(p=>p.classList.toggle("active",p.dataset.panel===key));
+  if(save)localStorage.setItem("memento.ui.seqPanelOp",key);
+  if(key==="timeline")requestAnimationFrame(layoutTimeline);
+  if(key==="type")requestAnimationFrame(()=>{syncRoleDialFromSelection(true);refreshScrollCues()});
+}
+function wireTabKeyboardOperational(nav,attr,activate){
+  if(!nav||nav.dataset.keysOp)return;nav.dataset.keysOp="1";nav.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;const tabs=[...nav.querySelectorAll("[data-"+attr+"-tab]")],current=Math.max(0,tabs.indexOf(document.activeElement));let next=e.key==="Home"?0:e.key==="End"?tabs.length-1:(current+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;tabs[next]?.focus();activate(tabs[next].dataset[attr+"Tab"]);e.preventDefault()})
 }
 
 function updateAdvancedSideOperational(){
@@ -7447,227 +7212,162 @@ function updateAdvancedSideOperational(){
   bar.querySelectorAll("[data-shot-side]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shotSide===(shotEditSide||"start"))));
   const status=bar.querySelector(".shot-advanced-status-op");if(status&&it){const d=AXES.filter(a=>shotStart(it)[a.id]!==shotEnd(it)[a.id]).length,l=Object.keys(it.locks||{}).length;status.textContent=d+" Δ · "+l+" LOCK"}
 }
-const __selectEditSideOperational=selectEditSide;
-selectEditSide=function(side){const r=__selectEditSideOperational(side);updateAdvancedSideOperational();return r};
-
-function updateShotAccordionSummaryOperational(){
-  const it=activeShot()||selectedShot(),type=shotTypeOf(it),typeValue=document.querySelector("#shotTypeAccordionOp>summary span"),readValue=document.querySelector("#shotReadAccordionOp>summary span"),assetValue=document.querySelector("#shotAssetAccordionOp>summary span");
-  if(typeValue)typeValue.textContent=shotTypeLabel(type);
-  if(readValue)readValue.textContent=it?techLabel(techOf(it.technicalPresetId)):"—";
-  if(assetValue){const hero=document.getElementById("assetHeroStatus");assetValue.textContent=hero&&hero.textContent?hero.textContent:uiWord("SCENA","SCENE")}
-  updateAdvancedSideOperational()
-}
+const __selectEditSideOperational=selectEditSide;selectEditSide=function(side){const r=__selectEditSideOperational(side);updateAdvancedSideOperational();return r};
+function updateShotAccordionSummaryOperational(){updateAdvancedSideOperational()}
 
 function generateRandomShotOperational(){
-  const it=activeShot()||selectedShot();if(!it)return;
-  const before=projectSnapshot(),current=shotTypeOf(it).id,pool=SHOT_TYPES.filter(t=>t.id!==current),type=pool[Math.floor(Math.random()*pool.length)]||SHOT_TYPES[0];
-  activeShotTypeId=type.id;generateCoherentVariant(it,type.id);it.shotType=type.id;it.variants=[];it.activeVariantId=null;
-  shotPreviewOverride=null;setShotPreviewItem(it);syncLocksFromShot(it);syncAdvancedFromShotVII(it);drawTL();pushHistory(before);syncTechDial(true);updateShotAccordionSummaryOperational()
+  const it=activeShot()||selectedShot();if(!it)return;const before=projectSnapshot(),current=shotTypeOf(it).id,pool=SHOT_TYPES.filter(t=>t.id!==current),type=pool[Math.floor(Math.random()*pool.length)]||SHOT_TYPES[0];
+  activeShotTypeId=type.id;generateCoherentVariant(it,type.id);it.shotType=type.id;it.variants=[];it.activeVariantId=null;shotPreviewOverride=null;setShotPreviewItem(it);syncLocksFromShot(it);syncAdvancedFromShotVII(it);drawTL();pushHistory(before);syncTechDial(true)
 }
 function updateShotCommandLabelsOperational(){
-  const en=currentLang()==="en",random=document.getElementById("shotRandomOp"),variant=document.getElementById("cRand"),slider=document.querySelector(".shot-player-size-op span");
-  if(random){const s=random.querySelector(".command-label");if(s)s.textContent=en?"GENERATE RANDOM":"GENERA CASUALE";random.title=en?"Generate a different shot logic":"Genera una logica di shot differente"}
+  const en=currentLang()==="en",random=document.getElementById("shotRandomOp"),variant=document.getElementById("cRand");
+  if(random){const s=random.querySelector(".command-label");if(s)s.textContent=en?"RANDOM SHOT":"GENERA CASUALE";random.title=en?"Generate a different shot logic":"Genera una logica di shot differente"}
   if(variant)variant.innerHTML='<span>'+(en?"Generate variant":"Genera variante")+'</span><small>'+(en?"same principles":"stessi principi")+'</small>';
-  if(slider)slider.textContent=en?"PLAYER":"PLAYER"
+  const prev=document.getElementById("cVpPrev"),work=document.getElementById("cVpWork");if(prev)prev.textContent="RENDER";if(work)work.textContent="VIEWPORT"
+}
+function configureCommandButtonOperational(id,icon,it,en){
+  const b=document.getElementById(id);if(!b)return null;const label=uiWord(it,en);b.innerHTML=icon+'<span class="command-label">'+label+'</span>';b.title=label;b.setAttribute("aria-label",label);return b
 }
 function enhanceShotCommandbarOperational(workspace,bar){
-  if(!bar)return;const full=document.getElementById("shotFullscreenVII"),paste=document.getElementById("shotPasteVII");
-  bar.querySelector(".command-spacer")?.remove();
-  let random=document.getElementById("shotRandomOp");if(!random){random=buttonVII("shotRandomOp",uiWord("GENERA CASUALE","GENERATE RANDOM"),OP_ICON.random,"shot-random-op");random.onclick=generateRandomShotOperational}
-  if(random.parentNode!==bar)bar.insertBefore(random,full||null);else if(paste&&random.previousElementSibling!==paste)bar.insertBefore(random,full||null);
-  let size=document.getElementById("shotPlayerSizeOp");if(!size){size=document.createElement("label");size.id="shotPlayerSizeOp";size.className="shot-player-size-op";size.innerHTML='<span>PLAYER</span><input type="range" min="36" max="68" step="1" value="'+operationalShotPct+'"><output>'+operationalShotPct+'%</output>';bar.insertBefore(size,full||null);const input=size.querySelector("input"),out=size.querySelector("output");input.oninput=e=>{operationalShotPct=clampOperational(e.target.value,36,68);workspace.style.setProperty("--shot-player-pct-local",operationalShotPct+"%");out.textContent=operationalShotPct+"%";localStorage.setItem("memento.ui.shotPlayerPctOp",String(operationalShotPct));refreshPlayerGeometry()}}
-  workspace.style.setProperty("--shot-player-pct-local",operationalShotPct+"%");
-  if(full)full.onclick=()=>setShotFocusOperational(true);updateShotCommandLabelsOperational()
+  if(!bar)return;const full=document.getElementById("shotFullscreenVII"),done=document.getElementById("shotDone");if(done){done.hidden=true;done.style.display="none";document.querySelector(".combo .cfull")?.appendChild(done)}
+  document.getElementById("shotPlayerSizeOp")?.remove();bar.querySelector(".command-spacer")?.remove();
+  const undoB=configureCommandButtonOperational("shotUndoVII",OP_COMMAND_ICON.undo,"ANNULLA","UNDO"),redoB=configureCommandButtonOperational("shotRedoVII",OP_COMMAND_ICON.redo,"RIPETI","REDO"),copyB=configureCommandButtonOperational("shotCopyVII",OP_COMMAND_ICON.copy,"COPIA","COPY"),pasteB=configureCommandButtonOperational("shotPasteVII",OP_COMMAND_ICON.paste,"INCOLLA","PASTE");
+  let random=document.getElementById("shotRandomOp");if(!random){random=buttonVII("shotRandomOp",uiWord("GENERA CASUALE","RANDOM SHOT"),OP_ICON.random,"shot-random-op");random.onclick=generateRandomShotOperational}
+  if(full){full.innerHTML=OP_COMMAND_ICON.full+'<span class="command-label">FULLSCREEN</span>';full.title="Fullscreen";full.setAttribute("aria-label","Fullscreen");full.onclick=()=>setShotFocusOperational(true)}
+  const spacer=document.createElement("span");spacer.className="command-spacer";bar.replaceChildren(...[undoB,redoB,copyB,pasteB,random,spacer,full].filter(Boolean));
+  workspace.style.setProperty("--shot-player-pct-local",operationalShotPct+"%");updateShotCommandLabelsOperational()
 }
-
+function setupShotSplitterOperational(workspace,split){
+  if(!split||split.dataset.wiredOp)return;split.dataset.wiredOp="1";let drag=null;
+  const end=()=>{if(!drag)return;drag=null;split.classList.remove("dragging");refreshPlayerGeometry()};
+  split.addEventListener("pointerdown",e=>{if(innerWidth<=900)return;const rect=workspace.getBoundingClientRect();drag={id:e.pointerId,rect};split.classList.add("dragging");try{split.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault()});
+  split.addEventListener("pointermove",e=>{if(!drag||drag.id!==e.pointerId)return;operationalShotPct=clampOperational(((e.clientX-drag.rect.left)/drag.rect.width)*100,38,74);workspace.style.setProperty("--shot-player-pct-local",operationalShotPct+"%");localStorage.setItem("memento.ui.shotPlayerPctOp",operationalShotPct.toFixed(2));refreshPlayerGeometry();e.preventDefault()});
+  split.addEventListener("pointerup",end);split.addEventListener("pointercancel",end);split.addEventListener("lostpointercapture",end);
+  split.addEventListener("dblclick",()=>{operationalShotPct=62;workspace.style.setProperty("--shot-player-pct-local","62%");localStorage.setItem("memento.ui.shotPlayerPctOp","62");refreshPlayerGeometry()});
+  split.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home"].includes(e.key))return;operationalShotPct=e.key==="Home"?62:clampOperational(operationalShotPct+(e.key==="ArrowRight"?2:-2),38,74);workspace.style.setProperty("--shot-player-pct-local",operationalShotPct+"%");localStorage.setItem("memento.ui.shotPlayerPctOp",String(operationalShotPct));refreshPlayerGeometry();e.preventDefault()})
+}
 function arrangeShotOperational(){
   const cfull=document.querySelector(".combo .cfull"),player=document.querySelector(".shot-player-rig"),tech=document.querySelector(".tech-dial-block"),actions=document.querySelector(".shot-primary-actions"),params=document.querySelector(".shot-parameter-section"),readout=params&&params.querySelector(".cread"),asset=document.getElementById("assetWorld"),assetBody=document.getElementById("assetWorldBody"),bar=document.getElementById("shotCommandbar");
   if(!cfull||!player||!tech||!params)return;
-  let workspace=document.getElementById("shotWorkspaceOp"),playerPane=document.getElementById("shotPlayerPaneOp"),controls=document.getElementById("shotControlPaneOp"),divider=document.getElementById("shotDividerOp");
-  if(!workspace){workspace=document.createElement("section");workspace.id="shotWorkspaceOp";workspace.className="shot-workspace-op";playerPane=document.createElement("div");playerPane.id="shotPlayerPaneOp";playerPane.className="shot-player-pane-op";divider=document.createElement("div");divider.id="shotDividerOp";divider.className="shot-divider-op";divider.setAttribute("aria-hidden","true");controls=document.createElement("aside");controls.id="shotControlPaneOp";controls.className="shot-control-pane-op";workspace.append(playerPane,divider,controls);cfull.appendChild(workspace)}
+  let workspace=document.getElementById("shotWorkspaceOp"),playerPane=document.getElementById("shotPlayerPaneOp"),controls=document.getElementById("shotControlPaneOp"),split=document.getElementById("shotSplitterOp");
+  if(!workspace){
+    workspace=document.createElement("section");workspace.id="shotWorkspaceOp";workspace.className="shot-workspace-op";
+    playerPane=document.createElement("div");playerPane.id="shotPlayerPaneOp";playerPane.className="shot-player-pane-op";
+    split=document.createElement("button");split.id="shotSplitterOp";split.className="shot-splitter-op";split.type="button";split.setAttribute("aria-label",uiWord("Ridimensiona player","Resize player"));split.tabIndex=0;
+    controls=document.createElement("aside");controls.id="shotControlPaneOp";controls.className="shot-control-pane-op";
+    const nav=document.createElement("nav");nav.id="shotTabsOp";nav.className="workspace-tabs-op tab-count-4 shot-tabs-op";nav.setAttribute("role","tablist");
+    [["type",uiWord("TIPOLOGIA","SHOT TYPE"),OP_ICON.type],["advanced",uiWord("AVANZATE","ADVANCED"),OP_ICON.advanced],["read",uiWord("LETTURA","READOUT"),OP_ICON.read],["asset",uiWord("ASSET 3D","3D ASSET"),OP_ICON.asset]].forEach(x=>nav.appendChild(tabButtonOperational(x[0],x[1],x[2],"shot")));
+    const stack=document.createElement("div");stack.id="shotPanelsOp";stack.className="workspace-panel-stack-op";
+    [["type","shot-panel-type-op"],["advanced","shot-panel-advanced-op"],["read","technical-readout-op"],["asset","custom-assets-op"]].forEach(([key,cls])=>{const p=document.createElement("section");p.className="workspace-panel-op shot-panel-op "+cls;p.dataset.panel=key;p.setAttribute("role","tabpanel");stack.appendChild(p)});
+    controls.append(nav,stack);workspace.append(playerPane,split,controls);cfull.appendChild(workspace);
+    nav.addEventListener("click",e=>{const b=e.target.closest("[data-shot-tab]");if(b)activateShotPanelOperational(b.dataset.shotTab)});wireTabKeyboardOperational(nav,"shot",activateShotPanelOperational)
+  }
+  workspace.style.setProperty("--shot-player-pct-local",operationalShotPct+"%");setupShotSplitterOperational(workspace,split);
   playerPane.appendChild(player);if(bar&&bar.parentNode!==player)player.appendChild(bar);enhanceShotCommandbarOperational(workspace,bar);
-
-  const type=detailsOperational("shotTypeAccordionOp","shot-accordion-op",uiWord("TIPOLOGIA DI SHOT","SHOT TYPE"),OP_ICON.type,"—");
-  const advanced=detailsOperational("shotAdvancedAccordionOp","shot-accordion-op",uiWord("AVANZATE","ADVANCED"),OP_ICON.advanced,uiWord("CONTROLLO COMPLETO","FULL CONTROL"));
-  const read=detailsOperational("shotReadAccordionOp","shot-accordion-op",uiWord("LETTURA TECNICA","TECHNICAL READOUT"),OP_ICON.read,"—");read.classList.add("technical-readout-op");
-  const assets=detailsOperational("shotAssetAccordionOp","shot-accordion-op",uiWord("CUSTOM 3D ASSET","CUSTOM 3D ASSET"),OP_ICON.asset,uiWord("SCENA","SCENE"));
-  if(type.parentNode!==controls)controls.append(type,advanced,read,assets);
-  const typeBody=type.querySelector(".shot-accordion-body-op");typeBody.appendChild(tech);if(actions&&actions.parentNode!==tech)tech.appendChild(actions);
-
+  const typePanel=controls.querySelector('[data-panel="type"]'),advancedPanel=controls.querySelector('[data-panel="advanced"]'),readPanel=controls.querySelector('[data-panel="read"]'),assetPanel=controls.querySelector('[data-panel="asset"]');
+  typePanel.appendChild(tech);if(actions&&actions.parentNode!==tech)tech.appendChild(actions);
   let advToolbar=document.getElementById("shotAdvancedToolbarOp");if(!advToolbar){advToolbar=document.createElement("div");advToolbar.id="shotAdvancedToolbarOp";advToolbar.className="shot-advanced-toolbar-op";advToolbar.innerHTML='<div class="shot-side-toggle-op" role="group"><button type="button" data-shot-side="start">START</button><button type="button" data-shot-side="end">END</button></div><span class="shot-advanced-status-op">0 Δ · 0 LOCK</span>';advToolbar.addEventListener("click",e=>{const b=e.target.closest("[data-shot-side]");if(b)selectEditSide(b.dataset.shotSide)})}
-  params.hidden=false;if(readout&&readout.parentNode===params)readout.remove();const advBody=advanced.querySelector(".shot-accordion-body-op");advBody.append(advToolbar,params);
-  if(readout)read.querySelector(".shot-accordion-body-op").appendChild(readout);
-  if(assetBody){assetBody.hidden=false;const assetHost=assets.querySelector(".shot-accordion-body-op");assetHost.classList.add("custom-assets-op");assetHost.appendChild(assetBody)}
-  if(asset)asset.hidden=true;
-
-  if(!type.dataset.initialOpen){type.dataset.initialOpen="1";type.open=true;advanced.open=read.open=assets.open=false}
-  wireExclusiveOperational(controls,".shot-accordion-op");updateShotAccordionSummaryOperational();refreshScrollCues()
+  params.hidden=false;if(readout&&readout.parentNode===params)readout.remove();advancedPanel.append(advToolbar,params);if(readout)readPanel.appendChild(readout);
+  if(assetBody){assetBody.hidden=false;assetPanel.appendChild(assetBody)}if(asset)asset.hidden=true;
+  activateShotPanelOperational(["type","advanced","read","asset"].includes(operationalShotPanel)?operationalShotPanel:"type",false);updateShotCommandLabelsOperational();refreshScrollCues()
 }
 
 function setShotFocusOperational(on){
-  on=!!on;document.body.classList.toggle("shot-focus-op",on);document.body.classList.remove("shot-focus","shot-focus-vii","shot-focus-viii","shot-split-viii");
-  const exit=document.getElementById("shotFocusExitVII")||document.getElementById("shotFocusExit");if(exit){exit.hidden=!on;exit.onclick=()=>setShotFocusOperational(false)}
+  on=!!on;document.body.classList.toggle("shot-focus-op",on);document.body.classList.remove("shot-focus","shot-focus-vii","shot-focus-viii","shot-split-viii");const exit=document.getElementById("shotFocusExitVII")||document.getElementById("shotFocusExit");if(exit){exit.hidden=!on;exit.onclick=()=>setShotFocusOperational(false)};
   if(on){window.__setMode&&window.__setMode("combo");const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;if(!(document.fullscreenElement||document.webkitFullscreenElement)&&request){try{const p=request.call(root);if(p&&p.catch)p.catch(()=>{})}catch(_){}}}
-  else if(document.fullscreenElement||document.webkitFullscreenElement){try{const fn=document.exitFullscreen||document.webkitExitFullscreen,p=fn&&fn.call(document);if(p&&p.catch)p.catch(()=>{})}catch(_){}}
-  refreshPlayerGeometry()
+  else if(document.fullscreenElement||document.webkitFullscreenElement){try{const fn=document.exitFullscreen||document.webkitExitFullscreen,p=fn&&fn.call(document);if(p&&p.catch)p.catch(()=>{})}catch(_){}}refreshPlayerGeometry()
 }
 setShotFocus=setShotFocusOperational;
 
-/* Fixed sequence architecture: FX, V2, V1, A2, A1. */
-function normalizeFixedTracksOperational(){
-  TL.forEach(it=>{const b=B(it.id);if(!b)return;if(b[6]==="shot"&&!['v1','v2'].includes(it.track))it.track=it.track==="v3"?"v2":"v1";else if(b[6]==="audio"&&!['a1','a2'].includes(it.track))it.track=it.track==="a3"?"a2":"a1";else if(b[6]==="trans")it.track="fx"});
-  ["memento.ui.videoTracksVIII","memento.ui.audioTracksVIII","memento.ui.timelineManualVIII"].forEach(k=>localStorage.removeItem(k))
-}
-timelineTracksVII=function(){return["v1","v2"]};
-audioTracksVII=function(){return["a1","a2"]};
+/* Fixed timeline architecture: FX, V2, V1, A2, A1. */
+function normalizeFixedTracksOperational(){TL.forEach(it=>{const b=B(it.id);if(!b)return;if(b[6]==="shot"&&!['v1','v2'].includes(it.track))it.track=it.track==="v3"?"v2":"v1";else if(b[6]==="audio"&&!['a1','a2'].includes(it.track))it.track=it.track==="a3"?"a2":"a1";else if(b[6]==="trans")it.track="fx"});["memento.ui.videoTracksVIII","memento.ui.audioTracksVIII","memento.ui.timelineManualVIII"].forEach(k=>localStorage.removeItem(k))}
+timelineTracksVII=function(){return["v1","v2"]};audioTracksVII=function(){return["a1","a2"]};
 laneForTimelineItem=function(it,b){if(!it||!b)return null;if(b[6]==="shot")return document.getElementById("lane-"+(['v1','v2'].includes(it.track)?it.track:"v1"))||LANES.shot;if(b[6]==="audio")return document.getElementById("lane-"+(['a1','a2'].includes(it.track)?it.track:"a1"))||LANES.audio;return document.getElementById("lane-fx")||LANES.trans};
-timelineTrackLabel=function(it,b){if(!b)return"";if(b[6]==="shot")return(it.track==="v2"?"V2":"V1");if(b[6]==="audio")return(it.track==="a2"?"A2":"A1");return"FX"};
+timelineTrackLabel=function(it,b){if(!b)return"";if(b[6]==="shot")return it.track==="v2"?"V2":"V1";if(b[6]==="audio")return it.track==="a2"?"A2":"A1";return"FX"};
 cycleTimelineTrack=function(it,index){const b=B(it&&it.id);if(!b)return;const before=projectSnapshot(),p=timelineLayoutData().map.get(index);if(b[6]==="shot"){it.track=it.track==="v2"?"v1":"v2";it.timelineStart=p?p.start:0}else if(b[6]==="audio"){it.track=it.track==="a2"?"a1":"a2";it.timelineStart=p?p.start:0}drawTL();pushHistory(before)};
-
-function ensureTrackOperational(tracks,track,ty,label){
-  let tr=tracks.querySelector('.trk[data-track="'+track+'"]');if(tr)return tr;
-  const lane=document.createElement("div");lane.className="trkl";lane.id="lane-"+track;lane.dataset.ty=ty;lane.dataset.track=track;
-  tr=document.createElement("div");tr.className="trk trk-"+track;tr.dataset.track=track;tr.dataset.ty=ty;const h=document.createElement("div");h.className="trkh";h.innerHTML='<span class="track-code">'+label+'</span>';tr.append(h,lane);wireExtraTimelineLane(lane,ty,track);tracks.appendChild(tr);return tr
-}
+function ensureTrackOperational(tracks,track,ty,label){let tr=tracks.querySelector('.trk[data-track="'+track+'"]');if(tr)return tr;const lane=document.createElement("div");lane.className="trkl";lane.id="lane-"+track;lane.dataset.ty=ty;lane.dataset.track=track;tr=document.createElement("div");tr.className="trk trk-"+track;tr.dataset.track=track;tr.dataset.ty=ty;const h=document.createElement("div");h.className="trkh";h.innerHTML='<span class="track-code">'+label+'</span>';tr.append(h,lane);wireExtraTimelineLane(lane,ty,track);tracks.appendChild(tr);return tr}
 function rebuildTimelineOperational(){
   if(!timelineEditor&&typeof setupTimelineEditor==="function")setupTimelineEditor();const tracks=document.getElementById("tracks");if(!timelineEditor||!tracks)return;
-  normalizeFixedTracksOperational();ensureTrackOperational(tracks,"fx","trans","FX");ensureTrackOperational(tracks,"v2","shot","V2");ensureTrackOperational(tracks,"v1","shot","V1");ensureTrackOperational(tracks,"a2","audio","A2");ensureTrackOperational(tracks,"a1","audio","A1");
-  tracks.querySelector('.trk[data-track="v3"]')?.remove();tracks.querySelector('.trk[data-track="a3"]')?.remove();
-  ["fx","v2","v1","a2","a1"].forEach(track=>{const tr=tracks.querySelector('.trk[data-track="'+track+'"]');if(tr){tr.hidden=false;tracks.appendChild(tr)}});
-  const toolbar=document.createElement("div");toolbar.className="timeline-toolbar";toolbar.innerHTML='<button class="timeline-home-op" id="timelineHomeOp" type="button" aria-label="Home">|‹</button><span class="timeline-title">TIMELINE</span><span class="timeline-fps">30 FPS</span><b class="timeline-timecode" id="timelineTimecodeOp">00:00:00:00</b><label class="timeline-zoom"><span>ZOOM</span><input id="timelineZoomOp" type="range" min="28" max="190" step="2" value="'+timelinePPS+'"></label><button class="timeline-library-toggle-op" id="timelineLibraryToggleOp" type="button" aria-pressed="false">'+OP_ICON.library+'<span>'+uiWord("LIBRERIA","LIBRARY")+'</span></button>';
+  normalizeFixedTracksOperational();ensureTrackOperational(tracks,"fx","trans","FX");ensureTrackOperational(tracks,"v2","shot","V2");ensureTrackOperational(tracks,"v1","shot","V1");ensureTrackOperational(tracks,"a2","audio","A2");ensureTrackOperational(tracks,"a1","audio","A1");tracks.querySelector('.trk[data-track="v3"]')?.remove();tracks.querySelector('.trk[data-track="a3"]')?.remove();["fx","v2","v1","a2","a1"].forEach(track=>{const tr=tracks.querySelector('.trk[data-track="'+track+'"]');if(tr){tr.hidden=false;tracks.appendChild(tr)}});
+  const toolbar=document.createElement("div");toolbar.className="timeline-toolbar";toolbar.innerHTML='<button class="timeline-home-op" id="timelineHomeOp" type="button" aria-label="Home">|‹</button><span class="timeline-fps">30 FPS</span><b class="timeline-timecode" id="timelineTimecodeOp">00:00:00:00</b><label class="timeline-zoom"><span>ZOOM</span><input id="timelineZoomOp" type="range" min="28" max="190" step="2" value="'+timelinePPS+'"></label><button class="timeline-library-toggle-op" id="timelineLibraryToggleOp" type="button" aria-pressed="false">'+OP_ICON.library+'<span>'+uiWord("LIBRERIA","LIBRARY")+'</span></button>';
   const scroll=document.createElement("div");scroll.className="timeline-scroll";scroll.id="timelineScrollOp";const inner=document.createElement("div");inner.className="timeline-inner";const ruler=document.createElement("div");ruler.className="timeline-ruler";ruler.id="timelineRulerOp";const playhead=document.createElement("div");playhead.className="timeline-playhead";playhead.id="timelinePlayheadOp";inner.append(ruler,tracks,playhead);scroll.appendChild(inner);timelineEditor.replaceChildren(toolbar,scroll);
   timelineScroll=scroll;timelineInner=inner;timelineRuler=ruler;timelinePlayhead=playhead;timelineTimecode=toolbar.querySelector("#timelineTimecodeOp");timelineZoom=toolbar.querySelector("#timelineZoomOp");
-  toolbar.querySelector("#timelineHomeOp").onclick=()=>{seqPlayhead=0;timelineScroll.scrollLeft=0;seqScrubbing=true;seqPlanCache=buildSequencePlan();pauseAllAudioVII();updateSequenceHUD();updateTimelinePlayhead();if(window.__repaint)window.__repaint()};
-  timelineZoom.oninput=e=>{timelinePPS=clampOperational(e.target.value,28,190);localStorage.setItem("memento.ui.timelinePPS",String(timelinePPS));layoutTimeline()};
+  toolbar.querySelector("#timelineHomeOp").onclick=()=>{seqPlayhead=0;timelineScroll.scrollLeft=0;seqScrubbing=true;seqPlanCache=buildSequencePlan();pauseAllAudioVII();updateSequenceHUD();updateTimelinePlayhead();if(window.__repaint)window.__repaint()};timelineZoom.oninput=e=>{timelinePPS=clampOperational(e.target.value,28,190);localStorage.setItem("memento.ui.timelinePPS",String(timelinePPS));layoutTimeline()};
   let scrubbing=false;ruler.addEventListener("pointerdown",e=>{scrubbing=true;try{ruler.setPointerCapture(e.pointerId)}catch(_){ }scrubTimelineAt(e.clientX);e.preventDefault()});ruler.addEventListener("pointermove",e=>{if(scrubbing){scrubTimelineAt(e.clientX);e.preventDefault()}});const endScrub=()=>scrubbing=false;ruler.addEventListener("pointerup",endScrub);ruler.addEventListener("pointercancel",endScrub);
-  let pan=null;scroll.addEventListener("pointerdown",e=>{if(e.target.closest(".clip,.trkh,.timeline-ruler,button,input,textarea,label"))return;pan={id:e.pointerId,x:e.clientX,y:e.clientY,left:scroll.scrollLeft,locked:false}});scroll.addEventListener("pointermove",e=>{if(!pan||pan.id!==e.pointerId)return;const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(!pan.locked){if(Math.max(Math.abs(dx),Math.abs(dy))<5)return;if(Math.abs(dy)>Math.abs(dx)){pan=null;return}pan.locked=true;try{scroll.setPointerCapture(e.pointerId)}catch(_){}}scroll.scrollLeft=pan.left-dx;e.preventDefault()});const endPan=()=>pan=null;scroll.addEventListener("pointerup",endPan);scroll.addEventListener("pointercancel",endPan);scroll.addEventListener("lostpointercapture",endPan);
-  scroll.addEventListener("wheel",e=>{const horizontal=Math.abs(e.deltaX)>Math.abs(e.deltaY);if(horizontal||e.shiftKey){scroll.scrollLeft+=horizontal?e.deltaX:e.deltaY;e.preventDefault()}},{passive:false});
-  toolbar.querySelector("#timelineLibraryToggleOp").onclick=toggleLibraryDrawerOperational;requestAnimationFrame(layoutTimeline)
+  let pan=null;scroll.addEventListener("pointerdown",e=>{if(e.target.closest(".clip,.trkh,.timeline-ruler,button,input,textarea,label"))return;pan={id:e.pointerId,x:e.clientX,y:e.clientY,left:scroll.scrollLeft,locked:false}});scroll.addEventListener("pointermove",e=>{if(!pan||pan.id!==e.pointerId)return;const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(!pan.locked){if(Math.max(Math.abs(dx),Math.abs(dy))<5)return;if(Math.abs(dy)>Math.abs(dx)){pan=null;return}pan.locked=true;try{scroll.setPointerCapture(e.pointerId)}catch(_){}}scroll.scrollLeft=pan.left-dx;e.preventDefault()});const endPan=()=>pan=null;scroll.addEventListener("pointerup",endPan);scroll.addEventListener("pointercancel",endPan);scroll.addEventListener("lostpointercapture",endPan);scroll.addEventListener("wheel",e=>{const horizontal=Math.abs(e.deltaX)>Math.abs(e.deltaY);if(horizontal||e.shiftKey){scroll.scrollLeft+=horizontal?e.deltaX:e.deltaY;e.preventDefault()}},{passive:false});toolbar.querySelector("#timelineLibraryToggleOp").onclick=toggleLibraryDrawerOperational;requestAnimationFrame(layoutTimeline)
 }
-
 function timelineItemFromClipOperational(el){const uid=el&&el.dataset.uid;return uid?TL.find(x=>x.uid===uid):TL[Number(el&&el.dataset.i)]}
 function requestTimelineLayoutOperational(){if(operationalLayoutRAF)return;operationalLayoutRAF=requestAnimationFrame(()=>{operationalLayoutRAF=0;layoutTimeline()})}
 function beginClipPointerOperational(e,el,kind){
-  if(e.button!==0||operationalTimelineDrag)return;const it=timelineItemFromClipOperational(el),idx=TL.indexOf(it),b=B(it&&it.id),p=idx>=0&&timelineLayoutData().map.get(idx);if(!it||!b||!p)return;
-  const before=projectSnapshot(),sx=e.clientX,sy=e.clientY,baseStart=p.start,baseDur=p.dur,baseAudio=Math.max(0,Number(it.audioOffset)||0),real=it.audioKey&&REAL_AUDIO_TRACKS.get(it.audioKey),pid=e.pointerId;
+  if(e.button!==0||operationalTimelineDrag)return;const it=timelineItemFromClipOperational(el),idx=TL.indexOf(it),b=B(it&&it.id),p=idx>=0&&timelineLayoutData().map.get(idx);if(!it||!b||!p)return;const before=projectSnapshot(),sx=e.clientX,sy=e.clientY,baseStart=p.start,baseDur=p.dur,baseAudio=Math.max(0,Number(it.audioOffset)||0),real=it.audioKey&&REAL_AUDIO_TRACKS.get(it.audioKey),pid=e.pointerId;
   operationalTimelineDrag={it,b,before,sx,sy,baseStart,baseDur,baseAudio,real,pid,kind,moved:false,lastX:sx,lastY:sy,el};setSelection(it);el.classList.add("dragging-op");try{el.setPointerCapture(pid)}catch(_){ }
-  const move=ev=>{const d=operationalTimelineDrag;if(!d||ev.pointerId!==d.pid)return;d.lastX=ev.clientX;d.lastY=ev.clientY;const dx=ev.clientX-d.sx,dy=ev.clientY-d.sy;if(!d.moved&&Math.max(Math.abs(dx),Math.abs(dy))<3)return;d.moved=true;const delta=dx/Math.max(28,timelinePPS);
-    if(d.kind==="move"){d.it.timelineStart=Math.max(0,Math.round((d.baseStart+delta)*20)/20);d.el.style.transform="translateY("+dy+"px)"}
-    else if(d.kind==="end"){let dur=Math.max(.1,Math.round((d.baseDur+delta)*20)/20);if(d.real)dur=Math.min(dur,Math.max(.1,d.real.duration-d.baseAudio));d.it.dur=dur}
-    else{const min=d.b[6]==="audio"?Math.max(0,d.baseStart-d.baseAudio):0,start=Math.max(min,Math.min(d.baseStart+d.baseDur-.1,Math.round((d.baseStart+delta)*20)/20));d.it.timelineStart=start;d.it.dur=Math.max(.1,Math.round((d.baseDur+(d.baseStart-start))*20)/20);if(d.b[6]==="audio")d.it.audioOffset=Math.max(0,d.baseAudio+(start-d.baseStart))}
-    seqPlanCache=null;requestTimelineLayoutOperational();ev.preventDefault()
-  };
-  const end=ev=>{const d=operationalTimelineDrag;if(!d||ev.pointerId!==d.pid)return;el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);el.classList.remove("dragging-op");el.style.transform="";operationalTimelineDrag=null;
-    if(d.moved&&d.kind==="move"){const old=el.style.pointerEvents;el.style.pointerEvents="none";const under=document.elementFromPoint(d.lastX,d.lastY),lane=under&&under.closest&&under.closest(".trkl");el.style.pointerEvents=old;const track=lane&&lane.dataset.track,ty=lane&&lane.dataset.ty,expected=d.b[6];if(track&&ty===expected&&(["fx","v1","v2","a1","a2"].includes(track)))d.it.track=track}
-    if(d.moved){el.dataset.suppressClick="1";normalizeFixedTracksOperational();drawTL();pushHistory(d.before)}else{drawTL()}
-  };
+  const move=ev=>{const d=operationalTimelineDrag;if(!d||ev.pointerId!==d.pid)return;d.lastX=ev.clientX;d.lastY=ev.clientY;const dx=ev.clientX-d.sx,dy=ev.clientY-d.sy;if(!d.moved&&Math.max(Math.abs(dx),Math.abs(dy))<3)return;d.moved=true;const delta=dx/Math.max(28,timelinePPS);if(d.kind==="move"){d.it.timelineStart=Math.max(0,Math.round((d.baseStart+delta)*20)/20);d.el.style.transform="translateY("+dy+"px)"}else if(d.kind==="end"){let dur=Math.max(.1,Math.round((d.baseDur+delta)*20)/20);if(d.real)dur=Math.min(dur,Math.max(.1,d.real.duration-d.baseAudio));d.it.dur=dur}else{const min=d.b[6]==="audio"?Math.max(0,d.baseStart-d.baseAudio):0,start=Math.max(min,Math.min(d.baseStart+d.baseDur-.1,Math.round((d.baseStart+delta)*20)/20));d.it.timelineStart=start;d.it.dur=Math.max(.1,Math.round((d.baseDur+(d.baseStart-start))*20)/20);if(d.b[6]==="audio")d.it.audioOffset=Math.max(0,d.baseAudio+(start-d.baseStart))}seqPlanCache=null;requestTimelineLayoutOperational();ev.preventDefault()};
+  const end=ev=>{const d=operationalTimelineDrag;if(!d||ev.pointerId!==d.pid)return;el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);el.classList.remove("dragging-op");el.style.transform="";operationalTimelineDrag=null;if(d.moved&&d.kind==="move"){const old=el.style.pointerEvents;el.style.pointerEvents="none";const under=document.elementFromPoint(d.lastX,d.lastY),lane=under&&under.closest&&under.closest(".trkl");el.style.pointerEvents=old;const track=lane&&lane.dataset.track,ty=lane&&lane.dataset.ty,expected=d.b[6];if(track&&ty===expected&&["fx","v1","v2","a1","a2"].includes(track))d.it.track=track}if(d.moved){el.dataset.suppressClick="1";normalizeFixedTracksOperational();drawTL();pushHistory(d.before)}else drawTL()};
   el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);if(kind!=="move"){e.preventDefault();e.stopPropagation()}
 }
 function decorateTimelineClipsOperational(){
-  decorateTimelineClipsVII();document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const it=TL[Number(el.dataset.i)],b=B(it&&it.id);if(!it||!b)return;el.dataset.uid=it.uid;el.draggable=false;el.querySelectorAll(".move,.clip-track,.dur").forEach(x=>x.remove());
-    if(!el.querySelector(".clip-duration-readout")){const r=document.createElement("span");r.className="clip-duration-readout";el.appendChild(r)}
-    if(!el.querySelector(".trim-handle.start")){const a=document.createElement("i"),z=document.createElement("i");a.className="trim-handle start";z.className="trim-handle end";el.append(a,z)}
-    const title=el.querySelector(".clip-preset-name");if(b[6]==="shot"&&title){title.textContent=shotTypeLabel(shotTypeOf(it));title.title=techLabel(techOf(it.technicalPresetId))}
-    const alias=el.querySelector(".clip-alias");if(alias){alias.placeholder=uiWord("nota custom","custom note");if(document.activeElement!==alias)alias.value=it.userLabel||it.note||""}
-    if(!el.dataset.pointerOp){el.dataset.pointerOp="1";const baseClick=el.onclick,baseDbl=el.ondblclick;el.onclick=function(ev){if(this.dataset.suppressClick==="1"){this.dataset.suppressClick="0";ev.preventDefault();ev.stopPropagation();return}if(baseClick)baseClick.call(this,ev)};el.ondblclick=function(ev){if(baseDbl)baseDbl.call(this,ev)};el.addEventListener("pointerdown",ev=>{if(ev.target.closest("button,input,textarea"))return;const kind=ev.target.closest(".trim-handle.start")?"start":ev.target.closest(".trim-handle.end")?"end":"move";beginClipPointerOperational(ev,el,kind)},{capture:true})}
-  })
+  decorateTimelineClipsVII();document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const it=TL[Number(el.dataset.i)],b=B(it&&it.id);if(!it||!b)return;el.dataset.uid=it.uid;el.draggable=false;el.querySelectorAll(".move,.clip-track,.dur").forEach(x=>x.remove());if(!el.querySelector(".clip-duration-readout")){const r=document.createElement("span");r.className="clip-duration-readout";el.appendChild(r)}if(!el.querySelector(".trim-handle.start")){const a=document.createElement("i"),z=document.createElement("i");a.className="trim-handle start";z.className="trim-handle end";el.append(a,z)}const title=el.querySelector(".clip-preset-name");if(b[6]==="shot"&&title){title.textContent=shotTypeLabel(shotTypeOf(it));title.title=techLabel(techOf(it.technicalPresetId))}const alias=el.querySelector(".clip-alias");if(alias){alias.placeholder=uiWord("nota custom","custom note");if(document.activeElement!==alias)alias.value=it.userLabel||it.note||""}if(!el.dataset.pointerOp){el.dataset.pointerOp="1";const baseClick=el.onclick,baseDbl=el.ondblclick;el.onclick=function(ev){if(this.dataset.suppressClick==="1"){this.dataset.suppressClick="0";ev.preventDefault();ev.stopPropagation();return}if(baseClick)baseClick.call(this,ev)};el.ondblclick=function(ev){if(baseDbl)baseDbl.call(this,ev)};el.addEventListener("pointerdown",ev=>{if(ev.target.closest("button,input,textarea"))return;const kind=ev.target.closest(".trim-handle.start")?"start":ev.target.closest(".trim-handle.end")?"end":"move";beginClipPointerOperational(ev,el,kind)},{capture:true})}})
 }
 decorateTimelineClips=decorateTimelineClipsOperational;
-
 layoutTimeline=function(){
-  if(!timelineEditor||!timelineScroll||!timelineInner)return;normalizeFixedTracksOperational();const data=timelineLayoutData(),labelW=timelineLabelWidth(),available=Math.max(240,timelineScroll.clientWidth-labelW),content=Math.max(available,data.total*timelinePPS+72),rulerH=24,fit=Math.floor(Math.max(210,timelineScroll.clientHeight-rulerH)/5),trackH=clampOperational(fit,42,78);document.documentElement.style.setProperty("--timeline-track-h",trackH+"px");
-  timelineInner.style.width=(content+labelW)+"px";timelineInner.style.height=(rulerH+trackH*5)+"px";const tracks=document.getElementById("tracks");tracks.style.width=(content+labelW)+"px";tracks.style.height=(trackH*5)+"px";renderTimelineRuler(data.total,content);
-  ["fx","v2","v1","a2","a1"].forEach(track=>{const tr=tracks.querySelector('.trk[data-track="'+track+'"]');if(!tr)return;tr.hidden=false;tr.style.width=(content+labelW)+"px";const lane=tr.querySelector(".trkl");if(lane){lane.style.width=content+"px";lane.style.setProperty("--timeline-grid",timelinePPS+"px")}});
-  tracks.querySelector('.trk[data-track="v3"]')?.remove();tracks.querySelector('.trk[data-track="a3"]')?.remove();
-  document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const it=timelineItemFromClipOperational(el),i=TL.indexOf(it),p=data.map.get(i),b=B(it&&it.id);if(!p||!b)return;const min=b[6]==="shot"?38:b[6]==="trans"?2:12,w=Math.max(min,p.dur*timelinePPS-4);el.dataset.track=p.track;el.style.left=(p.start*timelinePPS+2)+"px";el.style.width=w+"px";el.classList.toggle("is-narrow",w<44);const pal=clipPalette(it,b);el.style.setProperty("--clip-color",pal[0]);el.style.setProperty("--clip-bg",pal[1]);const dur=el.querySelector(".clip-duration-readout");if(dur)dur.textContent=p.dur.toFixed(1)+"s"});
-  const add=document.querySelector("#lane-v1 .clip-add");if(add){add.style.left=(data.total*timelinePPS+8)+"px";add.style.width="64px"}if(timelineZoom)timelineZoom.value=String(Math.round(timelinePPS));updateTimelinePlayhead();if(!operationalTimelineDrag)enrichTimelineSnapshots()
+  if(!timelineEditor||!timelineScroll||!timelineInner)return;normalizeFixedTracksOperational();const data=timelineLayoutData(),labelW=timelineLabelWidth(),available=Math.max(240,timelineScroll.clientWidth-labelW),content=Math.max(available,data.total*timelinePPS+72),rulerH=24,viewportH=Math.max(250,timelineScroll.clientHeight),trackH=Math.max(44,(viewportH-rulerH)/5);document.documentElement.style.setProperty("--timeline-track-h",trackH+"px");timelineInner.style.width=(content+labelW)+"px";timelineInner.style.height=viewportH+"px";const tracks=document.getElementById("tracks");tracks.style.width=(content+labelW)+"px";tracks.style.height=(trackH*5)+"px";renderTimelineRuler(data.total,content);["fx","v2","v1","a2","a1"].forEach(track=>{const tr=tracks.querySelector('.trk[data-track="'+track+'"]');if(!tr)return;tr.hidden=false;tr.style.width=(content+labelW)+"px";const lane=tr.querySelector(".trkl");if(lane){lane.style.width=content+"px";lane.style.setProperty("--timeline-grid",timelinePPS+"px")}});tracks.querySelector('.trk[data-track="v3"]')?.remove();tracks.querySelector('.trk[data-track="a3"]')?.remove();document.querySelectorAll("#tracks .clip[data-i]").forEach(el=>{const it=timelineItemFromClipOperational(el),i=TL.indexOf(it),p=data.map.get(i),b=B(it&&it.id);if(!p||!b)return;const min=b[6]==="shot"?42:b[6]==="trans"?2:14,w=Math.max(min,p.dur*timelinePPS-4);el.dataset.track=p.track;el.style.left=(p.start*timelinePPS+2)+"px";el.style.width=w+"px";el.classList.toggle("is-narrow",w<48);const pal=clipPalette(it,b);el.style.setProperty("--clip-color",pal[0]);el.style.setProperty("--clip-bg",pal[1]);const dur=el.querySelector(".clip-duration-readout");if(dur)dur.textContent=p.dur.toFixed(1)+"s"});const add=document.querySelector("#lane-v1 .clip-add");if(add){add.style.left=(data.total*timelinePPS+8)+"px";add.style.width="68px"}if(timelineZoom)timelineZoom.value=String(Math.round(timelinePPS));updateTimelinePlayhead();if(!operationalTimelineDrag)enrichTimelineSnapshots()
 };
 
 function sequencePresetLabelOperational(key){const b=seqTemplateDial&&seqTemplateDial.querySelector('[data-id="'+cssEscape(key)+'"] b');return b&&b.textContent?b.textContent:(PRESETS[key]&&PRESETS[key].label)||key}
-function updateSequencePresetBarOperational(){
-  const select=document.getElementById("seqPresetSelectOp"),meta=document.getElementById("seqPresetMetaOp");if(select){select.innerHTML=Object.keys(PRESETS).map(k=>'<option value="'+k+'">'+escapeHTML(sequencePresetLabelOperational(k))+'</option>').join("");select.value=PRESETS[activeSequencePreset]?activeSequencePreset:"empty"}
-  if(meta){const shots=TL.filter(x=>{const b=B(x.id);return b&&b[6]==="shot"}).length;meta.textContent=shots+" SHOT"}
-}
-function createSequencePresetBarOperational(swrap){
-  let bar=document.getElementById("seqPresetBarOp");if(!bar){bar=document.createElement("div");bar.id="seqPresetBarOp";bar.className="seq-preset-bar-op";bar.innerHTML='<span>'+uiWord("PRESET SEQUENZA","SEQUENCE PRESET")+'</span><select id="seqPresetSelectOp" class="seq-preset-select-op" aria-label="Preset sequenza"></select><b id="seqPresetMetaOp" class="seq-preset-meta-op">0 SHOT</b><button id="seqPresetClearOp" class="seq-preset-clear-op" type="button">'+uiWord("SVUOTA","CLEAR")+'</button>';swrap.prepend(bar);bar.querySelector("#seqPresetSelectOp").onchange=e=>applySequenceTemplate(e.target.value,projectSnapshot());bar.querySelector("#seqPresetClearOp").onclick=()=>applySequenceTemplate("empty",projectSnapshot())}
-  updateSequencePresetBarOperational();return bar
-}
-
-function toggleLibraryDrawerOperational(force){
-  const drawer=document.getElementById("seqLibraryDrawerOp"),button=document.getElementById("timelineLibraryToggleOp");if(!drawer)return;const open=typeof force==="boolean"?force:!drawer.classList.contains("open");drawer.classList.toggle("open",open);if(button)button.setAttribute("aria-pressed",String(open))
-}
-function createInspectorOperational(id,label,icon,summary){
-  let d=document.getElementById(id);if(d)return d;d=document.createElement("details");d.id=id;d.className="seq-inspector-op";d.innerHTML='<summary>'+icon+'<b>'+label+'</b><span>'+summary+'</span></summary><div class="seq-inspector-body-op"></div>';return d
-}
+function updateSequencePresetBarOperational(){const select=document.getElementById("seqPresetSelectOp"),meta=document.getElementById("seqPresetMetaOp");if(select){select.innerHTML=Object.keys(PRESETS).map(k=>'<option value="'+k+'">'+escapeHTML(sequencePresetLabelOperational(k))+'</option>').join("");select.value=PRESETS[activeSequencePreset]?activeSequencePreset:"empty"}if(meta){const shots=TL.filter(x=>{const b=B(x.id);return b&&b[6]==="shot"}).length;meta.textContent=shots+" SHOT"}}
+function createSequencePresetBarOperational(swrap){let bar=document.getElementById("seqPresetBarOp");if(!bar){bar=document.createElement("div");bar.id="seqPresetBarOp";bar.className="seq-preset-bar-op";bar.innerHTML='<span>'+uiWord("PRESET TIMELINE","TIMELINE PRESET")+'</span><select id="seqPresetSelectOp" class="seq-preset-select-op" aria-label="Preset timeline"></select><b id="seqPresetMetaOp" class="seq-preset-meta-op">0 SHOT</b><button id="seqPresetClearOp" class="seq-preset-clear-op" type="button">'+uiWord("SVUOTA","CLEAR")+'</button>';swrap.prepend(bar);bar.querySelector("#seqPresetSelectOp").onchange=e=>applySequenceTemplate(e.target.value,projectSnapshot());bar.querySelector("#seqPresetClearOp").onclick=()=>applySequenceTemplate("empty",projectSnapshot())}updateSequencePresetBarOperational();return bar}
+function toggleLibraryDrawerOperational(force){const drawer=document.getElementById("seqLibraryDrawerOp"),button=document.getElementById("timelineLibraryToggleOp");if(!drawer)return;const open=typeof force==="boolean"?force:!drawer.classList.contains("open");drawer.classList.toggle("open",open);if(button)button.setAttribute("aria-pressed",String(open))}
 function setupSeqSplitterOperational(workspace,split){
-  if(split.dataset.wiredOp)return;split.dataset.wiredOp="1";let drag=null;
-  const end=()=>{if(!drag)return;drag=null;split.classList.remove("dragging");refreshPlayerGeometry();layoutTimeline()};
-  split.addEventListener("pointerdown",e=>{if(innerWidth<=900)return;const rect=workspace.getBoundingClientRect();drag={id:e.pointerId,rect};split.classList.add("dragging");try{split.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault()});
-  split.addEventListener("pointermove",e=>{if(!drag||drag.id!==e.pointerId)return;operationalSeqPct=clampOperational(((e.clientX-drag.rect.left)/drag.rect.width)*100,32,68);workspace.style.setProperty("--seq-player-pct-local",operationalSeqPct+"%");localStorage.setItem("memento.ui.seqPlayerPctOp",operationalSeqPct.toFixed(2));refreshPlayerGeometry();layoutTimeline();e.preventDefault()});
-  split.addEventListener("pointerup",end);split.addEventListener("pointercancel",end);split.addEventListener("lostpointercapture",end);split.addEventListener("dblclick",()=>{operationalSeqPct=42;workspace.style.setProperty("--seq-player-pct-local","42%");localStorage.setItem("memento.ui.seqPlayerPctOp","42");refreshPlayerGeometry();layoutTimeline()});
-  split.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home"].includes(e.key))return;operationalSeqPct=e.key==="Home"?42:clampOperational(operationalSeqPct+(e.key==="ArrowRight"?2:-2),32,68);workspace.style.setProperty("--seq-player-pct-local",operationalSeqPct+"%");localStorage.setItem("memento.ui.seqPlayerPctOp",String(operationalSeqPct));refreshPlayerGeometry();layoutTimeline();e.preventDefault()})
+  if(!split||split.dataset.wiredOp)return;split.dataset.wiredOp="1";let drag=null;const end=()=>{if(!drag)return;drag=null;split.classList.remove("dragging");refreshPlayerGeometry();layoutTimeline()};
+  split.addEventListener("pointerdown",e=>{if(innerWidth<=900)return;const rect=workspace.getBoundingClientRect();drag={id:e.pointerId,rect};split.classList.add("dragging");try{split.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault()});split.addEventListener("pointermove",e=>{if(!drag||drag.id!==e.pointerId)return;operationalSeqPct=clampOperational(((e.clientX-drag.rect.left)/drag.rect.width)*100,28,68);workspace.style.setProperty("--seq-player-pct-local",operationalSeqPct+"%");localStorage.setItem("memento.ui.seqPlayerPctOp",operationalSeqPct.toFixed(2));refreshPlayerGeometry();layoutTimeline();e.preventDefault()});split.addEventListener("pointerup",end);split.addEventListener("pointercancel",end);split.addEventListener("lostpointercapture",end);split.addEventListener("dblclick",()=>{operationalSeqPct=34;workspace.style.setProperty("--seq-player-pct-local","34%");localStorage.setItem("memento.ui.seqPlayerPctOp","34");refreshPlayerGeometry();layoutTimeline()});split.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home"].includes(e.key))return;operationalSeqPct=e.key==="Home"?34:clampOperational(operationalSeqPct+(e.key==="ArrowRight"?2:-2),28,68);workspace.style.setProperty("--seq-player-pct-local",operationalSeqPct+"%");localStorage.setItem("memento.ui.seqPlayerPctOp",String(operationalSeqPct));refreshPlayerGeometry();layoutTimeline();e.preventDefault()})
 }
-function updateSequenceShotSummaryOperational(){const s=document.querySelector("#seqShotTypeAccordionOp>summary span"),it=selectedShot();if(s)s.textContent=it?shotTypeLabel(shotTypeOf(it)):uiWord("NESSUNO SHOT","NO SHOT")}
+function prepareTimelineTypeOperational(role){
+  if(!role)return;const actions=role.querySelector(".seq-role-actions"),dial=role.querySelector(".dial-window"),variants=document.getElementById("seqVariantDial");if(dial)role.appendChild(dial);if(variants)role.appendChild(variants);if(actions){role.appendChild(actions);const random=actions.querySelector("#seqRandomVII"),reset=actions.querySelector("#seqResetVII");if(random){random.innerHTML='<span>'+uiWord("GENERA VARIANTE","GENERATE VARIANT")+'</span><small>'+uiWord("stessi principi","same principles")+'</small>'}if(reset)reset.textContent="RESET"}
+}
 function arrangeSeqOperational(){
   const swrap=document.querySelector(".seq .swrap"),mount=document.getElementById("seqPlayerMount"),role=document.querySelector(".role-dial-block"),project=document.getElementById("projectInline"),projectMount=document.getElementById("projectInlineMount"),recipe=document.getElementById("sRecipe"),library=document.getElementById("sLib");if(!swrap||!mount||!timelineEditor)return;
   const preset=createSequencePresetBarOperational(swrap);let workspace=document.getElementById("seqWorkspaceOp"),left=document.getElementById("seqPlayerPaneOp"),right=document.getElementById("seqEditorPaneOp"),split=document.getElementById("seqSplitterOp");
-  if(!workspace){workspace=document.createElement("section");workspace.id="seqWorkspaceOp";workspace.className="seq-workspace-op";left=document.createElement("div");left.id="seqPlayerPaneOp";left.className="seq-player-pane-op";split=document.createElement("button");split.id="seqSplitterOp";split.className="seq-splitter-op";split.type="button";split.setAttribute("aria-label",uiWord("Ridimensiona player","Resize player"));right=document.createElement("div");right.id="seqEditorPaneOp";right.className="seq-editor-pane-op";workspace.append(left,split,right);preset.after(workspace)}
-  workspace.style.setProperty("--seq-player-pct-local",operationalSeqPct+"%");setupSeqSplitterOperational(workspace,split);
-  left.appendChild(mount);const timePlayer=mount.querySelector(".time-player"),management=document.getElementById("seqManagementBar"),clean=document.getElementById("sPreviewClean");if(timePlayer){timePlayer.classList.add("seq-controls-op");if(clean&&!clean.querySelector("svg")){clean.innerHTML=VII_ICON.playblast+'<span class="seq-icon-label-op">PLAYBLAST</span>';clean.title="Playblast"}if(management){management.querySelector(".seq-project-dropdown")?.remove();timePlayer.appendChild(management)}}
-  let type=document.getElementById("seqShotTypeAccordionOp");if(!type){type=document.createElement("details");type.id="seqShotTypeAccordionOp";type.className="seq-shot-accordion-op";type.open=true;type.innerHTML='<summary>'+OP_ICON.type+'<b>'+uiWord("TIPOLOGIA DI SHOT","SHOT TYPE")+'</b><span>—</span><i>⌄</i></summary><div class="seq-shot-body-op"></div>'}if(role)type.querySelector(".seq-shot-body-op").appendChild(role);left.append(mount,type);
-
-  let timelineShell=document.getElementById("seqTimelineShellOp");if(!timelineShell){timelineShell=document.createElement("div");timelineShell.id="seqTimelineShellOp";timelineShell.className="seq-timeline-shell-op";right.appendChild(timelineShell)}timelineShell.appendChild(timelineEditor);
+  if(!workspace){
+    workspace=document.createElement("section");workspace.id="seqWorkspaceOp";workspace.className="seq-workspace-op";left=document.createElement("div");left.id="seqPlayerPaneOp";left.className="seq-player-pane-op";split=document.createElement("button");split.id="seqSplitterOp";split.className="seq-splitter-op";split.type="button";split.setAttribute("aria-label",uiWord("Ridimensiona player","Resize player"));split.tabIndex=0;right=document.createElement("div");right.id="seqEditorPaneOp";right.className="seq-editor-pane-op";
+    const nav=document.createElement("nav");nav.id="seqTabsOp";nav.className="workspace-tabs-op tab-count-4 seq-tabs-op";nav.setAttribute("role","tablist");[["timeline","TIMELINE",OP_ICON.timeline],["type",uiWord("TIPOLOGIA DI SHOT","SHOT TYPE"),OP_ICON.type],["breakdown","BREAKDOWN",OP_ICON.breakdown],["project",uiWord("PROGETTO","PROJECT"),OP_ICON.project]].forEach(x=>nav.appendChild(tabButtonOperational(x[0],x[1],x[2],"seq")));
+    const panels=document.createElement("div");panels.id="seqPanelsOp";panels.className="seq-panels-op";[["timeline","seq-timeline-panel-op"],["type","seq-type-panel-op"],["breakdown","seq-breakdown-panel-op"],["project","seq-project-panel-op"]].forEach(([key,cls])=>{const p=document.createElement("section");p.className="seq-panel-op "+cls;p.dataset.panel=key;p.setAttribute("role","tabpanel");panels.appendChild(p)});right.append(nav,panels);workspace.append(left,split,right);preset.after(workspace);nav.addEventListener("click",e=>{const b=e.target.closest("[data-seq-tab]");if(b)activateSeqPanelOperational(b.dataset.seqTab)});wireTabKeyboardOperational(nav,"seq",activateSeqPanelOperational)
+  }
+  workspace.style.setProperty("--seq-player-pct-local",operationalSeqPct+"%");setupSeqSplitterOperational(workspace,split);left.appendChild(mount);
+  const timePlayer=mount.querySelector(".time-player"),management=document.getElementById("seqManagementBar"),clean=document.getElementById("sPreviewClean");if(timePlayer){timePlayer.classList.add("seq-controls-op");if(clean&&!clean.querySelector("svg")){clean.innerHTML=VII_ICON.playblast+'<span class="seq-icon-label-op">PLAYBLAST</span>';clean.title="Playblast"}if(management){management.querySelector(".seq-project-dropdown")?.remove();timePlayer.appendChild(management)}}
+  const timelinePanel=right.querySelector('[data-panel="timeline"]'),typePanel=right.querySelector('[data-panel="type"]'),breakdownPanel=right.querySelector('[data-panel="breakdown"]'),projectPanel=right.querySelector('[data-panel="project"]');
+  let timelineShell=document.getElementById("seqTimelineShellOp");if(!timelineShell){timelineShell=document.createElement("div");timelineShell.id="seqTimelineShellOp";timelineShell.className="seq-timeline-shell-op"}timelinePanel.appendChild(timelineShell);timelineShell.appendChild(timelineEditor);
   let drawer=document.getElementById("seqLibraryDrawerOp");if(!drawer){drawer=document.createElement("aside");drawer.id="seqLibraryDrawerOp";drawer.className="seq-library-drawer-op";drawer.innerHTML='<div class="seq-library-head-op"><b>'+uiWord("INQUADRATURE · FX · AUDIO","SHOTS · FX · AUDIO")+'</b><button type="button" aria-label="Close">×</button></div><div class="seq-library-body-op"></div>';timelineShell.appendChild(drawer);drawer.querySelector("button").onclick=()=>toggleLibraryDrawerOperational(false)}if(library)drawer.querySelector(".seq-library-body-op").appendChild(library);
-
-  let inspectors=document.getElementById("seqInspectorsOp");if(!inspectors){inspectors=document.createElement("div");inspectors.id="seqInspectorsOp";inspectors.className="seq-inspectors-op";right.appendChild(inspectors)}
-  const projectDetails=createInspectorOperational("seqProjectInspectorOp",uiWord("PROGETTO","PROJECT"),OP_ICON.library,uiWord("CHIUSO","CLOSED"));const breakdown=createInspectorOperational("seqBreakdownInspectorOp",uiWord("SHOTLIST · BREAKDOWN","SHOTLIST · BREAKDOWN"),OP_ICON.breakdown,uiWord("CHIUSO","CLOSED"));if(projectDetails.parentNode!==inspectors)inspectors.append(projectDetails,breakdown);
-  if(projectMount)projectDetails.querySelector(".seq-inspector-body-op").appendChild(projectMount);if(recipe)breakdown.querySelector(".seq-inspector-body-op").appendChild(recipe);if(project)project.hidden=true;
-  [projectDetails,breakdown].forEach(d=>{if(!d.dataset.exclusiveOp){d.dataset.exclusiveOp="1";d.open=false;d.addEventListener("toggle",()=>{if(d.open)[projectDetails,breakdown].forEach(x=>{if(x!==d)x.open=false});requestAnimationFrame(layoutTimeline)})}});
-  document.getElementById("sequenceAnalysisVII")?.remove();document.getElementById("sEnergy")?.setAttribute("hidden","");document.getElementById("sWaveWrap")?.setAttribute("hidden","");
-  const libButton=document.getElementById("timelineLibraryToggleOp");if(libButton)libButton.onclick=toggleLibraryDrawerOperational;updateSequenceShotSummaryOperational();updateSequencePresetBarOperational();layoutTimeline()
+  if(role){typePanel.appendChild(role);prepareTimelineTypeOperational(role)}if(recipe)breakdownPanel.appendChild(recipe);if(projectMount)projectPanel.appendChild(projectMount);if(project)project.hidden=true;
+  document.getElementById("seqShotTypeAccordionOp")?.remove();document.getElementById("seqInspectorsOp")?.remove();document.getElementById("sequenceAnalysisVII")?.remove();document.getElementById("sEnergy")?.setAttribute("hidden","");document.getElementById("sWaveWrap")?.setAttribute("hidden","");
+  const libButton=document.getElementById("timelineLibraryToggleOp");if(libButton)libButton.onclick=toggleLibraryDrawerOperational;activateSeqPanelOperational(["timeline","type","breakdown","project"].includes(operationalSeqPanel)?operationalSeqPanel:"timeline",false);syncRoleDialFromSelection(false);updateSequencePresetBarOperational();layoutTimeline();
+  if(window.ResizeObserver&&!operationalResizeObserver){operationalResizeObserver=new ResizeObserver(()=>requestAnimationFrame(()=>{refreshPlayerGeometry();layoutTimeline()}));operationalResizeObserver.observe(workspace);operationalResizeObserver.observe(timelineShell)}
 }
-
 function updateOperationalLabels(){
-  arrangeHeaderOperational();updateShotCommandLabelsOperational();updateShotAccordionSummaryOperational();updateSequenceShotSummaryOperational();updateSequencePresetBarOperational();
-  const labels=[["shotTypeAccordionOp","TIPOLOGIA DI SHOT","SHOT TYPE"],["shotAdvancedAccordionOp","AVANZATE","ADVANCED"],["shotReadAccordionOp","LETTURA TECNICA","TECHNICAL READOUT"],["shotAssetAccordionOp","CUSTOM 3D ASSET","CUSTOM 3D ASSET"],["seqShotTypeAccordionOp","TIPOLOGIA DI SHOT","SHOT TYPE"],["seqProjectInspectorOp","PROGETTO","PROJECT"],["seqBreakdownInspectorOp","SHOTLIST · BREAKDOWN","SHOTLIST · BREAKDOWN"]];labels.forEach(([id,it,en])=>{const b=document.querySelector("#"+id+">summary b");if(b)b.textContent=uiWord(it,en)});
-  const preset=document.querySelector(".seq-preset-bar-op>span"),clear=document.getElementById("seqPresetClearOp"),lib=document.querySelector("#timelineLibraryToggleOp span"),head=document.querySelector(".seq-library-head-op b");if(preset)preset.textContent=uiWord("PRESET SEQUENZA","SEQUENCE PRESET");if(clear)clear.textContent=uiWord("SVUOTA","CLEAR");if(lib)lib.textContent=uiWord("LIBRERIA","LIBRARY");if(head)head.textContent=uiWord("INQUADRATURE · FX · AUDIO","SHOTS · FX · AUDIO")
+  arrangeHeaderOperational();updateShotCommandLabelsOperational();updateSequencePresetBarOperational();
+  const shotTabs=[["type","TIPOLOGIA","SHOT TYPE"],["advanced","AVANZATE","ADVANCED"],["read","LETTURA","READOUT"],["asset","ASSET 3D","3D ASSET"]];shotTabs.forEach(([key,it,en])=>{const s=document.querySelector('[data-shot-tab="'+key+'"] span');if(s)s.textContent=uiWord(it,en)});
+  const seqTabs=[["timeline","TIMELINE","TIMELINE"],["type","TIPOLOGIA DI SHOT","SHOT TYPE"],["breakdown","BREAKDOWN","BREAKDOWN"],["project","PROGETTO","PROJECT"]];seqTabs.forEach(([key,it,en])=>{const s=document.querySelector('[data-seq-tab="'+key+'"] span');if(s)s.textContent=uiWord(it,en)});
+  const preset=document.querySelector(".seq-preset-bar-op>span"),clear=document.getElementById("seqPresetClearOp"),lib=document.querySelector("#timelineLibraryToggleOp span"),head=document.querySelector(".seq-library-head-op b");if(preset)preset.textContent=uiWord("PRESET TIMELINE","TIMELINE PRESET");if(clear)clear.textContent=uiWord("SVUOTA","CLEAR");if(lib)lib.textContent=uiWord("LIBRERIA","LIBRARY");if(head)head.textContent=uiWord("INQUADRATURE · FX · AUDIO","SHOTS · FX · AUDIO");prepareTimelineTypeOperational(document.querySelector(".role-dial-block"))
 }
 
-const __applySequenceTemplateOperational=applySequenceTemplate;
-applySequenceTemplate=function(key,before){const r=__applySequenceTemplateOperational(key,before);requestAnimationFrame(()=>{normalizeFixedTracksOperational();updateSequencePresetBarOperational();arrangeSeqOperational();decorateTimelineClipsOperational();layoutTimeline()});return r};
-const __drawTLOperational=drawTL;
-drawTL=function(){normalizeFixedTracksOperational();const r=__drawTLOperational();requestAnimationFrame(()=>{hideLegacyDockOperational();arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();decorateTimelineClipsOperational();updateSequencePresetBarOperational();updateShotAccordionSummaryOperational();layoutTimeline()});return r};
-const __renderVNextUIOperational=renderVNextUI;
-renderVNextUI=function(){const r=__renderVNextUIOperational();requestAnimationFrame(()=>{hideLegacyDockOperational();updateShotAccordionSummaryOperational();updateSequenceShotSummaryOperational()});return r};
-const __applyLanguageOperational=applyLanguage;
-applyLanguage=function(lang){const r=__applyLanguageOperational(lang);requestAnimationFrame(()=>{arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();updateOperationalLabels();decorateTimelineClipsOperational();layoutTimeline()});return r};
-const __applyProjectFormatOperational=applyProjectFormat;
-applyProjectFormat=function(value,save){const r=__applyProjectFormatOperational(value,save);requestAnimationFrame(()=>{refreshPlayerGeometry();layoutTimeline()});return r};
-
-function hookOperationalView(){
-  if(operationalViewHooked)return;operationalViewHooked=true;const old=window.__onView;window.__onView=v=>{const r=old&&old(v);requestAnimationFrame(()=>{hideLegacyDockOperational();arrangeHeaderOperational();if(v==="combo")arrangeShotOperational();if(v==="seq")arrangeSeqOperational();refreshPlayerGeometry();layoutTimeline()});return r}
-}
+const __applySequenceTemplateOperational=applySequenceTemplate;applySequenceTemplate=function(key,before){const r=__applySequenceTemplateOperational(key,before);requestAnimationFrame(()=>{normalizeFixedTracksOperational();updateSequencePresetBarOperational();arrangeSeqOperational();decorateTimelineClipsOperational();layoutTimeline()});return r};
+const __drawTLOperational=drawTL;drawTL=function(){normalizeFixedTracksOperational();const r=__drawTLOperational();requestAnimationFrame(()=>{hideLegacyDockOperational();arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();decorateTimelineClipsOperational();updateSequencePresetBarOperational();layoutTimeline()});return r};
+const __renderVNextUIOperational=renderVNextUI;renderVNextUI=function(){const r=__renderVNextUIOperational();requestAnimationFrame(()=>{hideLegacyDockOperational();updateAdvancedSideOperational();if(operationalSeqPanel==="type")syncRoleDialFromSelection(false)});return r};
+const __applyLanguageOperational=applyLanguage;applyLanguage=function(lang){const r=__applyLanguageOperational(lang);requestAnimationFrame(()=>{arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();updateOperationalLabels();decorateTimelineClipsOperational();layoutTimeline()});return r};
+const __applyProjectFormatOperational=applyProjectFormat;applyProjectFormat=function(value,save){const r=__applyProjectFormatOperational(value,save);requestAnimationFrame(()=>{refreshPlayerGeometry();layoutTimeline()});return r};
+function hookOperationalView(){if(operationalViewHooked)return;operationalViewHooked=true;const old=window.__onView;window.__onView=v=>{const r=old&&old(v);requestAnimationFrame(()=>{hideLegacyDockOperational();arrangeHeaderOperational();if(v==="combo")arrangeShotOperational();if(v==="seq")arrangeSeqOperational();refreshPlayerGeometry();layoutTimeline()});return r}}
 function initOperationalWorkspace(){
   if(operationalReady)return;operationalReady=true;document.body.classList.add("memento-operational");hideLegacyDockOperational();arrangeHeaderOperational();normalizeFixedTracksOperational();rebuildTimelineOperational();arrangeShotOperational();arrangeSeqOperational();hookOperationalView();updateOperationalLabels();decorateTimelineClipsOperational();layoutTimeline();
-  const full=document.getElementById("shotFullscreenVII");if(full)full.onclick=()=>setShotFocusOperational(true);const exit=document.getElementById("shotFocusExitVII")||document.getElementById("shotFocusExit");if(exit)exit.onclick=()=>setShotFocusOperational(false);
+  const full=document.getElementById("shotFullscreenVII"),exit=document.getElementById("shotFocusExitVII")||document.getElementById("shotFocusExit");if(full)full.onclick=()=>setShotFocusOperational(true);if(exit)exit.onclick=()=>setShotFocusOperational(false);
   document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&document.body.classList.contains("shot-focus-op")){document.body.classList.remove("shot-focus-op");if(exit)exit.hidden=true;refreshPlayerGeometry()}});
   document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(document.body.classList.contains("shot-focus-op"))setShotFocusOperational(false);else if(document.getElementById("seqLibraryDrawerOp")?.classList.contains("open"))toggleLibraryDrawerOperational(false)});
-  window.addEventListener("resize",()=>requestAnimationFrame(()=>{arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();refreshPlayerGeometry();layoutTimeline()}),{passive:true});
-  requestAnimationFrame(()=>{drawTL();refreshPlayerGeometry()})
+  window.addEventListener("resize",()=>requestAnimationFrame(()=>{arrangeHeaderOperational();arrangeShotOperational();arrangeSeqOperational();refreshPlayerGeometry();layoutTimeline()}),{passive:true});requestAnimationFrame(()=>{drawTL();refreshPlayerGeometry()})
 }
-
-const __initPolishVOperational=initPolishV;
-initPolishV=function(){const r=__initPolishVOperational();initOperationalWorkspace();return r};
+const __initPolishVOperational=initPolishV;initPolishV=function(){const r=__initPolishVOperational();initOperationalWorkspace();return r};
 
 const restored=loadProject();
-if(restored){
-  TL=restored.timeline; activeShotUid=restored.activeShotUid; applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid;}
-}else{
-  const hero=makeNeutralShotVII();TL=[hero];activeShotUid=hero.uid;activeSequencePreset="empty";applyProjectFormat("16:9",false);
-}
-projectReady=true;drawTL();updateContexts();initVNext();
-if(window.__setMode)window.__setMode(window.__currentMode||"combo");else if(window.__onView)window.__onView("combo");
-if(typeof renderVNextUI==="function")renderVNextUI();
+if(restored){TL=restored.timeline;activeShotUid=restored.activeShotUid;applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid}}
+else{const hero=makeNeutralShotVII();TL=[hero];activeShotUid=hero.uid;activeSequencePreset="empty";applyProjectFormat("16:9",false)}
+projectReady=true;drawTL();updateContexts();initVNext();if(window.__setMode)window.__setMode(window.__currentMode||"combo");else if(window.__onView)window.__onView("combo");if(typeof renderVNextUI==="function")renderVNextUI();
 
 })();
 </script>
