@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MEMENTO — Pocket Previs · V13 SHOT Polish</title>
+<title>MEMENTO — Pocket Previs · V15 PLAYER + EDITOR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -3280,8 +3280,444 @@ body.seq-focus-v12 .seq-left-render-v13 .time-rig{height:100%!important}
   }
   </style>
 
+
+
+  <!-- MEMENTO V15 · PLAYER + EDITOR STRUCTURAL PASS -->
+  <style id="memento-shot-polish-v15">
+  /* ========================================================================
+     SHOT POLISH V15 — true viewport gate, two-tier player, explicit editor
+     ======================================================================== */
+  :root{
+    --shot-transport-h:42px;
+    --shot-author-h:50px;
+    --shot-stage-pad:10px;
+  }
+
+  /* ---------------- TRUE VIEWPORT / OUTPUT GATE ---------------- */
+  .app.v-combo .shot-player-rig{
+    background:#0a0a0d!important;
+    isolation:isolate;
+  }
+  .app.v-combo .shot-player-rig .vpbar{order:0!important}
+  .app.v-combo .shot-stage-shell-v15{
+    order:1;position:relative;flex:1 1 auto;min-width:0;min-height:0;
+    display:grid;place-items:center;overflow:hidden;padding:var(--shot-stage-pad);
+    background:
+      radial-gradient(85% 115% at 50% 46%,rgba(255,255,255,.035),transparent 66%),
+      #141418;
+  }
+  .app.v-combo .shot-stage-shell-v15::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+    background-size:24px 24px;opacity:.34;
+  }
+  .app.v-combo .shot-player-rig .cprev,
+  .app.v-combo .shot-player-rig.is-stuck .cprev{
+    position:relative!important;z-index:1!important;flex:none!important;
+    min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+    margin:0!important;border:1px solid rgba(255,255,255,.075)!important;border-radius:8px!important;
+    background:#030304!important;overflow:hidden!important;box-shadow:0 12px 38px rgba(0,0,0,.34)!important;
+  }
+  .app.v-combo .shot-player-rig .cprev.work{
+    border-color:rgba(255,255,255,.055)!important;box-shadow:none!important;
+  }
+  .app.v-combo .shot-player-rig .cprev>canvas:first-child{
+    position:absolute;inset:0;width:100%!important;height:100%!important;display:block;
+    transition:filter .16s var(--ease),opacity .16s var(--ease);
+  }
+  .app.v-combo .shot-player-rig .cprev.work>canvas:first-child{
+    opacity:.78;filter:brightness(.72) saturate(.78) contrast(.95);
+  }
+  .app.v-combo .shot-output-gate-v15{
+    position:absolute;z-index:32;left:50%;top:50%;translate:-50% -50%;
+    display:none;overflow:hidden;pointer-events:none;background:#030304;
+    border:1px solid rgba(255,255,255,.72);border-radius:3px;
+    box-shadow:0 0 0 9999px rgba(0,0,0,.26),0 0 22px rgba(0,0,0,.42),inset 0 0 0 1px rgba(0,0,0,.55);
+  }
+  .app.v-combo .shot-player-rig .cprev.work .shot-output-gate-v15{display:block}
+  .app.v-combo .shot-gate-canvas-v15,
+  .app.v-combo .shot-gate-canvas-v15 canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+  .app.v-combo .shot-output-gate-v15::before,
+  .app.v-combo .shot-output-gate-v15::after{
+    content:"";position:absolute;z-index:4;inset:7px;pointer-events:none;opacity:.52;
+    background:
+      linear-gradient(#fff,#fff) left top/15px 1px no-repeat,
+      linear-gradient(#fff,#fff) left top/1px 15px no-repeat,
+      linear-gradient(#fff,#fff) right top/15px 1px no-repeat,
+      linear-gradient(#fff,#fff) right top/1px 15px no-repeat,
+      linear-gradient(#fff,#fff) left bottom/15px 1px no-repeat,
+      linear-gradient(#fff,#fff) left bottom/1px 15px no-repeat,
+      linear-gradient(#fff,#fff) right bottom/15px 1px no-repeat,
+      linear-gradient(#fff,#fff) right bottom/1px 15px no-repeat;
+  }
+  .app.v-combo .shot-output-gate-v15::after{
+    inset:50% auto auto 50%;width:18px;height:18px;translate:-50% -50%;opacity:.17;
+    background:
+      linear-gradient(#fff,#fff) center/1px 18px no-repeat,
+      linear-gradient(#fff,#fff) center/18px 1px no-repeat;
+  }
+  .app.v-combo .shot-gate-label-v15{
+    position:absolute;z-index:5;left:8px;top:7px;padding:4px 6px;border:1px solid rgba(255,255,255,.16);
+    border-radius:5px;background:rgba(5,5,7,.62);backdrop-filter:blur(8px);
+    color:rgba(255,255,255,.72);font:800 6px/1 var(--mono);letter-spacing:.14em;
+  }
+
+  /* ---------------- PLAYER · TRANSPORT BAR ---------------- */
+  .app.v-combo .shot-transport-v15{
+    order:8;flex:0 0 var(--shot-transport-h);min-height:var(--shot-transport-h);width:100%;min-width:0;
+    display:grid;grid-template-columns:auto auto minmax(90px,1fr) auto auto auto;align-items:center;gap:5px;
+    padding:4px 6px;border-top:1px solid var(--line);background:#0b0b0e;overflow:hidden;
+  }
+  .app.v-combo .shot-transport-v15 .microbtn,
+  .app.v-combo .shot-authorbar-v15 .microbtn{
+    appearance:none;flex:none;height:33px;min-height:33px;border:1px solid var(--line-2);border-radius:7px;
+    background:#101014;color:var(--txt-2);padding:6px 8px;display:flex;align-items:center;justify-content:center;gap:6px;
+    cursor:pointer;font:750 7px/1 var(--mono);letter-spacing:.09em;white-space:nowrap;
+  }
+  .app.v-combo .shot-transport-v15 .microbtn:hover,
+  .app.v-combo .shot-authorbar-v15 .microbtn:hover{border-color:var(--txt-3);color:var(--txt)}
+  .app.v-combo .shot-transport-v15 .microbtn svg,
+  .app.v-combo .shot-authorbar-v15 .microbtn svg{
+    width:14px;height:14px;display:block;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;
+  }
+  .app.v-combo .shot-transport-v15 #shotPlayV13{color:#f3f3f5;border-color:rgba(255,255,255,.19)}
+  .app.v-combo .shot-transport-v15 #shotPlayV13[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:#17110e}
+  .app.v-combo .shot-transport-v15 #shotLoopV13[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:#17110e}
+  .shot-timeline-control-v15{min-width:0;display:grid;grid-template-columns:minmax(54px,1fr) auto;align-items:center;gap:7px;padding:0 3px}
+  .shot-timeline-control-v15 input{min-width:0;width:100%;height:3px!important;background:linear-gradient(90deg,#595960,var(--accent))!important}
+  .shot-timeline-control-v15 output{min-width:72px;text-align:right;color:var(--txt-3);font:750 6.4px/1 var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .shot-fps-v15,.shot-format-v15{display:flex;align-items:center;gap:5px}
+  .shot-fps-v15 span{font:800 6px/1 var(--mono);letter-spacing:.12em;color:var(--txt-3)}
+  .shot-fps-v15 select,.shot-format-v15 select{
+    appearance:none;height:33px;border:1px solid var(--line-2);border-radius:7px;background:#101014;color:var(--txt-2);
+    padding:0 23px 0 8px;font:750 7px/1 var(--mono);cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,var(--txt-3) 50%),linear-gradient(135deg,var(--txt-3) 50%,transparent 50%);
+    background-position:calc(100% - 10px) 48%,calc(100% - 6px) 48%;background-size:4px 4px;background-repeat:no-repeat;
+  }
+  .shot-fps-v15 select{min-width:62px}.shot-format-v15 select{min-width:62px}
+  .shot-fps-v15 select:focus,.shot-format-v15 select:focus{outline:none;border-color:var(--accent)}
+  .app.v-combo .shot-transport-v15 #shotFullscreenVII{width:33px;min-width:33px;padding:6px}
+  .app.v-combo .shot-transport-v15 #shotFullscreenVII .command-label{display:none}
+
+  /* ---------------- PLAYER · AUTHORING BAR ---------------- */
+  .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15{
+    order:9!important;flex:0 0 var(--shot-author-h)!important;min-height:var(--shot-author-h)!important;width:100%!important;
+    margin:0!important;padding:5px 6px!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;
+    background:#09090c!important;display:flex!important;align-items:center!important;gap:5px!important;overflow:hidden!important;
+  }
+  .shot-author-utility-v15,.shot-author-creative-v15{display:flex;align-items:center;gap:3px;flex:none}
+  .shot-author-utility-v15 .microbtn{width:31px!important;min-width:31px!important;padding:6px!important}
+  .shot-author-utility-v15 .command-label{display:none!important}
+  .shot-endpoint-v15{min-width:66px!important;color:var(--txt)!important}
+  .shot-endpoint-v15.endpoint-start-v13{border-color:rgba(255,255,255,.28)!important;background:rgba(255,255,255,.045)!important}
+  .shot-endpoint-v15.endpoint-end-v13{border-color:rgba(255,121,80,.42)!important;background:rgba(255,121,80,.065)!important;color:var(--accent)!important}
+  .shot-endpoint-v15[aria-pressed="true"]{box-shadow:inset 0 -2px 0 currentColor!important}
+  .shot-interpolation-v15{position:relative;flex:1 1 220px;min-width:150px;height:34px;display:flex;align-items:center;padding:0 5px}
+  .shot-interpolation-v15 .player-mix-v13{width:100%;min-width:0;max-width:none!important;margin:0!important;display:flex!important}
+  .shot-interpolation-v15 .player-mix-v13 input{
+    width:100%!important;min-width:0!important;height:3px!important;
+    background:linear-gradient(90deg,#f4f4f6 0%,rgba(255,255,255,.18) 48%,var(--accent) 100%)!important;
+  }
+  .shot-interpolation-v15 .player-mix-v13 output{display:none!important}
+  .shot-duration-v15{
+    position:absolute;z-index:5;left:50%;top:50%;translate:-50% -50%;height:27px;min-width:88px;
+    display:flex;align-items:center;justify-content:center;gap:4px;padding:0 7px;border:1px solid rgba(255,255,255,.15);
+    border-radius:999px;background:rgba(10,10,13,.94);box-shadow:0 3px 12px rgba(0,0,0,.38);color:var(--txt-2);
+  }
+  .shot-duration-v15 input{
+    width:31px;height:20px;border:0;border-bottom:1px solid rgba(255,255,255,.16);background:transparent;color:var(--txt);
+    padding:0;text-align:right;font:800 7px/1 var(--mono);outline:none;appearance:textfield;
+  }
+  .shot-duration-v15 input::-webkit-inner-spin-button,.shot-duration-v15 input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .shot-duration-v15 input:focus{border-bottom-color:var(--accent)}
+  .shot-duration-v15 b,.shot-duration-v15 span{font:750 6px/1 var(--mono);color:var(--txt-3);white-space:nowrap}
+  .shot-duration-v15 span{color:var(--accent)}
+  .shot-author-creative-v15 .microbtn{min-width:36px!important;width:auto!important}
+  .shot-author-creative-v15 #shotRandomOp{color:var(--accent)!important;border-color:rgba(255,121,80,.38)!important;background:#17110e!important}
+  .shot-author-creative-v15 #shotVariantOp{color:#f1f1f3!important;border-color:rgba(255,255,255,.18)!important;background:#121216!important}
+  .shot-add-timeline-v15{min-width:92px!important;color:var(--accent)!important;border-color:rgba(255,121,80,.42)!important;background:#17110e!important}
+  .shot-add-timeline-v15.added-v15{color:#fff!important;border-color:#fff!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)!important}
+
+  /* ---------------- EDITOR LAYOUT ---------------- */
+  .app.v-combo .shot-panel-advanced-op.active,
+  .seq-edit-panel-v12.active{
+    display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;background:#08080a!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .shot-parameter-section,
+  .seq-edit-panel-v12 .shot-parameter-section{
+    order:1;flex:1 1 auto;min-height:0;overflow:auto!important;overscroll-behavior:contain;
+    margin:0!important;padding:8px!important;background:#08080a!important;scrollbar-width:thin;
+  }
+  .app.v-combo #shotAdvancedToolbarOp,
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp{
+    order:2;position:sticky!important;z-index:30!important;top:auto!important;bottom:0!important;
+    flex:0 0 42px!important;min-height:42px!important;height:42px!important;width:100%!important;
+    display:grid!important;grid-template-columns:minmax(0,40fr) minmax(72px,20fr) minmax(0,40fr)!important;
+    align-items:stretch!important;padding:0!important;gap:0!important;border:0!important;border-top:1px solid var(--line)!important;
+    background:rgba(9,9,12,.985)!important;backdrop-filter:blur(14px)!important;overflow:hidden!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-side-toggle-op,
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-side-toggle-op{display:contents!important}
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side],
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp [data-shot-side]{
+    min-width:0!important;width:100%!important;height:42px!important;padding:0 14px!important;border:0!important;border-radius:0!important;
+    display:flex!important;align-items:center!important;gap:8px!important;background:transparent!important;
+    font:850 7px/1 var(--mono)!important;letter-spacing:.17em!important;cursor:pointer!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side] svg,
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp [data-shot-side] svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side="start"],
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp [data-shot-side="start"]{
+    grid-column:1!important;justify-content:flex-start!important;color:#f4f4f6!important;
+    background:linear-gradient(90deg,rgba(255,255,255,.14),rgba(255,255,255,0) 82%)!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side="end"],
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp [data-shot-side="end"]{
+    grid-column:3!important;justify-content:flex-end!important;color:var(--accent)!important;
+    background:linear-gradient(90deg,rgba(255,121,80,0) 18%,rgba(255,121,80,.17))!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side][aria-pressed="true"],
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp [data-shot-side][aria-pressed="true"]{box-shadow:inset 0 -2px 0 currentColor!important}
+  .app.v-combo #shotAdvancedToolbarOp .shot-advanced-status-op,
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-advanced-status-op{
+    appearance:none;grid-column:2!important;align-self:center!important;justify-self:stretch!important;height:30px!important;min-width:0!important;
+    margin:0 5px!important;padding:0 7px!important;border:1px solid var(--line-2)!important;border-radius:999px!important;
+    background:#0e0e12!important;color:var(--txt-2)!important;text-align:center!important;
+    font:850 6.6px/1 var(--mono)!important;letter-spacing:.11em!important;white-space:nowrap!important;cursor:pointer!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-advanced-status-op[aria-pressed="true"],
+  .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-advanced-status-op[aria-pressed="true"]{
+    border-color:var(--accent)!important;color:var(--accent)!important;background:#17110e!important;
+  }
+
+  .app.v-combo .shot-panel-advanced-op .cgrp,
+  .seq-edit-panel-v12 .cgrp{
+    margin:0 0 12px!important;padding:0!important;border:1px solid rgba(255,255,255,.065)!important;
+    border-radius:10px!important;background:#0a0a0d!important;overflow:hidden!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .cgrp:last-child,
+  .seq-edit-panel-v12 .cgrp:last-child{margin-bottom:0!important}
+  .app.v-combo .shot-panel-advanced-op .cgrp-h,
+  .seq-edit-panel-v12 .cgrp-h{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important}
+  .app.v-combo .shot-panel-advanced-op .copts,
+  .seq-edit-panel-v12 .copts{
+    display:grid!important;grid-template-columns:minmax(108px,.82fr) repeat(2,minmax(0,1fr))!important;
+    grid-auto-flow:row!important;grid-auto-rows:minmax(84px,auto)!important;align-items:stretch!important;
+    gap:6px!important;min-height:0!important;height:auto!important;padding:6px!important;overflow:visible!important;
+    scroll-snap-type:none!important;background:#09090c!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13,
+  .seq-edit-panel-v12 .axis-summary-v13{
+    position:relative!important;left:auto!important;z-index:2!important;grid-column:1!important;align-self:start!important;
+    width:100%!important;min-width:0!important;height:84px!important;min-height:84px!important;
+    padding:10px 24px 9px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:8px!important;
+    background:linear-gradient(145deg,#17171b,#0d0d10)!important;box-shadow:none!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;text-align:center!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13>svg,
+  .seq-edit-panel-v12 .axis-summary-v13>svg{
+    width:25px!important;height:25px!important;flex:none!important;stroke:#dedee2!important;fill:none!important;stroke-width:1.55!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 strong,
+  .seq-edit-panel-v12 .axis-summary-v13 strong{
+    max-width:100%;font:850 6.7px/1 var(--mono)!important;letter-spacing:.17em!important;color:#efeff2!important;text-transform:uppercase!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13>span,
+  .seq-edit-panel-v12 .axis-summary-v13>span{
+    margin:0!important;max-width:100%;min-height:11px;font:760 7.6px/1.22 Inter!important;color:#b9b9bf!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;white-space:normal!important;overflow:hidden!important;
+    -webkit-line-clamp:2!important;text-overflow:ellipsis!important;
+  }
+  .axis-summary-v13 .summary-start-v15{color:#f4f4f6}.axis-summary-v13 .summary-end-v15{color:var(--accent)}
+  .axis-summary-v13 .summary-separator-v15{color:var(--txt-3)}.axis-summary-v13 .summary-shared-v15{color:#d9d9dd}
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 .lock,
+  .seq-edit-panel-v12 .axis-summary-v13 .lock{
+    position:absolute!important;right:5px!important;top:5px!important;width:21px!important;height:21px!important;margin:0!important;
+    display:grid!important;place-items:center!important;padding:0!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:6px!important;
+    background:#0a0a0d!important;color:var(--txt-3)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 .lock[aria-pressed="true"],
+  .seq-edit-panel-v12 .axis-summary-v13 .lock[aria-pressed="true"]{border-color:var(--accent)!important;background:#17110e!important;color:var(--accent)!important}
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 .lock svg,
+  .seq-edit-panel-v12 .axis-summary-v13 .lock svg{width:10px!important;height:10px!important}
+
+  .app.v-combo .shot-panel-advanced-op .copts>.copt-wrap-v12,
+  .seq-edit-panel-v12 .copts>.copt-wrap-v12{
+    position:relative!important;min-width:0!important;width:auto!important;min-height:84px!important;height:auto!important;
+    border-radius:8px!important;overflow:hidden!important;background:transparent!important;scroll-snap-align:none!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12>.copt,
+  .seq-edit-panel-v12 .copt-wrap-v12>.copt{
+    width:100%!important;height:100%!important;min-height:84px!important;padding:11px 9px 31px!important;border-radius:8px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;
+    background:#0d0d10!important;color:var(--txt-3)!important;box-shadow:none!important;pointer-events:none!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt .ic,
+  .app.v-combo .shot-panel-advanced-op .copt>svg,
+  .seq-edit-panel-v12 .copt .ic,
+  .seq-edit-panel-v12 .copt>svg{display:none!important}
+  .app.v-combo .shot-panel-advanced-op .copt>span:not(.x),
+  .seq-edit-panel-v12 .copt>span:not(.x){
+    max-width:100%!important;margin:0!important;color:inherit!important;font-size:9.2px!important;font-weight:780!important;
+    line-height:1.18!important;letter-spacing:.095em!important;white-space:normal!important;overflow:hidden!important;
+    display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;text-overflow:ellipsis!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt>small,
+  .seq-edit-panel-v12 .copt>small{display:none!important}
+  .app.v-combo .shot-panel-advanced-op .cgrp.locked .copts,
+  .seq-edit-panel-v12 .cgrp.locked .copts{opacity:1!important}
+
+  /* Function chips are three real hit areas: 40 START / 20 EXCLUDE / 40 END. */
+  .app.v-combo .shot-panel-advanced-op .axis-side-picks-v12,
+  .seq-edit-panel-v12 .axis-side-picks-v12{
+    position:absolute!important;z-index:8!important;inset:0!important;translate:none!important;
+    display:grid!important;grid-template-columns:40fr 20fr 40fr!important;gap:0!important;pointer-events:auto!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12,
+  .seq-edit-panel-v12 .axis-side-pick-v12,
+  .app.v-combo .shot-panel-advanced-op .axis-exclude-v15,
+  .seq-edit-panel-v12 .axis-exclude-v15{
+    position:relative!important;inset:auto!important;translate:none!important;width:auto!important;height:auto!important;min-width:0!important;
+    padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--txt-3)!important;
+    display:block!important;cursor:pointer!important;opacity:1!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:first-child,
+  .seq-edit-panel-v12 .axis-side-pick-v12:first-child{grid-column:1;border-right:1px solid rgba(255,255,255,.035)!important}
+  .app.v-combo .shot-panel-advanced-op .axis-exclude-v15,
+  .seq-edit-panel-v12 .axis-exclude-v15{grid-column:2;border-right:1px solid rgba(255,255,255,.035)!important}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:last-child,
+  .seq-edit-panel-v12 .axis-side-pick-v12:last-child{grid-column:3}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12::after,
+  .seq-edit-panel-v12 .axis-side-pick-v12::after,
+  .app.v-combo .shot-panel-advanced-op .axis-exclude-v15::after,
+  .seq-edit-panel-v12 .axis-exclude-v15::after{
+    content:"";position:absolute;left:5px;right:5px;bottom:3px;height:23px;border-top:1px solid rgba(255,255,255,.055);
+    border-radius:0 0 6px 6px;background:rgba(4,4,6,.18);transition:.12s var(--ease);
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:hover::after,
+  .seq-edit-panel-v12 .axis-side-pick-v12:hover::after,
+  .app.v-combo .shot-panel-advanced-op .axis-exclude-v15:hover::after,
+  .seq-edit-panel-v12 .axis-exclude-v15:hover::after{background:rgba(255,255,255,.045)}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12 svg,
+  .seq-edit-panel-v12 .axis-side-pick-v12 svg,
+  .app.v-combo .shot-panel-advanced-op .axis-exclude-v15 svg,
+  .seq-edit-panel-v12 .axis-exclude-v15 svg{
+    position:absolute!important;z-index:3!important;left:50%!important;right:auto!important;top:auto!important;bottom:9px!important;translate:-50% 0!important;
+    width:12px!important;height:12px!important;display:block!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;
+    opacity:.48!important;pointer-events:none!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:first-child,
+  .seq-edit-panel-v12 .axis-side-pick-v12:first-child{color:#f4f4f6!important}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:last-child,
+  .seq-edit-panel-v12 .axis-side-pick-v12:last-child{color:var(--accent)!important}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12[aria-pressed="true"] svg,
+  .seq-edit-panel-v12 .axis-side-pick-v12[aria-pressed="true"] svg{opacity:1!important}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12[aria-pressed="true"]::after,
+  .seq-edit-panel-v12 .axis-side-pick-v12[aria-pressed="true"]::after{background:rgba(255,255,255,.055)}
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:last-child[aria-pressed="true"]::after,
+  .seq-edit-panel-v12 .axis-side-pick-v12:last-child[aria-pressed="true"]::after{background:rgba(255,121,80,.07)}
+  .app.v-combo .shot-panel-advanced-op .axis-exclude-v15,
+  .seq-edit-panel-v12 .axis-exclude-v15{color:#a1a1a8!important}
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.excluded-v15 .axis-exclude-v15,
+  .seq-edit-panel-v12 .copt-wrap-v12.excluded-v15 .axis-exclude-v15{color:var(--accent)!important}
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.excluded-v15>.copt,
+  .seq-edit-panel-v12 .copt-wrap-v12.excluded-v15>.copt{opacity:.28!important;filter:grayscale(.75)}
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.excluded-v15>.copt::after,
+  .seq-edit-panel-v12 .copt-wrap-v12.excluded-v15>.copt::after{display:none!important}
+
+  /* START = white → transparent. END = transparent → orange. Shared keeps both. */
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13:not(.has-end-v13)>.copt,
+  .seq-edit-panel-v12 .copt-wrap-v12.has-start-v13:not(.has-end-v13)>.copt{
+    border-color:rgba(255,255,255,.38)!important;color:#f4f4f6!important;
+    background:linear-gradient(90deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.055) 40%,rgba(255,255,255,0) 82%),#0d0d10!important;
+    box-shadow:inset 2px 0 0 rgba(255,255,255,.92)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-end-v13:not(.has-start-v13)>.copt,
+  .seq-edit-panel-v12 .copt-wrap-v12.has-end-v13:not(.has-start-v13)>.copt{
+    border-color:rgba(255,121,80,.48)!important;color:var(--accent)!important;
+    background:linear-gradient(90deg,rgba(255,121,80,0) 16%,rgba(255,121,80,.055) 56%,rgba(255,121,80,.24) 100%),#0d0d10!important;
+    box-shadow:inset -2px 0 0 var(--accent)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13.has-end-v13>.copt,
+  .seq-edit-panel-v12 .copt-wrap-v12.has-start-v13.has-end-v13>.copt,
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.shared-value-v13>.copt,
+  .seq-edit-panel-v12 .copt-wrap-v12.shared-value-v13>.copt{
+    border-color:rgba(255,255,255,.58)!important;color:#f5f5f7!important;
+    background:linear-gradient(90deg,rgba(255,255,255,.20) 0%,rgba(255,255,255,.045) 38%,transparent 49%,transparent 51%,rgba(255,121,80,.055) 62%,rgba(255,121,80,.23) 100%),#0d0d10!important;
+    box-shadow:inset 2px 0 0 rgba(255,255,255,.88),inset -2px 0 0 var(--accent)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13,
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-end-v13,
+  .seq-edit-panel-v12 .copt-wrap-v12.has-start-v13,
+  .seq-edit-panel-v12 .copt-wrap-v12.has-end-v13{background:transparent!important}
+  .shot-parameter-section.delta-only-v15 .cgrp.same-axis-v15{display:none!important}
+
+  /* Focus retains the two player bars instead of becoming a control-less image. */
+  body.shot-focus-op .shot-player-rig>.shot-commandbar.shot-authorbar-v15,
+  body.shot-focus-vii .shot-player-rig>.shot-commandbar.shot-authorbar-v15{display:flex!important}
+  body.shot-focus-op .shot-transport-v15,
+  body.shot-focus-vii .shot-transport-v15{display:grid!important}
+  body.shot-focus-op .shot-stage-shell-v15,
+  body.shot-focus-vii .shot-stage-shell-v15{display:grid!important;position:relative!important;flex:1 1 auto!important;min-height:0!important;padding:12px!important}
+  body.shot-focus-op .shot-player-rig,
+  body.shot-focus-vii .shot-player-rig{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important}
+  body.shot-focus-op .shot-player-rig .cprev,
+  body.shot-focus-vii .shot-player-rig .cprev{display:block!important;max-width:none!important;max-height:none!important}
+
+  @media(max-width:1180px){
+    .app.v-combo .shot-author-creative-v15 .command-label{display:none!important}
+    .app.v-combo .shot-author-creative-v15 .microbtn{width:33px!important;min-width:33px!important;padding:6px!important}
+    .shot-add-timeline-v15{min-width:78px!important}.shot-add-timeline-v15 .command-label{font-size:6.2px!important}
+    .shot-interpolation-v15{min-width:130px}
+  }
+  @media(max-width:900px){
+    :root{--shot-transport-h:40px;--shot-author-h:82px;--shot-stage-pad:6px}
+    .shot-workspace-op{grid-template-rows:minmax(335px,56%) minmax(0,1fr)!important}
+    .app.v-combo .shot-transport-v15{
+      grid-template-columns:auto auto minmax(72px,1fr) auto auto auto;gap:4px;overflow:hidden!important;padding-inline:5px!important
+    }
+    .app.v-combo .shot-transport-v15 #shotLoopV13,.app.v-combo .shot-transport-v15 #shotPlayV13{min-width:47px;padding-inline:7px}
+    .app.v-combo .shot-transport-v15 #shotFullscreenVII{width:31px;min-width:31px}
+    .app.v-combo .shot-transport-v15::-webkit-scrollbar,.app.v-combo .shot-authorbar-v15::-webkit-scrollbar{display:none}
+    .shot-timeline-control-v15{min-width:72px;padding-inline:1px}.shot-timeline-control-v15 output{display:none}
+    .shot-fps-v15 span{display:none}.shot-fps-v15 select,.shot-format-v15 select{min-width:51px;width:51px;padding-left:6px;padding-right:18px}
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15{
+      flex-basis:var(--shot-author-h)!important;min-height:var(--shot-author-h)!important;height:var(--shot-author-h)!important;
+      display:grid!important;grid-template-columns:auto auto minmax(100px,1fr) auto!important;grid-template-rows:34px 34px!important;
+      gap:4px!important;overflow:hidden!important;padding:5px!important
+    }
+    .shot-author-utility-v15{display:flex!important;grid-column:1;grid-row:1;gap:2px}
+    .shot-author-utility-v15 .microbtn{width:27px!important;min-width:27px!important;height:32px!important;padding:5px!important}
+    .shot-endpoint-v15{min-width:51px!important;height:32px!important;padding-inline:6px!important;font-size:6.4px!important}
+    #shotStartV13{grid-column:2;grid-row:1}#shotEndV13{grid-column:4;grid-row:1}
+    .shot-interpolation-v15{grid-column:3;grid-row:1;min-width:0!important;width:100%;height:32px;padding-inline:2px}
+    .shot-duration-v15{min-width:74px;height:25px;padding-inline:5px}.shot-duration-v15 input{width:27px}.shot-duration-v15 span{font-size:5.7px}
+    .shot-author-creative-v15{grid-column:1/3;grid-row:2;display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0}
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-author-creative-v15 .microbtn{width:100%!important;min-width:0!important;height:32px!important;padding-inline:6px!important}
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-endpoint-v15 .command-label,
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-author-creative-v15 .command-label,
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-add-timeline-v15 .command-label{display:inline!important}
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-author-creative-v15 .command-label{font-size:6.1px!important}
+    .shot-add-timeline-v15{grid-column:3/5;grid-row:2;height:32px!important}
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-add-timeline-v15{width:100%!important;min-width:0!important;max-width:none!important}
+    .app.v-combo .shot-player-rig>.shot-commandbar.shot-authorbar-v15 .shot-add-timeline-v15 .command-label{font-size:6.2px!important}
+    .app.v-combo .shot-panel-advanced-op .copts,.seq-edit-panel-v12 .copts{grid-template-columns:minmax(104px,.78fr) repeat(2,minmax(0,1fr))!important}
+  }
+  @media(max-width:520px){
+    .app.v-combo .shot-panel-advanced-op .copts,.seq-edit-panel-v12 .copts{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    .app.v-combo .shot-panel-advanced-op .axis-summary-v13,.seq-edit-panel-v12 .axis-summary-v13{
+      grid-column:1/-1!important;grid-row:auto!important;height:82px!important;min-height:82px!important;
+    }
+    .app.v-combo #shotAdvancedToolbarOp,.seq-edit-panel-v12 #shotAdvancedToolbarOp{grid-template-columns:1fr 82px 1fr!important}
+    .app.v-combo #shotAdvancedToolbarOp [data-shot-side],.seq-edit-panel-v12 #shotAdvancedToolbarOp [data-shot-side]{padding-inline:10px!important}
+  }
+  </style>
+
 </head>
-<body data-memento-build="v13-timeline" data-shot-polish="v14">
+<body data-memento-build="v13-timeline" data-shot-polish="v15">
 <div class="app v-combo" data-format="16:9">
   <header class="top" id="topbar">
     <div class="brandrow">
@@ -8489,6 +8925,195 @@ function v13InstallKeyboard(){if(document.documentElement.dataset.keysV13)return
 function v13OverrideProjectImport(){const input=document.getElementById("sProjectImport");if(!input)return;input.onchange=function(e){const f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);if(!data||!Array.isArray(data.timeline))throw new Error("Formato non valido");if(data.timelineSettings)v13ApplySettings(data.timelineSettings);TL=normalizeTimeline(data.timeline);activeShotUid=typeof data.activeShotUid==="string"?data.activeShotUid:null;applyProjectFormat(FORMATS.includes(data.format)?data.format:"16:9",false);seqPlayhead=v13RangeIn();drawTL();updateContexts();v13SaveSettings(true);v13HydrateAudio()}catch(err){alert("Impossibile importare il progetto: "+err.message)}};rd.readAsText(f);e.target.value=""}}
 function v13BreakdownText(){const data=timelineLayoutData(),a=v13RangeIn(),z=v13RangeOut(data);let txt="BREAKDOWN SEQUENZA\n==================\nFormato: "+projectFormat+" · "+v13FPS+" FPS\nRange: "+v13Timecode(a)+" → "+v13Timecode(z)+"\n\n",n=0;TL.forEach((x,i)=>{const b=B(x.id),p=data.map.get(i);if(!b||!p)return;if(b[6]==="shot"){n++;const A=shotStart(x),E=shotEnd(x),da=deltaAnalysis(A,E);txt+="SHOT "+String(n).padStart(2,"0")+" — "+(x.userLabel||x.note||b[1])+"  ("+v13Frames(p.dur)+"f · "+v13Timecode(p.start)+")\n";AXES.forEach(ax=>{txt+="  "+axisName(ax.id).padEnd(18)+": "+optionName(ax.id,A[ax.id])+(A[ax.id]===E[ax.id]?"":" → "+optionName(ax.id,E[ax.id]))+"\n"});if(x.note)txt+="  NOTA              : "+x.note+"\n";txt+="\n"}else txt+="  >> "+b[6].toUpperCase()+": "+b[1]+" ("+v13Frames(p.dur)+"f @ "+v13Timecode(p.start)+")\n"});txt+="------------------\nOutput range: "+v13Frames(z-a)+"f · "+(z-a).toFixed(2)+"s · "+n+" inquadrature\n";return txt}
 breakdownText=v13BreakdownText;
+
+
+/* ========================================================================
+   MEMENTO V15 · PLAYER + EDITOR STRUCTURAL PASS
+   Scoped to SHOT and the shared advanced editor. Timeline behavior is kept.
+   ======================================================================== */
+const V15_ICON={
+  restore:'<svg viewBox="0 0 24 24"><path d="M5 8V4h4"/><path d="M5.7 5.7A8 8 0 1 1 4 14"/><path d="M12 8v8M8 12h8"/></svg>',
+  exclude:'<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></svg>',
+  timeline:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><rect x="7" y="4" width="6" height="4" rx="1"/><rect x="10" y="10" width="7" height="4" rx="1"/><rect x="6" y="16" width="9" height="4" rx="1"/></svg>'
+};
+let v15GateCanvas=null,v15DiffOnly=false,v15GeometryRAF=0;
+
+function v15ProjectRatio(){
+  const p=String(projectFormat||"16:9").split(":"),a=Number(p[0])||16,b=Number(p[1])||9;
+  return a/b
+}
+function v15ScheduleGeometry(repaint=true){
+  cancelAnimationFrame(v15GeometryRAF);
+  v15GeometryRAF=requestAnimationFrame(()=>{
+    const shell=document.getElementById("shotStageShellV15"),host=document.getElementById("cprev"),gate=document.getElementById("shotOutputGateV15");
+    if(!shell||!host)return;
+    const box=shell.getBoundingClientRect();if(box.width<4||box.height<4)return;
+    const work=host.classList.contains("work")||!!VP.combo.on,ratio=v15ProjectRatio();
+    if(work){
+      host.style.setProperty("width",Math.max(1,box.width-2)+"px","important");
+      host.style.setProperty("height",Math.max(1,box.height-2)+"px","important");
+      host.style.setProperty("aspect-ratio","auto","important");
+    }else{
+      const availW=Math.max(1,box.width-20),availH=Math.max(1,box.height-20);
+      let w=availW,h=w/ratio;if(h>availH){h=availH;w=h*ratio}
+      host.style.setProperty("width",Math.max(1,w)+"px","important");
+      host.style.setProperty("height",Math.max(1,h)+"px","important");
+      host.style.setProperty("aspect-ratio",String(ratio),"important");
+    }
+    if(gate&&work){
+      const stage=host.getBoundingClientRect(),availW=Math.max(1,stage.width*.90),availH=Math.max(1,stage.height*.84);
+      let w=availW,h=w/ratio;if(h>availH){h=availH;w=h*ratio}
+      gate.style.width=Math.max(1,w)+"px";gate.style.height=Math.max(1,h)+"px";
+      const label=gate.querySelector(".shot-gate-label-v15");if(label)label.textContent=projectFormat;
+    }
+    if(repaint&&window.__repaint)requestAnimationFrame(window.__repaint)
+  })
+}
+function v15InstallGate(){
+  const host=document.getElementById("cprev"),rig=host&&host.closest(".shot-player-rig");if(!host||!rig)return;
+  let shell=document.getElementById("shotStageShellV15");
+  if(!shell){shell=document.createElement("div");shell.id="shotStageShellV15";shell.className="shot-stage-shell-v15";rig.insertBefore(shell,host);shell.appendChild(host)}
+  let gate=document.getElementById("shotOutputGateV15");
+  if(!gate){
+    gate=document.createElement("div");gate.id="shotOutputGateV15";gate.className="shot-output-gate-v15";
+    gate.innerHTML='<div class="shot-gate-canvas-v15" id="shotGateCanvasHostV15"></div><span class="shot-gate-label-v15">'+escapeHTML(projectFormat)+'</span>';
+    host.appendChild(gate);v15GateCanvas=makeCanvas(gate.querySelector("#shotGateCanvasHostV15"));
+  }else if(!v15GateCanvas){const h=gate.querySelector("#shotGateCanvasHostV15");if(h)v15GateCanvas=makeCanvas(h)}
+  if(!shell.dataset.resizeV15){
+    shell.dataset.resizeV15="1";
+    if(window.ResizeObserver)new ResizeObserver(()=>v15ScheduleGeometry(false)).observe(shell);
+    new MutationObserver(()=>v15ScheduleGeometry()).observe(host,{attributes:true,attributeFilter:["class"]});
+  }
+  v15ScheduleGeometry(false)
+}
+
+function v15RenderedShotFrame(){
+  const it=activeShot()||selectedShot();
+  if(it){const dur=Math.max(v13FrameDuration(),Number(it.dur)||2.8);return pairRenderAt(shotStart(it),shotEnd(it),runtimeState(it),dur,dur*v13ShotRenderedMix,false)}
+  return selC?{sel:selC,p:params(selC),time:0}:null
+}
+const __paintV15=paint;
+paint=function(time){
+  __paintV15(time);
+  if(view==="combo"&&v15GateCanvas&&VP.combo.on){const r=v15RenderedShotFrame();if(r)draw(v15GateCanvas,r.sel,r.p,r.time)}
+};
+
+function v15ControlButton(id,icon,label,cls){
+  const b=v13Button(id,icon,label,"microbtn "+(cls||""));
+  b.className="microbtn "+(cls||"");b.innerHTML=icon+'<span class="command-label">'+label+'</span>';
+  b.title=label;b.setAttribute("aria-label",label);return b
+}
+function v15Shot(){return activeShot()||selectedShot()}
+function v15SetDurationFrames(value){
+  const it=v15Shot();if(!it)return;const frames=Math.max(1,Math.round(Number(value)||1)),next=frames/v13FPS;
+  if(Math.abs((Number(it.dur)||0)-next)<.0001)return;
+  const before=projectSnapshot();it.dur=next;setShotPreviewItem(it);drawTL();pushHistory(before);v13UpdateTransport();start()
+}
+function v15AddShotToTimeline(){
+  const source=v15Shot();if(!source)return;
+  const before=projectSnapshot(),raw=JSON.parse(JSON.stringify(source)),copy=normalizeItem(raw);if(!copy)return;
+  TL.forEach(x=>x.selected=false);copy.uid=uid();copy.selected=true;copy.track=v13NextVideoTrack();copy.timelineStart=v13FrameSnap(timelineLayoutData().total);copy.activeVariantId=null;
+  TL.push(copy);activeShotUid=copy.uid;setShotPreviewItem(copy);syncLocksFromShot(copy);syncAdvancedFromShotVII(copy);drawTL();pushHistory(before);updateContexts();
+  const b=document.getElementById("shotAddTimelineV15");if(b){b.classList.add("added-v15");const s=b.querySelector(".command-label");if(s)s.textContent=uiWord("AGGIUNTO","ADDED");setTimeout(()=>{b.classList.remove("added-v15");if(s)s.textContent=uiWord("+ TIMELINE","+ TIMELINE")},900)}
+}
+function v15BuildShotTransport(){
+  const bar=document.getElementById("shotCommandbar"),rig=document.querySelector(".shot-player-rig");if(!bar||!rig)return;
+  v15InstallGate();bar.className="shot-commandbar shot-authorbar-v15";
+  let transport=document.getElementById("shotTransportV15");if(!transport){transport=document.createElement("div");transport.id="shotTransportV15";transport.className="shot-transport-v15";rig.insertBefore(transport,bar)}else if(transport.parentNode!==rig)rig.insertBefore(transport,bar);
+
+  const loopB=v15ControlButton("shotLoopV13",V13_ICON.loop,"LOOP","shot-loop-v13");
+  loopB.onclick=()=>{v13ShotLoop=!v13ShotLoop;v13SaveSettings(false);v13UpdateTransport()};
+  const playB=v15ControlButton("shotPlayV13",v13ShotPlaying?V13_ICON.pause:V13_ICON.play,uiWord(v13ShotPlaying?"PAUSA":"PLAY",v13ShotPlaying?"PAUSE":"PLAY"),"shot-play-v15");
+  playB.onclick=v13ToggleShotPlay;
+  const timeline=document.createElement("label");timeline.className="shot-timeline-control-v15";
+  timeline.innerHTML='<input id="shotTimelineV15" type="range" min="0" max="100" step="1" value="'+Math.round(v13ShotRenderedMix*100)+'" aria-label="Timeline shot"><output id="shotTimelineTimeV15">00:00:00:00</output>';
+  const timelineInput=timeline.querySelector("input");timelineInput.onpointerdown=()=>{v13ShotPlaying=false};timelineInput.oninput=e=>v13SetShotMix(Number(e.target.value)/100);
+  const fps=document.createElement("label");fps.className="shot-fps-v15";const fpsValues=[24,25,30,50,60];if(!fpsValues.includes(v13FPS))fpsValues.push(v13FPS);fpsValues.sort((a,b)=>a-b);
+  fps.innerHTML='<span>FPS</span><select id="shotFPSV15" aria-label="FPS">'+fpsValues.map(x=>'<option value="'+x+'">'+x+' FPS</option>').join("")+'</select>';fps.querySelector("select").value=String(v13FPS);fps.querySelector("select").onchange=e=>v13SetFPS(Number(e.target.value));
+  let fmt=document.getElementById("shotFormatV13");if(!fmt){const w=document.createElement("label");w.className="shot-format-v15";w.innerHTML='<select id="shotFormatV13" aria-label="Aspect ratio">'+FORMATS.map(x=>'<option value="'+x+'">'+x+'</option>').join("")+'</select>';fmt=w.querySelector("select");fmt.onchange=e=>applyProjectFormat(e.target.value,true)}
+  const fmtWrap=fmt.parentNode;fmtWrap.className="shot-format-v15";fmt.value=projectFormat;
+  const full=document.getElementById("shotFullscreenVII");if(full){full.innerHTML=OP_COMMAND_ICON.full+'<span class="command-label">FULLSCREEN</span>';full.onclick=()=>setShotFocusOperational(true)}
+  transport.replaceChildren(loopB,playB,timeline,fps,fmtWrap,...(full?[full]:[]));
+
+  const util=document.createElement("div");util.className="shot-author-utility-v15";["shotUndoVII","shotRedoVII","shotCopyVII","shotPasteVII"].forEach(id=>{const b=document.getElementById(id);if(b)util.appendChild(b)});
+  const startB=v15ControlButton("shotStartV13",V13_ICON.start,"START","shot-endpoint-v15 endpoint-start-v13");startB.onclick=()=>v13SetShotMix(0,"start");
+  const endB=v15ControlButton("shotEndV13",V13_ICON.end,"END","shot-endpoint-v15 endpoint-end-v13");endB.onclick=()=>v13SetShotMix(1,"end");
+  const interpolation=document.createElement("div");interpolation.className="shot-interpolation-v15";interpolation.appendChild(v13MixControl("shotMixV13",v13ShotRenderedMix,v=>v13SetShotMix(v)));
+  const duration=document.createElement("label");duration.className="shot-duration-v15";duration.innerHTML='<input id="shotDurationFramesV15" type="number" min="1" step="1" aria-label="Durata in frame"><b>f</b><span id="shotDurationSecondsV15">0.00s</span>';duration.onpointerdown=e=>e.stopPropagation();duration.querySelector("input").onchange=e=>v15SetDurationFrames(e.target.value);interpolation.appendChild(duration);
+  const creative=document.createElement("div");creative.className="shot-author-creative-v15";
+  let random=document.getElementById("shotRandomOp");if(!random){random=buttonVII("shotRandomOp",uiWord("CASUALE","RANDOM"),V13_ICON.random,"shot-random-op");random.onclick=generateRandomShotOperational}
+  let variant=document.getElementById("shotVariantOp");if(!variant){variant=buttonVII("shotVariantOp",uiWord("VARIANTE","VARIANT"),V13_ICON.variant,"shot-variant-op");variant.onclick=generateShotVariant}
+  random.innerHTML=V13_ICON.random+'<span class="command-label">'+uiWord("CASUALE","RANDOM")+'</span>';variant.innerHTML=V13_ICON.variant+'<span class="command-label">'+uiWord("VARIANTE","VARIANT")+'</span>';creative.append(random,variant);
+  const add=v15ControlButton("shotAddTimelineV15",V13_ICON.plus,uiWord("+ TIMELINE","+ TIMELINE"),"shot-add-timeline-v15");add.onclick=v15AddShotToTimeline;
+  bar.replaceChildren(util,startB,interpolation,endB,creative,add);v13UpdateTransport();v15ScheduleGeometry(false)
+}
+v13BuildShotTransport=v15BuildShotTransport;
+
+const __v13UpdateTransportV15=v13UpdateTransport;
+v13UpdateTransport=function(){
+  __v13UpdateTransportV15();
+  const it=v15Shot(),dur=Math.max(v13FrameDuration(),Number(it&&it.dur)||2.8),mix=Math.max(0,Math.min(1,v13ShotRenderedMix));
+  const play=document.getElementById("shotPlayV13");if(play){play.innerHTML=(v13ShotPlaying?V13_ICON.pause:V13_ICON.play)+'<span class="command-label">'+uiWord(v13ShotPlaying?"PAUSA":"PLAY",v13ShotPlaying?"PAUSE":"PLAY")+'</span>';play.setAttribute("aria-pressed",String(v13ShotPlaying))}
+  const timeline=document.getElementById("shotTimelineV15");if(timeline&&document.activeElement!==timeline)timeline.value=String(Math.round(mix*100));
+  const timelineTime=document.getElementById("shotTimelineTimeV15");if(timelineTime)timelineTime.textContent=v13Timecode(dur*mix)+" / "+v13Timecode(dur);
+  const fps=document.getElementById("shotFPSV15");if(fps&&document.activeElement!==fps)fps.value=String(v13FPS);
+  const frames=document.getElementById("shotDurationFramesV15");if(frames&&document.activeElement!==frames)frames.value=String(Math.max(1,Math.round(dur*v13FPS)));
+  const seconds=document.getElementById("shotDurationSecondsV15");if(seconds)seconds.textContent=dur.toFixed(2)+"s";
+  const fmt=document.getElementById("shotFormatV13");if(fmt&&document.activeElement!==fmt)fmt.value=projectFormat;
+  const start=document.getElementById("shotStartV13"),end=document.getElementById("shotEndV13");if(start)start.setAttribute("aria-pressed",String(shotEditSide!=="end"));if(end)end.setAttribute("aria-pressed",String(shotEditSide==="end"));
+  const add=document.getElementById("shotAddTimelineV15");if(add)add.disabled=!it;
+};
+
+function v15EnsureEditorToolbar(){
+  const bar=document.getElementById("shotAdvancedToolbarOp");if(!bar)return null;bar.classList.add("edit-statebar-v15");
+  const start=bar.querySelector('[data-shot-side="start"]'),end=bar.querySelector('[data-shot-side="end"]');
+  if(start)start.innerHTML=V13_ICON.start+'<span>START</span>';if(end)end.innerHTML='<span>END</span>'+V13_ICON.end;
+  let status=bar.querySelector(".shot-advanced-status-op");
+  if(status&&status.tagName!=="BUTTON"){const b=document.createElement("button");b.type="button";b.className=status.className;b.textContent=status.textContent;status.replaceWith(b);status=b}
+  if(status&&!status.dataset.v15){status.dataset.v15="1";status.onclick=e=>{e.preventDefault();e.stopPropagation();v15DiffOnly=!v15DiffOnly;updateAdvancedSideOperational()}}
+  return bar
+}
+function v15DecorateAdvanced(){
+  const it=editorTargetV12&&editorTargetV12();if(!it||!cAxesHost)return;ensureAdvancedSideControlsV12();const A=shotStart(it),E=shotEnd(it);
+  cAxesHost.querySelectorAll(".cgrp").forEach(group=>{
+    const axis=group.dataset.ax,opts=group.querySelector(".copts"),head=group.querySelector(".cgrp-h");if(!axis||!opts)return;
+    let summary=opts.querySelector(":scope > .axis-summary-v13");
+    if(!summary){summary=document.createElement("div");summary.className="axis-summary-v13";summary.dataset.axis=axis;summary.innerHTML=(PARAM_AXIS_ICONS[axis]||"")+'<strong>'+escapeHTML(axisName(axis))+'</strong><span></span>';opts.prepend(summary)}
+    const lock=(head&&head.querySelector(".lock"))||summary.querySelector(".lock");if(lock&&lock.parentNode!==summary)summary.appendChild(lock);
+    const wraps=[...opts.querySelectorAll(":scope > .copt-wrap-v12")],rows=Math.max(1,Math.ceil(wraps.length/2));summary.style.gridRow="1 / span "+rows;
+    group.classList.toggle("same-axis-v15",A[axis]===E[axis]);group.classList.toggle("delta-axis-v15",A[axis]!==E[axis]);
+    const label=summary.querySelector(":scope > span");if(label){const a=escapeHTML(optionName(axis,A[axis])),b=escapeHTML(optionName(axis,E[axis]));label.innerHTML=A[axis]===E[axis]?'<span class="summary-shared-v15">'+a+'</span>':'<span class="summary-start-v15">'+a+'</span><i class="summary-separator-v15">/</i><span class="summary-end-v15">'+b+'</span>'}
+    wraps.forEach(wrap=>{
+      const opt=wrap.querySelector(".copt"),picks=wrap.querySelector(".axis-side-picks-v12");if(!opt||!picks)return;
+      const s=A[axis]===opt.dataset.op,e=E[axis]===opt.dataset.op,excluded=opt.classList.contains("excl");
+      wrap.classList.toggle("has-start-v13",s);wrap.classList.toggle("has-end-v13",e);wrap.classList.toggle("shared-value-v13",s&&e);wrap.classList.toggle("excluded-v15",excluded);
+      opt.classList.toggle("shared-value-v12",s&&e);opt.classList.toggle("delta-value-v12",s!==e);
+      picks.querySelectorAll(".axis-side-pick-v12").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sidePick==="start"?s:e)));
+      let x=opt.querySelector(":scope > .x")||picks.querySelector(".axis-exclude-v15");
+      if(x){x.classList.add("axis-exclude-v15");x.setAttribute("tabindex","0");x.setAttribute("role","button");if(x.parentNode!==picks)picks.insertBefore(x,picks.lastElementChild);x.innerHTML=excluded?V15_ICON.restore:V15_ICON.exclude;x.title=excluded?uiWord("Riattiva nella casuale","Restore to random pool"):uiWord("Escludi dalla casuale","Exclude from random pool");x.setAttribute("aria-label",x.title);if(!x.dataset.keysV15){x.dataset.keysV15="1";x.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();x.click()}})}}
+    })
+  });
+  cAxesHost.classList.toggle("delta-only-v15",v15DiffOnly);v15EnsureEditorToolbar();updateAdvancedSideOperational()
+}
+v13DecorateAdvanced=v15DecorateAdvanced;
+if(cAxesHost&&!cAxesHost.dataset.exclusionV15){cAxesHost.dataset.exclusionV15="1";cAxesHost.addEventListener("click",e=>{if(e.target.closest(".axis-exclude-v15,.copt .x"))requestAnimationFrame(v15DecorateAdvanced)},true)}
+
+const __updateAdvancedSideV15=updateAdvancedSideOperational;
+updateAdvancedSideOperational=function(){
+  v15EnsureEditorToolbar();__updateAdvancedSideV15();const it=editorTargetV12&&editorTargetV12(),bar=document.getElementById("shotAdvancedToolbarOp"),params=document.querySelector(".shot-parameter-section");if(!bar)return;
+  const A=it?shotStart(it):null,E=it?shotEnd(it):null,d=it?AXES.filter(a=>A[a.id]!==E[a.id]).length:0,l=it?Object.keys(it.locks||{}).filter(k=>it.locks[k]).length:0;
+  const status=bar.querySelector(".shot-advanced-status-op");if(status){status.textContent="DELTA · "+d;status.setAttribute("aria-pressed",String(v15DiffOnly));status.title=uiWord("Mostra solo differenze · "+l+" lock","Show differences only · "+l+" locks")}
+  bar.querySelectorAll("[data-shot-side]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shotSide===(shotEditSide||"start"))));
+  if(params)params.classList.toggle("delta-only-v15",v15DiffOnly);
+  const start=document.getElementById("shotStartV13"),end=document.getElementById("shotEndV13");if(start)start.setAttribute("aria-pressed",String((shotEditSide||"start")==="start"));if(end)end.setAttribute("aria-pressed",String(shotEditSide==="end"));
+};
+
+const __applyProjectFormatV15=applyProjectFormat;
+applyProjectFormat=function(value,save){const r=__applyProjectFormatV15(value,save);requestAnimationFrame(()=>{v15ScheduleGeometry();v13UpdateTransport()});return r};
+const __refreshPlayerGeometryV15=refreshPlayerGeometry;
+refreshPlayerGeometry=function(){const r=__refreshPlayerGeometryV15&&__refreshPlayerGeometryV15();requestAnimationFrame(()=>v15ScheduleGeometry(false));return r};
+window.addEventListener("resize",()=>v15ScheduleGeometry(false),{passive:true});
+requestAnimationFrame(()=>{v15InstallGate();v15BuildShotTransport();v15DecorateAdvanced();v15ScheduleGeometry()});
 
 function initMementoV13(){if(v13UIReady)return;v13UIReady=true;document.body.dataset.mementoBuild="v13-timeline";if(!VP.seq){VP.seq={on:false,az:.7,el:.35,dist:9};try{makeOrbit(document.getElementById("timePrev"),VP.seq,()=>{if(window.__repaint)window.__repaint()})}catch(_){ }}v13In=Math.max(-V13_PRE_ROLL,v13FrameSnap(v13In));if(v13Out!=null)v13Out=v13FrameSnap(v13Out);if(!v13PresetFingerprint){v13PresetFingerprint=v13TimelineFingerprint();v13SaveSettings(false)}v13InstallAudioInput();v13OverrideProjectImport();v13InstallKeyboard();v13ShotMix=0;v13ShotRenderedMix=0;v13SeqMix=0;requestAnimationFrame(()=>{v13RefreshUI();layoutTimeline();seqPlayhead=Math.max(-V13_PRE_ROLL,Math.min(v13RangeOut(),seqPlayhead));updateSequenceHUD();v13HydrateAudio()})}
 
