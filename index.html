@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MEMENTO — Pocket Previs · Workspace V13 Timeline</title>
+<title>MEMENTO — Pocket Previs · V13 SHOT Polish</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2854,8 +2854,434 @@ body.seq-focus-v12 .seq-left-render-v13 .time-rig{height:100%!important}
 .axis-summary-v13 .lock svg{width:10px!important;height:10px!important;fill:none!important;stroke:currentColor!important}
 
   </style>
+
+  <!-- MEMENTO V13 · SHOT POLISH PASS · EDIT + PLAYER ONLY -->
+  <style id="memento-shot-polish-v14">
+  /* ========================================================================
+     SHOT POLISH V14 — compact EDIT grammar + single checkpoint transport
+     ======================================================================== */
+
+  /* The output gate sits over a visible 50% exterior matte instead of a void. */
+  .app.v-combo .shot-player-pane-op,
+  .app.v-combo .shot-player-rig{
+    background:#141418!important;
+  }
+  .app.v-combo .shot-player-rig .cprev{
+    box-shadow:0 0 0 9999px rgba(0,0,0,.50),0 0 0 1px rgba(255,255,255,.035)!important;
+  }
+
+  /* Wide formats must reduce their height rather than silently falling back to 16:9. */
+  .app.v-combo[data-format="2.39:1"] .shot-player-rig .cprev,
+  body.shot-focus-op .app.v-combo[data-format="2.39:1"] .shot-player-rig .cprev{
+    flex:0 1 auto!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    aspect-ratio:2.39 / 1!important;
+    align-self:center!important;
+    margin:auto!important;
+  }
+
+  /* ---------------- PLAYER CHECKPOINT ---------------- */
+  .app.v-combo .shot-player-rig>.shot-commandbar.shot-commandbar-v14{
+    gap:5px!important;
+    padding:5px 6px!important;
+    overflow:hidden!important;
+    flex-wrap:nowrap!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-checkpoint-v13{
+    gap:4px!important;
+    padding-left:0!important;
+    border-left:0!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-checkpoint-v13+.player-checkpoint-v13{
+    padding-left:6px!important;
+    border-left:1px solid var(--line)!important;
+  }
+  .app.v-combo .shot-commandbar-v14>.command-spacer{
+    display:block!important;
+    flex:0 0 clamp(8px,1vw,18px)!important;
+    min-width:8px!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-utility-v14{flex:0 0 auto}
+  .app.v-combo .shot-commandbar-v14 .player-creative-v14{flex:0 0 auto}
+  .app.v-combo .shot-commandbar-v14 .player-scrub-v14{
+    flex:1 1 230px!important;
+    min-width:150px!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-output-v14{flex:0 0 auto}
+
+  .app.v-combo .shot-commandbar-v14 .player-creative-v14 .microbtn{
+    width:auto!important;
+    min-width:0!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:7px 10px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    color:var(--txt-2)!important;
+    background:#101014!important;
+    border-color:var(--line-2)!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-creative-v14 .microbtn:hover{
+    color:var(--txt)!important;
+    border-color:var(--txt-3)!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-creative-v14 .command-label{
+    display:inline!important;
+    font:750 7.2px/1 var(--mono)!important;
+    letter-spacing:.095em!important;
+    white-space:nowrap!important;
+  }
+  .app.v-combo .shot-commandbar-v14 #shotRandomOp{
+    color:var(--accent)!important;
+    border-color:rgba(255,121,80,.42)!important;
+    background:#17110e!important;
+  }
+  .app.v-combo .shot-commandbar-v14 #shotVariantOp{
+    color:#f2f2f4!important;
+    border-color:rgba(255,255,255,.18)!important;
+    background:#121216!important;
+  }
+  .app.v-combo .shot-commandbar-v14 #shotLoopV13[aria-pressed="true"]{
+    color:var(--accent)!important;
+    border-color:var(--accent)!important;
+    background:#17110e!important;
+  }
+
+  .app.v-combo .shot-commandbar-v14 .endpoint-start-v13{
+    color:#f5f5f7!important;
+    border-color:rgba(255,255,255,.25)!important;
+    background:rgba(255,255,255,.045)!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .endpoint-end-v13{
+    color:var(--accent)!important;
+    border-color:rgba(255,121,80,.42)!important;
+    background:rgba(255,121,80,.065)!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-mix-v13{
+    flex:1 1 auto!important;
+    min-width:76px!important;
+    max-width:none!important;
+    margin:0 2px!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-mix-v13 input{
+    min-width:70px!important;
+    width:100%!important;
+    height:3px!important;
+    background:linear-gradient(90deg,#f4f4f6 0%,rgba(255,255,255,.20) 47%,var(--accent) 100%)!important;
+  }
+  .app.v-combo .shot-commandbar-v14 .player-mix-v13 output{display:none!important}
+  .app.v-combo .shot-commandbar-v14 .player-format-v13 select{
+    min-width:64px!important;
+    height:34px!important;
+    font-size:7.2px!important;
+  }
+  .app.v-combo .shot-commandbar-v14 #shotFullscreenVII{
+    width:34px!important;
+    min-width:34px!important;
+    padding:7px!important;
+  }
+  .app.v-combo .shot-commandbar-v14 #shotFullscreenVII .command-label{display:none!important}
+
+  /* ---------------- EDIT STATE BAR ---------------- */
+  .app.v-combo #shotAdvancedToolbarOp{
+    position:sticky!important;
+    top:0!important;
+    z-index:12!important;
+    min-height:38px!important;
+    height:38px!important;
+    padding:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+    align-items:stretch!important;
+    gap:0!important;
+    border-bottom:1px solid var(--line)!important;
+    background:#09090c!important;
+    overflow:hidden!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-side-toggle-op{
+    display:contents!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side]{
+    min-height:38px!important;
+    width:100%!important;
+    padding:0 13px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    font:800 7px/1 var(--mono)!important;
+    letter-spacing:.18em!important;
+    cursor:pointer!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side="start"]{
+    grid-column:1!important;
+    grid-row:1!important;
+    text-align:left!important;
+    color:#f4f4f6!important;
+    background:linear-gradient(90deg,rgba(255,255,255,.12),rgba(255,255,255,0) 82%)!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side="end"]{
+    grid-column:3!important;
+    grid-row:1!important;
+    text-align:right!important;
+    color:var(--accent)!important;
+    background:linear-gradient(90deg,rgba(255,121,80,0) 18%,rgba(255,121,80,.15))!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side="start"][aria-pressed="true"]{
+    background:linear-gradient(90deg,rgba(255,255,255,.22),rgba(255,255,255,0) 88%)!important;
+    box-shadow:inset 0 -2px 0 #f4f4f6!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp [data-shot-side="end"][aria-pressed="true"]{
+    background:linear-gradient(90deg,rgba(255,121,80,0) 12%,rgba(255,121,80,.24))!important;
+    box-shadow:inset 0 -2px 0 var(--accent)!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-advanced-status-op{
+    grid-column:2!important;
+    grid-row:1!important;
+    align-self:center!important;
+    justify-self:center!important;
+    margin:0!important;
+    min-width:52px!important;
+    padding:6px 10px!important;
+    border:1px solid var(--line-2)!important;
+    border-radius:999px!important;
+    background:#0e0e12!important;
+    color:var(--txt)!important;
+    text-align:center!important;
+    font:850 7px/1 var(--mono)!important;
+    letter-spacing:.12em!important;
+    white-space:nowrap!important;
+  }
+
+  /* ---------------- EDIT CATEGORY RAILS ---------------- */
+  .app.v-combo .shot-panel-advanced-op{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    scrollbar-width:thin!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .shot-parameter-section{
+    margin:0!important;
+    padding:5px 6px 6px!important;
+    background:#08080a!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .cgrp{
+    margin:0 0 4px!important;
+    padding:0!important;
+    border:1px solid rgba(255,255,255,.055)!important;
+    border-radius:8px!important;
+    background:#0a0a0d!important;
+    overflow:hidden!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .cgrp:last-child{margin-bottom:0!important}
+  .app.v-combo .shot-panel-advanced-op .copts{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    gap:4px!important;
+    min-height:52px!important;
+    height:52px!important;
+    padding:3px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    background:#09090c!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copts::-webkit-scrollbar{display:none!important}
+
+  /* The first chip is a sticky, higher-weight recap for the category. */
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13{
+    position:sticky!important;
+    left:0!important;
+    z-index:7!important;
+    flex:0 0 118px!important;
+    width:118px!important;
+    min-width:118px!important;
+    min-height:46px!important;
+    height:46px!important;
+    padding:6px 25px 6px 7px!important;
+    border:1px solid rgba(255,255,255,.19)!important;
+    border-radius:7px!important;
+    background:linear-gradient(145deg,#17171b,#0d0d10)!important;
+    grid-template-columns:19px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    column-gap:7px!important;
+    align-content:center!important;
+    box-shadow:6px 0 14px rgba(0,0,0,.52)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13>svg{
+    grid-row:1/3!important;
+    width:18px!important;
+    height:18px!important;
+    stroke:#d7d7db!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 strong{
+    font-size:6.4px!important;
+    letter-spacing:.17em!important;
+    color:#efeff2!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 span{
+    margin-top:4px!important;
+    font-size:7.4px!important;
+    font-weight:760!important;
+    line-height:1.12!important;
+    color:#b7b7bd!important;
+    -webkit-line-clamp:1!important;
+    white-space:nowrap!important;
+    text-overflow:ellipsis!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-summary-v13 .lock{
+    right:3px!important;
+    top:3px!important;
+    width:19px!important;
+    height:19px!important;
+    border-color:rgba(255,255,255,.10)!important;
+  }
+
+  /* Function chips: compact, icon + name only, with clearer tracking. */
+  .app.v-combo .shot-panel-advanced-op .copts>.copt-wrap-v12{
+    position:relative!important;
+    flex:0 0 92px!important;
+    width:92px!important;
+    min-width:92px!important;
+    min-height:46px!important;
+    height:46px!important;
+    border-radius:7px!important;
+    overflow:hidden!important;
+    scroll-snap-align:start!important;
+    background:transparent!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12>.copt{
+    width:100%!important;
+    min-width:0!important;
+    height:46px!important;
+    min-height:46px!important;
+    padding:5px 7px!important;
+    border-radius:7px!important;
+    display:grid!important;
+    grid-template-columns:18px minmax(0,1fr)!important;
+    grid-template-rows:1fr!important;
+    align-items:center!important;
+    align-content:center!important;
+    justify-content:start!important;
+    gap:6px!important;
+    text-align:left!important;
+    background:#0d0d10!important;
+    color:var(--txt-3)!important;
+    box-shadow:none!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt .ic,
+  .app.v-combo .shot-panel-advanced-op .copt>svg{
+    display:block!important;
+    grid-column:1!important;
+    width:18px!important;
+    height:18px!important;
+    margin:0!important;
+    flex:none!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt>span:not(.x){
+    grid-column:2!important;
+    max-width:100%!important;
+    margin:0!important;
+    color:inherit!important;
+    font-size:7.15px!important;
+    font-weight:760!important;
+    line-height:1.16!important;
+    letter-spacing:.075em!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    display:-webkit-box!important;
+    -webkit-line-clamp:2!important;
+    -webkit-box-orient:vertical!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt>small{display:none!important}
+
+  /* Endpoint hit zones remain full-card, but the visual divider disappears. */
+  .app.v-combo .shot-panel-advanced-op .axis-side-picks-v12{
+    inset:0!important;
+    grid-template-columns:1fr 1fr!important;
+    pointer-events:none!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:first-child{
+    border-right:0!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12 svg{
+    top:4px!important;
+    bottom:auto!important;
+    width:9px!important;
+    height:9px!important;
+    opacity:.28!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:first-child svg{
+    left:5px!important;
+    color:#f4f4f6!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12:last-child svg{
+    right:5px!important;
+    color:var(--accent)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .axis-side-pick-v12[aria-pressed="true"] svg{opacity:1!important}
+
+  /* START = white → transparent. END = transparent → #ff7950. */
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13:not(.shared-value-v13)>.copt{
+    border-color:rgba(255,255,255,.38)!important;
+    color:#f4f4f6!important;
+    background:linear-gradient(90deg,rgba(255,255,255,.21) 0%,rgba(255,255,255,.055) 42%,rgba(255,255,255,0) 88%),#0d0d10!important;
+    box-shadow:inset 2px 0 0 rgba(255,255,255,.92)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-end-v13:not(.shared-value-v13)>.copt{
+    border-color:rgba(255,121,80,.48)!important;
+    color:var(--accent)!important;
+    background:linear-gradient(90deg,rgba(255,121,80,0) 12%,rgba(255,121,80,.06) 53%,rgba(255,121,80,.24) 100%),#0d0d10!important;
+    box-shadow:inset -2px 0 0 var(--accent)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13.has-end-v13>.copt,
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.shared-value-v13>.copt{
+    border-color:rgba(255,255,255,.82)!important;
+    color:#f5f5f7!important;
+    background:#0d0d10!important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.12)!important;
+  }
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13,
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-end-v13,
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12.has-start-v13.has-end-v13{
+    background:transparent!important;
+  }
+
+  /* Keep exclusion available on hover without colliding with START / END. */
+  .app.v-combo .shot-panel-advanced-op .copt-wrap-v12 .copt .x{
+    left:50%!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:3px!important;
+    translate:-50% 0!important;
+    width:14px!important;
+    height:14px!important;
+  }
+
+  @media(max-width:1180px) and (min-width:901px){
+    .app.v-combo .shot-commandbar-v14 .player-creative-v14 .command-label{display:inline!important}
+    .app.v-combo .shot-commandbar-v14 .player-creative-v14 .microbtn{width:auto!important;padding-inline:8px!important}
+    .app.v-combo .shot-commandbar-v14 .player-scrub-v14{min-width:130px!important}
+  }
+  @media(max-width:900px){
+    .app.v-combo .shot-commandbar-v14{overflow-x:auto!important}
+    .app.v-combo .shot-commandbar-v14>.command-spacer{display:none!important}
+    .app.v-combo .shot-commandbar-v14 .player-creative-v14 .microbtn{
+      width:33px!important;min-width:33px!important;padding:6px!important
+    }
+    .app.v-combo .shot-commandbar-v14 .player-creative-v14 .command-label{display:none!important}
+    .app.v-combo .shot-commandbar-v14 .player-scrub-v14{flex:1 0 112px!important;min-width:112px!important}
+    .app.v-combo .shot-panel-advanced-op .axis-summary-v13{flex-basis:108px!important;width:108px!important;min-width:108px!important}
+    .app.v-combo .shot-panel-advanced-op .copts>.copt-wrap-v12{flex-basis:86px!important;width:86px!important;min-width:86px!important}
+  }
+  </style>
+
 </head>
-<body data-memento-build="v13-timeline">
+<body data-memento-build="v13-timeline" data-shot-polish="v14">
 <div class="app v-combo" data-format="16:9">
   <header class="top" id="topbar">
     <div class="brandrow">
@@ -7485,7 +7911,16 @@ function wireTabKeyboardOperational(nav,attr,activate){
 function updateAdvancedSideOperational(){
   const bar=document.getElementById("shotAdvancedToolbarOp"),it=activeShot()||selectedShot();if(!bar)return;
   bar.querySelectorAll("[data-shot-side]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shotSide===(shotEditSide||"start"))));
-  const status=bar.querySelector(".shot-advanced-status-op");if(status&&it){const d=AXES.filter(a=>shotStart(it)[a.id]!==shotEnd(it)[a.id]).length,l=Object.keys(it.locks||{}).length;status.textContent=d+" Δ · "+l+" LOCK"}
+  const status=bar.querySelector(".shot-advanced-status-op");
+  if(status&&it){
+    const d=AXES.filter(a=>shotStart(it)[a.id]!==shotEnd(it)[a.id]).length;
+    const l=Object.keys(it.locks||{}).filter(k=>it.locks[k]).length;
+    const shotMode=window.__currentMode==="combo";
+    status.textContent=shotMode?d+" Δ":d+" Δ · "+l+" LOCK";
+    status.title=l+" LOCK";
+    status.dataset.delta=String(d);
+    status.dataset.locks=String(l);
+  }
 }
 const __selectEditSideOperational=selectEditSide;selectEditSide=function(side){const r=__selectEditSideOperational(side);updateAdvancedSideOperational();return r};
 function updateShotAccordionSummaryOperational(){updateAdvancedSideOperational()}
@@ -7953,7 +8388,54 @@ function v13BuildSeqLeft(){const mount=document.getElementById("seqPlayerMount")
 
 function v13Button(id,icon,label,cls){let b=document.getElementById(id);if(!b){b=document.createElement("button");b.id=id;b.type="button"}b.className=(cls||"microbtn");b.innerHTML=icon;b.title=label;b.setAttribute("aria-label",label);return b}
 function v13MixControl(id,value,onInput){const label=document.createElement("label");label.className="player-mix-v13";label.innerHTML='<input id="'+id+'" type="range" min="0" max="100" step="1" value="'+Math.round(value*100)+'"><output>'+Math.round(value*100)+'%</output>';const input=label.querySelector("input"),out=label.querySelector("output");input.onpointerdown=()=>{if(window.__currentMode==="seq")pauseSequence(false);else v13ShotPlaying=false};input.oninput=e=>{const v=Number(e.target.value)/100;out.value=Math.round(v*100)+"%";out.textContent=out.value;onInput(v)};return label}
-function v13BuildShotTransport(){const bar=document.getElementById("shotCommandbar");if(!bar)return;const util=document.createElement("div");util.className="player-checkpoint-v13";["shotUndoVII","shotRedoVII","shotCopyVII","shotPasteVII"].forEach(id=>{const b=document.getElementById(id);if(b)util.appendChild(b)});const motion=document.createElement("div");motion.className="player-checkpoint-v13";const startB=v13Button("shotStartV13",V13_ICON.start,"START","microbtn endpoint-start-v13"),playB=v13Button("shotPlayV13",v13ShotPlaying?V13_ICON.pause:V13_ICON.play,uiWord("Riproduci shot","Play shot"),"microbtn"),endB=v13Button("shotEndV13",V13_ICON.end,"END","microbtn endpoint-end-v13"),loopB=v13Button("shotLoopV13",V13_ICON.loop,"Loop","microbtn shot-loop-v13");startB.onclick=()=>v13SetShotMix(0,"start");playB.onclick=v13ToggleShotPlay;endB.onclick=()=>v13SetShotMix(1,"end");loopB.onclick=()=>{v13ShotLoop=!v13ShotLoop;v13SaveSettings(false);v13UpdateTransport()};motion.append(startB,playB,endB,loopB,v13MixControl("shotMixV13",v13ShotRenderedMix,v=>v13SetShotMix(v)));const creative=document.createElement("div");creative.className="player-checkpoint-v13 player-creative-v13";["shotRandomOp","shotVariantOp"].forEach(id=>{const b=document.getElementById(id);if(b)creative.appendChild(b)});const output=document.createElement("div");output.className="player-checkpoint-v13";let fmt=document.getElementById("shotFormatV13");if(!fmt){const w=document.createElement("label");w.className="preview-format player-format-v13";w.innerHTML='<select id="shotFormatV13">'+FORMATS.map(x=>'<option value="'+x+'">'+x+'</option>').join("")+'</select>';fmt=w.querySelector("select");fmt.onchange=e=>applyProjectFormat(e.target.value,true);output.appendChild(w)}else output.appendChild(fmt.parentNode);const full=document.getElementById("shotFullscreenVII");if(full)output.appendChild(full);bar.replaceChildren(util,motion,creative,document.createElement("span"),output);bar.children[3].className="command-spacer";v13UpdateTransport()}
+function v13BuildShotTransport(){
+  const bar=document.getElementById("shotCommandbar");if(!bar)return;
+  bar.classList.add("shot-commandbar-v14");
+
+  const util=document.createElement("div");
+  util.className="player-checkpoint-v13 player-utility-v14";
+  ["shotUndoVII","shotRedoVII","shotCopyVII","shotPasteVII"].forEach(id=>{
+    const b=document.getElementById(id);if(b)util.appendChild(b)
+  });
+
+  const spacer=document.createElement("span");
+  spacer.className="command-spacer";
+  spacer.setAttribute("aria-hidden","true");
+
+  const creative=document.createElement("div");
+  creative.className="player-checkpoint-v13 player-creative-v13 player-creative-v14";
+  const random=document.getElementById("shotRandomOp");
+  const variant=document.getElementById("shotVariantOp");
+  const loopB=v13Button("shotLoopV13",V13_ICON.loop,"Loop","microbtn shot-loop-v13 loop-label-v14");
+  loopB.innerHTML=V13_ICON.loop+'<span class="command-label">LOOP</span>';
+  loopB.title="Loop";
+  loopB.onclick=()=>{v13ShotLoop=!v13ShotLoop;v13SaveSettings(false);v13UpdateTransport()};
+  [random,variant,loopB].forEach(b=>{if(b)creative.appendChild(b)});
+
+  const scrub=document.createElement("div");
+  scrub.className="player-checkpoint-v13 player-scrub-v14";
+  const startB=v13Button("shotStartV13",V13_ICON.start,"START","microbtn endpoint-start-v13");
+  const endB=v13Button("shotEndV13",V13_ICON.end,"END","microbtn endpoint-end-v13");
+  startB.onclick=()=>v13SetShotMix(0,"start");
+  endB.onclick=()=>v13SetShotMix(1,"end");
+  scrub.append(startB,v13MixControl("shotMixV13",v13ShotRenderedMix,v=>v13SetShotMix(v)),endB);
+
+  const output=document.createElement("div");
+  output.className="player-checkpoint-v13 player-output-v14";
+  let fmt=document.getElementById("shotFormatV13");
+  if(!fmt){
+    const w=document.createElement("label");
+    w.className="preview-format player-format-v13";
+    w.innerHTML='<select id="shotFormatV13">'+FORMATS.map(x=>'<option value="'+x+'">'+x+'</option>').join("")+'</select>';
+    fmt=w.querySelector("select");
+    fmt.onchange=e=>applyProjectFormat(e.target.value,true);
+    output.appendChild(w)
+  }else output.appendChild(fmt.parentNode);
+  const full=document.getElementById("shotFullscreenVII");if(full)output.appendChild(full);
+
+  bar.replaceChildren(util,spacer,creative,scrub,output);
+  v13UpdateTransport()
+}
 function v13StepEdit(direction){pauseSequence(false);const data=timelineLayoutData(),shots=TL.map((it,i)=>({it,i,b:B(it.id),p:data.map.get(i)})).filter(x=>x.b&&x.b[6]==="shot"&&x.p).sort((a,b)=>a.p.start-b.p.start||a.i-b.i);if(!shots.length)return;const current=v13SelectedShot(),at=Math.max(0,shots.findIndex(x=>x.it===current)),next=shots[(at+direction+shots.length)%shots.length];setSelection(next.it);activeShotUid=next.it.uid;seqPlayhead=next.p.start;seqScrubbing=true;v13SeqMix=0;updateSequenceHUD();drawTL()}
 
 function v13BuildSeqTransport(){const bar=document.querySelector("#seqPlayerMount .time-player");if(!bar)return;bar.classList.add("seq-controls-op");const nav=document.createElement("div");nav.className="player-checkpoint-v13";["sPrevShot","sPreviewPlay","sNextShot"].forEach(id=>{const b=document.getElementById(id);if(b)nav.appendChild(b)});const prev=document.getElementById("sPrevShot"),play=document.getElementById("sPreviewPlay"),next=document.getElementById("sNextShot");if(prev)prev.onclick=()=>v13StepEdit(-1);if(next)next.onclick=()=>v13StepEdit(1);if(play)play.onclick=()=>{if(seqTimelinePlaying)pauseSequence(false);else{v13SeqMix=null;startSequence(false)}};const endpoint=document.createElement("div");endpoint.className="player-checkpoint-v13";const startB=v13Button("seqStartV13",V13_ICON.start,"SHOT START","microbtn endpoint-start-v13"),endB=v13Button("seqEndV13",V13_ICON.end,"SHOT END","microbtn endpoint-end-v13"),loopB=v13Button("seqLoopV13",V13_ICON.loop,"Loop range","microbtn loop-v13");startB.onclick=()=>v13SetSeqMix(0,"start");endB.onclick=()=>v13SetSeqMix(1,"end");loopB.onclick=()=>{v13Loop=!v13Loop;v13SaveSettings(true);v13UpdateTransport()};endpoint.append(startB,endB,loopB,v13MixControl("seqMixV13",Number.isFinite(v13SeqMix)?v13SeqMix:0,v=>v13SetSeqMix(v)));const creative=document.createElement("div");creative.className="player-checkpoint-v13 player-creative-v13";const variant=v13Button("seqVariantV13",V13_ICON.variant,uiWord("Genera variante","Generate variant"),"microbtn"),casual=v13Button("seqCasualV13",V13_ICON.random,uiWord("Genera casuale","Generate casual"),"microbtn seq-casual-v13");variant.onclick=()=>{const it=v13SelectedShot();if(it){randomiseTimelineShot(it);v13SeqMix=0;v13UpdateTransport()}};casual.onclick=v13CasualSelected;creative.append(variant,casual);const util=document.createElement("div");util.className="player-checkpoint-v13 optional-v13";["seqUndoVII","seqRedoVII","seqCopy","seqPaste"].forEach(id=>{const b=document.getElementById(id);if(b)util.appendChild(b)});const out=document.createElement("div");out.className="player-checkpoint-v13";const fmt=document.getElementById("sPreviewFormat"),clean=document.getElementById("sPreviewClean"),full=document.getElementById("seqFullscreenVII");if(fmt)out.appendChild(fmt.parentNode);if(clean)out.appendChild(clean);if(full)out.appendChild(full);const meta=document.querySelector("#seqPlayerMount .pmeta");bar.replaceChildren(nav,endpoint,creative,util,document.createElement("span"),meta||document.createElement("span"),out);bar.children[4].className="command-spacer";v13UpdateTransport()}
