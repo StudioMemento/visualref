@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MEMENTO — Pocket Previs · V18 FINAL SHOT POLISH</title>
+<title>MEMENTO — Pocket Previs · V19 SHOT LOCK + TIMELINE HANDOFF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -9115,18 +9115,17 @@ function v18ApplyPseudoFullscreen(on){
 }
 async function v18ToggleFullscreen(){
   const rig=v18PlayerRig();if(!rig)return;
-  if(v18PseudoFullscreen){v18ApplyPseudoFullscreen(false);return}
   const current=v18NativeFullscreenElement();
-  if(current){const exit=document.exitFullscreen||document.webkitExitFullscreen;try{if(exit)await exit.call(document)}catch(_){ }return}
-  const request=rig.requestFullscreen||rig.webkitRequestFullscreen;
-  if(!request){v18ApplyPseudoFullscreen(true);return}
-  try{
-    let promise;
-    try{promise=request.call(rig,{navigationUI:"hide"})}catch(_){promise=request.call(rig)}
-    if(promise&&typeof promise.then==="function")await promise;
-    requestAnimationFrame(v18RefreshFullscreen);
-    setTimeout(()=>{if(v18NativeFullscreenElement()!==rig&&!v18PseudoFullscreen)v18ApplyPseudoFullscreen(true)},360)
-  }catch(_){v18ApplyPseudoFullscreen(true)}
+  const isOn=v18PseudoFullscreen||current===rig;
+  if(isOn){
+    if(current){const exit=document.exitFullscreen||document.webkitExitFullscreen;try{if(exit)await exit.call(document)}catch(_){ }}
+    v18ApplyPseudoFullscreen(false);return
+  }
+  /* V19 deliberately uses the internal focus mode as the source of truth.
+     It avoids browser-specific Fullscreen API resizing races while preserving
+     the player tabs, transport and the exact project aspect ratio. */
+  if(current){const exit=document.exitFullscreen||document.webkitExitFullscreen;try{if(exit)await exit.call(document)}catch(_){ }}
+  v18ApplyPseudoFullscreen(true)
 }
 function v18SyncFullscreenState(){
   const rig=v18PlayerRig(),native=!!(rig&&v18NativeFullscreenElement()===rig),on=native||v18PseudoFullscreen,full=document.getElementById("shotFullscreenVII");
@@ -9174,11 +9173,11 @@ function v18BuildShotTransport(){
   const utilityDefs=[["shotUndoVII",OP_COMMAND_ICON.undo,en?"Undo":"Annulla"],["shotRedoVII",OP_COMMAND_ICON.redo,en?"Redo":"Ripeti"],["shotCopyVII",OP_COMMAND_ICON.copy,en?"Copy":"Copia"],["shotPasteVII",OP_COMMAND_ICON.paste,en?"Paste":"Incolla"]];
   const utilities=utilityDefs.map(([id,icon,label])=>v16IconButton(document.getElementById(id),icon,label,"shot-utility-v16 shot-utility-v17 shot-utility-v18")).filter(Boolean);
   let random=document.getElementById("shotRandomOp");if(!random){random=buttonVII("shotRandomOp",en?"CASUAL":"CASUALE",V13_ICON.random,"shot-random-op");random.onclick=generateRandomShotOperational}
-  v16IconButton(random,V13_ICON.random,en?"CASUAL":"CASUALE","shot-creative-action-v16 shot-creative-action-v17 shot-creative-action-v18 shot-casual-v17 shot-casual-v18");
-  let variant=document.getElementById("shotVariantOp");if(!variant){variant=buttonVII("shotVariantOp",en?"VARIANT":"VARIANTE",V13_ICON.variant,"shot-variant-op");variant.onclick=generateShotVariant}
-  v16IconButton(variant,V13_ICON.variant,en?"VARIANT":"VARIANTE","shot-creative-action-v16 shot-creative-action-v17 shot-creative-action-v18 shot-variant-v17 shot-variant-v18");
-  const delta=v18DeltaField(),toolbar=document.createElement("div");toolbar.className="shot-toolbar-v16 shot-toolbar-v17 shot-toolbar-v18";
-  toolbar.append(...utilities,loop,play,startB,mix,endB,frames,seconds,random,variant,delta);
+  v16IconButton(random,V13_ICON.random,en?"CASUAL":"CASUALE","shot-creative-action-v16 shot-creative-action-v17 shot-creative-action-v18 shot-casual-v17 shot-casual-v18 shot-casual-v19");
+  /* Variant leaves the PLAYER in V19. It will return inside the shot-preset workflow. */
+  document.getElementById("shotVariantOp")?.remove();
+  const delta=v18DeltaField(),toolbar=document.createElement("div");toolbar.className="shot-toolbar-v16 shot-toolbar-v17 shot-toolbar-v18 shot-toolbar-v19";
+  toolbar.append(...utilities,loop,play,startB,mix,endB,frames,seconds,delta,random);
   bar.classList.add("shot-commandbar-v16","shot-commandbar-v17","shot-commandbar-v18");bar.replaceChildren(toolbar);
   v18EnsureTopTools(fps,format);v18SyncTransport();requestAnimationFrame(v16UpdateGate)
 }
@@ -9196,12 +9195,11 @@ function v18SyncTransport(){
   const frameCaption=frameInput?.parentElement?.querySelector(".shot-value-caption-v18"),secondCaption=seconds?.parentElement?.querySelector(".shot-value-caption-v18");
   if(frameCaption)frameCaption.textContent=en?"FRAMES":"FRAME";if(secondCaption)secondCaption.textContent=en?"SECONDS":"SECONDI";
   const fps=document.getElementById("shotFPSV16"),format=document.getElementById("shotFormatV13");if(fps)fps.value=String(v13FPS);if(format)format.value=projectFormat;
-  const random=document.getElementById("shotRandomOp"),variant=document.getElementById("shotVariantOp");
+  const random=document.getElementById("shotRandomOp");document.getElementById("shotVariantOp")?.remove();
   if(random){const label=en?"CASUAL":"CASUALE";v16Markup(random,"random:"+(en?1:0),V13_ICON.random+'<span class="command-label">'+label+'</span>');random.title=en?"Generate a new shot logic":"Genera una nuova logica di shot";random.setAttribute("aria-label",random.title)}
-  if(variant){const label=en?"VARIANT":"VARIANTE";v16Markup(variant,"variant:"+(en?1:0),V13_ICON.variant+'<span class="command-label">'+label+'</span>');variant.title=en?"Generate a variant of this shot":"Genera una variante dello shot";variant.setAttribute("aria-label",variant.title)}
   const delta=document.getElementById("shotDeltaV18"),deltaValue=delta?.querySelector(".shot-delta-value-v18");if(deltaValue)deltaValue.textContent=String(v18DeltaCount(it));if(delta)delta.classList.toggle("disabled-v18",!it);
   [["shotUndoVII",en?"Undo":"Annulla"],["shotRedoVII",en?"Redo":"Ripeti"],["shotCopyVII",en?"Copy":"Copia"],["shotPasteVII",en?"Paste":"Incolla"]].forEach(([id,label])=>{const b=document.getElementById(id);if(b){b.title=label;b.setAttribute("aria-label",label)}});
-  [loop,play,startB,endB,range,seconds,frameInput,fps,format,random,variant].filter(Boolean).forEach(el=>el.disabled=!it);
+  [loop,play,startB,endB,range,seconds,frameInput,fps,format,random].filter(Boolean).forEach(el=>el.disabled=!it);
   v18EnsureTopTools();v17SyncCenterPlay();v18SyncEditorToolbar();v18SyncFullscreenState()
 }
 
@@ -9284,7 +9282,7 @@ function v18DecorateAdvanced(){
 }
 
 function v18Install(){
-  v18EnsureLoopDefault();v18BindFullscreen();document.body.dataset.mementoBuild="v18-final-shot-polish";document.title="MEMENTO — Pocket Previs · V18 FINAL SHOT POLISH";
+  v18EnsureLoopDefault();v18BindFullscreen();document.body.dataset.mementoBuild="v19-shot-lock";document.title="MEMENTO — Pocket Previs · V19 SHOT LOCK + TIMELINE HANDOFF";
   v18BuildShotTransport();v18UpgradeEditorToolbar();v18DecorateAdvanced();v17EnsureCenterPlay();v17BindPlayerMode();v17InstallKeyboard();v18SyncTransport();v17SyncPlayerMode();v18RefreshFullscreen()
 }
 
@@ -10422,12 +10420,12 @@ filter();
   /* Fullscreen: native first, fixed-position fallback when the browser blocks it. */
   #shotFullscreenVII.shot-top-fullscreen-v18{display:grid!important}
   body.shot-pseudo-fullscreen-v18{overflow:hidden!important}
-  .shot-player-rig.is-pseudo-fullscreen-v18{
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18{
     position:fixed!important;z-index:9999!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
     margin:0!important;border:0!important;border-radius:0!important;background:#000!important;display:grid!important;grid-template-rows:42px minmax(0,1fr) 50px!important;
   }
-  .shot-player-rig.is-pseudo-fullscreen-v18 .cprev{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;margin:0!important}
-  .shot-player-rig.is-pseudo-fullscreen-v18 #shotCommandbar{height:50px!important;min-height:50px!important}
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18 .cprev{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;margin:0!important}
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18 #shotCommandbar{height:50px!important;min-height:50px!important}
 
   /* EDITOR · full-width START / PLAY / END plus a dedicated full-width scrub lane. */
   .app.v-combo #shotAdvancedToolbarOp{height:58px!important;min-height:58px!important;padding:4px 5px!important;background:#09090c!important}
@@ -10454,12 +10452,12 @@ filter();
     grid-template-columns:23px minmax(76px,auto) minmax(0,1fr)!important;align-items:center!important;gap:8px!important;
     border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
   }
-  .axis-category-head-v18 .lock.axis-lock-v18{grid-column:1!important;position:static!important;width:21px!important;height:21px!important;min-width:21px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid var(--line)!important;border-radius:5px!important;background:#101014!important;color:var(--txt-3)!important}
+  .app.v-combo #cAxes .axis-category-head-v18 .lock.axis-lock-v18{grid-column:1!important;position:static!important;width:21px!important;height:21px!important;min-width:21px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid var(--line)!important;border-radius:5px!important;background:#101014!important;color:var(--txt-3)!important}
   .axis-category-head-v18 .lock.axis-lock-v18:hover{border-color:#414147!important;color:var(--both)!important}
   .axis-category-head-v18 .lock.axis-lock-v18[aria-pressed="true"]{border-color:rgba(255,255,255,.55)!important;color:var(--both)!important;background:rgba(255,255,255,.07)!important}
-  .axis-category-head-v18>strong{grid-column:2!important;font:850 9.3px/1 var(--mono)!important;letter-spacing:.19em!important;text-transform:uppercase!important;color:var(--both)!important;white-space:nowrap!important}
-  .axis-flow-v18{grid-column:3!important;justify-content:flex-end!important;gap:7px!important;min-width:0!important}
-  .axis-flow-v18 i,.axis-flow-v18 em{font:500 7.6px/1 var(--mono)!important;letter-spacing:.035em!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18>strong{grid-column:2!important;font:850 9.3px/1 var(--mono)!important;letter-spacing:.19em!important;text-transform:uppercase!important;color:var(--both)!important;white-space:nowrap!important}
+  .app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18{grid-column:3!important;justify-content:flex-end!important;gap:7px!important;min-width:0!important}
+  .app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 i,.app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 em{font:500 7.6px/1 var(--mono)!important;letter-spacing:.035em!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
   .axis-flow-v18 .axis-start-value-v18{color:rgba(var(--start-rgb),.88)!important}.axis-flow-v18 .axis-end-value-v18{color:rgba(var(--end-rgb),.9)!important}.axis-flow-v18 b{color:#55555c!important;font-weight:500!important}
   .axis-shared-v18 .axis-flow-v18 .axis-start-value-v18,.axis-shared-v18 .axis-flow-v18 .axis-end-value-v18,.axis-shared-v18 .axis-flow-v18 b{color:rgba(245,245,247,.80)!important}
   .app.v-combo #cAxes .copts{width:100%!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(82px,104px))!important;grid-auto-rows:56px!important;justify-content:start!important;gap:5px!important;height:auto!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important;box-shadow:none!important}
@@ -10507,9 +10505,205 @@ filter();
     .app.v-combo .shot-player-rig{grid-template-rows:38px minmax(0,1fr) 48px!important}
     .app.v-combo #shotAdvancedToolbarOp{height:56px!important;min-height:56px!important}
     .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18{grid-template-columns:22px minmax(62px,auto) minmax(0,1fr)!important;gap:6px!important}
-    .axis-category-head-v18>strong{font-size:8.5px!important;letter-spacing:.14em!important}
+    .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18>strong{font-size:8.5px!important;letter-spacing:.14em!important}
     .app.v-combo #cAxes .copts{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))!important}
     .app.v-combo #cAxes .axis-pool-toggle-v18{opacity:1!important;transform:scale(1)!important}
+  }
+</style>
+
+
+<style id="v19-shot-lock-style">
+  /* ========================================================================
+     MEMENTO V19 — SHOT LOCK / TIMELINE HANDOFF
+     Final SHOT hierarchy before the TIMELINE pass.
+     ======================================================================== */
+
+  /* PLAYER · frame and seconds now inherit the exact DELTA card grammar. */
+  #shotCommandbar .shot-value-v18,
+  #shotCommandbar .shot-delta-readout-v18{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(0,1fr) 13px!important;
+    align-content:stretch!important;
+  }
+  #shotCommandbar .shot-value-v18 input{
+    grid-column:1!important;
+    grid-row:1!important;
+    align-self:stretch!important;
+    justify-self:stretch!important;
+  }
+  #shotCommandbar .shot-value-v18 .shot-value-caption-v18{
+    grid-column:1!important;
+    grid-row:2!important;
+    width:100%!important;
+    min-width:0!important;
+    border-left:0!important;
+  }
+  #shotCommandbar .shot-delta-value-v18{grid-column:1!important;grid-row:1!important}
+  #shotCommandbar .shot-delta-readout-v18>span{grid-column:1!important;grid-row:2!important}
+
+  /* PLAYER order is fixed in JS: FRAME · SECONDS · DELTA · CASUAL. */
+  #shotVariantOp{display:none!important}
+  #shotCommandbar #shotRandomOp.shot-casual-v19{
+    min-width:94px!important;
+    padding-inline:11px!important;
+    border-color:var(--both)!important;
+    background:var(--both)!important;
+    color:#070709!important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.12),0 5px 18px rgba(0,0,0,.24)!important;
+  }
+  #shotCommandbar #shotRandomOp.shot-casual-v19:hover{
+    border-color:#fff!important;
+    background:#fff!important;
+    color:#000!important;
+    transform:translateY(-1px);
+  }
+  #shotCommandbar #shotRandomOp.shot-casual-v19 .command-label{
+    display:inline!important;
+    color:inherit!important;
+    font-weight:850!important;
+    letter-spacing:.10em!important;
+  }
+
+  /* LOOP belongs to BOTH: white at rest, white and clearly armed when active. */
+  #shotCommandbar #shotLoopV13.shot-loop-v18{
+    color:rgba(245,245,247,.82)!important;
+    border-color:rgba(245,245,247,.18)!important;
+    background:#101014!important;
+  }
+  #shotCommandbar #shotLoopV13.shot-loop-v18:hover{
+    color:var(--both)!important;
+    border-color:rgba(245,245,247,.46)!important;
+    background:rgba(245,245,247,.055)!important;
+  }
+  #shotCommandbar #shotLoopV13.shot-loop-v18[aria-pressed="true"]{
+    color:#fff!important;
+    border-color:rgba(255,255,255,.78)!important;
+    background:rgba(255,255,255,.095)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 0 14px rgba(255,255,255,.045)!important;
+  }
+
+  /* Fullscreen uses one deterministic CSS focus mode and preserves project ratio. */
+  body.shot-pseudo-fullscreen-v18{overflow:hidden!important;background:#000!important}
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18{
+    position:fixed!important;
+    z-index:9999!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    max-width:none!important;
+    max-height:none!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:#000!important;
+    display:grid!important;
+    grid-template-rows:42px minmax(0,1fr) 50px!important;
+    overflow:hidden!important;
+  }
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18 .cprev{
+    grid-row:2!important;
+    align-self:center!important;
+    justify-self:center!important;
+    width:min(100vw,calc((100dvh - 92px) * var(--project-scale)))!important;
+    height:auto!important;
+    max-width:100vw!important;
+    max-height:calc(100dvh - 92px)!important;
+    aspect-ratio:var(--project-ratio)!important;
+    flex:0 0 auto!important;
+    margin:auto!important;
+    background:#000!important;
+  }
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18 .cprev canvas{
+    width:100%!important;
+    height:100%!important;
+  }
+  body.shot-pseudo-fullscreen-v18 .app.v-combo .shot-player-rig.is-pseudo-fullscreen-v18 #shotCommandbar{
+    grid-row:3!important;
+    width:100%!important;
+    height:50px!important;
+    min-height:50px!important;
+  }
+
+  /* EDITOR · the parent no longer keeps a phantom right column. */
+  .app.v-combo #shotAdvancedToolbarOp{
+    display:block!important;
+    width:100%!important;
+    height:58px!important;
+    min-height:58px!important;
+    padding:4px 5px!important;
+    overflow:hidden!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-editor-console-v18{
+    width:100%!important;
+    max-width:none!important;
+    height:100%!important;
+    margin:0!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-editor-transport-v18{
+    width:100%!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  .app.v-combo #shotAdvancedToolbarOp .shot-editor-scrub-v18{width:100%!important}
+  .app.v-combo #shotAdvancedToolbarOp>.shot-advanced-status-op{display:none!important}
+
+  /* CATEGORIES · tighter header, stronger title, larger recap. */
+  .app.v-combo .shot-panel-advanced-op .shot-parameter-section{padding:5px 6px 12px!important}
+  .app.v-combo #cAxes .cgrp{
+    margin-bottom:5px!important;
+    padding:5px!important;
+  }
+  .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18{
+    min-height:23px!important;
+    margin:0 0 3px!important;
+    padding:0 1px!important;
+    grid-template-columns:20px minmax(92px,auto) minmax(0,1fr)!important;
+    gap:6px!important;
+  }
+  .app.v-combo #cAxes .axis-category-head-v18 .lock.axis-lock-v18{
+    width:19px!important;
+    height:19px!important;
+    min-width:19px!important;
+  }
+  .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18>strong{
+    font:850 11px/1 var(--mono)!important;
+    letter-spacing:.235em!important;
+  }
+  .app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+  }
+  .app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 i,.app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 em{
+    font:650 8.9px/1 var(--mono)!important;
+    letter-spacing:.045em!important;
+  }
+  .app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 b{font-size:8px!important}
+
+  /* When START and END match, one white value is enough. */
+  .app.v-combo #cAxes .axis-shared-v18 .axis-flow-v18 .axis-start-value-v18,
+  .app.v-combo #cAxes .axis-shared-v18 .axis-flow-v18 b{display:none!important}
+  .app.v-combo #cAxes .axis-shared-v18 .axis-flow-v18 .axis-end-value-v18{
+    display:block!important;
+    color:rgba(245,245,247,.88)!important;
+  }
+
+  @container shotplayer (max-width:900px){
+    #shotCommandbar #shotRandomOp.shot-casual-v19{
+      width:38px!important;
+      min-width:38px!important;
+      padding:0!important;
+    }
+    #shotCommandbar #shotRandomOp.shot-casual-v19 .command-label{display:none!important}
+  }
+  @media(max-width:900px){
+    .app.v-combo #shotAdvancedToolbarOp{display:block!important;width:100%!important}
+    .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18{
+      grid-template-columns:19px minmax(78px,auto) minmax(0,1fr)!important;
+      gap:5px!important;
+    }
+    .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18>strong{font-size:10px!important;letter-spacing:.19em!important}
+    .app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 i,.app.v-combo #cAxes .axis-category-head-v18 .axis-flow-v18 em{font-size:8.2px!important}
   }
 </style>
 
