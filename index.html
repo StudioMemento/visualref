@@ -9762,6 +9762,177 @@ v20Install=function(){const r=__v20InstallV21();requestAnimationFrame(v21Install
 window.addEventListener("load",()=>setTimeout(v21Install,260),{once:true});
 
 
+/* ========================================================================
+   MEMENTO V22 — TIMELINE INTERACTION / PLAYER GATE / DOCKED WORKSPACE
+   ======================================================================== */
+const V22_TIMELINE_BUFFER_FRAMES=10;
+let v22DesiredSeqPanel=(operationalSeqPanel==="project"?"timeline":operationalSeqPanel)||"timeline";
+let v22PanGesture=null,v22PendingScroll=null,v22SelectionScrollAnchor=null,v22SelectionAnchorTimer=0,v22ScrollRestoreToken=0,v22TrackAddRAF=0,v22WaveRAF=0;
+let v22TimelineResizeObserver=null,v22SelectionGesture=null,v22SelectionOnlyDrawBudget=0,v22SelectionDrawTimer=0;
+
+function v22CaptureTimelineScroll(){
+  if(!timelineScroll)return null;const label=timelineLabelWidth(),ppf=v20PxPerFrame(),pre=v20PreRollFrames(),centerPx=timelineScroll.scrollLeft+timelineScroll.clientWidth/2-label;
+  return{left:timelineScroll.scrollLeft,top:timelineScroll.scrollTop,centerFrame:centerPx/Math.max(.0001,ppf)-pre}
+}
+function v22RestoreTimelineScroll(state,frames=4){
+  if(!state)return;const token=++v22ScrollRestoreToken,top=Math.max(0,Number(state.top)||0);
+  const apply=()=>{if(token!==v22ScrollRestoreToken||!timelineScroll)return;let left=Math.max(0,Number(state.left)||0);if(Number.isFinite(state.centerFrame)){const label=timelineLabelWidth(),ppf=v20PxPerFrame();left=(state.centerFrame+v20PreRollFrames())*ppf-timelineScroll.clientWidth/2+label}const max=Math.max(0,timelineScroll.scrollWidth-timelineScroll.clientWidth);timelineScroll.scrollLeft=Math.max(0,Math.min(max,left));timelineScroll.scrollTop=top;if(--frames>0)requestAnimationFrame(apply)};requestAnimationFrame(apply)
+}
+function v22RefreshSelectionDOM(){
+  document.querySelectorAll('#tracks .clip[data-i]').forEach(el=>{const it=TL[Number(el.dataset.i)];el.classList.toggle('sel',!!(it&&it.selected))});
+  requestAnimationFrame(()=>{v21SyncPlayerBars();v21EditPanelState();v21RenderBreakdown();v13UpdateContextPanels()})
+}
+function v22ArmSelectionOnlyDraws(count=2){
+  v22SelectionOnlyDrawBudget=count;clearTimeout(v22SelectionDrawTimer);v22SelectionDrawTimer=setTimeout(()=>{v22SelectionOnlyDrawBudget=0},260)
+}
+function v22TimelineBounds(){
+  const data=timelineLayoutData(),inFrame=v20SecondsToFrame(v13RangeIn());let outFrame=v20SecondsToFrame(v13RangeOut(data));
+  if(!Number.isFinite(outFrame)||outFrame<=inFrame)outFrame=Math.max(inFrame+1,data.totalFrame||inFrame+1);
+  return{data,inFrame,outFrame,minFrame:inFrame-V22_TIMELINE_BUFFER_FRAMES,maxFrame:outFrame+V22_TIMELINE_BUFFER_FRAMES}
+}
+function v22TopSelect(id,label,values,onchange){
+  let wrap=document.getElementById(id);if(!wrap){wrap=document.createElement("label");wrap.id=id;wrap.className="seq-top-select-v22";wrap.innerHTML='<span>'+label+'</span><select aria-label="'+label+'">'+values.map(v=>'<option value="'+v+'">'+v+(label==="FPS"?' FPS':'')+'</option>').join("")+'</select>';wrap.querySelector("select").onchange=e=>onchange(e.target.value)}return wrap
+}
+function v22EnsurePlayerTopTools(){
+  const modebar=document.querySelector("#seqLeftShellV13>.seq-left-modebar-v13");if(!modebar)return;
+  const library=modebar.querySelector('[data-left-mode="library"]'),project=modebar.querySelector('[data-left-mode="project"]');
+  let tools=document.getElementById("seqTopToolsV22");if(!tools){tools=document.createElement("div");tools.id="seqTopToolsV22";tools.className="seq-top-tools-v22"}
+  const fps=v22TopSelect("seqTopFPSV22","FPS",[24,25,30,50,60],value=>v13SetFPS(Number(value)));
+  const fpsSelect=fps.querySelector("select");if(fpsSelect&&document.activeElement!==fpsSelect)fpsSelect.value=String(v20FPS());
+  const fmt=document.getElementById("sPreviewFormat"),fmtWrap=fmt&&fmt.closest(".preview-format");if(fmtWrap){fmtWrap.classList.add("seq-top-format-v22");fmtWrap.title=uiWord("Formato progetto","Project aspect ratio")}
+  const full=document.getElementById("seqFullscreenVII");if(full){full.classList.add("seq-top-full-v22");full.title=uiWord("Schermo intero","Fullscreen");full.setAttribute("aria-label",full.title)}
+  tools.replaceChildren(...[fps,fmtWrap,full].filter(Boolean));
+  if(tools.parentNode!==modebar)modebar.insertBefore(tools,library||project||null);else if(library&&tools.nextSibling!==library)modebar.insertBefore(tools,library);
+  if(library){library.title=uiWord("Aggiungi inquadrature, FX o audio","Add shots, FX or audio");library.setAttribute("aria-label",library.title)}
+  if(project){project.title=uiWord("Impostazioni progetto","Project settings");project.setAttribute("aria-label",project.title)}
+}
+function v22PatchProjectTransport(bar){
+  if(!bar)return bar;bar.classList.add("seq-timeline-transport-v22");bar.querySelector("#seqProjectLoopV21")?.remove();
+  const scrub=bar.querySelector("#seqProjectScrubV21");if(scrub){scrub.classList.add("seq-timeline-scrub-v22");const input=scrub.querySelector("input");if(input){input.setAttribute("aria-label",uiWord("Scrub Timeline, dieci frame di buffer prima di IN e dopo OUT","Timeline scrub, ten-frame buffer before IN and after OUT"));input.title=input.getAttribute("aria-label")}}
+  const time=bar.querySelector("#seqProjectTimeV21");if(time)time.classList.add("seq-timeline-time-v22");
+  const clean=document.getElementById("sPreviewClean");if(clean){clean.title=uiWord("Playblast del progetto","Project playblast");clean.setAttribute("aria-label",clean.title)}
+  ["seqProjectHomeV21","sPrevShot","sPreviewPlay","sNextShot","seqProjectEndV21"].forEach(id=>{const b=document.getElementById(id);if(b&&!b.title){b.title=b.getAttribute("aria-label")||id}});
+  v22EnsurePlayerTopTools();return bar
+}
+const __v21BuildProjectTransportV22=v21BuildProjectTransport;
+v21BuildProjectTransport=function(shell,shotBar){return v22PatchProjectTransport(__v21BuildProjectTransportV22(shell,shotBar))};
+
+const __v21SyncPlayerBarsV22=v21SyncPlayerBars;
+v21SyncPlayerBars=function(){
+  const r=__v21SyncPlayerBarsV22(),bounds=v22TimelineBounds(),project=document.getElementById("seqProjectScrubV21"),frame=v20SecondsToFrame(seqPlayhead);
+  if(project){const input=project.querySelector("input"),span=Math.max(1,bounds.maxFrame-bounds.minFrame),clamped=Math.max(bounds.minFrame,Math.min(bounds.maxFrame,frame));
+    input.min=String(bounds.minFrame);input.max=String(bounds.maxFrame);if(document.activeElement!==input)input.value=String(clamped);
+    project.style.setProperty("--timeline-progress",(((clamped-bounds.minFrame)/span)*100).toFixed(3)+"%");
+    project.style.setProperty("--timeline-in",(((bounds.inFrame-bounds.minFrame)/span)*100).toFixed(3)+"%");
+    project.style.setProperty("--timeline-out",(((bounds.outFrame-bounds.minFrame)/span)*100).toFixed(3)+"%");
+    project.title=uiWord("IN ","IN ")+v20TimecodeFrame(bounds.inFrame)+" · OUT "+v20TimecodeFrame(bounds.outFrame)+" · ±10f";
+  }
+  const time=document.getElementById("seqProjectTimeV21");if(time){const b=time.querySelector("b"),s=time.querySelector("span");if(b)b.textContent=v20TimecodeFrame(frame)+" / "+v20TimecodeFrame(bounds.outFrame);if(s)s.textContent="TIMELINE";time.title=uiWord("Posizione corrente / OUT","Current position / OUT")}
+  document.getElementById("seqProjectLoopV21")?.remove();v22EnsurePlayerTopTools();
+  const fps=document.querySelector("#seqTopFPSV22 select");if(fps&&document.activeElement!==fps)fps.value=String(v20FPS());
+  return r
+};
+
+function v22InstallTimelinePan(){
+  const scroll=timelineScroll;if(!scroll||scroll.dataset.panV22)return;scroll.dataset.panV22="1";
+  const canPan=e=>!e.target.closest("button,input,textarea,select,label");
+  scroll.addEventListener("contextmenu",e=>{if(e.target.closest(".timeline-editor")){e.preventDefault();e.stopPropagation()}},true);
+  scroll.addEventListener("auxclick",e=>{if((e.button===1||e.button===2)&&e.target.closest(".timeline-editor")){e.preventDefault();e.stopPropagation()}},true);
+  scroll.addEventListener("mousedown",e=>{if((e.button===1||e.button===2)&&canPan(e))e.preventDefault()},true);
+  scroll.addEventListener("pointerdown",e=>{
+    const clip=e.target.closest(".clip"),interactive=e.target.closest("button,input,textarea,select,label");
+    if(e.button===0&&clip&&!interactive){v22SelectionScrollAnchor=v22CaptureTimelineScroll();v22SelectionGesture={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};clearTimeout(v22SelectionAnchorTimer);v22SelectionAnchorTimer=setTimeout(()=>{v22SelectionScrollAnchor=null},900);return}
+    if((e.button!==1&&e.button!==2)||!canPan(e))return;v22PanGesture={id:e.pointerId,x:e.clientX,y:e.clientY,left:scroll.scrollLeft,top:scroll.scrollTop,button:e.button};
+    scroll.classList.add("panning-v22");try{scroll.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault();e.stopImmediatePropagation()
+  },true);
+  scroll.addEventListener("pointermove",e=>{
+    if(v22SelectionGesture&&v22SelectionGesture.id===e.pointerId&&Math.max(Math.abs(e.clientX-v22SelectionGesture.x),Math.abs(e.clientY-v22SelectionGesture.y))>=3)v22SelectionGesture.moved=true;
+    if(!v22PanGesture||v22PanGesture.id!==e.pointerId)return;scroll.scrollLeft=v22PanGesture.left-(e.clientX-v22PanGesture.x);scroll.scrollTop=v22PanGesture.top-(e.clientY-v22PanGesture.y);e.preventDefault();e.stopImmediatePropagation()
+  },true);
+  const end=e=>{
+    if(v22SelectionGesture&&(!e||e.pointerId==null||e.pointerId===v22SelectionGesture.id)){if(!v22SelectionGesture.moved){v22PendingScroll=v22SelectionScrollAnchor||v22CaptureTimelineScroll();v22ArmSelectionOnlyDraws(2)}v22SelectionGesture=null}
+    if(!v22PanGesture||e&&e.pointerId!=null&&e.pointerId!==v22PanGesture.id)return;v22PanGesture=null;scroll.classList.remove("panning-v22")
+  };
+  scroll.addEventListener("pointerup",end,true);scroll.addEventListener("pointercancel",end,true);scroll.addEventListener("lostpointercapture",end,true)
+}
+
+function v22InstallTabTooltips(){
+  const nav=document.getElementById("seqTabsOp");if(!nav)return;const labels={timeline:"TIMELINE",edit:"EDIT",type:"PRESET",breakdown:"BREAKDOWN"};
+  nav.querySelectorAll("[data-seq-tab]").forEach(b=>{const label=labels[b.dataset.seqTab]||b.textContent.trim();b.title=label;b.dataset.tooltip=label;b.setAttribute("aria-label",label)});
+  const bar=timelineEditor&&timelineEditor.querySelector(".timeline-toolbar");if(bar)bar.querySelectorAll("button").forEach(b=>{const label=b.getAttribute("aria-label")||b.title;if(label){b.title=label;b.dataset.tooltip=label}})
+}
+function v22ArrangePresetPanel(){
+  const panel=document.querySelector('.seq-panel-op[data-panel="type"]'),bar=document.getElementById("seqPresetBarOp"),role=document.querySelector(".role-dial-block");if(!panel)return;
+  let timelineSection=panel.querySelector(".timeline-presets-v22");if(!timelineSection){timelineSection=document.createElement("section");timelineSection.className="timeline-presets-v22";timelineSection.innerHTML='<header><div class="preset-hero-icon-v22">'+V21_ICON.preset+'</div><div><span>'+uiWord("PRESET TIMELINE","TIMELINE PRESETS")+'</span><b>'+uiWord("Costruisci l’intero montaggio","Build the complete edit")+'</b><small>'+uiWord("Struttura, ritmo e distribuzione degli shot in un solo gesto.","Structure, pacing and shot distribution in one move.")+'</small></div></header><div class="timeline-presets-mount-v22"></div>';panel.prepend(timelineSection)}
+  let shotSection=panel.querySelector(".shot-presets-v22");if(!shotSection){shotSection=document.createElement("section");shotSection.className="shot-presets-v22";shotSection.innerHTML='<header><span>'+uiWord("PRESET SHOT","SHOT PRESETS")+'</span><b>'+uiWord("Sostituisci o varia lo shot selezionato","Replace or vary the selected shot")+'</b></header><div class="shot-presets-mount-v22"></div>';panel.appendChild(shotSection)}
+  const timelineMount=timelineSection.querySelector(".timeline-presets-mount-v22"),shotMount=shotSection.querySelector(".shot-presets-mount-v22");if(bar&&bar.parentNode!==timelineMount)timelineMount.appendChild(bar);if(role&&role.parentNode!==shotMount)shotMount.appendChild(role)
+}
+const __v21PositionPresetPanelV22=v21PositionPresetPanel;
+v21PositionPresetPanel=function(){const r=__v21PositionPresetPanelV22();v22ArrangePresetPanel();return r};
+positionSequencePresetSliderV12=v21PositionPresetPanel;
+
+function v22ArrangeEditPanel(){
+  const panel=document.querySelector('.seq-panel-op[data-panel="edit"]');if(!panel)return;panel.classList.add("seq-edit-docked-v22");const toolbar=panel.querySelector("#shotAdvancedToolbarOp"),params=panel.querySelector(".shot-parameter-section"),empty=panel.querySelector(".seq-edit-empty-v21");
+  if(params&&params.parentNode===panel)panel.insertBefore(params,toolbar||empty||null);if(toolbar&&toolbar.parentNode===panel)panel.appendChild(toolbar);if(empty&&empty.parentNode===panel&&!empty.hidden)panel.insertBefore(empty,toolbar||null)
+}
+const __v21EditPanelStateV22=v21EditPanelState;
+v21EditPanelState=function(){const r=__v21EditPanelStateV22();v22ArrangeEditPanel();return r};
+
+function v22FindFreeFrame(track,startFrame,durationFrames){
+  let at=Math.max(0,Math.round(startFrame)||0),changed=true;while(changed){changed=false;for(const other of TL){if((other.track||"")!==track||!B(other.id))continue;v20EnsureItemFrames(other,B(other.id));if(at<other.startFrame+other.durationFrames&&at+durationFrames>other.startFrame){at=other.startFrame+other.durationFrames;changed=true}}}return at
+}
+function v22AddAtTrack(track){
+  if(track[0]==="a"){v13PendingAudioTrack=track;document.getElementById("sAudio")?.click();return}
+  const id=track==="fx"?"t_dissolve":"full",b=B(id),before=projectSnapshot(),it=newItem(id);if(!it||!b)return;const duration=Math.max(1,Math.round((Number(it.dur)||Number(b[3])||1)*v20FPS())),base=Math.max(0,v20SecondsToFrame(seqPlayhead));it.track=track;it.startFrame=v22FindFreeFrame(track,base,duration);it.durationFrames=duration;it.sourceOffsetFrame=0;v20SyncSecondsFromFrames(it);TL.push(it);setSelection(it);if(b[6]==="shot"){activeShotUid=it.uid;v13SeqMix=0;setShotPreviewItem(it)}drawTL();pushHistory(before)
+}
+function v22EnsureTrackAddButtons(){
+  if(!timelineEditor)return;const pre=v20PreRollFrames(),ppf=v20PxPerFrame(),left=Math.max(5,pre*ppf-34);
+  V20_TRACKS.forEach(track=>{const lane=document.querySelector('.timeline-editor .trkl[data-track="'+track+'"]');if(!lane)return;let b=lane.querySelector(':scope>.track-add-before-zero-v22');if(!b){b=document.createElement("button");b.type="button";b.className="track-add-before-zero-v22";b.dataset.track=track;b.innerHTML=V13_ICON.plus+'<span>'+uiWord(track==="fx"?"AGGIUNGI FX":track[0]==="a"?"CARICA AUDIO":"NUOVO SHOT",track==="fx"?"ADD FX":track[0]==="a"?"UPLOAD AUDIO":"NEW SHOT")+'</span>';b.onclick=e=>{e.stopPropagation();v22AddAtTrack(track)};lane.appendChild(b)}b.style.left=left+"px";b.title=uiWord(track==="fx"?"Aggiungi FX alla posizione corrente":track[0]==="a"?"Carica audio su "+track:"Aggiungi una nuova clip su "+track,track==="fx"?"Add FX at the current position":track[0]==="a"?"Upload audio to "+track:"Add a new clip to "+track);b.setAttribute("aria-label",b.title)})
+}
+function v22PaintWaveCanvas(cv,peaks){
+  if(!cv||!cv.isConnected||!peaks||peaks.length<2)return;const cssW=Math.max(24,Math.round(cv.clientWidth||120)),cssH=Math.max(18,Math.round(cv.clientHeight||36)),w=Math.min(4096,cssW),d=Math.min(devicePixelRatio||1,2);cv.width=w*d;cv.height=cssH*d;const x=cv.getContext("2d");if(!x)return;x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,cssH);x.strokeStyle="#48bd78";x.globalAlpha=.92;x.lineWidth=1;x.beginPath();const n=Math.max(1,peaks.length/2),mid=cssH/2;for(let i=0;i<w;i++){const k=Math.min(n-1,Math.floor(i/w*n))*2;x.moveTo(i+.5,mid-peaks[k+1]*(mid-2));x.lineTo(i+.5,mid-peaks[k]*(mid-2))}x.stroke();x.globalAlpha=1
+}
+function v22RefreshAudioWaveforms(){
+  if(v22WaveRAF)return;v22WaveRAF=requestAnimationFrame(()=>{v22WaveRAF=0;const data=timelineLayoutData(),fps=v20FPS();document.querySelectorAll('#tracks .clip[data-track^="a"][data-i]').forEach(el=>{const it=timelineItemFromClipOperational(el),idx=TL.indexOf(it),p=data.map.get(idx);if(!it||!p)return;let cv=el.querySelector(".audio-clip-wave");if(!cv){cv=document.createElement("canvas");cv.className="audio-clip-wave";el.appendChild(cv)}const real=it.audioKey&&REAL_AUDIO_TRACKS.get(it.audioKey);let peaks=real&&real.peaks||syntheticPeaksVII((it.id||"")+idx,900);if(real&&real.duration>0){const totalFrames=Math.max(1,Math.round(real.duration*fps)),offset=Math.max(0,Math.min(totalFrames-1,Number.isFinite(it.sourceOffsetFrame)?it.sourceOffsetFrame:Math.round((Number(it.audioOffset)||0)*fps))),end=Math.max(offset+1,Math.min(totalFrames,offset+p.durationFrames)),n=peaks.length/2,a=Math.max(0,Math.min(n-1,Math.floor(offset/totalFrames*n))),z=Math.max(a+1,Math.min(n,Math.ceil(end/totalFrames*n)));peaks=peaks.subarray(a*2,z*2)}v22PaintWaveCanvas(cv,peaks)})})
+}
+const __decorateTimelineClipsVIIV22=decorateTimelineClipsVII;
+decorateTimelineClipsVII=function(){const r=__decorateTimelineClipsVIIV22();v22RefreshAudioWaveforms();return r};
+
+function v22NormalizeTimelineHeight(){
+  if(!timelineScroll||!timelineInner)return;const h=Math.floor(timelineScroll.clientHeight);if(h<180)return;const rulerH=Math.max(24,Math.round(timelineRuler&&timelineRuler.getBoundingClientRect().height||24)),trackH=Math.max(34,(h-rulerH)/V20_TRACKS.length),tracks=document.getElementById("tracks");document.documentElement.style.setProperty("--timeline-track-h",trackH+"px");timelineInner.style.height=h+"px";timelineInner.style.minHeight=h+"px";if(tracks){tracks.style.height=(trackH*V20_TRACKS.length)+"px";tracks.style.minHeight=(trackH*V20_TRACKS.length)+"px";tracks.style.maxHeight=(trackH*V20_TRACKS.length)+"px"}V20_TRACKS.forEach(track=>{const tr=tracks&&tracks.querySelector('.trk[data-track="'+track+'"]');if(tr){tr.style.height=trackH+"px";tr.style.minHeight=trackH+"px";tr.style.maxHeight=trackH+"px"}})
+}
+function v22PostTimelineLayout(){v22NormalizeTimelineHeight();v22EnsureTrackAddButtons();v22RefreshAudioWaveforms();v22InstallTimelinePan();v22InstallTabTooltips();v22EnsurePlayerTopTools()}
+const __layoutTimelineV22=layoutTimeline;
+layoutTimeline=function(){const state=v22CaptureTimelineScroll(),r=__layoutTimelineV22();v22PostTimelineLayout();if(v22PendingScroll){const pending=v22PendingScroll;v22PendingScroll=null;v22RestoreTimelineScroll(pending)}else if(state&&window.__currentMode==="seq"&&!seqTimelinePlaying)v22RestoreTimelineScroll(state,2);return r};
+
+const __activateSeqPanelV22=activateSeqPanelOperational;
+activateSeqPanelOperational=function(key,save=true){if(key==="preset")key="type";v22DesiredSeqPanel=key;localStorage.setItem("memento.ui.seqPanelOp",key);localStorage.setItem("memento.ui.seqPanelV12",key);const r=__activateSeqPanelV22(key,save);requestAnimationFrame(()=>{v22InstallTabTooltips();v22ArrangeEditPanel();v22ArrangePresetPanel();if(key==="timeline")v22PostTimelineLayout()});return r};
+const __setSelectionV22=setSelection;
+setSelection=function(it){const state=v22SelectionScrollAnchor||v22CaptureTimelineScroll(),panel=v22DesiredSeqPanel||operationalSeqPanel,r=__setSelectionV22(it);v22PendingScroll=state;requestAnimationFrame(()=>{if(window.__currentMode==="seq")__activateSeqPanelV22(panel,false);v22RestoreTimelineScroll(state,6)});return r};
+const __drawTLV22=drawTL;
+drawTL=function(){
+  if(v22SelectionOnlyDrawBudget>0&&!operationalTimelineDrag){v22SelectionOnlyDrawBudget--;const state=v22SelectionScrollAnchor||v22PendingScroll||v22CaptureTimelineScroll();v22PendingScroll=null;v22RefreshSelectionDOM();v22RestoreTimelineScroll(state,6);if(v22SelectionOnlyDrawBudget===0){v22SelectionScrollAnchor=null;clearTimeout(v22SelectionAnchorTimer)}return}
+  const state=v22SelectionScrollAnchor||v22PendingScroll||v22CaptureTimelineScroll(),panel=v22DesiredSeqPanel||operationalSeqPanel,r=__drawTLV22();v22PendingScroll=state;requestAnimationFrame(()=>{v22PositionAll();if(window.__currentMode==="seq")__activateSeqPanelV22(panel,false);v22RestoreTimelineScroll(state,6)});return r
+};
+function v22PositionAll(){v22PatchProjectTransport(document.getElementById("seqProjectTransportV21"));v22ArrangePresetPanel();v22ArrangeEditPanel();v22InstallTabTooltips();v22PostTimelineLayout();v21SyncPlayerBars()}
+
+const __v13UpdateContextPanelsV22=v13UpdateContextPanels;
+v13UpdateContextPanels=function(){const r=__v13UpdateContextPanelsV22();const item=v13SelectedItem(),b=B(item&&item.id);if(item&&b&&b[6]==="audio"){const panel=document.querySelector('.seq-context-inspector-v13:not([hidden])'),off=panel&&panel.querySelector('[data-field="offset"]');if(off){if(document.activeElement!==off)off.value=v20FrameToSeconds(Math.max(0,item.sourceOffsetFrame||0)).toFixed(2);off.onchange=()=>{const before=projectSnapshot();item.sourceOffsetFrame=Math.max(0,Math.round((Number(off.value)||0)*v20FPS()));v20SyncSecondsFromFrames(item);drawTL();pushHistory(before)}}}return r};
+
+function v22EnsureResizeObserver(){
+  const shell=document.getElementById("seqTimelineShellOp");if(!shell||!window.ResizeObserver)return;if(v22TimelineResizeObserver)v22TimelineResizeObserver.disconnect();let lastW=-1,lastH=-1,pending=false;v22TimelineResizeObserver=new ResizeObserver(entries=>{const rect=entries[0]&&entries[0].contentRect,w=Math.round(rect&&rect.width||shell.clientWidth),h=Math.round(rect&&rect.height||shell.clientHeight);if(w===lastW&&h===lastH)return;lastW=w;lastH=h;if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;if(window.__currentMode==="seq")v22PostTimelineLayout()})});v22TimelineResizeObserver.observe(shell)
+}
+const __v21AfterTimelineBuildV22=v21AfterTimelineBuild;
+v21AfterTimelineBuild=function(){const r=__v21AfterTimelineBuildV22();v22PositionAll();v22EnsureResizeObserver();return r};
+
+function v22Install(){
+  document.body.dataset.mementoBuild="v22-timeline-polish";document.title="MEMENTO — Pocket Previs · V22 TIMELINE POLISH";v22DesiredSeqPanel=(operationalSeqPanel==="project"?"timeline":operationalSeqPanel)||"timeline";v22EnsurePlayerTopTools();v22PatchProjectTransport(document.getElementById("seqProjectTransportV21"));v22ArrangePresetPanel();v22ArrangeEditPanel();v22InstallTabTooltips();v22PostTimelineLayout();v22EnsureResizeObserver();v21SyncPlayerBars();
+  window.__mementoV22={install:v22Install,bounds:v22TimelineBounds,add:v22AddAtTrack,refresh:v22PositionAll,state:()=>({panel:v22DesiredSeqPanel,scrollLeft:timelineScroll&&timelineScroll.scrollLeft,playheadFrame:v20SecondsToFrame(seqPlayhead),items:TL.length})}
+}
+const __v21InstallV22=v21Install;
+v21Install=function(){const r=__v21InstallV22();requestAnimationFrame(v22Install);return r};
+window.addEventListener("load",()=>setTimeout(v22Install,380),{once:true});
+
 const restored=loadProject();
 if(restored){TL=restored.timeline;activeShotUid=restored.activeShotUid;applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid}}
 else{TL=[];activeShotUid=null;activeSequencePreset="empty";applyProjectFormat("16:9",false)}
@@ -11627,6 +11798,158 @@ filter();
     #seqShotSecondsV21{display:none}
     .workspace-tabs-op.seq-tabs-v21{grid-template-columns:repeat(4,minmax(52px,1fr))!important}
     .breakdown-recipe-v21>div{grid-template-columns:1fr}.breakdown-item-v21{grid-template-columns:24px 31px minmax(0,1fr)}.breakdown-item-v21>em{display:none}
+  }
+</style>
+
+<style id="memento-v22-timeline-polish-style">
+  /* ========================================================================
+     V22 — timeline player gate, deterministic canvas gestures and docked tabs
+     ======================================================================== */
+  :root{--seq-project-h:43px;--seq-shot-h:50px;--seq-tabs-h:38px}
+
+  /* Timeline gate uses the same matte/gate construction as SHOT. */
+  .app.v-seq .seq-left-content-v13,
+  .app.v-seq .seq-left-render-v13,
+  .app.v-seq #seqPlayerMount,
+  .app.v-seq #seqLeftShellV13{background:#141418!important}
+  .app.v-seq .seq-left-render-v13.active{display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;padding:0!important}
+  .app.v-seq .seq-left-render-v13 .time-rig{width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;background:#141418!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+  .app.v-seq #seqPlayerMount .seq-left-render-v13 .time-rig>.cprev,
+  .app.v-seq #seqPlayerMount.is-stuck .seq-left-render-v13 .time-rig>.cprev{
+    position:relative!important;flex:0 1 auto!important;flex-grow:0!important;flex-shrink:1!important;align-self:center!important;
+    width:min(100%,calc((100dvh - var(--op-header-h) - 164px) * var(--project-scale)))!important;
+    height:auto!important;max-height:calc(100dvh - var(--op-header-h) - 164px)!important;
+    aspect-ratio:var(--project-ratio)!important;margin:auto!important;background:#000!important;
+    outline:1px solid rgba(255,255,255,.075)!important;outline-offset:-1px!important;
+    box-shadow:0 0 0 9999px rgba(0,0,0,.50),0 0 0 1px rgba(255,255,255,.035)!important;overflow:hidden!important;
+  }
+  .app.v-seq .seq-left-render-v13 .time-rig>.cprev::after{
+    content:"";position:absolute;z-index:30;inset:7px;pointer-events:none;opacity:.14;
+    background:linear-gradient(#fff,#fff) left top/14px 1px no-repeat,linear-gradient(#fff,#fff) left top/1px 14px no-repeat,
+      linear-gradient(#fff,#fff) right top/14px 1px no-repeat,linear-gradient(#fff,#fff) right top/1px 14px no-repeat,
+      linear-gradient(#fff,#fff) left bottom/14px 1px no-repeat,linear-gradient(#fff,#fff) left bottom/1px 14px no-repeat,
+      linear-gradient(#fff,#fff) right bottom/14px 1px no-repeat,linear-gradient(#fff,#fff) right bottom/1px 14px no-repeat;
+  }
+  .app.v-seq[data-format="2.39:1"] #seqPlayerMount .seq-left-render-v13 .time-rig>.cprev{width:100%!important;max-height:none!important;aspect-ratio:2.39/1!important}
+
+  /* FPS, aspect ratio and fullscreen live in the player header, before + / gear. */
+  .app.v-seq #seqLeftShellV13>.seq-left-modebar-v13{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto 38px 38px!important;align-items:stretch!important;
+  }
+  .seq-top-tools-v22{display:flex;align-items:stretch;min-width:0;border-right:1px solid var(--line)}
+  .seq-top-select-v22,.seq-top-format-v22{height:100%;display:flex!important;align-items:center!important;gap:5px!important;padding:0 6px!important;border-right:1px solid var(--line)!important;color:var(--txt-3)!important;background:#0a0a0c!important}
+  .seq-top-select-v22>span{font:800 5.8px/1 var(--mono);letter-spacing:.11em;color:var(--txt-3)}
+  .seq-top-select-v22 select,.seq-top-format-v22 select{appearance:none!important;width:auto!important;min-width:48px!important;height:27px!important;border:0!important;border-radius:5px!important;background:#101014!important;color:var(--txt-2)!important;padding:0 18px 0 6px!important;font:750 6.6px/1 var(--mono)!important;cursor:pointer!important}
+  .seq-top-format-v22{margin:0!important}.seq-top-full-v22{width:36px!important;min-width:36px!important;height:100%!important;border:0!important;border-radius:0!important;background:#0a0a0c!important;color:var(--txt-3)!important;padding:0!important;font-size:0!important}
+  .seq-top-full-v22:hover{color:var(--end)!important;background:#17110e!important}.seq-top-full-v22 svg{width:14px!important;height:14px!important}
+
+  /* Project bar becomes a pure Timeline navigator: no loop, ±10-frame buffers. */
+  #seqProjectLoopV21{display:none!important}
+  .seq-timeline-transport-v22{gap:4px!important}
+  .seq-timeline-scrub-v22{
+    --timeline-progress:0%;--timeline-in:10%;--timeline-out:90%;position:relative!important;flex:1 1 190px!important;min-width:92px!important;
+    height:34px!important;padding:0 8px!important;border:1px solid var(--line-2)!important;border-radius:7px!important;background:#0c0c0f!important;overflow:hidden!important;
+  }
+  .seq-timeline-scrub-v22::before{content:""!important;position:absolute!important;left:8px!important;right:8px!important;top:50%!important;translate:0 -50%!important;height:3px!important;border-radius:3px!important;
+    background:linear-gradient(90deg,#2a2a30 0 var(--timeline-in),var(--start) var(--timeline-in),rgba(var(--start-rgb),.38) 38%,rgba(245,245,247,.28) 50%,rgba(var(--end-rgb),.40) 63%,var(--end) var(--timeline-out),#2a2a30 var(--timeline-out) 100%)!important;opacity:.95!important}
+  .seq-timeline-scrub-v22::after{content:""!important;position:absolute!important;left:8px!important;top:50%!important;translate:0 -50%!important;width:calc((100% - 16px) * var(--timeline-progress) / 100%)!important;height:1px!important;background:rgba(255,255,255,.5)!important;pointer-events:none!important}
+  .seq-timeline-scrub-v22 input{position:relative!important;z-index:2!important;width:100%!important;height:3px!important;margin:0!important;background:transparent!important}
+  .seq-timeline-scrub-v22 input::-webkit-slider-thumb{width:13px!important;height:13px!important;border:2px solid #070709!important;background:#fff!important;box-shadow:0 0 0 1px rgba(255,255,255,.4)!important}
+  .seq-timeline-time-v22 span{color:var(--end)!important}
+  .seq-project-output-v21 .preview-format,.seq-project-output-v21 #seqFullscreenVII{display:none!important}
+
+  /* Right and middle mouse are canvas pan only; left mouse remains scrub. */
+  .timeline-scroll.panning-v22,.timeline-scroll.panning-v22 *{cursor:grabbing!important;user-select:none!important}
+  .timeline-scroll{cursor:default!important;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior:contain!important}
+  .timeline-editor .trkl,.timeline-ruler{cursor:crosshair!important}
+
+  /* The workspace tabs are a stable bottom dock. */
+  .app.v-seq .seq-editor-pane-op{display:grid!important;grid-template-rows:minmax(0,1fr) var(--seq-tabs-h)!important;min-height:0!important;overflow:hidden!important}
+  .app.v-seq #seqPanelsOp{grid-row:1!important;border:1px solid var(--line)!important;border-bottom:0!important;border-radius:10px 10px 0 0!important}
+  .app.v-seq #seqTabsOp{grid-row:2!important;height:var(--seq-tabs-h)!important;min-height:var(--seq-tabs-h)!important;border:1px solid var(--line)!important;border-radius:0 0 10px 10px!important;background:#0a0a0c!important;overflow:visible!important}
+  .app.v-seq #seqTabsOp .workspace-tab-op[aria-selected="true"]::after{top:0!important;bottom:auto!important}
+  .app.v-seq #seqTabsOp .workspace-tab-op[data-tooltip]::before{
+    content:attr(data-tooltip);position:absolute;z-index:180;left:50%;bottom:calc(100% + 8px);translate:-50% 4px;min-width:max-content;max-width:180px;
+    padding:6px 8px;border:1px solid var(--line-2);border-radius:6px;background:rgba(9,9,11,.98);color:var(--txt);font:750 6.5px/1 var(--mono);letter-spacing:.1em;
+    opacity:0;visibility:hidden;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.55);transition:.14s var(--ease);
+  }
+  .app.v-seq #seqTabsOp .workspace-tab-op[data-tooltip]:hover::before,.app.v-seq #seqTabsOp .workspace-tab-op[data-tooltip]:focus-visible::before{opacity:1;visibility:visible;translate:-50% 0}
+
+  /* Timeline fills the remaining board exactly; no black shelf after A1. */
+  .seq-timeline-shell-op>.timeline-editor{display:flex!important;flex-direction:column!important}
+  .timeline-toolbar-v21{flex:0 0 39px!important}.timeline-toolbar-v21 .timeline-status-v21 .timeline-fps{display:none!important}
+  .timeline-scroll{flex:1 1 auto!important;height:auto!important;min-height:0!important}
+  .timeline-inner{min-height:0!important;height:100%!important}
+  .timeline-editor .tracks{min-height:0!important;margin:0!important;padding:0!important}
+  .timeline-editor .trk:last-child{border-bottom:0!important}
+
+  /* Selected clips read instantly, independent of track colour. */
+  .timeline-editor .clip.sel{
+    border-color:var(--both)!important;outline:1px solid rgba(255,255,255,.98)!important;outline-offset:0!important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.28),0 0 20px rgba(255,255,255,.07),inset 0 2px 0 var(--both)!important;
+  }
+  .timeline-editor .clip.sel .trim-handle::after{background:var(--both)!important;opacity:1!important}
+
+  /* One context-aware add button per channel, immediately before frame 0. */
+  .track-add-before-zero-v22{
+    position:absolute;z-index:24;top:50%;translate:0 -50%;width:28px;height:28px;border:1px dashed rgba(255,255,255,.22);border-radius:7px;
+    background:rgba(11,11,14,.92);color:var(--txt-3);display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 5px 16px rgba(0,0,0,.35);
+  }
+  .track-add-before-zero-v22:hover{border-style:solid;border-color:var(--end);background:#17110e;color:var(--end)}
+  .track-add-before-zero-v22 svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8}.track-add-before-zero-v22 span{display:none}
+
+  /* Audio geometry is clip geometry; canvas never steals drag/trim interaction. */
+  .audio-clip-wave{position:absolute!important;z-index:3!important;inset:7px 5px 24px!important;width:calc(100% - 10px)!important;height:calc(100% - 31px)!important;pointer-events:none!important;opacity:.94!important}
+  .timeline-editor .clip[data-track^="a"] .trim-handle{z-index:30!important}.timeline-editor .clip[data-track^="a"].sel .clip-duration-input-v13{z-index:34!important}
+
+  /* EDIT is a fixed workspace: parameters scroll, transport stays docked above tabs. */
+  .app.v-seq .seq-edit-panel-v12.active.seq-edit-docked-v22{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+  .app.v-seq .seq-edit-panel-v12.seq-edit-docked-v22 .shot-parameter-section{order:1!important;flex:1 1 auto!important;min-height:0!important;overflow:auto!important;padding:4px 5px 7px!important}
+  .app.v-seq .seq-edit-panel-v12.seq-edit-docked-v22 #shotAdvancedToolbarOp{
+    order:2!important;position:static!important;top:auto!important;bottom:auto!important;flex:0 0 58px!important;width:100%!important;height:58px!important;min-height:58px!important;
+    border-top:1px solid var(--line)!important;border-bottom:0!important;background:#09090c!important;padding:4px 5px!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-transport-v18 button{
+    appearance:none!important;border:1px solid var(--line-2)!important;border-radius:6px!important;background:#0d0d10!important;color:var(--txt-3)!important;font:800 7px/1 var(--mono)!important;letter-spacing:.12em!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorStartV17{color:var(--start)!important;border-color:rgba(var(--start-rgb),.38)!important;background:rgba(var(--start-rgb),.045)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorEndV17{color:var(--end)!important;border-color:rgba(var(--end-rgb),.40)!important;background:rgba(var(--end-rgb),.045)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorPlayV17{color:var(--both)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-scrub-v18{border-color:var(--line-2)!important;background:#0c0c0f!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-scrub-v18 input{background:linear-gradient(90deg,var(--start),rgba(var(--start-rgb),.38) 28%,rgba(245,245,247,.30) 50%,rgba(var(--end-rgb),.40) 72%,var(--end))!important}
+  .app.v-seq .seq-edit-panel-v12 .seq-edit-empty-v21{order:1!important;flex:1 1 auto!important;min-height:0!important}
+
+  /* PRESET: timeline systems are primary chapters; shot presets remain compact. */
+  .seq-preset-panel-v21{padding:0!important;overflow:auto!important;background:#070709!important}
+  .timeline-presets-v22{margin:0;padding:16px 16px 18px;border-bottom:1px solid var(--line);background:radial-gradient(70% 160% at 10% -30%,rgba(var(--end-rgb),.12),transparent 65%),linear-gradient(145deg,#111014,#08080a)}
+  .timeline-presets-v22>header{display:flex;align-items:center;gap:13px;margin-bottom:14px}.preset-hero-icon-v22{flex:none;width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(var(--end-rgb),.42);border-radius:12px;background:rgba(var(--end-rgb),.08);color:var(--end)}
+  .preset-hero-icon-v22 svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.55}.timeline-presets-v22>header>div:last-child{min-width:0;display:flex;flex-direction:column;gap:5px}.timeline-presets-v22>header span{font:900 7px/1 var(--mono);letter-spacing:.22em;color:var(--end)}.timeline-presets-v22>header b{font-size:17px;line-height:1.15;letter-spacing:.035em;color:var(--txt)}.timeline-presets-v22>header small{font-size:9px;line-height:1.45;color:var(--txt-3)}
+  .timeline-presets-v22 .seq-preset-bar-op{display:block!important;min-height:0!important;height:auto!important;border:0!important;background:transparent!important;overflow:visible!important}
+  .timeline-presets-v22 .seq-preset-head-v12{display:none!important}
+  .timeline-presets-v22 .seq-preset-rail-v12{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important;gap:9px!important;padding:0!important;overflow:visible!important;cursor:default!important}
+  .timeline-presets-v22 .seq-preset-card-v12{
+    width:auto!important;max-width:none!important;height:92px!important;min-height:92px!important;padding:13px 14px!important;border-radius:10px!important;
+    display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;grid-template-rows:auto auto!important;column-gap:11px!important;align-content:center!important;
+    background:linear-gradient(145deg,#121216,#0c0c0f)!important;text-align:left!important;
+  }
+  .timeline-presets-v22 .seq-preset-card-v12 .seq-preset-icon-v12{grid-column:1!important;grid-row:1/3!important;width:31px!important;height:31px!important;color:currentColor!important}.timeline-presets-v22 .seq-preset-card-v12 .seq-preset-icon-v12 svg{width:31px!important;height:31px!important}.timeline-presets-v22 .seq-preset-card-v12 b{grid-column:2!important;grid-row:1!important;font-size:11px!important;line-height:1.15!important;letter-spacing:.12em!important;text-transform:uppercase!important}.timeline-presets-v22 .seq-preset-card-v12 small{grid-column:2!important;grid-row:2!important;margin-top:7px!important;font-size:6.6px!important;letter-spacing:.15em!important}.timeline-presets-v22 .seq-preset-card-v12.active{border-color:var(--end)!important;background:linear-gradient(145deg,#1b130f,#100d0c)!important;box-shadow:inset 0 -2px 0 var(--end),0 10px 28px rgba(0,0,0,.24)!important}
+  .shot-presets-v22{padding:13px 16px 18px}.shot-presets-v22>header{display:flex;align-items:baseline;gap:10px;margin-bottom:9px}.shot-presets-v22>header span{font:850 7px/1 var(--mono);letter-spacing:.18em;color:var(--txt-2)}.shot-presets-v22>header b{font-size:9px;font-weight:600;color:var(--txt-3)}.shot-presets-v22 .role-dial-block{margin:0!important;border-radius:10px!important;background:#0a0a0d!important}
+
+  @media(max-width:1180px){
+    .app.v-seq #seqLeftShellV13>.seq-left-modebar-v13{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto 34px 34px!important}
+    .seq-top-select-v22>span{display:none}.seq-top-select-v22,.seq-top-format-v22{padding-inline:3px!important}.seq-top-select-v22 select,.seq-top-format-v22 select{min-width:43px!important;padding-left:4px!important}
+  }
+  @media(max-width:900px){
+    :root{--seq-tabs-h:36px}
+    .seq-top-tools-v22{overflow:hidden}.seq-top-select-v22{display:none!important}.seq-top-format-v22 select{min-width:43px!important}.seq-top-full-v22{width:32px!important;min-width:32px!important}
+    .app.v-seq #seqPlayerMount .seq-left-render-v13 .time-rig>.cprev{width:min(100%,calc((43dvh - 126px) * var(--project-scale)))!important;max-height:calc(43dvh - 126px)!important}
+    .timeline-presets-v22{padding:13px 11px 15px}.timeline-presets-v22>header b{font-size:14px}.timeline-presets-v22 .seq-preset-rail-v12{grid-template-columns:repeat(2,minmax(0,1fr))!important}.timeline-presets-v22 .seq-preset-card-v12{height:82px!important;min-height:82px!important;padding:10px!important}
+    .shot-presets-v22{padding:11px}.track-add-before-zero-v22{width:26px;height:26px}
+  }
+  @media(max-width:520px){
+    .seq-top-format-v22{display:none!important}.app.v-seq #seqLeftShellV13>.seq-left-modebar-v13{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 32px 32px 32px!important}
+    .seq-timeline-time-v22{display:none!important}.timeline-presets-v22 .seq-preset-rail-v12{grid-template-columns:1fr!important}.timeline-presets-v22 .seq-preset-card-v12{height:76px!important;min-height:76px!important}
   }
 </style>
 
