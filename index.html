@@ -9585,6 +9585,183 @@ window.__mementoV20={
 };
 
 
+
+/* ========================================================================
+   MEMENTO V21 — TIMELINE WORKSPACE / PLAYER PARITY / GLOSSARY
+   ======================================================================== */
+const V21_BOOK_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg>';
+const V21_ICON={
+  home:'<svg viewBox="0 0 24 24"><path d="M5 4v16M9 12h10M13 8l-4 4 4 4"/></svg>',
+  end:'<svg viewBox="0 0 24 24"><path d="M19 4v16M15 12H5M11 8l4 4-4 4"/></svg>',
+  loop:V13_ICON.loop,
+  play:V13_ICON.play,
+  pause:V13_ICON.pause,
+  start:V13_ICON.start,
+  finish:V13_ICON.end,
+  preset:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><path d="M16.5 13v7M13 16.5h7"/></svg>'
+};
+let v21ShotRAF=0,v21ShotStarted=0,v21ShotPlaying=false,v21ScrubGesture=null,v21ScrubRAF=0,v21LastScrubX=0,v21Installed=false,v21ResizeObserver=null;
+
+function v21PrimaryLabel(){return uiWord("GLOSSARIO","GLOSSARY")}
+function v21PaintPrimaryModes(){
+  NAV_ICON.mTest=V21_BOOK_ICON;
+  [["mCombo","SHOT",NAV_ICON.mCombo],["mSeq","TIMELINE",NAV_ICON.mSeq],["mTest",v21PrimaryLabel(),V21_BOOK_ICON]].forEach(([id,label,icon])=>{
+    const b=document.getElementById(id);if(!b)return;b.innerHTML=(icon||"")+'<span>'+label+'</span>';b.setAttribute("aria-label",label)
+  });
+  const sub=document.getElementById("testSubnav");if(sub)sub.remove()
+}
+const __setModeV21=window.__setMode;
+window.__setMode=function(mode){
+  if(mode==="bench"||mode==="comb2"||mode==="test")mode="gloss";
+  const r=__setModeV21?__setModeV21(mode):undefined;v21PaintPrimaryModes();return r
+};
+paintGlobalNav=v21PaintPrimaryModes;
+updatePrimaryModeLabelsOperational=v21PaintPrimaryModes;
+
+function v21SetTab(button,label,icon){
+  if(!button)return;button.innerHTML=(icon||"")+'<span>'+label+'</span>';button.setAttribute("aria-label",label)
+}
+function v21EnsureSeqTabs(){
+  const nav=document.getElementById("seqTabsOp"),panels=document.getElementById("seqPanelsOp");if(!nav||!panels)return;
+  let edit=nav.querySelector('[data-seq-tab="edit"]');if(!edit){edit=tabButtonOperational("edit","EDIT",V12_ICON.edit,"seq");nav.appendChild(edit)}
+  let editPanel=panels.querySelector('[data-panel="edit"]');if(!editPanel){editPanel=document.createElement("section");editPanel.className="seq-panel-op seq-edit-panel-v12";editPanel.dataset.panel="edit";editPanel.setAttribute("role","tabpanel");panels.appendChild(editPanel)}
+  nav.querySelector('[data-seq-tab="project"]')?.remove();const legacyProject=panels.querySelector('[data-panel="project"]');if(legacyProject)legacyProject.classList.add("v13-legacy-project-panel");
+  const timeline=nav.querySelector('[data-seq-tab="timeline"]'),preset=nav.querySelector('[data-seq-tab="type"]'),breakdown=nav.querySelector('[data-seq-tab="breakdown"]');
+  [timeline,edit,preset,breakdown].filter(Boolean).forEach(x=>nav.appendChild(x));
+  nav.classList.remove("tab-count-5");nav.classList.add("tab-count-4","seq-tabs-v21");
+  v21SetTab(timeline,"TIMELINE",OP_ICON.timeline);v21SetTab(edit,"EDIT",V12_ICON.edit);v21SetTab(preset,"PRESET",V21_ICON.preset);v21SetTab(breakdown,"BREAKDOWN",OP_ICON.breakdown);
+  editPanel.classList.add("seq-edit-mirror-v21");const presetPanel=panels.querySelector('[data-panel="type"]');if(presetPanel)presetPanel.classList.add("seq-preset-panel-v21");
+  if(operationalSeqPanel==="project")operationalSeqPanel="timeline"
+}
+ensureSeqTabsV13=v21EnsureSeqTabs;
+ensureSeqTabsV12=v21EnsureSeqTabs;
+function v21PositionPresetPanel(){
+  v21EnsureSeqTabs();const panel=document.querySelector('.seq-panel-op[data-panel="type"]'),bar=document.getElementById("seqPresetBarOp"),role=document.querySelector(".role-dial-block");if(!panel)return;
+  if(bar&&bar.parentNode!==panel)panel.prepend(bar);if(role&&role.parentNode!==panel)panel.appendChild(role);
+  if(bar)bar.classList.add("seq-preset-library-v21")
+}
+positionSequencePresetSliderV12=v21PositionPresetPanel;
+
+function v21SelectedShot(){return v13SelectedShot&&v13SelectedShot()}
+function v21ShotName(it){const b=B(it&&it.id);return it?(it.userLabel||it.note||techLabel(techOf(it.technicalPresetId))||(b&&b[1])||uiWord("Shot selezionato","Selected shot")):uiWord("Nessuno shot selezionato","No selected shot")}
+function v21Button(id,icon,label,cls){let b=document.getElementById(id);if(!b){b=document.createElement("button");b.id=id;b.type="button"}b.className=cls||"microbtn";b.innerHTML=icon+'<span class="command-label">'+label+'</span>';b.title=label;b.setAttribute("aria-label",label);return b}
+function v21Readout(id,label,editable){let box=document.getElementById(id);if(!box){box=document.createElement(editable?"label":"div");box.id=id;box.className="seq-shot-readout-v21";box.innerHTML=editable?'<input type="number"><span></span>':'<b>0</b><span></span>'}const caption=box.querySelector("span");if(caption)caption.textContent=label;return box}
+function v21StopShotPlayback(keep=true){if(v21ShotRAF)cancelAnimationFrame(v21ShotRAF);v21ShotRAF=0;v21ShotPlaying=false;if(!keep&&v21SelectedShot())v13SetSeqMix(0,"start");v21SyncPlayerBars()}
+function v21ShotTick(now){
+  const it=v21SelectedShot();if(!v21ShotPlaying||!it){v21StopShotPlayback();return}v20EnsureItemFrames(it,B(it.id));const dur=Math.max(v13FrameDuration(),v20FrameToSeconds(it.durationFrames));let mix=(now-v21ShotStarted)/1000/dur;
+  if(mix>=1){if(v13ShotLoop){v21ShotStarted=now;mix=0}else{mix=1;v21ShotPlaying=false}}
+  v13SetSeqMix(Math.max(0,Math.min(1,mix)));v21SyncPlayerBars();if(v21ShotPlaying)v21ShotRAF=requestAnimationFrame(v21ShotTick)
+}
+function v21ToggleShotPlayback(){
+  const it=v21SelectedShot();if(!it)return;if(v21ShotPlaying){v21StopShotPlayback();return}pauseSequence(false);let mix=Number.isFinite(v13SeqMix)?v13SeqMix:0;if(mix>=.999)mix=0;v13SetSeqMix(mix);v21ShotStarted=performance.now()-mix*Math.max(v13FrameDuration(),Number(it.dur)||1)*1000;v21ShotPlaying=true;v21ShotRAF=requestAnimationFrame(v21ShotTick);v21SyncPlayerBars()
+}
+function v21SeekFrame(frame){
+  const data=timelineLayoutData(),min=-v20PreRollFrames(),max=v20SecondsToFrame(v13RangeOut(data));frame=Math.max(min,Math.min(max,Math.round(frame)));v21StopShotPlayback();pauseSequence(false);seqPlayhead=v20FrameToSeconds(frame);seqPlanCache=buildSequencePlan();seqScrubbing=true;seqPreviewPlaying=false;v13SeqMix=null;updateSequenceHUD();if(window.__repaint)window.__repaint();start()
+}
+function v21BuildProjectTransport(shell,shotBar){
+  let bar=document.getElementById("seqProjectTransportV21");if(!bar){bar=document.createElement("div");bar.id="seqProjectTransportV21";bar.className="seq-project-transport-v21"}
+  const home=v21Button("seqProjectHomeV21",V21_ICON.home,uiWord("INIZIO PROGETTO","PROJECT START"),"microbtn project-control-v21"),end=v21Button("seqProjectEndV21",V21_ICON.end,uiWord("FINE PROGETTO","PROJECT END"),"microbtn project-control-v21"),loop=v21Button("seqProjectLoopV21",V21_ICON.loop,"LOOP","microbtn project-control-v21 project-loop-v21");
+  home.onclick=()=>v21SeekFrame(v20SecondsToFrame(v13RangeIn()));end.onclick=()=>v21SeekFrame(v20SecondsToFrame(v13RangeOut(timelineLayoutData())));loop.onclick=()=>{v13Loop=!v13Loop;v13SaveSettings(true);v21SyncPlayerBars()};
+  const prev=document.getElementById("sPrevShot"),play=document.getElementById("sPreviewPlay"),next=document.getElementById("sNextShot");if(prev){prev.onclick=()=>v13StepEdit(-1);prev.innerHTML=V12_ICON.prev;prev.title=uiWord("Shot precedente","Previous shot")}if(next){next.onclick=()=>v13StepEdit(1);next.innerHTML=V12_ICON.next;next.title=uiWord("Shot successivo","Next shot")}if(play){play.onclick=()=>{v21StopShotPlayback();if(seqTimelinePlaying)pauseSequence(false);else{v13SeqMix=null;startSequence(false)}}}
+  let scrub=document.getElementById("seqProjectScrubV21");if(!scrub){scrub=document.createElement("label");scrub.id="seqProjectScrubV21";scrub.className="seq-project-scrub-v21";scrub.innerHTML='<input type="range" step="1" value="0" aria-label="Timeline project scrub"><i></i>';const input=scrub.querySelector("input");input.onpointerdown=()=>{v21StopShotPlayback();pauseSequence(false)};input.oninput=e=>v21SeekFrame(Number(e.target.value))}
+  let time=document.getElementById("seqProjectTimeV21");if(!time){time=document.createElement("div");time.id="seqProjectTimeV21";time.className="seq-project-time-v21";time.innerHTML='<b>00:00:00:00</b><span>PROJECT</span>'}
+  const out=document.createElement("div");out.className="seq-project-output-v21";const fmt=document.getElementById("sPreviewFormat"),clean=document.getElementById("sPreviewClean"),full=document.getElementById("seqFullscreenVII");if(fmt)out.appendChild(fmt.parentNode);if(clean)out.appendChild(clean);if(full)out.appendChild(full);
+  bar.replaceChildren(...[home,prev,play,next,end,loop,scrub,time,out].filter(Boolean));if(bar.parentNode!==shell)shell.insertBefore(bar,shotBar);else shell.insertBefore(bar,shotBar);return bar
+}
+function v21BuildShotTransport(shell){
+  let bar=document.querySelector("#seqPlayerMount .time-player")||document.querySelector("#seqLeftShellV13>.time-player");if(!bar){bar=document.createElement("div");bar.className="time-player";shell.appendChild(bar)}bar.className="time-player seq-shot-transport-v21";bar.id="seqShotTransportV21";
+  const util=document.createElement("div");util.className="seq-shot-group-v21 seq-shot-utility-v21";["seqUndoVII","seqRedoVII","seqCopy","seqPaste"].forEach(id=>{const b=document.getElementById(id);if(b)util.appendChild(b)});
+  const loop=v21Button("seqShotLoopV21",V21_ICON.loop,"LOOP","microbtn seq-shot-control-v21 seq-shot-loop-v21"),play=v21Button("seqShotPlayV21",V21_ICON.play,"PLAY","microbtn seq-shot-control-v21 seq-shot-play-v21"),startB=v21Button("seqShotStartV21",V21_ICON.start,"START","microbtn seq-shot-control-v21 seq-shot-start-v21"),endB=v21Button("seqShotEndV21",V21_ICON.finish,"END","microbtn seq-shot-control-v21 seq-shot-end-v21");
+  loop.onclick=()=>{v13ShotLoop=!v13ShotLoop;v13SaveSettings(false);v21SyncPlayerBars()};play.onclick=v21ToggleShotPlayback;startB.onclick=()=>{v21StopShotPlayback();v13SetSeqMix(0,"start")};endB.onclick=()=>{v21StopShotPlayback();v13SetSeqMix(1,"end")};
+  let mix=document.getElementById("seqShotMixV21");if(!mix){mix=document.createElement("label");mix.id="seqShotMixV21";mix.className="seq-shot-mix-v21";mix.innerHTML='<input type="range" min="0" max="100" step="1" value="0" aria-label="Selected shot interpolation">';const input=mix.querySelector("input");input.onpointerdown=()=>v21StopShotPlayback();input.oninput=e=>v13SetSeqMix(Number(e.target.value)/100)}
+  const frames=v21Readout("seqShotFramesV21","FRAME",true),seconds=v21Readout("seqShotSecondsV21",uiWord("SECONDI","SECONDS"),true),delta=v21Readout("seqShotDeltaV21","DELTA",false);frames.querySelector("input").min="1";frames.querySelector("input").step="1";seconds.querySelector("input").min=String(v13FrameDuration());seconds.querySelector("input").step="0.01";
+  frames.querySelector("input").onchange=e=>{const it=v21SelectedShot();if(it)v20SetDurationFrames(it,e.target.value,projectSnapshot())};seconds.querySelector("input").onchange=e=>{const it=v21SelectedShot();if(it)v20SetDurationFrames(it,Math.max(1,Math.round((Number(e.target.value)||0)*v20FPS())),projectSnapshot())};
+  const casual=v21Button("seqShotCasualV21",V13_ICON.random,uiWord("GENERA CASUALE","GENERATE RANDOM"),"microbtn seq-shot-casual-v21");casual.onclick=()=>{v21StopShotPlayback();v13CasualSelected()};
+  bar.replaceChildren(util,loop,play,startB,mix,endB,frames,seconds,delta,casual);if(bar.parentNode!==shell)shell.appendChild(bar);return bar
+}
+function v21BuildSeqTransports(){
+  const shell=document.getElementById("seqLeftShellV13");if(!shell)return;let base=document.querySelector("#seqPlayerMount .time-player")||document.querySelector("#seqLeftShellV13>.time-player");if(!base){base=document.createElement("div");base.className="time-player";shell.appendChild(base)}const projectBar=v21BuildProjectTransport(shell,base),shotBar=v21BuildShotTransport(shell);if(projectBar&&shotBar&&projectBar.parentNode===shell&&shotBar.parentNode===shell)shell.insertBefore(projectBar,shotBar);v21SyncPlayerBars()
+}
+v13BuildSeqTransport=v21BuildSeqTransports;
+
+function v21SyncPlayerBars(){
+  const data=timelineLayoutData(),min=-v20PreRollFrames(),max=Math.max(min+1,v20SecondsToFrame(v13RangeOut(data))),frame=v20SecondsToFrame(seqPlayhead),project=document.getElementById("seqProjectScrubV21"),time=document.getElementById("seqProjectTimeV21");
+  if(project){const input=project.querySelector("input");input.min=String(min);input.max=String(max);if(document.activeElement!==input)input.value=String(Math.max(min,Math.min(max,frame)));const pct=(frame-min)/Math.max(1,max-min);project.style.setProperty("--project-progress",(Math.max(0,Math.min(1,pct))*100)+"%")}
+  if(time){time.querySelector("b").textContent=v13Timecode(seqPlayhead)+" / "+v13Timecode(v20FrameToSeconds(max));time.querySelector("span").textContent=uiWord("PROGETTO","PROJECT")}
+  const pplay=document.getElementById("sPreviewPlay");if(pplay){pplay.innerHTML=seqTimelinePlaying?V21_ICON.pause:V21_ICON.play;pplay.classList.toggle("playing",seqTimelinePlaying);pplay.setAttribute("aria-pressed",String(seqTimelinePlaying))}
+  const ploop=document.getElementById("seqProjectLoopV21");if(ploop)ploop.setAttribute("aria-pressed",String(v13Loop));
+  const it=v21SelectedShot(),strict=!!it,mix=Number.isFinite(v13SeqMix)?v13SeqMix:0;const mixInput=document.querySelector("#seqShotMixV21 input");if(mixInput&&document.activeElement!==mixInput)mixInput.value=String(Math.round(mix*100));
+  const f=document.querySelector("#seqShotFramesV21 input"),s=document.querySelector("#seqShotSecondsV21 input"),d=document.querySelector("#seqShotDeltaV21 b");if(it){v20EnsureItemFrames(it,B(it.id));if(f&&document.activeElement!==f)f.value=String(it.durationFrames);if(s&&document.activeElement!==s)s.value=v20FrameToSeconds(it.durationFrames).toFixed(2);if(d)d.textContent=String(v18DeltaCount(it))}else{if(f)f.value="";if(s)s.value="";if(d)d.textContent="0"}
+  ["seqShotLoopV21","seqShotPlayV21","seqShotStartV21","seqShotEndV21","seqShotMixV21","seqShotFramesV21","seqShotSecondsV21","seqShotCasualV21"].forEach(id=>{const el=document.getElementById(id);if(!el)return;if(el.matches("label")){el.querySelectorAll("input").forEach(x=>x.disabled=!strict)}else el.disabled=!strict;el.classList.toggle("disabled-v21",!strict)});
+  const sloop=document.getElementById("seqShotLoopV21"),splay=document.getElementById("seqShotPlayV21");if(sloop)sloop.setAttribute("aria-pressed",String(v13ShotLoop));if(splay){splay.innerHTML=(v21ShotPlaying?V21_ICON.pause:V21_ICON.play)+'<span class="command-label">'+(v21ShotPlaying?uiWord("PAUSA","PAUSE"):"PLAY")+'</span>';splay.setAttribute("aria-pressed",String(v21ShotPlaying))}
+  const startB=document.getElementById("seqShotStartV21"),endB=document.getElementById("seqShotEndV21");if(startB)startB.classList.toggle("active-v21",strict&&mix<=.001);if(endB)endB.classList.toggle("active-v21",strict&&mix>=.999);const bar=document.getElementById("seqShotTransportV21");if(bar){bar.dataset.shot=it?it.uid:"";bar.title=v21ShotName(it)}
+}
+
+function v21ToolbarPolish(){
+  const bar=timelineEditor&&timelineEditor.querySelector(".timeline-toolbar");if(!bar)return;bar.classList.add("timeline-toolbar-v21");bar.querySelector(".timeline-channel-mode-v20")?.remove();
+  const home=bar.querySelector("#timelineHomeOp,.timeline-home-op,.timeline-home"),fps=bar.querySelector(".timeline-fps"),tc=bar.querySelector(".timeline-timecode"),tools=document.getElementById("timelineToolsV13"),toggles=document.getElementById("timelineTogglesV13"),duration=document.getElementById("timelineDurationV13");
+  let status=bar.querySelector(".timeline-status-v21");if(!status){status=document.createElement("div");status.className="timeline-status-v21"}if(fps)status.appendChild(fps);if(tc)status.appendChild(tc);
+  let navigation=bar.querySelector(".timeline-nav-v21");if(!navigation){navigation=document.createElement("div");navigation.className="timeline-nav-v21"}if(home)navigation.appendChild(home);
+  bar.replaceChildren(navigation,status,...[toggles,duration,tools].filter(Boolean));
+}
+function v21UpdateEmptyState(){
+  const shell=document.getElementById("seqTimelineShellOp");if(!shell)return;let empty=document.getElementById("timelineEmptyV21");if(!empty){empty=document.createElement("div");empty.id="timelineEmptyV21";empty.className="timeline-empty-v21";empty.innerHTML='<div class="timeline-empty-icon-v21">'+V21_ICON.preset+'</div><span>'+uiWord("TIMELINE VUOTA","EMPTY TIMELINE")+'</span><b>'+uiWord("Parti da un preset oppure aggiungi la prima inquadratura.","Start from a preset or add the first shot.")+'</b><div><button type="button" data-empty-action="preset">'+uiWord("APRI PRESET","OPEN PRESETS")+'</button><button type="button" data-empty-action="library">'+uiWord("INQUADRATURE","SHOTS")+'</button></div>';empty.onclick=e=>{const b=e.target.closest("[data-empty-action]");if(!b)return;if(b.dataset.emptyAction==="preset")activateSeqPanelOperational("type");else v13SetLeftMode("library")};shell.appendChild(empty)}empty.hidden=TL.length>0;shell.classList.toggle("is-empty-v21",TL.length===0)
+}
+function v21InstallFluidScrub(){
+  const scroll=timelineScroll;if(!scroll||scroll.dataset.scrubV21)return;scroll.dataset.scrubV21="1";
+  const apply=x=>{v21LastScrubX=x;if(v21ScrubRAF)return;v21ScrubRAF=requestAnimationFrame(()=>{v21ScrubRAF=0;scrubTimelineAt(v21LastScrubX);v21SyncPlayerBars()})};
+  scroll.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest(".clip,.trkh,button,input,textarea,select,label,.timeline-marker-v13,.timeline-empty-v21"))return;const lane=e.target.closest(".trkl,.timeline-ruler,.tracks,.timeline-inner");if(!lane)return;v21ScrubGesture={id:e.pointerId};try{scroll.setPointerCapture(e.pointerId)}catch(_){ }apply(e.clientX);e.preventDefault();e.stopImmediatePropagation()},true);
+  scroll.addEventListener("pointermove",e=>{if(!v21ScrubGesture||v21ScrubGesture.id!==e.pointerId)return;apply(e.clientX);e.preventDefault();e.stopImmediatePropagation()},true);
+  const end=e=>{if(v21ScrubGesture&&(!e||e.pointerId===v21ScrubGesture.id))v21ScrubGesture=null};scroll.addEventListener("pointerup",end,true);scroll.addEventListener("pointercancel",end,true);scroll.addEventListener("lostpointercapture",end,true)
+}
+function v21EnsureTimelineResize(){const shell=document.getElementById("seqTimelineShellOp");if(!shell||!window.ResizeObserver)return;if(v21ResizeObserver)v21ResizeObserver.disconnect();v21ResizeObserver=new ResizeObserver(()=>requestAnimationFrame(()=>{if(window.__currentMode==="seq"){layoutTimeline();v21UpdateEmptyState()}}));v21ResizeObserver.observe(shell)}
+function v21AfterTimelineBuild(){v21ToolbarPolish();v21InstallFluidScrub();v21UpdateEmptyState();v21SyncPlayerBars();v21EnsureTimelineResize();requestAnimationFrame(()=>{layoutTimeline();v21UpdateEmptyState()})}
+
+function v21EditPanelState(){
+  const panel=document.querySelector('.seq-panel-op[data-panel="edit"]');if(!panel)return;panel.classList.add("seq-edit-mirror-v21");let empty=panel.querySelector(".seq-edit-empty-v21");if(!empty){empty=document.createElement("div");empty.className="seq-edit-empty-v21";empty.innerHTML=V12_ICON.edit+'<b>'+uiWord("SELEZIONA UNO SHOT","SELECT A SHOT")+'</b><span>'+uiWord("L’editor usa la stessa grammatica START / PLAY / END della modalità SHOT.","The editor uses the same START / PLAY / END grammar as SHOT mode.")+'</span>';panel.appendChild(empty)}const shot=!!v21SelectedShot();empty.hidden=shot;const toolbar=panel.querySelector("#shotAdvancedToolbarOp"),params=panel.querySelector(".shot-parameter-section");if(toolbar)toolbar.hidden=!shot;if(params)params.hidden=!shot;if(shot){v18UpgradeEditorToolbar();v18DecorateAdvanced();v18SyncEditorToolbar()}
+}
+
+function v21RenderBreakdown(){
+  const panel=document.querySelector('.seq-panel-op[data-panel="breakdown"]');if(!panel)return;let root=panel.querySelector("#breakdownV21");if(!root){root=document.createElement("div");root.id="breakdownV21";root.className="breakdown-v21";panel.replaceChildren(root)}
+  const selected=v13SelectedItem(),data=timelineLayoutData(),items=TL.map((it,i)=>({it,i,b:B(it.id),p:data.map.get(i)})).filter(x=>x.b&&x.p),shots=items.filter(x=>x.b[6]==="shot"),fx=items.filter(x=>x.b[6]==="trans"),audio=items.filter(x=>x.b[6]==="audio"),total=data.totalFrame||v20SecondsToFrame(data.total||0);
+  let selectedHTML='<section class="breakdown-empty-v21"><b>'+uiWord("Nessun elemento selezionato","No selected item")+'</b><span>'+uiWord("Seleziona una clip per leggerne ricetta, delta e analisi tecnica.","Select a clip to inspect recipe, delta and technical analysis.")+'</span></section>';
+  if(selected){const b=B(selected.id),idx=TL.indexOf(selected),p=data.map.get(idx);if(b&&b[6]==="shot"){const A=shotStart(selected),E=shotEnd(selected),analysis=shotAnalysis(A),delta=deltaAnalysis(A,E),changed=delta.changed||[];selectedHTML='<section class="breakdown-selection-v21"><header><span>SHOT '+String(shots.findIndex(x=>x.it===selected)+1).padStart(2,"0")+'</span><b>'+escapeHTML(v21ShotName(selected))+'</b><small>'+p.durationFrames+'f · '+v20TimecodeFrame(p.startFrame)+'</small></header><div class="breakdown-columns-v21"><section><h3>'+uiWord("ANALISI TECNICA","TECHNICAL ANALYSIS")+'</h3><div class="breakdown-metric-grid-v21">'+[["GERARCHIA",analysis.labels.hierarchy,analysis.hierarchy],["STABILITÀ AI",analysis.labels.stability,analysis.stability],["ENERGIA",analysis.labels.energy,analysis.energy],["COMPLESSITÀ",analysis.labels.complexity,analysis.complexity]].map(x=>'<div><span>'+x[0]+'</span><b>'+escapeHTML(x[1])+'</b><i><em style="width:'+x[2]+'%"></em></i></div>').join("")+'</div><p>'+escapeHTML(analysis.summary)+'</p></section><section><h3>'+uiWord("ANALISI DELTA","DELTA ANALYSIS")+' · '+delta.count+' Δ</h3><div class="breakdown-delta-v21">'+(changed.length?changed.map(x=>'<div><span>'+escapeHTML(x.label)+'</span><b>'+escapeHTML(x.from)+' <i>→</i> '+escapeHTML(x.to)+'</b></div>').join(""):'<div class="same"><b>'+uiWord("START e END coincidono","START and END match")+'</b></div>')+'</div><p><strong>'+escapeHTML(delta.label)+'</strong> · '+escapeHTML(delta.advice)+'</p></section></div><section class="breakdown-recipe-v21"><h3>'+uiWord("RICETTA SHOT","SHOT RECIPE")+'</h3><div>'+AXES.map(ax=>'<article class="'+(A[ax.id]!==E[ax.id]?'changed':'same')+'"><span>'+escapeHTML(axisName(ax.id))+'</span><b>'+escapeHTML(optionName(ax.id,A[ax.id]))+(A[ax.id]===E[ax.id]?'':' <i>→</i> '+escapeHTML(optionName(ax.id,E[ax.id])))+'</b></article>').join("")+'</div></section></section>'}else if(b){selectedHTML='<section class="breakdown-selection-v21 compact"><header><span>'+b[6].toUpperCase()+'</span><b>'+escapeHTML(selected.note||b[1])+'</b><small>'+((p&&p.durationFrames)||v20SecondsToFrame(selected.dur))+'f · '+escapeHTML((selected.track||b[6]).toUpperCase())+'</small></header><p>'+uiWord("Inspector contestuale predisposto. Parametri specifici per audio, grafica e FX verranno estesi nei pass dedicati.","Context inspector prepared. Specific audio, graphics and FX parameters will be extended in dedicated passes.")+'</p></section>'}}
+  const order={fx:0,v3:1,v2:2,v1:3,a2:4,a1:5},counts={shot:0,trans:0,audio:0};const rows=items.slice().sort((a,b)=>a.p.startFrame-b.p.startFrame||(order[a.p.track]??9)-(order[b.p.track]??9)||a.i-b.i).map((x,n)=>{counts[x.b[6]]=(counts[x.b[6]]||0)+1;const prefix=x.b[6]==="shot"?"S":x.b[6]==="audio"?"A":"F",delta=x.b[6]==="shot"?v18DeltaCount(x.it):null;return'<button type="button" class="breakdown-item-v21 '+(x.it===selected?'active':'')+'" data-uid="'+x.it.uid+'"><span>'+String(n+1).padStart(2,"0")+'</span><i>'+prefix+String(counts[x.b[6]]).padStart(2,"0")+'</i><div><b>'+escapeHTML(x.it.userLabel||x.it.note||(x.b[6]==="shot"?techLabel(techOf(x.it.technicalPresetId)):x.b[1]))+'</b><small>'+escapeHTML((x.p.track||x.b[6]).toUpperCase())+' · '+v20TimecodeFrame(x.p.startFrame)+'</small></div><em>'+x.p.durationFrames+'f'+(delta==null?'':' · '+delta+'Δ')+'</em></button>'}).join("");
+  root.innerHTML='<section class="breakdown-project-v21"><div><span>'+uiWord("DURATA","DURATION")+'</span><b>'+total+'f</b></div><div><span>SHOT</span><b>'+shots.length+'</b></div><div><span>FX / GFX</span><b>'+fx.length+'</b></div><div><span>AUDIO</span><b>'+audio.length+'</b></div></section>'+selectedHTML+'<section class="breakdown-elements-v21"><h3>'+uiWord("ELEMENTI DEL PROGETTO","PROJECT ELEMENTS")+'</h3><div>'+(rows||'<div class="breakdown-no-items-v21">'+uiWord("La timeline è vuota.","The timeline is empty.")+'</div>')+'</div></section>';
+  root.querySelectorAll("[data-uid]").forEach(row=>row.onclick=()=>{const it=TL.find(x=>x.uid===row.dataset.uid);if(!it)return;const p=timelineLayoutData().map.get(TL.indexOf(it));setSelection(it);if(B(it.id)&&B(it.id)[6]==="shot")activeShotUid=it.uid;if(p){seqPlayhead=p.start;seqScrubbing=true;v13SeqMix=B(it.id)&&B(it.id)[6]==="shot"?0:null;updateSequenceHUD()}drawTL()})
+}
+v13RenderBreakdown=v21RenderBreakdown;
+
+const __activateSeqPanelV21=activateSeqPanelOperational;
+activateSeqPanelOperational=function(key,save=true){if(key==="preset")key="type";const r=__activateSeqPanelV21(key,save);v21EnsureSeqTabs();v21PositionPresetPanel();if(key==="edit"){mountAdvancedEditorV12();requestAnimationFrame(v21EditPanelState)}if(key==="breakdown")requestAnimationFrame(v21RenderBreakdown);if(key==="timeline")requestAnimationFrame(v21AfterTimelineBuild);return r};
+const __rebuildTimelineV21=rebuildTimelineOperational;
+rebuildTimelineOperational=function(){const r=__rebuildTimelineV21();requestAnimationFrame(v21AfterTimelineBuild);return r};
+const __arrangeSeqV21=arrangeSeqOperational;
+arrangeSeqOperational=function(){const r=__arrangeSeqV21();requestAnimationFrame(()=>{v21EnsureSeqTabs();v21PositionPresetPanel();v21BuildSeqTransports();v21AfterTimelineBuild();v21EditPanelState()});return r};
+const __v13UpdateTransportV21=v13UpdateTransport;
+v13UpdateTransport=function(){const r=__v13UpdateTransportV21();v21SyncPlayerBars();return r};
+const __updateSequenceHUDV21=updateSequenceHUD;
+updateSequenceHUD=function(){const r=__updateSequenceHUDV21();v21SyncPlayerBars();return r};
+const __setSelectionV21=setSelection;
+setSelection=function(it){v21StopShotPlayback();const r=__setSelectionV21(it);requestAnimationFrame(()=>{v21SyncPlayerBars();v21EditPanelState();v21RenderBreakdown()});return r};
+const __startSequenceV21=startSequence;
+startSequence=function(fromStart){v21StopShotPlayback();const r=__startSequenceV21(fromStart);v21SyncPlayerBars();return r};
+const __pauseSequenceV21=pauseSequence;
+pauseSequence=function(resume){const r=__pauseSequenceV21(resume);v21SyncPlayerBars();return r};
+const __drawTLV21=drawTL;
+drawTL=function(){const r=__drawTLV21();requestAnimationFrame(()=>{v21EnsureSeqTabs();v21PositionPresetPanel();v21BuildSeqTransports();v21AfterTimelineBuild();v21EditPanelState();v21RenderBreakdown()});return r};
+const __applyLanguageV21=applyLanguage;
+applyLanguage=function(lang){const r=__applyLanguageV21(lang);requestAnimationFrame(()=>{v21PaintPrimaryModes();v21EnsureSeqTabs();v21PositionPresetPanel();v21BuildSeqTransports();v21UpdateEmptyState();v21EditPanelState();v21RenderBreakdown()});return r};
+
+function v21Install(){
+  v21Installed=true;document.body.dataset.mementoBuild="v21-timeline-workspace";document.title="MEMENTO — Pocket Previs · V21 TIMELINE WORKSPACE";v21PaintPrimaryModes();const test=document.getElementById("mTest");if(test)test.onclick=()=>window.__setMode("gloss");v21EnsureSeqTabs();v21PositionPresetPanel();v21BuildSeqTransports();v21AfterTimelineBuild();v21EditPanelState();v21RenderBreakdown();
+  window.__mementoV21={install:v21Install,openPreset:()=>activateSeqPanelOperational("type"),openEdit:()=>activateSeqPanelOperational("edit"),openBreakdown:()=>activateSeqPanelOperational("breakdown"),sync:v21SyncPlayerBars,state:()=>({mode:window.__currentMode,panel:operationalSeqPanel,playheadFrame:v20SecondsToFrame(seqPlayhead),shotMix:Number.isFinite(v13SeqMix)?v13SeqMix:null,shotPlaying:v21ShotPlaying,timelinePlaying:seqTimelinePlaying,items:TL.length})}
+}
+const __v20InstallV21=v20Install;
+v20Install=function(){const r=__v20InstallV21();requestAnimationFrame(v21Install);return r};
+window.addEventListener("load",()=>setTimeout(v21Install,260),{once:true});
+
+
 const restored=loadProject();
 if(restored){TL=restored.timeline;activeShotUid=restored.activeShotUid;applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid}}
 else{TL=[];activeShotUid=null;activeSequencePreset="empty";applyProjectFormat("16:9",false)}
@@ -11097,6 +11274,359 @@ filter();
       grid-template-columns:17px minmax(72px,auto) minmax(0,1fr)!important;
     }
     .app.v-combo #cAxes .axis-summary-v13.axis-category-head-v18>strong{font-size:9.2px!important;letter-spacing:.18em!important}
+  }
+</style>
+
+
+<style id="memento-v21-timeline-workspace-style">
+  /* ========================================================================
+     MEMENTO V21 — TIMELINE WORKSPACE
+     Player parity, fluid scrub, SHOT editor mirror, PRESET separation,
+     complete BREAKDOWN and GLOSSARY-first R&D navigation.
+     ======================================================================== */
+  :root{
+    --start:#0086af;
+    --start-rgb:0,134,175;
+    --end:#ff7950;
+    --end-rgb:255,121,80;
+    --both:#f5f5f7;
+    --seq-project-h:43px;
+    --seq-shot-h:50px;
+  }
+
+  /* Main navigation: TEST becomes one direct learning / R&D destination. */
+  #testSubnav{display:none!important}
+  #mTest svg{fill:none!important;stroke:currentColor!important;stroke-width:1.55!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+
+  /* ------------------------------------------------------------------------
+     TIMELINE PLAYER — one player, two independent control strips.
+     ------------------------------------------------------------------------ */
+  .app.v-seq #seqLeftShellV13{
+    grid-template-rows:34px minmax(0,1fr) var(--seq-project-h) var(--seq-shot-h)!important;
+    background:#050506!important;
+  }
+  .app.v-seq #seqLeftShellV13>.seq-left-content-v13{min-height:0!important}
+  .app.v-seq #seqLeftShellV13>.seq-left-modebar-v13{grid-row:1!important}
+  .app.v-seq #seqLeftShellV13>.seq-left-content-v13{grid-row:2!important}
+  .app.v-seq #seqProjectTransportV21{grid-row:3!important}
+  .app.v-seq #seqShotTransportV21{grid-row:4!important}
+
+  .seq-project-transport-v21,
+  .seq-shot-transport-v21{
+    min-width:0;width:100%;display:flex;align-items:center;gap:4px;padding:4px 5px;
+    border-top:1px solid var(--line);background:#0b0b0e;overflow:hidden;
+  }
+  .seq-project-transport-v21{height:var(--seq-project-h);min-height:var(--seq-project-h);background:#0a0a0c}
+  .seq-shot-transport-v21{height:var(--seq-shot-h);min-height:var(--seq-shot-h);gap:3px;padding-inline:4px;background:#0d0d10}
+  .seq-project-transport-v21 button,
+  .seq-shot-transport-v21 button{
+    flex:none;height:34px;min-height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .seq-project-transport-v21 button svg,
+  .seq-shot-transport-v21 button svg{
+    width:14px;height:14px;display:block;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;
+  }
+  .seq-project-transport-v21 .command-label,
+  .seq-shot-transport-v21 .command-label{
+    font:800 6.6px/1 var(--mono);letter-spacing:.09em;white-space:nowrap;
+  }
+  .seq-project-transport-v21>.project-control-v21 .command-label{display:none!important}
+
+  /* Project transport: global navigation and complete sequence scrub. */
+  .seq-project-transport-v21>.project-control-v21,
+  .seq-project-transport-v21>.pctrl{width:34px;min-width:34px;padding:0}
+  #seqProjectHomeV21{color:rgba(var(--start-rgb),.82)!important;border-color:rgba(var(--start-rgb),.3)!important;background:rgba(var(--start-rgb),.035)!important}
+  #seqProjectEndV21{color:rgba(var(--end-rgb),.84)!important;border-color:rgba(var(--end-rgb),.34)!important;background:rgba(var(--end-rgb),.045)!important}
+  #seqProjectLoopV21{color:rgba(245,245,247,.78)!important;border-color:rgba(245,245,247,.16)!important;background:#101014!important}
+  #seqProjectLoopV21[aria-pressed="true"]{color:#fff!important;border-color:rgba(255,255,255,.72)!important;background:rgba(255,255,255,.085)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)!important}
+  #sPreviewPlay.playing{color:var(--end)!important;border-color:rgba(var(--end-rgb),.68)!important;background:rgba(var(--end-rgb),.09)!important}
+  .seq-project-scrub-v21{
+    --project-progress:0%;position:relative;flex:1 1 160px;min-width:74px;height:34px;display:flex;align-items:center;padding:0 8px;
+    border:1px solid var(--line-2);border-radius:7px;background:#0c0c0f;overflow:hidden;
+  }
+  .seq-project-scrub-v21::before{
+    content:"";position:absolute;left:8px;right:8px;height:3px;border-radius:3px;
+    background:linear-gradient(90deg,var(--start) 0%,rgba(var(--start-rgb),.42) 24%,rgba(245,245,247,.24) 50%,rgba(var(--end-rgb),.42) 76%,var(--end) 100%);opacity:.72;
+  }
+  .seq-project-scrub-v21::after{
+    content:"";position:absolute;left:8px;top:50%;translate:0 -50%;height:3px;width:calc((100% - 16px) * var(--project-progress) / 100%);pointer-events:none;
+  }
+  .seq-project-scrub-v21 input{position:relative;z-index:2;width:100%;height:3px;margin:0;background:transparent!important}
+  .seq-project-scrub-v21 input::-webkit-slider-thumb{width:12px;height:12px;border:2px solid #08080a;background:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.36)}
+  .seq-project-time-v21{
+    flex:0 0 104px;height:34px;display:grid;grid-template-rows:minmax(0,1fr) 11px;border:1px solid var(--line-2);border-radius:7px;background:#101014;overflow:hidden;
+  }
+  .seq-project-time-v21 b{display:grid;place-items:center;padding:0 5px;font:800 6.8px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seq-project-time-v21 span{display:grid;place-items:center;border-top:1px solid var(--line);font:800 5.2px/1 var(--mono);letter-spacing:.12em;color:var(--txt-3)}
+  .seq-project-output-v21{display:flex;align-items:center;gap:4px;flex:none}
+  .seq-project-output-v21 .preview-format select{height:34px!important;min-width:53px!important;font-size:6.8px!important}
+  .seq-project-output-v21 #sPreviewClean,
+  .seq-project-output-v21 #seqFullscreenVII{width:34px!important;min-width:34px!important;padding:0!important;font-size:0!important}
+
+  /* Selected-shot transport: the SHOT checkpoint reproduced inside TIMELINE. */
+  .seq-shot-group-v21{display:flex;align-items:center;gap:2px;flex:none}
+  .seq-shot-utility-v21{padding-right:4px;border-right:1px solid var(--line)}
+  .seq-shot-utility-v21 .microbtn{width:29px!important;min-width:29px!important;height:34px!important;padding:0!important;font-size:0!important}
+  .seq-shot-utility-v21 .microbtn span{display:none!important}
+  .seq-shot-control-v21{width:34px;min-width:34px;padding:0!important}
+  #seqShotLoopV21{
+    color:rgba(245,245,247,.82)!important;border-color:rgba(245,245,247,.18)!important;background:#101014!important;
+  }
+  #seqShotLoopV21[aria-pressed="true"]{
+    color:#fff!important;border-color:rgba(255,255,255,.78)!important;background:rgba(255,255,255,.095)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 0 14px rgba(255,255,255,.045)!important;
+  }
+  #seqShotPlayV21[aria-pressed="true"]{color:#fff!important;border-color:rgba(255,255,255,.55)!important;background:rgba(255,255,255,.07)!important}
+  #seqShotStartV21{width:56px!important;min-width:56px!important;color:rgba(var(--start-rgb),.82)!important;border-color:rgba(var(--start-rgb),.32)!important;background:rgba(var(--start-rgb),.035)!important}
+  #seqShotStartV21.active-v21{color:var(--start)!important;border-color:var(--start)!important;background:rgba(var(--start-rgb),.12)!important}
+  #seqShotEndV21{width:56px!important;min-width:56px!important;color:rgba(var(--end-rgb),.82)!important;border-color:rgba(var(--end-rgb),.32)!important;background:rgba(var(--end-rgb),.035)!important}
+  #seqShotEndV21.active-v21{color:var(--end)!important;border-color:var(--end)!important;background:rgba(var(--end-rgb),.10)!important}
+  .seq-shot-mix-v21{
+    flex:1 1 112px;min-width:56px;height:34px;display:flex;align-items:center;padding:0 8px;border:1px solid var(--line-2);border-radius:7px;background:#0c0c0f;
+  }
+  .seq-shot-mix-v21 input{width:100%;height:3px;margin:0;background:linear-gradient(90deg,var(--start),rgba(var(--start-rgb),.42) 27%,rgba(245,245,247,.32) 50%,rgba(var(--end-rgb),.42) 73%,var(--end))!important}
+  .seq-shot-mix-v21 input::-webkit-slider-thumb{width:12px;height:12px;background:var(--both)!important;border:2px solid #08080b!important;box-shadow:0 0 0 1px rgba(255,255,255,.42)!important}
+  .seq-shot-readout-v21{
+    flex:0 0 44px;width:44px;min-width:44px;height:40px;display:grid;grid-template-rows:minmax(0,1fr) 12px;align-items:stretch;
+    border:1px solid var(--line-2);border-radius:7px;background:#101014;overflow:hidden;color:var(--both);
+  }
+  .seq-shot-readout-v21 input,.seq-shot-readout-v21 b{
+    width:100%;height:100%;min-width:0;border:0;background:transparent;color:var(--txt);padding:2px 4px 0;text-align:center;outline:0;
+    display:grid;place-items:center;font:850 8.5px/1 var(--mono);font-variant-numeric:tabular-nums;-moz-appearance:textfield;
+  }
+  .seq-shot-readout-v21 input::-webkit-outer-spin-button,.seq-shot-readout-v21 input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .seq-shot-readout-v21 span{display:grid;place-items:center;border-top:1px solid var(--line);color:var(--txt-3);font:800 5px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase}
+  #seqShotCasualV21{
+    min-width:88px!important;height:40px!important;padding:0 11px!important;border-color:var(--both)!important;background:var(--both)!important;color:#070709!important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.11),0 5px 18px rgba(0,0,0,.24)!important;
+  }
+  #seqShotCasualV21:hover{background:#fff!important;border-color:#fff!important;color:#000!important;translate:0 -1px}
+  #seqShotCasualV21 .command-label{display:inline!important;font-weight:900!important;letter-spacing:.09em!important}
+  .seq-shot-transport-v21 .disabled-v21{opacity:.3!important;filter:saturate(.35);pointer-events:none}
+
+  /* ------------------------------------------------------------------------
+     RIGHT WORKSPACE — TIMELINE · EDIT · PRESET · BREAKDOWN.
+     ------------------------------------------------------------------------ */
+  .seq-tabs-v21{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .seq-preset-panel-v21{overflow:auto!important;background:#08080a!important}
+  .seq-preset-panel-v21 .seq-preset-library-v21{position:relative!important;width:100%!important;height:auto!important;min-height:62px!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important}
+  .seq-preset-panel-v21 .role-dial-block{margin:10px!important;border-radius:10px!important}
+  .seq-preset-panel-v21 .seq-context-inspector-v13{margin:10px 10px 0}
+
+  /* Timeline owns the complete panel; presets no longer consume its header. */
+  .seq-timeline-panel-op{overflow:hidden!important;background:#070709!important}
+  .seq-timeline-panel-op>.seq-preset-bar-op{display:none!important}
+  .seq-timeline-shell-op{position:relative!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  .seq-timeline-shell-op>.timeline-editor{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important}
+  .timeline-editor{background:#070709!important}
+  .timeline-toolbar-v21{
+    flex:0 0 39px!important;min-height:39px!important;height:39px!important;padding:4px 6px!important;gap:6px!important;
+    display:flex!important;align-items:center!important;overflow-x:auto!important;background:#0b0b0e!important;border-bottom:1px solid var(--line)!important;
+  }
+  .timeline-nav-v21,.timeline-status-v21{display:flex;align-items:center;gap:5px;flex:none}
+  .timeline-status-v21{min-height:29px;padding:0 7px;border:1px solid var(--line);border-radius:6px;background:#0e0e11}
+  .timeline-status-v21 .timeline-fps{padding:0!important;border:0!important;font-size:6.3px!important}
+  .timeline-status-v21 .timeline-timecode{min-width:78px!important;font-size:9px!important;color:var(--end)!important}
+  .timeline-toolbar-v21 .timeline-toolgroup-v13{gap:3px!important}
+  .timeline-toolbar-v21 .timeline-toolgroup-v13+.timeline-toolgroup-v13{padding-left:6px!important;border-left:1px solid var(--line)!important}
+  .timeline-channel-mode-v20{display:none!important}
+  .timeline-toolbar-v21 .timeline-duration-v13{margin-left:auto!important}
+  .timeline-toolbar-v21 button{width:28px!important;height:28px!important;min-width:28px!important;border-radius:6px!important}
+
+  /* Six channels consume the whole visible board — no unused black shelf. */
+  .timeline-scroll{
+    height:100%!important;min-height:0!important;overflow:auto!important;cursor:default!important;
+    overscroll-behavior:contain!important;scrollbar-width:thin!important;scrollbar-color:#2b2b31 #09090b!important;
+  }
+  .timeline-inner{min-height:100%!important;background:#070709!important}
+  .timeline-editor .tracks{min-height:calc(100% - 24px)!important;background:#08080a!important}
+  .timeline-editor .trk{background:#08080a!important}
+  .timeline-editor .trkl{cursor:ew-resize!important;touch-action:none!important}
+  .timeline-editor .clip{cursor:grab!important}
+  .timeline-editor .clip.dragging-op,.timeline-editor .clip.dragging-time{cursor:grabbing!important}
+  .timeline-ruler{cursor:ew-resize!important;touch-action:none!important}
+  .timeline-editor .trkh{background:rgba(14,14,17,.985)!important}
+  .timeline-editor .track-code{background:#09090c!important}
+
+  /* Empty canvas = intentional starting point, with a clear path to PRESET. */
+  .timeline-empty-v21{
+    position:absolute;z-index:74;inset:39px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+    padding:26px;text-align:center;background:radial-gradient(55% 65% at 50% 48%,rgba(255,121,80,.035),transparent 72%);pointer-events:none;
+  }
+  .timeline-empty-v21[hidden]{display:none!important}
+  .timeline-empty-icon-v21{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line-2);border-radius:12px;background:#0d0d10;color:var(--end)}
+  .timeline-empty-icon-v21 svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+  .timeline-empty-v21>span{font:850 7px/1 var(--mono);letter-spacing:.19em;color:var(--end)}
+  .timeline-empty-v21>b{max-width:390px;font-size:11px;line-height:1.45;color:var(--txt-2);font-weight:600}
+  .timeline-empty-v21>div:last-child{display:flex;gap:6px;pointer-events:auto}
+  .timeline-empty-v21 button{min-height:34px;padding:8px 12px;border:1px solid var(--line-2);border-radius:7px;background:#101014;color:var(--txt-2);font:800 6.5px/1 var(--mono);letter-spacing:.11em;cursor:pointer}
+  .timeline-empty-v21 button:first-child{border-color:rgba(var(--end-rgb),.5);background:#17110e;color:var(--end)}
+  .timeline-empty-v21 button:hover{border-color:var(--end);color:var(--end)}
+  .seq-timeline-shell-op.is-empty-v21 .timeline-editor .tracks{opacity:.48}
+
+  /* ------------------------------------------------------------------------
+     EDIT — literal reuse of SHOT's final interaction grammar.
+     ------------------------------------------------------------------------ */
+  .app.v-seq .seq-edit-panel-v12{overflow-y:auto!important;overflow-x:hidden!important;background:#08080a!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp{
+    position:sticky!important;top:0!important;z-index:20!important;display:block!important;width:100%!important;height:58px!important;min-height:58px!important;
+    padding:4px 5px!important;border-bottom:1px solid var(--line)!important;background:#09090c!important;overflow:hidden!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-console-v18{width:100%!important;max-width:none!important;height:100%!important;margin:0!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-transport-v18{width:100%!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-transport-v18 button{height:28px!important;min-height:28px!important;width:100%!important;justify-content:center!important;padding:0 8px!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorStartV17{color:rgba(var(--start-rgb),.82)!important;border-color:rgba(var(--start-rgb),.30)!important;background:rgba(var(--start-rgb),.035)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorStartV17:hover,
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorStartV17.active-v17{color:var(--start)!important;border-color:var(--start)!important;background:rgba(var(--start-rgb),.12)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorEndV17{color:rgba(var(--end-rgb),.82)!important;border-color:rgba(var(--end-rgb),.30)!important;background:rgba(var(--end-rgb),.035)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorEndV17:hover,
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorEndV17.active-v17{color:var(--end)!important;border-color:var(--end)!important;background:rgba(var(--end-rgb),.10)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp #shotEditorPlayV17.playing{color:var(--both)!important;border-color:rgba(255,255,255,.58)!important;background:rgba(255,255,255,.07)!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp .shot-editor-scrub-v18{width:100%!important}
+  .app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp>.shot-advanced-status-op{display:none!important}
+  .app.v-seq .seq-edit-panel-v12 .shot-parameter-section{display:block!important;margin:0!important;padding:3px 5px 7px!important;background:#08080a!important}
+  .app.v-seq .seq-edit-panel-v12 .parameter-kicker,.app.v-seq .seq-edit-panel-v12 .cread{display:none!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes{display:block!important;overflow:visible!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .cgrp{
+    display:block!important;height:auto!important;max-height:none!important;margin:0 0 3px!important;padding:3px!important;border:1px solid rgba(255,255,255,.055)!important;
+    border-radius:7px!important;background:linear-gradient(180deg,#0d0d10,#09090c)!important;overflow:visible!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #cAxes .cgrp:last-child{margin-bottom:0!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .cgrp-h{display:none!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-summary-v13.axis-category-head-v18{
+    width:100%!important;min-height:19px!important;height:19px!important;margin:0 0 2px!important;padding:0!important;display:grid!important;
+    grid-template-columns:18px minmax(86px,auto) minmax(0,1fr)!important;align-items:center!important;gap:5px!important;border:0!important;background:transparent!important;box-shadow:none!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-category-head-v18 .lock.axis-lock-v18{grid-column:1!important;position:static!important;width:17px!important;height:17px!important;min-width:17px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid var(--line)!important;border-radius:4px!important;background:#101014!important;color:var(--txt-3)!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-category-head-v18 .lock.axis-lock-v18 svg{width:8px!important;height:8px!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-summary-v13.axis-category-head-v18>strong{grid-column:2!important;font:850 9.8px/1 var(--mono)!important;letter-spacing:.22em!important;text-transform:uppercase!important;color:var(--both)!important;white-space:nowrap!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-category-head-v18 .axis-flow-v18{grid-column:3!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;min-width:0!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-category-head-v18 .axis-flow-v18 i,
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-category-head-v18 .axis-flow-v18 em{font:650 8.2px/1 var(--mono)!important;letter-spacing:.045em!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-flow-v18 .axis-start-value-v18{color:var(--start)!important}.app.v-seq .seq-edit-panel-v12 #cAxes .axis-flow-v18 .axis-end-value-v18{color:var(--end)!important}.app.v-seq .seq-edit-panel-v12 #cAxes .axis-flow-v18 b{color:#55555c!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-shared-v18 .axis-flow-v18 .axis-start-value-v18,
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-shared-v18 .axis-flow-v18 b{display:none!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-shared-v18 .axis-flow-v18 .axis-end-value-v18{display:block!important;color:rgba(245,245,247,.88)!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copts{
+    width:100%!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(72px,96px))!important;grid-auto-rows:50px!important;
+    justify-content:start!important;align-items:stretch!important;gap:4px!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important;box-shadow:none!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12{
+    position:relative!important;min-width:0!important;width:auto!important;height:50px!important;min-height:50px!important;margin:0!important;border:1px solid var(--line)!important;
+    border-radius:7px!important;background:#0d0d11!important;overflow:hidden!important;isolation:isolate!important;cursor:pointer!important;box-shadow:none!important;
+  }
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12:hover{border-color:#414148!important;background:#111116!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12::before{content:""!important;position:absolute!important;z-index:5!important;left:0!important;right:0!important;bottom:16px!important;height:1px!important;background:rgba(255,255,255,.065)!important;pointer-events:none!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12::after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;opacity:0}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12.has-start-v18::after{opacity:1;background:linear-gradient(90deg,rgba(var(--start-rgb),.30),rgba(var(--start-rgb),.09) 43%,transparent 78%)}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12.has-end-v18::after{opacity:1;background:linear-gradient(90deg,transparent 22%,rgba(var(--end-rgb),.08) 58%,rgba(var(--end-rgb),.29))}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12.has-start-v18.has-end-v18::after{opacity:1;background:linear-gradient(90deg,rgba(var(--start-rgb),.31),rgba(var(--start-rgb),.08) 35%,transparent 50%,rgba(var(--end-rgb),.08) 65%,rgba(var(--end-rgb),.30))}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12.shared-value-v18{border-color:rgba(255,255,255,.94)!important;box-shadow:0 0 0 1px rgba(255,255,255,.13)!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt{position:absolute!important;z-index:2!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;padding:5px 18px 18px 6px!important;border:0!important;background:transparent!important;color:var(--txt-2)!important;pointer-events:none!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt>.ic{display:none!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt>span:not(.x){display:-webkit-box!important;max-width:100%!important;font:700 8px/1.17 var(--mono)!important;letter-spacing:.085em!important;text-transform:uppercase!important;white-space:normal!important;overflow:hidden!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;color:inherit!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt>.x,.app.v-seq .seq-edit-panel-v12 #cAxes .copt>small{display:none!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-zones-v18{grid-template-rows:minmax(0,1fr) 16px!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-zone-start-v18,
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-zone-end-v18{display:grid!important;place-items:center!important;justify-content:center!important;align-content:center!important;padding:0!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-zone-start-v18 svg,
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-zone-end-v18 svg{position:static!important;inset:auto!important;margin:0!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .axis-pool-toggle-v18{position:absolute!important;z-index:11!important;right:3px!important;top:3px!important;width:17px!important;height:17px!important;min-width:17px!important;min-height:17px!important;padding:0!important;border:1px solid var(--line-2)!important;border-radius:5px!important;background:rgba(13,13,16,.94)!important;color:var(--txt-3)!important;display:grid!important;place-items:center!important;opacity:0!important;transform:scale(.88)!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12:hover .axis-pool-toggle-v18,
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12:focus-within .axis-pool-toggle-v18{opacity:1!important;transform:scale(1)!important}
+  .app.v-seq .seq-edit-panel-v12 #cAxes .copt-wrap-v12.is-excluded-v18{opacity:.46!important;background:#09090b!important}
+  .seq-edit-empty-v21{
+    min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:28px;text-align:center;color:var(--txt-3);
+  }
+  .seq-edit-empty-v21[hidden]{display:none!important}
+  .seq-edit-empty-v21 svg{width:28px;height:28px;fill:none;stroke:var(--end);stroke-width:1.6}
+  .seq-edit-empty-v21 b{font:850 7px/1 var(--mono);letter-spacing:.18em;color:var(--txt-2)}
+  .seq-edit-empty-v21 span{max-width:360px;font-size:11px;line-height:1.5;color:var(--txt-3)}
+
+  /* ------------------------------------------------------------------------
+     BREAKDOWN — project overview, selected analysis, recipe and every element.
+     ------------------------------------------------------------------------ */
+  .seq-breakdown-panel-op{padding:0!important;overflow:auto!important;background:#08080a!important}
+  .breakdown-v21{padding:10px;display:flex;flex-direction:column;gap:9px;min-height:100%}
+  .breakdown-project-v21{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .breakdown-project-v21>div{min-width:0;min-height:55px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:#0d0d10;display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .breakdown-project-v21 span{font:800 6px/1 var(--mono);letter-spacing:.13em;color:var(--txt-3)}
+  .breakdown-project-v21 b{font:850 12px/1 var(--mono);color:var(--txt);font-variant-numeric:tabular-nums}
+  .breakdown-selection-v21,.breakdown-empty-v21{border:1px solid var(--line-2);border-radius:10px;background:linear-gradient(145deg,#111114,#0a0a0c);padding:10px}
+  .breakdown-selection-v21>header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;margin-bottom:9px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .breakdown-selection-v21>header span{font:850 6.5px/1 var(--mono);letter-spacing:.14em;color:var(--end)}
+  .breakdown-selection-v21>header b{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;color:var(--txt)}
+  .breakdown-selection-v21>header small{font:750 6.5px/1 var(--mono);color:var(--txt-3);white-space:nowrap}
+  .breakdown-columns-v21{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .breakdown-columns-v21>section,.breakdown-recipe-v21{min-width:0;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0b0b0e}
+  .breakdown-v21 h3{margin:0 0 8px;font:850 6.5px/1 var(--mono);letter-spacing:.15em;color:var(--txt-3)}
+  .breakdown-v21 p{margin:8px 0 0;font-size:9px;line-height:1.5;color:var(--txt-3)}
+  .breakdown-v21 p strong{color:var(--txt-2)}
+  .breakdown-metric-grid-v21{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .breakdown-metric-grid-v21>div{padding:7px;border:1px solid var(--line);border-radius:7px;background:#09090c;min-width:0}
+  .breakdown-metric-grid-v21 span{display:block;margin-bottom:5px;font:800 5.5px/1 var(--mono);letter-spacing:.11em;color:var(--txt-3)}
+  .breakdown-metric-grid-v21 b{display:block;margin-bottom:6px;font-size:8px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .breakdown-metric-grid-v21 i{display:block;height:2px;border-radius:2px;background:var(--line-2);overflow:hidden}.breakdown-metric-grid-v21 em{display:block;height:100%;border-radius:inherit;background:var(--end)}
+  .breakdown-delta-v21{display:flex;flex-direction:column;gap:4px;max-height:150px;overflow:auto}
+  .breakdown-delta-v21>div{padding:6px 7px;border:1px solid var(--line);border-radius:6px;background:#09090c;min-width:0}
+  .breakdown-delta-v21 span{display:block;margin-bottom:4px;font:800 5.5px/1 var(--mono);letter-spacing:.11em;color:var(--txt-3)}
+  .breakdown-delta-v21 b{display:block;font-size:7.6px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.breakdown-delta-v21 i{color:var(--end);font-style:normal}.breakdown-delta-v21 .same b{color:var(--both)}
+  .breakdown-recipe-v21{margin-top:7px}
+  .breakdown-recipe-v21>div{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:5px}
+  .breakdown-recipe-v21 article{min-width:0;padding:7px;border:1px solid var(--line);border-radius:7px;background:#09090c}
+  .breakdown-recipe-v21 article span{display:block;margin-bottom:5px;font:800 5.6px/1 var(--mono);letter-spacing:.11em;color:var(--txt-3)}
+  .breakdown-recipe-v21 article b{display:block;font-size:7.4px;line-height:1.25;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.breakdown-recipe-v21 article.changed{border-color:rgba(var(--end-rgb),.3)}.breakdown-recipe-v21 article.changed b,.breakdown-recipe-v21 article i{color:var(--end);font-style:normal}
+  .breakdown-empty-v21{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center}.breakdown-empty-v21 b{font-size:9px;color:var(--txt-2)}.breakdown-empty-v21 span{max-width:360px;font-size:9px;line-height:1.45;color:var(--txt-3)}
+  .breakdown-elements-v21{padding:9px;border:1px solid var(--line);border-radius:9px;background:#0b0b0e}
+  .breakdown-elements-v21>div{display:flex;flex-direction:column;gap:4px}
+  .breakdown-item-v21{
+    appearance:none;width:100%;min-height:44px;display:grid;grid-template-columns:27px 34px minmax(0,1fr) auto;gap:7px;align-items:center;
+    padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:#0d0d10;color:var(--txt-2);text-align:left;cursor:pointer;
+  }
+  .breakdown-item-v21:hover{border-color:var(--accent-dim);background:#15110f}.breakdown-item-v21.active{border-color:var(--end);background:#17110e}
+  .breakdown-item-v21>span{font:850 6.4px/1 var(--mono);color:var(--txt-3)}
+  .breakdown-item-v21>i{display:grid;place-items:center;height:24px;border:1px solid var(--line-2);border-radius:5px;background:#09090c;font:850 6px/1 var(--mono);font-style:normal;color:var(--end)}
+  .breakdown-item-v21>div{min-width:0}.breakdown-item-v21>div b{display:block;font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}.breakdown-item-v21>div small{display:block;margin-top:4px;font:700 5.8px/1 var(--mono);color:var(--txt-3)}
+  .breakdown-item-v21>em{font:750 6px/1 var(--mono);font-style:normal;color:var(--txt-3);white-space:nowrap}
+  .breakdown-no-items-v21{padding:18px;text-align:center;color:var(--txt-3);font-size:9px}
+
+  /* Keep Timeline fullscreen compatible with the new two-strip player. */
+  body.seq-focus-v12 #seqLeftShellV13{grid-template-rows:minmax(0,1fr) var(--seq-project-h) var(--seq-shot-h)!important}
+  body.seq-focus-v12 #seqLeftShellV13>.seq-left-modebar-v13{display:none!important}
+  body.seq-focus-v12 #seqProjectTransportV21,body.seq-focus-v12 #seqShotTransportV21{display:flex!important}
+
+  @media(max-width:1180px){
+    .seq-project-time-v21{display:none}
+    .seq-project-transport-v21 .command-label,.seq-shot-control-v21 .command-label{display:none!important}
+    #seqShotStartV21,#seqShotEndV21{min-width:38px!important;width:38px!important;padding:0!important}
+    #seqShotCasualV21{min-width:40px!important;width:40px!important;padding:0!important}
+    #seqShotCasualV21 .command-label{display:none!important}
+    .seq-shot-readout-v21{flex-basis:44px;width:44px;min-width:44px}
+  }
+
+  @media(max-width:900px){
+    :root{--seq-project-h:41px;--seq-shot-h:47px}
+    .app.v-seq #seqLeftShellV13{grid-template-rows:32px minmax(0,1fr) var(--seq-project-h) var(--seq-shot-h)!important}
+    .seq-project-transport-v21,.seq-shot-transport-v21{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important}.seq-project-transport-v21::-webkit-scrollbar,.seq-shot-transport-v21::-webkit-scrollbar{display:none}
+    .seq-project-scrub-v21{flex:0 0 120px}.seq-project-output-v21 .preview-format{display:none!important}
+    .seq-shot-utility-v21{display:none}.seq-shot-mix-v21{flex:0 0 110px}.seq-shot-readout-v21{flex:0 0 43px;width:43px;min-width:43px;height:37px}
+    .seq-shot-control-v21{height:33px!important;min-height:33px!important}.seq-shot-readout-v21 span{font-size:4.8px}
+    .workspace-tabs-op.seq-tabs-v21{grid-template-columns:repeat(4,minmax(94px,1fr))!important;overflow-x:auto!important;scrollbar-width:none!important}.workspace-tabs-op.seq-tabs-v21::-webkit-scrollbar{display:none}
+    .timeline-empty-v21{inset:36px 0 0;padding:16px}.timeline-empty-v21>b{font-size:10px}
+    .timeline-status-v21{display:none}.timeline-toolbar-v21 .timeline-duration-v13{display:none!important}
+    .app.v-seq .seq-edit-panel-v12 #cAxes .copts{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))!important}
+    .app.v-seq .seq-edit-panel-v12 #cAxes .axis-summary-v13.axis-category-head-v18{grid-template-columns:17px minmax(72px,auto) minmax(0,1fr)!important}
+    .app.v-seq .seq-edit-panel-v12 #cAxes .axis-summary-v13.axis-category-head-v18>strong{font-size:9.2px!important;letter-spacing:.18em!important}
+    .app.v-seq .seq-edit-panel-v12 #cAxes .axis-pool-toggle-v18{opacity:1!important;transform:scale(1)!important}
+    .breakdown-project-v21{grid-template-columns:repeat(2,minmax(0,1fr))}.breakdown-columns-v21{grid-template-columns:1fr}.breakdown-recipe-v21>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+
+  @media(max-width:520px){
+    .seq-project-scrub-v21{flex-basis:86px;min-width:86px}.seq-project-output-v21 #sPreviewClean{display:none!important}
+    .seq-shot-mix-v21{flex-basis:88px;min-width:88px}.seq-shot-readout-v21{flex-basis:40px;width:40px;min-width:40px}
+    #seqShotSecondsV21{display:none}
+    .workspace-tabs-op.seq-tabs-v21{grid-template-columns:repeat(4,minmax(52px,1fr))!important}
+    .breakdown-recipe-v21>div{grid-template-columns:1fr}.breakdown-item-v21{grid-template-columns:24px 31px minmax(0,1fr)}.breakdown-item-v21>em{display:none}
   }
 </style>
 
