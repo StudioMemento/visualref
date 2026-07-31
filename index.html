@@ -3281,7 +3281,7 @@ body.seq-focus-v12 .seq-left-render-v13 .time-rig{height:100%!important}
   </style>
 
 </head>
-<body data-memento-build="v13-timeline" data-shot-polish="v14">
+<body data-memento-build="v30-desktop-polish" data-shot-polish="v30">
 <div class="app v-combo" data-format="16:9">
   <header class="top" id="topbar">
     <div class="brandrow">
@@ -9710,7 +9710,7 @@ function v21UpdateEmptyState(){
 function v21InstallFluidScrub(){
   const scroll=timelineScroll;if(!scroll||scroll.dataset.scrubV21)return;scroll.dataset.scrubV21="1";
   const apply=x=>{v21LastScrubX=x;if(v21ScrubRAF)return;v21ScrubRAF=requestAnimationFrame(()=>{v21ScrubRAF=0;scrubTimelineAt(v21LastScrubX);v21SyncPlayerBars()})};
-  scroll.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest(".clip,.trkh,button,input,textarea,select,label,.timeline-marker-v13,.timeline-empty-v21"))return;const lane=e.target.closest(".trkl,.timeline-ruler,.tracks,.timeline-inner");if(!lane)return;v21ScrubGesture={id:e.pointerId};try{scroll.setPointerCapture(e.pointerId)}catch(_){ }apply(e.clientX);e.preventDefault();e.stopImmediatePropagation()},true);
+  scroll.addEventListener("pointerdown",e=>{if(e.button!==0||e.pointerType==="touch")return;if(e.target.closest(".clip,.trkh,button,input,textarea,select,label,.timeline-marker-v13,.timeline-empty-v21"))return;const lane=e.target.closest(".trkl,.timeline-ruler,.tracks,.timeline-inner");if(!lane)return;v21ScrubGesture={id:e.pointerId};try{scroll.setPointerCapture(e.pointerId)}catch(_){ }apply(e.clientX);e.preventDefault();e.stopImmediatePropagation()},true);
   scroll.addEventListener("pointermove",e=>{if(!v21ScrubGesture||v21ScrubGesture.id!==e.pointerId)return;apply(e.clientX);e.preventDefault();e.stopImmediatePropagation()},true);
   const end=e=>{if(v21ScrubGesture&&(!e||e.pointerId===v21ScrubGesture.id))v21ScrubGesture=null};scroll.addEventListener("pointerup",end,true);scroll.addEventListener("pointercancel",end,true);scroll.addEventListener("lostpointercapture",end,true)
 }
@@ -10250,7 +10250,7 @@ window.addEventListener("load",()=>setTimeout(v24Install,620),{once:true});
    high-density audio waveforms · vertical technical breakdown.
    ======================================================================== */
 const V25_TOOL_KEY="memento.ui.timeline-tool.v25";
-let v25ToolMode="select",v25Markers=[],v25MarkerSerial=1,v25PrimaryUid=null;
+let v25ToolMode="select",v25Markers=[],v25MarkerSerial=1,v25PrimaryUid=null,v25SelectedMarkerId=null;
 let v25TimelineUIRAF=0,v25CategoryRAF=0,v25Marquee=null,v25WaveRAF=0,v25Installed=false;
 try{const stored=localStorage.getItem(V25_TOOL_KEY);if(["select","blade","slip"].includes(stored))v25ToolMode=stored}catch(_){ }
 
@@ -10288,8 +10288,8 @@ function v25ToggleSelection(it,additive){
 function v25PlayerCommand(id,icon,itLabel,enLabel,key){
   const b=document.getElementById(id);if(!b)return;
   const label=v25Lang(itLabel,enLabel);b.classList.remove("v24-shortcut-command");b.classList.add("v25-player-command","v25-icon-command");
-  b.innerHTML=icon+'<span class="v25-command-copy"><b>'+label+'</b><small>'+key+'</small></span>';
-  b.title=label+" · Ctrl/Cmd+"+key.replace("⇧","Shift+");b.setAttribute("aria-label",b.title)
+  b.innerHTML=icon+'<span class="v25-command-copy"><b>'+label+'</b></span>';
+  b.title=label;b.setAttribute("aria-label",label)
 }
 function v25RandomCommand(id){
   const b=document.getElementById(id);if(!b)return;b.classList.add("v25-player-command","v25-random-text","v24-stacked-command");
@@ -10352,43 +10352,63 @@ function v25InstallTimelineWheel(){
     requestAnimationFrame(()=>{timelineScroll.scrollLeft=Math.max(0,(frame+v20PreRollFrames())*v20PxPerFrame()-anchor);v24SyncTimelineBars();v25SyncTimelineReadout();v24RememberTimelineView()})
   },{capture:true,passive:false})
 }
+function v25MiniTime(frame){
+  const fps=Math.max(1,v20FPS()),n=Math.round(Number(frame)||0),neg=n<0,totalSeconds=Math.floor(Math.abs(n)/fps),mm=String(Math.floor(totalSeconds/60)).padStart(2,"0"),ss=String(totalSeconds%60).padStart(2,"0");
+  return(neg?"-":"")+mm+"."+ss
+}
 function v25EnsureTimelineUI(){
   if(v25TimelineUIRAF)return;v25TimelineUIRAF=requestAnimationFrame(()=>{v25TimelineUIRAF=0;if(!timelineEditor||!timelineScroll)return;
-    const nav=document.getElementById("timelineNavigationV24"),bar=timelineEditor.querySelector(".timeline-toolbar-v21,.timeline-toolbar"),duration=document.getElementById("timelineDurationV13");let snap=document.getElementById("timelineSnapV13");if(!nav||!bar)return;if(!snap){snap=document.createElement("button");snap.id="timelineSnapV13";snap.type="button";snap.onclick=()=>{v13Snap=!v13Snap;v13SaveSettings(true);snap.setAttribute("aria-pressed",String(v13Snap))}}snap.setAttribute("aria-pressed",String(v13Snap));
-    nav.classList.add("timeline-navigation-v25");nav.title=v25Lang("Ctrl/Cmd + rotella: pan · Alt + rotella: zoom","Ctrl/Cmd + wheel: pan · Alt + wheel: zoom");
-    const oldZoom=nav.querySelector(".timeline-overview-zoom-v24");if(oldZoom)oldZoom.remove();
-    let time=nav.querySelector(".timeline-overview-time-v24");if(time&&!time.querySelector("#timelineOverviewFrameV25"))time.innerHTML='<b id="timelineOverviewCurrentV24">00:00:00:00</b><strong id="timelineOverviewFrameV25">0f</strong>';
-    const select=v25ToolButton("timelineToolSelectV25",V25_ICON.select,v25Lang("MOUSE","SELECT"),"V"),blade=v25ToolButton("timelineToolBladeV25",V25_ICON.blade,"BLADE","B"),slip=v25ToolButton("timelineToolSlipV25",V25_ICON.slip,"SLIP","Y"),marker=v25ToolButton("timelineAddMarkerV25",V25_ICON.marker,"MARKER","M");
+    const nav=document.getElementById("timelineNavigationV24"),bar=timelineEditor.querySelector(".timeline-toolbar-v21,.timeline-toolbar"),duration=document.getElementById("timelineDurationV13");let snap=document.getElementById("timelineSnapV13");if(!nav||!bar)return;
+    if(!snap){snap=document.createElement("button");snap.id="timelineSnapV13";snap.type="button";snap.onclick=()=>{v13Snap=!v13Snap;v13SaveSettings(true);snap.setAttribute("aria-pressed",String(v13Snap))}}snap.setAttribute("aria-pressed",String(v13Snap));
+    nav.classList.add("timeline-navigation-v25","timeline-navigation-v30");nav.title=v25Lang("Ctrl/Cmd + rotella: pan · Alt + rotella: zoom","Ctrl/Cmd + wheel: pan · Alt + wheel: zoom");
+    const slider=nav.querySelector(".timeline-overview-slider-v24")||document.querySelector(".timeline-overview-slider-v24");
+    let time=document.querySelector(".timeline-overview-time-v24");if(!time){time=document.createElement("div");time.className="timeline-overview-time-v24"}
+    time.classList.add("timeline-tool-readout-v30");time.innerHTML='<b id="timelineOverviewCurrentV24">00.00</b><strong id="timelineOverviewFrameV25">0f</strong>';
+    if(slider)nav.replaceChildren(slider);else nav.replaceChildren();
+    const select=v25ToolButton("timelineToolSelectV25",V25_ICON.select,v25Lang("MOUSE","SELECT"),"A / V"),blade=v25ToolButton("timelineToolBladeV25",V25_ICON.blade,"BLADE","B"),slip=v25ToolButton("timelineToolSlipV25",V25_ICON.slip,"SLIP","T"),marker=v25ToolButton("timelineAddMarkerV25",V25_ICON.marker,"MARKER","M");
     select.onclick=()=>v25SetTool("select");blade.onclick=()=>v25SetTool("blade");slip.onclick=()=>v25SetTool("slip");marker.onclick=()=>v25AddMarker(v20SecondsToFrame(seqPlayhead));
     const editGroup=document.createElement("div");editGroup.className="timeline-edit-tools-v25";editGroup.append(select,blade,slip,marker);
-    const status=document.createElement("span");status.id="timelineSelectionCountV25";status.className="timeline-selection-count-v25";
     const viewGroup=document.createElement("div");viewGroup.className="timeline-view-tools-v25";
-    if(snap){snap.classList.add("timeline-tool-v25");snap.innerHTML=V13_ICON.magnet+'<span>SNAP</span>';snap.title="Snap";snap.setAttribute("aria-label","Snap");viewGroup.appendChild(snap)}
-    const zout=v25ToolButton("timelineNavZoomOutV25",V25_ICON.zoomOut,"ZOOM −"),fit=v25ToolButton("timelineNavFitV25",V13_ICON.fit,"FIT"),zin=v25ToolButton("timelineNavZoomInV25",V25_ICON.zoomIn,"ZOOM +");
-    zout.onclick=()=>v13SetZoom(timelinePPS/1.22);fit.onclick=v13FitTimeline;zin.onclick=()=>v13SetZoom(timelinePPS*1.22);viewGroup.append(zout,fit,zin);
-    if(duration){duration.classList.add("timeline-selected-duration-v24","timeline-duration-v25");const label=duration.querySelector("span");if(label)label.textContent=v25Lang("DURATA","DURATION")}
-    bar.classList.add("timeline-editbar-v24","timeline-editbar-v25");bar.replaceChildren(editGroup,...[duration,status,viewGroup].filter(Boolean));
+    const fit=v25ToolButton("timelineNavFitV25",V13_ICON.fit,"FIT"),zout=v25ToolButton("timelineNavZoomOutV25",V25_ICON.zoomOut,"ZOOM −"),zin=v25ToolButton("timelineNavZoomInV25",V25_ICON.zoomIn,"ZOOM +");
+    fit.onclick=v13FitTimeline;zout.onclick=()=>v13SetZoom(timelinePPS/1.22);zin.onclick=()=>v13SetZoom(timelinePPS*1.22);
+    snap.classList.add("timeline-tool-v25");snap.innerHTML=V13_ICON.magnet+'<span>SNAP</span>';snap.title="Snap";snap.setAttribute("aria-label","Snap");
+    viewGroup.append(fit,zout,zin,snap);
+    duration?.remove();document.getElementById("timelineSelectionCountV25")?.remove();
+    bar.classList.add("timeline-editbar-v24","timeline-editbar-v25","timeline-editbar-v30");bar.replaceChildren(time,editGroup,viewGroup);
     bar.before(nav);v25UpdateToolUI();v25SyncTimelineReadout();v25RenderMarkers();v25InstallTimelinePointerCapture();v25InstallTimelineWheel()
   })
 }
 function v25SyncTimelineReadout(){
   const data=timelineLayoutData(),total=Math.max(0,data.totalFrame||0),frame=Math.max(-v20PreRollFrames(),Math.min(total,v20SecondsToFrame(seqPlayhead))),cur=document.getElementById("timelineOverviewCurrentV24"),fr=document.getElementById("timelineOverviewFrameV25");
-  if(cur)cur.textContent=v20TimecodeFrame(frame);if(fr)fr.textContent=frame+"f";v25UpdateToolUI()
+  if(cur)cur.textContent=v25MiniTime(frame);if(fr)fr.textContent=frame+"f";v25UpdateToolUI()
 }
 
 /* ---------------- CUT MARKERS ---------------- */
 function v25NormaliseMarkers(raw){return(Array.isArray(raw)?raw:[]).map((m,i)=>({id:String(m&&m.id||("m"+(i+1))),frame:Math.round(Number(m&&m.frame)||0),label:String(m&&m.label||("CUT "+String(i+1).padStart(2,"0")))})).filter(m=>Number.isFinite(m.frame))}
 function v25MarkerLabel(){return"CUT "+String(v25MarkerSerial++).padStart(2,"0")}
-function v25AddMarker(frame){
-  frame=Math.round(Number(frame)||0);const before=projectSnapshot(),same=v25Markers.find(m=>m.frame===frame);if(same){same.label=same.label||v25MarkerLabel()}else v25Markers.push({id:"m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),frame,label:v25MarkerLabel()});
-  v25Markers.sort((a,b)=>a.frame-b.frame);v25RenderMarkers();pushHistory(before);persistProject()
+function v25SelectMarker(id,clearClips=true){
+  v25SelectedMarkerId=id||null;if(clearClips){TL.forEach(it=>it.selected=false);v25SetPrimary(null);document.querySelectorAll("#tracks .clip.sel").forEach(el=>el.classList.remove("sel"));v25UpdateToolUI()}
+  document.querySelectorAll(".timeline-cut-marker-v25").forEach(el=>el.classList.toggle("selected-v30",!!v25SelectedMarkerId&&el.dataset.markerId===v25SelectedMarkerId))
 }
-function v25RemoveMarker(id){const before=projectSnapshot();v25Markers=v25Markers.filter(m=>m.id!==id);v25RenderMarkers();pushHistory(before);persistProject()}
+function v25AddMarker(frame){
+  frame=Math.round(Number(frame)||0);const before=projectSnapshot();let marker=v25Markers.find(m=>m.frame===frame);if(marker)marker.label=marker.label||v25MarkerLabel();else{marker={id:"m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),frame,label:v25MarkerLabel()};v25Markers.push(marker)}
+  v25Markers.sort((a,b)=>a.frame-b.frame);v25SelectedMarkerId=marker.id;v25RenderMarkers();pushHistory(before);persistProject()
+}
+function v25RemoveMarker(id){const before=projectSnapshot();v25Markers=v25Markers.filter(m=>m.id!==id);if(v25SelectedMarkerId===id)v25SelectedMarkerId=null;v25RenderMarkers();pushHistory(before);persistProject()}
 function v25RenameMarker(marker){const next=prompt(v25Lang("Nome marker","Marker name"),marker.label);if(next==null)return;const before=projectSnapshot();marker.label=String(next).trim()||marker.label;v25RenderMarkers();pushHistory(before);persistProject()}
+function v25MarkerClamp(frame){const data=timelineLayoutData(),min=-v20PreRollFrames(),max=Math.max(data.totalFrame||0,v20SecondsToFrame(v13RangeOut(data)));return Math.max(min,Math.min(max,Math.round(Number(frame)||0)))}
 function v25RenderMarkers(){
   if(!timelineInner)return;timelineInner.querySelectorAll(":scope > .timeline-cut-marker-v25").forEach(x=>x.remove());const ppf=v20PxPerFrame(),pre=v20PreRollFrames(),labelW=timelineLabelWidth();
-  v25Markers.forEach(marker=>{const b=document.createElement("button");b.type="button";b.className="timeline-cut-marker-v25";b.dataset.markerId=marker.id;b.style.left=(labelW+(marker.frame+pre)*ppf)+"px";b.innerHTML='<span>'+v25Escape(marker.label)+'</span>';b.title=v25Lang("Click: vai al marker · doppio click: rinomina · Alt click: elimina","Click: go to marker · double click: rename · Alt click: delete");
-    b.onclick=e=>{e.stopPropagation();if(e.altKey){v25RemoveMarker(marker.id);return}v24SeekTimelineFrame(marker.frame)};b.ondblclick=e=>{e.preventDefault();e.stopPropagation();v25RenameMarker(marker)};b.onpointerdown=e=>e.stopPropagation();timelineInner.appendChild(b)})
+  if(v25SelectedMarkerId&&!v25Markers.some(m=>m.id===v25SelectedMarkerId))v25SelectedMarkerId=null;
+  v25Markers.forEach(marker=>{const b=document.createElement("button");b.type="button";b.className="timeline-cut-marker-v25"+(marker.id===v25SelectedMarkerId?" selected-v30":"");b.dataset.markerId=marker.id;b.style.left=(labelW+(marker.frame+pre)*ppf)+"px";b.innerHTML='<span>'+v25Escape(marker.label)+'</span>';b.title=v25Lang("Trascina: sposta · click: vai · doppio click: rinomina · Alt click: elimina","Drag: move · click: go · double click: rename · Alt click: delete");
+    b.onclick=e=>{e.preventDefault();e.stopPropagation();if(b.dataset.markerMoved==="1"){b.dataset.markerMoved="";return}if(e.altKey){v25RemoveMarker(marker.id);return}v25SelectMarker(marker.id,true);v24SeekTimelineFrame(marker.frame)};
+    b.ondblclick=e=>{e.preventDefault();e.stopPropagation();v25RenameMarker(marker)};
+    b.addEventListener("pointerdown",e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();v25SelectMarker(marker.id,true);const before=projectSnapshot(),pid=e.pointerId;let moved=false,ended=false;try{b.setPointerCapture(pid)}catch(_){ }
+      const move=ev=>{if(ev.pointerId!==pid||ended)return;const next=v25MarkerClamp(v25FrameFromClientX(ev.clientX));if(next!==marker.frame){marker.frame=next;moved=true;b.style.left=(timelineLabelWidth()+(marker.frame+v20PreRollFrames())*v20PxPerFrame())+"px"}ev.preventDefault();ev.stopPropagation()};
+      const end=ev=>{if(ev.pointerId!==pid||ended)return;ended=true;document.removeEventListener("pointermove",move,true);document.removeEventListener("pointerup",end,true);document.removeEventListener("pointercancel",end,true);try{b.releasePointerCapture(pid)}catch(_){ }b.dataset.markerMoved=moved?"1":"";if(moved){v25Markers.sort((a,z)=>a.frame-z.frame);v25RenderMarkers();pushHistory(before);persistProject()}else v25SelectMarker(marker.id,false);ev.preventDefault();ev.stopPropagation()};
+      document.addEventListener("pointermove",move,true);document.addEventListener("pointerup",end,true);document.addEventListener("pointercancel",end,true)
+    },true);timelineInner.appendChild(b)
+  })
 }
 
 /* ---------------- MULTI-SELECTION / MARQUEE ---------------- */
@@ -10399,6 +10419,7 @@ function v25InstallTimelinePointerCapture(){
     if(e.pointerType==="touch")return;
     if(e.target.closest(".clip,.timeline-ruler,.trkh,button,input,textarea,select,label,.timeline-cut-marker-v25"))return;
     const lane=e.target.closest(".trkl,.tracks,.timeline-inner");if(!lane||v25ToolMode!=="select")return;
+    v25SelectedMarkerId=null;document.querySelectorAll(".timeline-cut-marker-v25.selected-v30").forEach(el=>el.classList.remove("selected-v30"));
     const keep=e.shiftKey||e.ctrlKey||e.metaKey,initial=new Set(keep?v25SelectedItems().map(x=>x.uid):[]),box=document.createElement("div");box.className="timeline-marquee-v25";timelineInner.appendChild(box);
     v25Marquee={id:e.pointerId,sx:e.clientX,sy:e.clientY,x:e.clientX,y:e.clientY,initial,box,moved:false};try{timelineScroll.setPointerCapture(e.pointerId)}catch(_){ }
     e.preventDefault();e.stopImmediatePropagation()
@@ -10426,29 +10447,34 @@ function v25BeginSlip(e,el,it,b){
 }
 function v25VideoCollisions(group){const selected=new Set(group),hits=[];group.forEach(it=>{const b=B(it.id);if(!b||b[6]!=="shot")return;const end=it.startFrame+it.durationFrames;TL.forEach(other=>{if(selected.has(other)||!B(other.id)||B(other.id)[6]!=="shot"||(other.track||"v1")!==(it.track||"v1"))return;v20EnsureItemFrames(other,B(other.id));if(it.startFrame<other.startFrame+other.durationFrames&&end>other.startFrame&&!hits.includes(other))hits.push(other)})});return hits}
 function v25RestoreBases(bases){bases.forEach(x=>{x.it.startFrame=x.start;x.it.durationFrames=x.duration;x.it.track=x.track;x.it.sourceOffsetFrame=x.offset;x.it.sourceDurationFrames=x.sourceTotal;v20SyncSecondsFromFrames(x.it)})}
+function v25TrackAtY(y,type,fallback){
+  const tracks=type==="shot"?V20_VIDEO_TRACKS:type==="audio"?V20_AUDIO_TRACKS:["fx"];
+  for(const track of tracks){const lane=document.querySelector('.trkl[data-track="'+track+'"]');if(!lane||lane.closest(".trk")?.hidden)continue;const r=lane.getBoundingClientRect();if(y>=r.top&&y<=r.bottom)return track}
+  return fallback
+}
 function v25BeginSelectDrag(e,el,kind,it,b){
   if(e.button!==0||operationalTimelineDrag)return;v20EnsureItemFrames(it,b);if(v13Track(it.track).locked)return;
+  v25SelectedMarkerId=null;document.querySelectorAll(".timeline-cut-marker-v25.selected-v30").forEach(node=>node.classList.remove("selected-v30"));
   const additive=e.shiftKey||e.ctrlKey||e.metaKey;if((e.ctrlKey||e.metaKey)&&it.selected&&!e.shiftKey){it.selected=false;v25SetPrimary(TL.find(x=>x.selected)||null);el.dataset.suppressClick="1";v25RefreshSelection(true,false);e.preventDefault();e.stopPropagation();return}
   if(additive){it.selected=true;v25SetPrimary(it);v25RefreshSelection(true,false)}else if(!it.selected){TL.forEach(x=>x.selected=x===it);v25SetPrimary(it);v25RefreshSelection(true,false)}else v25SetPrimary(it);
   const group=kind==="move"?v25SelectedItems():[it],bases=group.map(x=>{const xb=B(x.id);v20EnsureItemFrames(x,xb);return{it:x,b:xb,start:x.startFrame,duration:x.durationFrames,track:x.track,offset:Math.max(0,Number(x.sourceOffsetFrame)||0),sourceTotal:v25SourceTotalFrames(x,xb)}}),primaryBase=bases.find(x=>x.it===it),before=projectSnapshot(),pid=e.pointerId,sx=e.clientX,sy=e.clientY;
-  const d={it,b,group,bases,primaryBase,before,pid,kind,el,sx,sy,lastX:sx,lastY:sy,moved:false,targetTrack:it.track,overwrite:false,collisions:[]};operationalTimelineDrag=d;el.classList.add("dragging-op");try{el.setPointerCapture(pid)}catch(_){ }
+  const d={it,b,group,bases,primaryBase,before,pid,kind,el,sx,sy,lastX:sx,lastY:sy,moved:false,targetTrack:it.track,overwrite:false};operationalTimelineDrag=d;el.classList.add("dragging-op");try{el.setPointerCapture(pid)}catch(_){ }
   const move=ev=>{if(operationalTimelineDrag!==d||ev.pointerId!==pid)return;d.lastX=ev.clientX;d.lastY=ev.clientY;const dx=ev.clientX-sx,dy=ev.clientY-sy;if(!d.moved&&Math.max(Math.abs(dx),Math.abs(dy))<3)return;d.moved=true;const rawDelta=Math.round(dx/v20PxPerFrame()),bypass=!!ev.shiftKey;
     if(kind==="move"){
-      const lane=v20LaneFromPoint(ev.clientX,ev.clientY,b[6],el);d.targetTrack=lane?lane.dataset.track:primaryBase.track;let primaryStart=v20SnapMoveFrame(primaryBase.start+rawDelta,primaryBase.duration,TL.indexOf(it),bypass),minStart=Math.min(...bases.map(x=>x.start)),delta=Math.max(-v20PreRollFrames()-minStart,primaryStart-primaryBase.start);
+      d.targetTrack=v25TrackAtY(ev.clientY,b[6],primaryBase.track);let primaryStart=v20SnapMoveFrame(primaryBase.start+rawDelta,primaryBase.duration,TL.indexOf(it),bypass),minStart=Math.min(...bases.map(x=>x.start)),delta=Math.max(-v20PreRollFrames()-minStart,primaryStart-primaryBase.start);
       const tracks=b[6]==="shot"?V20_VIDEO_TRACKS:b[6]==="audio"?V20_AUDIO_TRACKS:["fx"],baseTrackIndex=tracks.indexOf(primaryBase.track),targetIndex=tracks.indexOf(d.targetTrack),trackDelta=targetIndex>=0&&baseTrackIndex>=0?targetIndex-baseTrackIndex:0;
-      bases.forEach(x=>{x.it.startFrame=x.start+delta;x.it.durationFrames=x.duration;if(x.b[6]===b[6]&&trackDelta){const own=(x.b[6]==="shot"?V20_VIDEO_TRACKS:x.b[6]==="audio"?V20_AUDIO_TRACKS:["fx"]),at=own.indexOf(x.track),to=at+trackDelta;if(to>=0&&to<own.length)x.it.track=own[to]}v20SyncSecondsFromFrames(x.it)})
+      bases.forEach(x=>{x.it.startFrame=x.start+delta;x.it.durationFrames=x.duration;if(x.b[6]===b[6]&&trackDelta){const own=x.b[6]==="shot"?V20_VIDEO_TRACKS:x.b[6]==="audio"?V20_AUDIO_TRACKS:["fx"],at=own.indexOf(x.track),to=at+trackDelta;if(to>=0&&to<own.length)x.it.track=own[to]}v20SyncSecondsFromFrames(x.it)})
     }else if(kind==="end"){
       let duration=Math.max(1,v20SnapEdgeFrame(primaryBase.start+primaryBase.duration+rawDelta,TL.indexOf(it),bypass)-primaryBase.start);duration=Math.min(duration,Math.max(1,primaryBase.sourceTotal-primaryBase.offset));it.durationFrames=duration;it.sourceDurationFrames=primaryBase.sourceTotal;v20SyncSecondsFromFrames(it)
     }else{
       const min=Math.max(-v20PreRollFrames(),primaryBase.start-primaryBase.offset),max=primaryBase.start+primaryBase.duration-1,start=Math.max(min,Math.min(max,v20SnapEdgeFrame(primaryBase.start+rawDelta,TL.indexOf(it),bypass)));it.startFrame=start;it.durationFrames=primaryBase.duration+(primaryBase.start-start);it.sourceOffsetFrame=Math.max(0,primaryBase.offset+(start-primaryBase.start));it.sourceDurationFrames=primaryBase.sourceTotal;v20SyncSecondsFromFrames(it)
     }
-    d.collisions=v25VideoCollisions(group);d.overwrite=d.collisions.length>0&&!!ev.altKey;v20ClearCollisionUI();if(d.collisions.length){el.classList.add(d.overwrite?"timeline-overwrite-v20":"timeline-collision-v20");const tr=document.querySelector('.trk[data-track="'+it.track+'"]');if(tr){v20LastCollisionTrack=tr;tr.classList.add(d.overwrite?"timeline-lane-overwrite-v20":"timeline-lane-collision-v20")}}
-    const text=d.collisions.length?(d.overwrite?v25Lang("SOSTITUISCI AL DROP","REPLACE ON DROP"):v25Lang("COLLISIONE · ALT PER SOSTITUIRE","COLLISION · ALT TO REPLACE")):(v25SelectedItems().length>1?v25SelectedItems().length+" CLIP · ":"")+it.startFrame+"f";v20GestureLabel(text,ev.clientX,ev.clientY,d.collisions.length?(d.overwrite?"overwrite":"collision"):"time");seqPlanCache=null;requestTimelineLayoutOperational();v13UpdateDurationField();v22RefreshAudioWaveforms();ev.preventDefault()
+    d.overwrite=!!ev.altKey;seqPlanCache=null;requestTimelineLayoutOperational();v13UpdateDurationField();v22RefreshAudioWaveforms();ev.preventDefault();ev.stopPropagation()
   };
-  const end=ev=>{if(operationalTimelineDrag!==d||ev.pointerId!==pid)return;el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);el.classList.remove("dragging-op","timeline-overwrite-v20","timeline-collision-v20");operationalTimelineDrag=null;el.dataset.suppressClick="1";
-    if(d.moved){const collisions=v25VideoCollisions(group),overwrite=(d.overwrite||!!ev.altKey)&&collisions.length;if(collisions.length&&!overwrite)v25RestoreBases(bases);else if(overwrite)collisions.forEach(other=>{const at=TL.indexOf(other);if(at>=0)TL.splice(at,1)});bases.forEach(x=>v20SyncSecondsFromFrames(x.it));normalizeFixedTracksOperational();drawTL();pushHistory(before)}else v25RefreshSelection(true,false);v20ClearCollisionUI()
+  const end=ev=>{if(operationalTimelineDrag!==d||ev.pointerId!==pid)return;document.removeEventListener("pointermove",move,true);document.removeEventListener("pointerup",end,true);document.removeEventListener("pointercancel",end,true);el.classList.remove("dragging-op");operationalTimelineDrag=null;el.dataset.suppressClick="1";
+    if(d.moved){const collisions=v25VideoCollisions(group),overwrite=(d.overwrite||!!ev.altKey)&&collisions.length;if(collisions.length&&!overwrite)v25RestoreBases(bases);else if(overwrite)collisions.forEach(other=>{const at=TL.indexOf(other);if(at>=0)TL.splice(at,1)});bases.forEach(x=>v20SyncSecondsFromFrames(x.it));normalizeFixedTracksOperational();drawTL();pushHistory(before)}else v25RefreshSelection(true,false);v20ClearCollisionUI();ev.preventDefault();ev.stopPropagation()
   };
-  el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);e.preventDefault();e.stopPropagation()
+  document.addEventListener("pointermove",move,true);document.addEventListener("pointerup",end,true);document.addEventListener("pointercancel",end,true);e.preventDefault();e.stopPropagation()
 }
 const __beginClipPointerOperationalV25=beginClipPointerOperational;
 beginClipPointerOperational=function(e,el,kind){
@@ -10507,36 +10533,57 @@ function v25InstallProjectImport(){const input=document.getElementById("sProject
 
 /* ---------------- WRAPPERS / LIFECYCLE ---------------- */
 const __v24DecoratePlayerCommandsV25=v24DecoratePlayerCommands;
-v24DecoratePlayerCommands=function(){const r=__v24DecoratePlayerCommandsV25();v25DecoratePlayerCommands();return r};
+v24DecoratePlayerCommands=function(){const r=__v24DecoratePlayerCommandsV25();v25DecoratePlayerCommands();v30BindPlayerActions();return r};
 v24DecorateCategoryTiles=v25DecorateCategoryTiles;
 const __v24BuildTimelineBarsV25=v24BuildTimelineBars;
 v24BuildTimelineBars=function(){const r=__v24BuildTimelineBarsV25();requestAnimationFrame(v25EnsureTimelineUI);return r};
 const __v24SyncTimelineBarsV25=v24SyncTimelineBars;
 v24SyncTimelineBars=function(){const r=__v24SyncTimelineBarsV25();v25SyncTimelineReadout();return r};
 const __v18SyncTransportV25=v18SyncTransport;
-v18SyncTransport=function(){const r=__v18SyncTransportV25();v25DecoratePlayerCommands();return r};
+v18SyncTransport=function(){const r=__v18SyncTransportV25();v25DecoratePlayerCommands();v30BindPlayerActions();return r};
 const __v21SyncPlayerBarsV25=v21SyncPlayerBars;
-v21SyncPlayerBars=function(){const r=__v21SyncPlayerBarsV25();v25DecoratePlayerCommands();v25SyncTimelineReadout();return r};
+v21SyncPlayerBars=function(){const r=__v21SyncPlayerBarsV25();v25DecoratePlayerCommands();v25SyncTimelineReadout();v30BindPlayerActions();return r};
 const __layoutTimelineV25=layoutTimeline;
 layoutTimeline=function(){const r=__layoutTimelineV25();requestAnimationFrame(()=>{v25EnsureTimelineUI();v25RenderMarkers();v22RefreshAudioWaveforms()});return r};
 const __drawTLV25=drawTL;
 drawTL=function(){const r=__drawTLV25();requestAnimationFrame(()=>{v25DecoratePlayerCommands();v25DecorateCategoryTiles();v25EnsureTimelineUI();v25RenderMarkers();v25RenderBreakdown();v22RefreshAudioWaveforms()});return r};
 const __setSelectionV25=setSelection;
-setSelection=function(it){const r=__setSelectionV25(it);v25SetPrimary(it);requestAnimationFrame(()=>v25RefreshSelection(false,false));return r};
+setSelection=function(it){v25SelectedMarkerId=null;document.querySelectorAll(".timeline-cut-marker-v25.selected-v30").forEach(el=>el.classList.remove("selected-v30"));const r=__setSelectionV25(it);v25SetPrimary(it);requestAnimationFrame(()=>v25RefreshSelection(false,false));return r};
 const __v13SelectedItemV25=v13SelectedItem;
 v13SelectedItem=function(){return v25PrimaryItem()||__v13SelectedItemV25()};
 const __v13SelectedShotV25=v13SelectedShot;
 v13SelectedShot=function(){const it=v25PrimaryItem();return it&&B(it.id)&&B(it.id)[6]==="shot"?it:__v13SelectedShotV25()};
 
-function v25InstallKeyboard(){if(document.documentElement.dataset.v25Keyboard)return;document.documentElement.dataset.v25Keyboard="1";document.addEventListener("keydown",e=>{if(window.__currentMode!=="seq"||e.ctrlKey||e.metaKey||e.altKey||e.target.closest("input,textarea,select,[contenteditable=true]"))return;const key=e.key.toLowerCase();if(key==="v"){v25SetTool("select");e.preventDefault()}else if(key==="b"){v25SetTool("blade");e.preventDefault()}else if(key==="y"){v25SetTool("slip");e.preventDefault()}else if(key==="m"){v25AddMarker(v20SecondsToFrame(seqPlayhead));e.preventDefault()}else if(key==="escape"&&v25ToolMode!=="select"){v25SetTool("select");e.preventDefault()}},true)}
+function v25DeleteCurrentSelection(){
+  if(v25SelectedMarkerId){const id=v25SelectedMarkerId;v25RemoveMarker(id);return true}
+  const selected=TL.filter(it=>it&&it.selected);if(!selected.length)return false;const before=projectSnapshot(),ids=new Set(selected.map(it=>it.uid));
+  for(let i=TL.length-1;i>=0;i--)if(ids.has(TL[i].uid)){if(activeShotUid===TL[i].uid)activeShotUid=null;TL.splice(i,1)}
+  v25SetPrimary(null);drawTL();pushHistory(before);persistProject();return true
+}
+function v25InstallKeyboard(){if(document.documentElement.dataset.v25Keyboard)return;document.documentElement.dataset.v25Keyboard="1";document.addEventListener("keydown",e=>{if(window.__currentMode!=="seq"||e.ctrlKey||e.metaKey||e.altKey||e.target.closest("input,textarea,select,[contenteditable=true]"))return;const key=e.key.toLowerCase();if(key==="a"||key==="v"){v25SetTool("select");e.preventDefault()}else if(key==="b"){v25SetTool("blade");e.preventDefault()}else if(key==="t"){v25SetTool("slip");e.preventDefault()}else if(key==="m"){v25AddMarker(v20SecondsToFrame(seqPlayhead));e.preventDefault()}else if(e.key==="Delete"||e.key==="Backspace"){if(v25DeleteCurrentSelection()){e.preventDefault();e.stopPropagation()}}else if(key==="escape"){if(v25SelectedMarkerId){v25SelectedMarkerId=null;v25RenderMarkers();e.preventDefault()}else if(v25ToolMode!=="select"){v25SetTool("select");e.preventDefault()}}},true)}
+function v30SetShotFullscreen(on){
+  const active=document.body.classList.contains("shot-focus-op");on=on==null?!active:!!on;setShotFocusOperational(on)
+}
+function v30SetSeqFullscreen(on){
+  const active=document.body.classList.contains("seq-focus-v12")&&!document.body.classList.contains("seq-playblast-v30");on=on==null?!active:!!on;document.body.classList.remove("seq-playblast-v30");setSeqFocusV12(on,false)
+}
+function v30SetSeqPlayblast(on){
+  const active=document.body.classList.contains("seq-playblast-v30");on=on==null?!active:!!on;document.body.classList.toggle("seq-playblast-v30",on);setSeqFocusV12(on,on);if(on&&!seqTimelinePlaying)startSequence(true)
+}
+function v30BindPlayerActions(){
+  const shot=document.getElementById("shotFullscreenVII");if(shot){shot.onclick=()=>v30SetShotFullscreen();shot.title=v25Lang("Schermo intero player","Player fullscreen");shot.setAttribute("aria-label",shot.title)}
+  const seq=document.getElementById("seqFullscreenVII");if(seq){seq.onclick=()=>v30SetSeqFullscreen();seq.title=v25Lang("Schermo intero con controlli","Fullscreen with controls");seq.setAttribute("aria-label",seq.title)}
+  const playblast=document.getElementById("sPreviewClean");if(playblast){playblast.onclick=()=>v30SetSeqPlayblast();playblast.title=v25Lang("Playblast pulito a schermo intero","Clean fullscreen playblast");playblast.setAttribute("aria-label",playblast.title)}
+}
+function v30InstallPolish(){v30BindPlayerActions();v25EnsureTimelineUI();v25SyncTimelineReadout();v25RenderMarkers()}
 function v25Install(){
-  document.body.dataset.mementoBuild="v25-edit-timeline-pass";document.title="MEMENTO — Pocket Previs · V25 EDIT + TIMELINE";v25DecoratePlayerCommands();v25DecorateCategoryTiles();v25EnsureTimelineUI();v25InstallTimelinePointerCapture();v25InstallKeyboard();v25InstallProjectImport();v25RenderBreakdown();v25RenderMarkers();v25SyncTimelineReadout();
+  document.body.dataset.mementoBuild="v30-desktop-polish";document.title="MEMENTO — Pocket Previs · V30 DESKTOP POLISH";v25DecoratePlayerCommands();v25DecorateCategoryTiles();v25EnsureTimelineUI();v25InstallTimelinePointerCapture();v25InstallKeyboard();v25InstallProjectImport();v25RenderBreakdown();v25RenderMarkers();v25SyncTimelineReadout();v30InstallPolish();
   if(!v25Installed){v25Installed=true;window.addEventListener("resize",()=>requestAnimationFrame(()=>{v25EnsureTimelineUI();v25RenderMarkers();v22RefreshAudioWaveforms()}),{passive:true})}
-  window.__mementoV25={install:v25Install,tool:v25SetTool,marker:v25AddMarker,markers:()=>v25Markers.map(m=>({...m})),selection:()=>v25SelectedItems().map(x=>x.uid),split:(uidValue,frame)=>{const it=TL.find(x=>x.uid===uidValue);if(it)v25SplitClip(it,frame)}}
+  window.__mementoV25={install:v25Install,tool:v25SetTool,marker:v25AddMarker,markers:()=>v25Markers.map(m=>({...m})),selection:()=>v25SelectedItems().map(x=>x.uid),split:(uidValue,frame)=>{const it=TL.find(x=>x.uid===uidValue);if(it)v25SplitClip(it,frame)}};window.__mementoV30={install:v30InstallPolish,tool:v25SetTool,deleteSelection:v25DeleteCurrentSelection,markers:()=>v25Markers.map(m=>({...m})),playblast:v30SetSeqPlayblast,seqFullscreen:v30SetSeqFullscreen,shotFullscreen:v30SetShotFullscreen}
 }
 const __v24InstallV25=v24Install;
 v24Install=function(){const r=__v24InstallV25();requestAnimationFrame(v25Install);return r};
-window.addEventListener("load",()=>setTimeout(v25Install,820),{once:true});
+window.addEventListener("load",()=>setTimeout(v25Install,820),{once:true});document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement){document.body.classList.remove("seq-playblast-v30");requestAnimationFrame(v30BindPlayerActions)}});
 const restored=loadProject();
 if(restored){TL=restored.timeline;activeShotUid=restored.activeShotUid;applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid}}
 else{TL=[];activeShotUid=null;activeSequencePreset="empty";applyProjectFormat("16:9",false)}
@@ -13052,7 +13099,7 @@ const mobileMQ=window.matchMedia?window.matchMedia("(max-width:900px)"):{matches
 let scheduled=0,shotObserver=null,timelineObserver=null,buildObserver=null;
 
 function v26Schedule(){
-  if(scheduled)return;scheduled=requestAnimationFrame(function(){scheduled=0;document.body.dataset.mementoBuild="v26-mobile-polish";document.title="MEMENTO — Pocket Previs · V26 MOBILE POLISH";v26ArrangeShotPlayer();v26BindTimelineNavigator()})
+  if(scheduled)return;scheduled=requestAnimationFrame(function(){scheduled=0;document.body.dataset.mobilePolish="v26";v26ArrangeShotPlayer();v26BindTimelineNavigator()})
 }
 function v26Node(id){return document.getElementById(id)}
 function v26Section(className,label){const el=document.createElement("div");el.className="shot-mobile-section-v26 "+className;el.setAttribute("role","group");el.setAttribute("aria-label",label);return el}
@@ -13099,10 +13146,10 @@ function v26BindTimelineNavigator(){
 function v26Observe(){
   const shot=v26Node("shotCommandbar");if(shot&&!shotObserver){shotObserver=new MutationObserver(v26Schedule);shotObserver.observe(shot,{childList:true,subtree:true})}
   const timeline=document.querySelector(".seq-timeline-panel-op");if(timeline&&!timelineObserver){timelineObserver=new MutationObserver(v26Schedule);timelineObserver.observe(timeline,{childList:true,subtree:true})}
-  if(document.body&&!buildObserver){buildObserver=new MutationObserver(function(){if(document.body.dataset.mementoBuild!=="v26-mobile-polish")v26Schedule()});buildObserver.observe(document.body,{attributes:true,attributeFilter:["data-memento-build"]})}
+  if(document.body&&!buildObserver){buildObserver=new MutationObserver(v26Schedule);buildObserver.observe(document.body,{attributes:true,attributeFilter:["data-mobile-polish"]})}
 }
 function v26Install(){
-  document.body.dataset.mementoBuild="v26-mobile-polish";document.title="MEMENTO — Pocket Previs · V26 MOBILE POLISH";
+  document.body.dataset.mobilePolish="v26";
   v26ArrangeShotPlayer();v26BindTimelineNavigator();v26Observe();requestAnimationFrame(v26SyncTimelineRange)
 }
 
@@ -13475,24 +13522,19 @@ function ensureTimelineReadout(){
   let time=document.querySelector(".timeline-overview-time-v24");
   if(!time){
     time=document.createElement("div");time.className="timeline-overview-time-v24";
-    time.innerHTML='<b id="timelineOverviewCurrentV24">00:00:00:00</b><strong id="timelineOverviewFrameV25">0f</strong>'
+    time.innerHTML='<b id="timelineOverviewCurrentV24">00.00</b><strong id="timelineOverviewFrameV25">0f</strong>'
   }else if(!time.querySelector("#timelineOverviewFrameV25")){
-    time.innerHTML='<b id="timelineOverviewCurrentV24">00:00:00:00</b><strong id="timelineOverviewFrameV25">0f</strong>'
+    time.innerHTML='<b id="timelineOverviewCurrentV24">00.00</b><strong id="timelineOverviewFrameV25">0f</strong>'
   }
   return time
 }
 function arrangeTimeline(){
   const editor=document.querySelector(".app.v-seq .timeline-editor")||document.querySelector(".timeline-editor");if(!editor)return;
   const nav=node("timelineNavigationV24"),bar=editor.querySelector(".timeline-toolbar-v21.timeline-editbar-v25,.timeline-toolbar.timeline-editbar-v25,.timeline-toolbar-v21,.timeline-toolbar");if(!nav||!bar)return;
-  const time=ensureTimelineReadout();
-  if(mobileMQ.matches){
-    time.classList.add("timeline-tool-readout-v27");
-    if(time.parentNode!==bar||bar.firstElementChild!==time)bar.insertBefore(time,bar.firstChild)
-  }else{
-    time.classList.remove("timeline-tool-readout-v27");
-    const slider=nav.querySelector(".timeline-overview-slider-v24");
-    if(time.parentNode!==nav)nav.insertBefore(time,slider||nav.firstChild)
-  }
+  const time=ensureTimelineReadout(),slider=nav.querySelector(".timeline-overview-slider-v24")||document.querySelector(".timeline-overview-slider-v24");
+  time.classList.add("timeline-tool-readout-v27","timeline-tool-readout-v30");
+  if(slider&&(nav.children.length!==1||nav.firstElementChild!==slider))nav.replaceChildren(slider);
+  if(time.parentNode!==bar||bar.firstElementChild!==time)bar.insertBefore(time,bar.firstChild);
   try{if(typeof v25SyncTimelineReadout==="function")v25SyncTimelineReadout()}catch(_){ }
   try{if(window.__mementoV26&&typeof window.__mementoV26.sync==="function")window.__mementoV26.sync()}catch(_){ }
 }
@@ -13717,412 +13759,176 @@ install();
 </script>
 
 
-<style id="memento-v29-polish-style">
-:root{
-  --v29-radius:10px;
-}
-/* ---------- desktop polish ---------- */
-@media (min-width:901px){
-  /* SHOT PLAYER */
-  #shotCommandbar .v25-command-copy small,
-  #seqShotTransportV21 .v25-command-copy small{display:none!important}
-  #shotCommandbar .v25-command-copy{gap:2px!important}
-  #shotCommandbar button,
-  #shotCommandbar .shot-toolbar-v19 > label,
-  #shotCommandbar select,
-  #shotTopToolsV18 .shot-fps-v16,
-  #shotTopToolsV18 .shot-format-v16,
-  #shotTopToolsV18 #shotFullscreenVII,
-  #seqProjectTransportV21 button,
-  #seqProjectTransportV21 .preview-format,
-  #seqProjectTransportV21 #seqFullscreenVII,
-  #seqProjectTransportV21 #sPreviewClean,
-  #seqShotTransportV21 button,
-  #seqShotTransportV21 label{
-    border-radius:var(--v29-radius)!important;
-  }
-  #shotTopToolsV18 .shot-fps-v16,
-  #shotTopToolsV18 .shot-format-v16,
-  #shotTopToolsV18 #shotFullscreenVII{
-    border:1px solid rgba(255,255,255,.10)!important;
-    background:#0e1016!important;
-    min-height:38px!important;
-    box-shadow:none!important;
-  }
-  #shotCommandbar .shot-toolbar-v19{
-    min-height:58px!important;
-    height:58px!important;
-    gap:8px!important;
-    align-items:stretch!important;
-  }
-  #shotCommandbar .shot-interpolation-v16,
-  #shotCommandbar .shot-interpolation-v17,
-  #shotCommandbar .shot-interpolation-v18,
-  #seqShotTransportV21 .seq-shot-mix-v21{
-    min-height:54px!important;
-    height:54px!important;
-    padding-top:8px!important;
-    padding-bottom:8px!important;
-  }
-  #shotCommandbar .shot-interpolation-v16 input,
-  #shotCommandbar .shot-interpolation-v17 input,
-  #shotCommandbar .shot-interpolation-v18 input,
-  #seqShotTransportV21 .seq-shot-mix-v21 input,
-  #seqProjectScrubV21 input{
-    height:22px!important;
-  }
-  /* SHOT EDITOR */
-  .shot-panel-advanced-op .cgrp-h::after,
-  .seq-edit-panel-v12 .cgrp-h::after,
-  .shot-panel-advanced-op .axis-summary-v13.axis-separator-v16::after,
-  .shot-panel-advanced-op .axis-summary-v13.axis-separator-v17::after,
-  .seq-edit-panel-v12 .axis-summary-v13.axis-separator-v16::after,
-  .seq-edit-panel-v12 .axis-summary-v13.axis-separator-v17::after{
-    display:none!important;content:none!important;
-  }
-  .shot-panel-advanced-op .cgrp-h,
-  .seq-edit-panel-v12 .cgrp-h{
-    display:flex!important;
-    align-items:center!important;
-    gap:10px!important;
-  }
-  .v24-category-recap{
-    margin-left:auto!important;
-    justify-content:flex-end!important;
-    text-align:right!important;
-  }
-  .shot-panel-advanced-op .axis-summary-v13.v24-category-tile,
-  .seq-edit-panel-v12 .axis-summary-v13.v24-category-tile,
-  .shot-panel-advanced-op .axis-summary-v13.v25-category-chip,
-  .seq-edit-panel-v12 .axis-summary-v13.v25-category-chip,
-  .shot-panel-advanced-op .copts > .v24-category-tile,
-  .seq-edit-panel-v12 .copts > .v24-category-tile,
-  .shot-panel-advanced-op .copts > .v25-category-chip,
-  .seq-edit-panel-v12 .copts > .v25-category-chip{
-    min-height:78px!important;
-    height:78px!important;
-    border-radius:9px!important;
-    display:grid!important;
-    place-items:center!important;
-    padding:0!important;
-    align-self:stretch!important;
-  }
-  .shot-panel-advanced-op .v24-category-tile .v24-category-icon,
-  .seq-edit-panel-v12 .v24-category-tile .v24-category-icon,
-  .shot-panel-advanced-op .v25-category-chip .v24-category-icon,
-  .seq-edit-panel-v12 .v25-category-chip .v24-category-icon{
-    display:grid!important;
-    place-items:center!important;
-    width:100%!important;
-    height:100%!important;
-  }
-  .shot-panel-advanced-op .v24-category-tile .v24-category-icon svg,
-  .seq-edit-panel-v12 .v24-category-tile .v24-category-icon svg,
-  .shot-panel-advanced-op .v25-category-chip .v24-category-icon svg,
-  .seq-edit-panel-v12 .v25-category-chip .v24-category-icon svg{
-    width:22px!important;height:22px!important;margin:0!important;
-  }
-  .shot-panel-advanced-op .axis-summary-v13.v24-category-tile > strong,
-  .shot-panel-advanced-op .axis-summary-v13.v24-category-tile > span,
-  .seq-edit-panel-v12 .axis-summary-v13.v24-category-tile > strong,
-  .seq-edit-panel-v12 .axis-summary-v13.v24-category-tile > span{
-    display:none!important;
-  }
-  .shot-panel-advanced-op .axis-summary-v13.v24-category-tile .lock,
-  .seq-edit-panel-v12 .axis-summary-v13.v24-category-tile .lock{right:6px!important;top:6px!important}
 
-  /* TIMELINE PLAYER */
-  #seqProjectTimeV21{display:none!important}
-  #seqProjectScrubV21{flex:1 1 auto!important;min-width:0!important}
-  #seqProjectTransportV21{gap:8px!important}
-  #seqShotTransportV21{
-    min-height:58px!important;
-    height:58px!important;
-    gap:8px!important;
-    align-items:stretch!important;
-  }
-  #seqShotTransportV21 .v25-command-copy b,
-  #shotCommandbar .v25-command-copy b{font-size:6.1px!important}
-  /* TIMELINE NAV BAR DOCK */
-  #timelineNavigationV24{
-    gap:8px!important;
-  }
-  #timelineNavigationV24 #timelineNavHomeV24{display:none!important}
-  #timelineNavigationV24 .timeline-overview-slider-v24{
-    flex:1 1 auto!important;
-    min-width:0!important;
-    width:auto!important;
-  }
-  .timeline-editbar-v25{
-    display:flex!important;
-    align-items:center!important;
-    gap:10px!important;
-    flex-wrap:nowrap!important;
-    overflow:hidden!important;
-  }
-  .timeline-editbar-v25 .timeline-tool-readout-v29{
-    order:1!important;
-    flex:0 0 122px!important;
-    min-width:122px!important;
-    border:1px solid rgba(255,255,255,.09)!important;
-    border-radius:10px!important;
-    background:#0d0f14!important;
-    padding:0 10px!important;
-    min-height:40px!important;
-    display:grid!important;
-    grid-template-columns:1fr auto!important;
-    align-items:center!important;
-    gap:6px!important;
-  }
-  .timeline-editbar-v25 .timeline-tool-readout-v29 span{display:none!important}
-  .timeline-editbar-v25 .timeline-tool-readout-v29 i{display:none!important}
-  .timeline-editbar-v25 .timeline-tool-readout-v29 b{font:800 9px/1 var(--mono)!important;letter-spacing:.06em!important;color:var(--accent)!important}
-  .timeline-editbar-v25 .timeline-tool-readout-v29 strong{font:800 8px/1 var(--mono)!important;letter-spacing:.04em!important;color:var(--txt)!important}
-  .timeline-editbar-v25 .timeline-edit-tools-v25{
-    order:2!important;
-    flex:1 1 auto!important;
-    justify-content:center!important;
-  }
-  .timeline-editbar-v25 .timeline-view-tools-v25{
-    order:3!important;
-    margin-left:auto!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:8px!important;
-  }
-  .timeline-editbar-v25 .timeline-duration-v25,
-  .timeline-editbar-v25 .timeline-selection-count-v25{display:none!important}
-  .timeline-tool-v25,
-  .timeline-view-tools-v25 #timelineSnapV13{
-    border-radius:10px!important;
-  }
-  .timeline-view-tools-v25 #timelineSnapV13{min-width:78px!important}
-  #tracks .clip{cursor:grab!important;pointer-events:auto!important}
-  #tracks .clip.dragging-op{cursor:grabbing!important}
-  .timeline-cut-marker-v25.selected-v29 span{
-    opacity:1!important;
-    color:var(--end)!important;
-    border-color:rgba(255,121,80,.72)!important;
-    box-shadow:0 0 0 1px rgba(255,121,80,.15) inset,0 6px 18px rgba(0,0,0,.36)!important;
-  }
+<style id="memento-v30-polish-style">
+:root{--v30-radius:9px;--v30-player-dock-h:62px}
+
+/* SHOT PLAYER — one radius grammar, no doubled square/round borders. */
+.shot-player-rig,.time-rig,.seq-left-shell-v13{border-radius:10px!important;overflow:hidden!important}
+#shotCommandbar,#shotCommandbar .shot-toolbar-v19,#seqProjectTransportV21,#seqShotTransportV21{border-radius:0!important}
+#shotCommandbar .shot-toolbar-v19,#seqShotTransportV21{
+  min-height:var(--v30-player-dock-h)!important;height:var(--v30-player-dock-h)!important;
+  padding:5px 6px!important;gap:6px!important;align-items:stretch!important
 }
-/* mobile + desktop fixes for category first tile */
-.shot-panel-advanced-op .copts > .v24-category-tile,
-.seq-edit-panel-v12 .copts > .v24-category-tile,
-.shot-panel-advanced-op .copts > .v25-category-chip,
-.seq-edit-panel-v12 .copts > .v25-category-chip{position:relative!important}
+#shotCommandbar button,#shotCommandbar label,#seqProjectTransportV21 button,#seqProjectTransportV21 label,#seqShotTransportV21 button,#seqShotTransportV21 label{
+  border-radius:var(--v30-radius)!important;overflow:hidden!important
+}
+#shotCommandbar .v25-command-copy small,#seqShotTransportV21 .v25-command-copy small{display:none!important}
+#shotCommandbar .v25-command-copy,#seqShotTransportV21 .v25-command-copy{gap:0!important}
+#shotCommandbar .v25-command-copy b,#seqShotTransportV21 .v25-command-copy b{font-size:6.1px!important;letter-spacing:.075em!important}
+
+.shot-top-tools-v18{display:flex!important;align-items:center!important;gap:5px!important;padding:4px!important}
+.shot-top-tools-v18 .shot-select-v16{
+  min-height:34px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:8px!important;
+  background:#0e1015!important;overflow:hidden!important;box-shadow:none!important
+}
+.shot-top-tools-v18 .shot-select-v16 select{
+  height:34px!important;border:0!important;border-radius:0!important;background-color:transparent!important;box-shadow:none!important
+}
+.shot-top-tools-v18 #shotFullscreenVII{
+  width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;
+  border:1px solid rgba(255,255,255,.12)!important;border-radius:8px!important;background:#0e1015!important;box-shadow:none!important
+}
+
+/* Give the interpolation scrub a larger vertical hit area without thickening its visual rail. */
+#shotCommandbar .shot-interpolation-v18,#seqShotTransportV21 .seq-shot-mix-v21{
+  min-height:52px!important;height:52px!important;padding:8px 11px!important;display:flex!important;align-items:center!important
+}
+#shotCommandbar .shot-interpolation-v18 input,#seqShotTransportV21 .seq-shot-mix-v21 input,#seqProjectScrubV21 input{
+  height:24px!important;background-size:100% 4px!important;background-position:center!important;background-repeat:no-repeat!important
+}
+
+/* EDIT dock — give the scrub above START / PLAY / END a real vertical hit area. */
+.app.v-combo .shot-panel-advanced-op #shotAdvancedToolbarOp,
+.app.v-seq .seq-edit-panel-v12 #shotAdvancedToolbarOp{
+  flex:0 0 70px!important;height:70px!important;min-height:70px!important;padding:5px 5px 6px!important;overflow:hidden!important
+}
+.app.v-combo #shotAdvancedToolbarOp .shot-editor-console-v18,
+.app.v-seq #shotAdvancedToolbarOp .shot-editor-console-v18{
+  width:100%!important;height:100%!important;display:grid!important;grid-template-rows:21px 34px!important;gap:5px!important
+}
+.app.v-combo #shotAdvancedToolbarOp .shot-editor-scrub-v18,
+.app.v-seq #shotAdvancedToolbarOp .shot-editor-scrub-v18{
+  grid-row:1!important;width:100%!important;height:21px!important;min-height:21px!important;margin:0!important;padding:8px 7px 7px!important;
+  border:0!important;border-top:1px solid rgba(255,255,255,.08)!important;border-radius:0!important;background:transparent!important;overflow:visible!important;touch-action:none!important
+}
+.app.v-combo #shotAdvancedToolbarOp .shot-editor-scrub-v18 input,
+.app.v-seq #shotAdvancedToolbarOp .shot-editor-scrub-v18 input{
+  display:block!important;width:100%!important;height:4px!important;margin:0!important;touch-action:none!important
+}
+.app.v-combo #shotAdvancedToolbarOp .shot-editor-transport-v18,
+.app.v-seq #shotAdvancedToolbarOp .shot-editor-transport-v18{
+  grid-row:2!important;width:100%!important;height:34px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important
+}
+.app.v-combo #shotAdvancedToolbarOp .shot-editor-transport-v18 button,
+.app.v-seq #shotAdvancedToolbarOp .shot-editor-transport-v18 button{height:34px!important;min-height:34px!important}
+
+/* SHOT EDITOR — category rows breathe without separator rules. */
+.shot-panel-advanced-op,.seq-edit-panel-v12{scrollbar-width:thin!important;scrollbar-color:#36363d transparent!important}
+.shot-panel-advanced-op::-webkit-scrollbar,.seq-edit-panel-v12::-webkit-scrollbar{width:9px!important}
+.shot-panel-advanced-op::-webkit-scrollbar-thumb,.seq-edit-panel-v12::-webkit-scrollbar-thumb{background:#36363d!important;border:2px solid #08080a!important;border-radius:999px!important}
+.app.v-combo .shot-panel-advanced-op .cgrp,.app.v-seq .seq-edit-panel-v12 .cgrp{
+  margin:0 0 7px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;overflow:visible!important
+}
+.app.v-combo .shot-panel-advanced-op .cgrp:last-child,.app.v-seq .seq-edit-panel-v12 .cgrp:last-child{margin-bottom:0!important}
+.app.v-combo .shot-panel-advanced-op .cgrp-h,.app.v-seq .seq-edit-panel-v12 .cgrp-h{
+  min-height:25px!important;height:25px!important;padding:0 5px 0 7px!important;border:0!important;background:transparent!important;display:flex!important;align-items:center!important;gap:10px!important
+}
+.shot-panel-advanced-op .cgrp-h::after,.seq-edit-panel-v12 .cgrp-h::after,
+.shot-panel-advanced-op .axis-summary-v13::after,.seq-edit-panel-v12 .axis-summary-v13::after{display:none!important;content:none!important}
+.v24-category-recap{margin-left:auto!important;max-width:72%!important;text-align:right!important;justify-content:flex-end!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.app.v-combo .shot-panel-advanced-op .copts,.app.v-seq .seq-edit-panel-v12 .copts{
+  display:grid!important;grid-template-columns:92px repeat(auto-fill,minmax(86px,1fr))!important;grid-auto-rows:46px!important;
+  height:auto!important;min-height:52px!important;gap:4px!important;padding:3px!important;overflow:visible!important;background:#09090c!important;border-radius:8px!important
+}
+.app.v-combo .shot-panel-advanced-op .v25-category-chip,.app.v-seq .seq-edit-panel-v12 .v25-category-chip,
+.app.v-combo .shot-panel-advanced-op .v24-category-tile,.app.v-seq .seq-edit-panel-v12 .v24-category-tile{
+  grid-column:auto!important;width:100%!important;min-width:0!important;height:46px!important;min-height:46px!important;
+  padding:0!important;border-radius:7px!important;display:grid!important;place-items:center!important;align-self:stretch!important;justify-self:stretch!important
+}
+.v25-category-chip .v24-category-icon,.v24-category-tile .v24-category-icon{width:100%!important;height:100%!important;display:grid!important;place-items:center!important}
+.v25-category-chip .v24-category-icon svg,.v24-category-tile .v24-category-icon svg{width:21px!important;height:21px!important;margin:0!important}
+
+/* TIMELINE PLAYER — two clean levels; level two mirrors SHOT. */
+#seqProjectTimeV21{display:none!important}
+#seqProjectTransportV21{min-height:46px!important;height:46px!important;padding:5px 6px!important;gap:6px!important;align-items:center!important}
+#seqProjectScrubV21{flex:1 1 auto!important;min-width:70px!important}
+#seqProjectTransportV21 .seq-project-output-v21{display:flex!important;align-items:center!important;gap:5px!important;flex:none!important}
+#seqShotTransportV21 .seq-shot-control-v21,#seqShotTransportV21 button.v25-player-command{
+  height:52px!important;min-height:52px!important;border-radius:var(--v30-radius)!important
+}
+#seqShotTransportV21 .seq-shot-readout-v21{height:52px!important;min-height:52px!important;border-radius:var(--v30-radius)!important}
+
+/* TIMELINE NAV — overview slider end-to-end, operational dock below. */
+#timelineNavigationV24.timeline-navigation-v30{
+  flex:0 0 44px!important;min-height:44px!important;height:44px!important;padding:6px 7px!important;gap:0!important;overflow:hidden!important
+}
+#timelineNavigationV24.timeline-navigation-v30>.timeline-overview-slider-v24{
+  flex:1 1 100%!important;width:100%!important;min-width:0!important;height:32px!important;padding:0 10px!important;border-radius:8px!important
+}
+.timeline-editbar-v30{
+  flex:0 0 50px!important;min-height:50px!important;height:50px!important;padding:5px 7px!important;
+  display:grid!important;grid-template-columns:minmax(112px,auto) minmax(260px,1fr) auto!important;align-items:center!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important
+}
+.timeline-tool-readout-v30{
+  min-width:112px!important;height:38px!important;padding:0 9px!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:8px!important;
+  background:#0d0f14!important;display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:8px!important;font-variant-numeric:tabular-nums!important
+}
+.timeline-tool-readout-v30 b{font:850 10px/1 var(--mono)!important;letter-spacing:.055em!important;color:var(--accent)!important}
+.timeline-tool-readout-v30 strong{font:850 8.5px/1 var(--mono)!important;letter-spacing:.04em!important;color:var(--txt)!important}
+.timeline-editbar-v30 .timeline-edit-tools-v25{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-width:0!important}
+.timeline-editbar-v30 .timeline-view-tools-v25{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:6px!important;margin-left:auto!important}
+.timeline-editbar-v30 .timeline-duration-v25,.timeline-editbar-v30 .timeline-selection-count-v25{display:none!important}
+.timeline-editbar-v30 .timeline-tool-v25{min-width:66px!important;height:38px!important;padding:0 9px!important;border-radius:8px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important}
+.timeline-editbar-v30 .timeline-view-tools-v25 .timeline-tool-v25{min-width:58px!important}
+.timeline-editbar-v30 .timeline-tool-v25 svg{width:14px!important;height:14px!important}
+.timeline-editbar-v30 .timeline-tool-v25 span{font-size:6.7px!important;letter-spacing:.09em!important}
+
+#tracks .clip{pointer-events:auto!important;cursor:grab!important}
+#tracks .clip.dragging-op{cursor:grabbing!important;z-index:90!important}
+.timeline-cut-marker-v25{
+  top:0!important;bottom:auto!important;width:18px!important;height:22px!important;translate:-9px 0!important;padding:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;cursor:ew-resize!important;pointer-events:auto!important;touch-action:none!important;overflow:visible!important
+}
+.timeline-cut-marker-v25::before{
+  content:""!important;position:absolute!important;left:8px!important;top:16px!important;bottom:-5000px!important;width:1px!important;height:auto!important;
+  background:rgba(255,121,80,.52)!important;clip-path:none!important;pointer-events:none!important
+}
+.timeline-cut-marker-v25::after{
+  content:""!important;position:absolute!important;left:3px!important;top:0!important;width:12px!important;height:9px!important;
+  background:var(--accent)!important;clip-path:polygon(0 0,100% 0,50% 100%)!important;pointer-events:none!important
+}
+.timeline-cut-marker-v25 span{left:14px!important;top:2px!important;pointer-events:none!important}
+.timeline-cut-marker-v25.selected-v30 span{opacity:1!important;color:var(--accent)!important;border-color:rgba(255,121,80,.78)!important;box-shadow:0 0 0 1px rgba(255,121,80,.16) inset,0 7px 20px rgba(0,0,0,.40)!important}
+
+/* Fullscreen and Playblast are separate actions. */
+body.seq-playblast-v30 #seqProjectTransportV21,body.seq-playblast-v30 #seqShotTransportV21,body.seq-playblast-v30 .seq-left-modebar-v13{display:none!important}
+body.seq-playblast-v30 .seq-left-shell-v13{grid-template-rows:minmax(0,1fr)!important}
+body.seq-playblast-v30 .seq-left-content-v13,body.seq-playblast-v30 .seq-left-render-v13,body.seq-playblast-v30 .time-rig{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+body.seq-playblast-v30 .seq-left-render-v13 .time-rig>.cprev{width:min(100vw,calc(100dvh * var(--project-scale)))!important;max-height:100dvh!important;margin:auto!important}
+
+@media(max-width:900px){
+  :root{--v30-player-dock-h:54px}
+  .timeline-scroll{touch-action:pan-x pan-y!important}
+  #shotCommandbar .shot-toolbar-v19,#seqShotTransportV21{height:54px!important;min-height:54px!important;padding:6px 5px!important;gap:5px!important;align-items:center!important}
+  #seqShotTransportV21 .seq-shot-control-v21,#seqShotTransportV21 button.v25-player-command,#seqShotTransportV21 .seq-shot-readout-v21{height:42px!important;min-height:42px!important}
+  #shotCommandbar .shot-interpolation-v18,#seqShotTransportV21 .seq-shot-mix-v21{height:42px!important;min-height:42px!important;padding-block:6px!important}
+  .app.v-combo .shot-panel-advanced-op .copts,.app.v-seq .seq-edit-panel-v12 .copts{grid-template-columns:84px repeat(auto-fill,minmax(76px,1fr))!important;grid-auto-rows:44px!important}
+  .app.v-combo .shot-panel-advanced-op .v25-category-chip,.app.v-seq .seq-edit-panel-v12 .v25-category-chip,.app.v-combo .shot-panel-advanced-op .v24-category-tile,.app.v-seq .seq-edit-panel-v12 .v24-category-tile{height:44px!important;min-height:44px!important}
+  .timeline-editbar-v30{grid-template-columns:96px minmax(150px,1fr) auto!important;gap:5px!important;padding-inline:5px!important;overflow-x:auto!important}
+  .timeline-tool-readout-v30{min-width:96px!important;height:36px!important}
+  .timeline-editbar-v30 .timeline-tool-v25{min-width:42px!important;width:auto!important;height:36px!important;padding-inline:7px!important}
+  .timeline-editbar-v30 .timeline-view-tools-v25 .timeline-tool-v25{min-width:38px!important}
+}
+@media(max-width:560px){
+  .timeline-editbar-v30{grid-template-columns:88px auto auto!important}
+  .timeline-editbar-v30 .timeline-tool-v25 span{display:none!important}
+  .timeline-editbar-v30 .timeline-tool-v25{min-width:36px!important;width:36px!important;padding:0!important}
+  .timeline-tool-readout-v30{min-width:88px!important;padding-inline:7px!important}
+}
 </style>
-<script id="memento-v29-polish-script">
-(function(){
-  "use strict";
-  let v29SelectedMarkerId = null;
-  function v29MiniTime(frame){
-    const fps = Math.max(1, Number(window.v13FPS) || 30);
-    const n = Number(frame)||0;
-    const neg = n < 0;
-    const totalSeconds = Math.floor(Math.abs(n)/fps);
-    const mm = String(Math.floor(totalSeconds/60)).padStart(2,'0');
-    const ss = String(totalSeconds%60).padStart(2,'0');
-    return (neg?'-':'') + mm + '.' + ss;
-  }
-  function v29Safe(fn){ try{ return fn(); }catch(_){ return null; } }
-  function v29SyncTimelineReadout(){
-    const cur=document.getElementById('timelineOverviewCurrentV24');
-    const fr=document.getElementById('timelineOverviewFrameV25');
-    if(!cur||!fr||typeof timelineLayoutData!=='function'||typeof v20SecondsToFrame!=='function') return;
-    const data=timelineLayoutData();
-    const total=Math.max(0, Number(data&&data.totalFrame)||0);
-    const pre=(typeof v20PreRollFrames==='function'?v20PreRollFrames():0);
-    const frame=Math.max(-pre, Math.min(total, v20SecondsToFrame(window.seqPlayhead||0)));
-    cur.textContent=v29MiniTime(frame);
-    fr.textContent=frame+'f';
-  }
-  function v29LabelOnly(id,it,en){
-    const b=document.getElementById(id); if(!b) return;
-    const label=(typeof uiWord==='function'?uiWord(it,en):it);
-    const small=b.querySelector('.v25-command-copy small'); if(small) small.remove();
-    const big=b.querySelector('.v25-command-copy b'); if(big) big.textContent=label;
-    b.title=label; b.setAttribute('aria-label',label);
-  }
-  function v29FixPlayerLabels(){
-    [['shotUndoVII','ANNULLA','UNDO'],['shotRedoVII','RIPETI','REDO'],['shotCopyVII','COPIA','COPY'],['shotPasteVII','INCOLLA','PASTE'],['seqUndoVII','ANNULLA','UNDO'],['seqRedoVII','RIPETI','REDO'],['seqCopy','COPIA','COPY'],['seqPaste','INCOLLA','PASTE']].forEach(a=>v29LabelOnly(...a));
-  }
-  async function v29PlayblastToggle(){
-    if(!window.timeRig) return;
-    const on=!timeRig.classList.contains('clean');
-    timeRig.classList.toggle('clean',on);
-    if(on){ if(!window.seqTimelinePlaying && typeof startSequence==='function') startSequence(true); try{ if(timeRig.requestFullscreen) await timeRig.requestFullscreen(); }catch(_){} }
-    else { try{ if(document.fullscreenElement) await document.exitFullscreen(); }catch(_){} }
-  }
-  async function v29TimePrevClose(){
-    if(window.timeRig && timeRig.classList.contains('clean')){ timeRig.classList.remove('clean'); try{ if(document.fullscreenElement) await document.exitFullscreen(); }catch(_){} }
-  }
-  function v29FixFullscreenAndPlayblast(){
-    const shot=document.getElementById('shotFullscreenVII');
-    if(shot){ shot.onclick=()=>{ if(typeof setShotFocusOperational==='function') setShotFocusOperational(true); else if(typeof setShotFocusVII==='function') setShotFocusVII(true); else if(typeof v18ToggleFullscreen==='function') v18ToggleFullscreen(); }; }
-    const seq=document.getElementById('seqFullscreenVII');
-    if(seq){ seq.onclick=()=>{ if(typeof setSeqFocusV12==='function') setSeqFocusV12(true,false); else if(typeof setSeqFocusVII==='function') setSeqFocusVII(true,false); }; }
-    const clean=document.getElementById('sPreviewClean');
-    if(clean){ clean.onclick=v29PlayblastToggle; clean.title=(typeof uiWord==='function'?uiWord('Playblast del progetto','Project playblast'):'Project playblast'); clean.setAttribute('aria-label',clean.title); }
-    const prev=document.getElementById('timePrev'); if(prev) prev.onclick=v29TimePrevClose;
-  }
-  function v29ArrangeTimelineToolbar(){
-    const nav=document.getElementById('timelineNavigationV24');
-    const bar=document.querySelector('.timeline-toolbar-v21,.timeline-toolbar');
-    if(!nav||!bar) return;
-    const time=nav.querySelector('.timeline-overview-time-v24');
-    if(time){
-      time.classList.add('timeline-tool-readout-v29');
-      if(time.parentNode!==bar) bar.prepend(time);
-    }
-    const duration=bar.querySelector('#timelineDurationV13,.timeline-duration-v25'); if(duration) duration.remove();
-    const status=bar.querySelector('#timelineSelectionCountV25,.timeline-selection-count-v25'); if(status) status.remove();
-    const view=bar.querySelector('.timeline-view-tools-v25');
-    if(view){
-      const fit=view.querySelector('#timelineNavFitV25');
-      const zout=view.querySelector('#timelineNavZoomOutV25');
-      const zin=view.querySelector('#timelineNavZoomInV25');
-      const snap=view.querySelector('#timelineSnapV13');
-      view.replaceChildren(...[fit,zout,zin,snap].filter(Boolean));
-    }
-    v29SyncTimelineReadout();
-  }
-  function v29SelectMarker(id){
-    v29SelectedMarkerId = id || null;
-    document.querySelectorAll('.timeline-cut-marker-v25').forEach(el=>el.classList.toggle('selected-v29', !!id && el.dataset.markerId===id));
-  }
-  function v29DeleteSelectedMarker(){
-    if(!v29SelectedMarkerId || !Array.isArray(window.v25Markers)) return false;
-    const idx=v25Markers.findIndex(m=>m.id===v29SelectedMarkerId);
-    if(idx<0) return false;
-    const before = typeof projectSnapshot==='function' ? projectSnapshot() : null;
-    v25Markers.splice(idx,1);
-    v29SelectedMarkerId = null;
-    if(typeof v25RenderMarkers==='function') v25RenderMarkers();
-    if(before && typeof pushHistory==='function') pushHistory(before);
-    if(typeof persistProject==='function') persistProject();
-    return true;
-  }
-  function v29DeleteSelectedTimelineItems(){
-    if(!Array.isArray(window.TL)) return false;
-    const selected = TL.filter(it=>it && it.selected);
-    if(!selected.length) return false;
-    const before = typeof projectSnapshot==='function' ? projectSnapshot() : null;
-    window.TL = TL.filter(it=>!it.selected);
-    if(typeof v25SetPrimary==='function') v25SetPrimary(null);
-    if(typeof drawTL==='function') drawTL();
-    if(before && typeof pushHistory==='function') pushHistory(before);
-    if(typeof persistProject==='function') persistProject();
-    return true;
-  }
-  function v29MarkerFrameFromX(x){
-    if(typeof v25FrameFromClientX==='function') return v25FrameFromClientX(x);
-    if(typeof v13TimeFromClientX==='function' && typeof v20SecondsToFrame==='function') return v20SecondsToFrame(v13TimeFromClientX(x));
-    return 0;
-  }
-  function v29SortMarkers(){ if(Array.isArray(window.v25Markers)) v25Markers.sort((a,b)=>a.frame-b.frame); }
-  function v29InstallMarkerUX(){
-    if(!Array.isArray(window.v25Markers)) return;
-    document.querySelectorAll('.timeline-cut-marker-v25').forEach(el=>{
-      if(el.dataset.v29Marker==='1') return;
-      el.dataset.v29Marker='1';
-      const id=el.dataset.markerId;
-      el.onclick=(e)=>{
-        e.preventDefault(); e.stopPropagation();
-        if(el.dataset.dragMoved==='1'){ el.dataset.dragMoved=''; return; }
-        const marker=v25Markers.find(m=>m.id===id); if(!marker) return;
-        if(e.altKey){ v29SelectedMarkerId=id; v29DeleteSelectedMarker(); return; }
-        v29SelectMarker(id);
-        if(typeof v24SeekTimelineFrame==='function') v24SeekTimelineFrame(marker.frame);
-      };
-      el.ondblclick=(e)=>{
-        e.preventDefault(); e.stopPropagation();
-        const marker=v25Markers.find(m=>m.id===id); if(!marker) return;
-        const next=prompt((typeof uiWord==='function'?uiWord('Rinomina marker','Rename marker'):'Rename marker'), marker.label||'');
-        if(next==null) return;
-        const before = typeof projectSnapshot==='function' ? projectSnapshot() : null;
-        marker.label=String(next||'').trim() || marker.label;
-        if(typeof v25RenderMarkers==='function') v25RenderMarkers();
-        if(before && typeof pushHistory==='function') pushHistory(before);
-        if(typeof persistProject==='function') persistProject();
-      };
-      el.addEventListener('pointerdown', function(e){
-        if(e.button!==0) return;
-        const marker=v25Markers.find(m=>m.id===id); if(!marker) return;
-        v29SelectMarker(id);
-        const before = typeof projectSnapshot==='function' ? projectSnapshot() : null;
-        const pid=e.pointerId; let moved=false;
-        try{ el.setPointerCapture(pid); }catch(_){ }
-        const move=(ev)=>{
-          if(ev.pointerId!==pid) return;
-          const f=Math.round(v29MarkerFrameFromX(ev.clientX));
-          if(f!==marker.frame){ moved=true; marker.frame=f; v29SortMarkers(); if(typeof v25RenderMarkers==='function') v25RenderMarkers(); }
-          ev.preventDefault(); ev.stopPropagation();
-        };
-        const end=(ev)=>{
-          if(ev.pointerId!==pid) return;
-          el.removeEventListener('pointermove',move); el.removeEventListener('pointerup',end); el.removeEventListener('pointercancel',end);
-          el.dataset.dragMoved=moved?'1':'';
-          if(moved && before && typeof pushHistory==='function') pushHistory(before);
-          if(moved && typeof persistProject==='function') persistProject();
-        };
-        el.addEventListener('pointermove',move); el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
-      }, true);
-    });
-    v29SelectMarker(v29SelectedMarkerId);
-  }
-  function v29InstallKeyboard(){
-    if(document.documentElement.dataset.v29Keys==='1') return;
-    document.documentElement.dataset.v29Keys='1';
-    document.addEventListener('keydown', function(e){
-      if(window.__currentMode!=='seq' || e.target.closest('input,textarea,select,[contenteditable=true]')) return;
-      const k=(e.key||'').toLowerCase();
-      if(k==='a' || k==='v'){ if(typeof v25SetTool==='function') v25SetTool('select'); e.preventDefault(); return; }
-      if(k==='t'){ if(typeof v25SetTool==='function') v25SetTool('slip'); e.preventDefault(); return; }
-      if(k==='m'){ if(typeof v25AddMarker==='function'){ v25AddMarker((typeof v20SecondsToFrame==='function'?v20SecondsToFrame(window.seqPlayhead||0):0)); v29InstallMarkerUX(); } e.preventDefault(); return; }
-      if(e.key==='Delete' || e.key==='Backspace'){ const markerRemoved=v29DeleteSelectedMarker(); const clipRemoved=v29DeleteSelectedTimelineItems(); if(markerRemoved||clipRemoved){ e.preventDefault(); e.stopPropagation(); } }
-    }, true);
-  }
-  function v29WrapFunctions(){
-    if(typeof window.v25SyncTimelineReadout==='function' && !window.v25SyncTimelineReadout.__v29Wrapped){
-      const prev=window.v25SyncTimelineReadout;
-      window.v25SyncTimelineReadout=function(){ const r=prev.apply(this,arguments); v29SyncTimelineReadout(); v29ArrangeTimelineToolbar(); return r; };
-      window.v25SyncTimelineReadout.__v29Wrapped=true;
-    }
-    if(typeof window.v25RenderMarkers==='function' && !window.v25RenderMarkers.__v29Wrapped){
-      const prev=window.v25RenderMarkers;
-      window.v25RenderMarkers=function(){ const r=prev.apply(this,arguments); v29InstallMarkerUX(); return r; };
-      window.v25RenderMarkers.__v29Wrapped=true;
-    }
-    if(typeof window.v25DecoratePlayerCommands==='function' && !window.v25DecoratePlayerCommands.__v29Wrapped){
-      const prev=window.v25DecoratePlayerCommands;
-      window.v25DecoratePlayerCommands=function(){ const r=prev.apply(this,arguments); v29FixPlayerLabels(); return r; };
-      window.v25DecoratePlayerCommands.__v29Wrapped=true;
-    }
-    if(typeof window.drawTL==='function' && !window.drawTL.__v29Wrapped){
-      const prev=window.drawTL;
-      window.drawTL=function(){ const r=prev.apply(this,arguments); requestAnimationFrame(v29InstallMarkerUX); return r; };
-      window.drawTL.__v29Wrapped=true;
-    }
-  }
-  function v29Install(){
-    v29WrapFunctions();
-    v29FixPlayerLabels();
-    v29FixFullscreenAndPlayblast();
-    v29ArrangeTimelineToolbar();
-    v29SyncTimelineReadout();
-    v29InstallMarkerUX();
-    v29InstallKeyboard();
-    if(typeof v25DecoratePlayerCommands==='function') v29Safe(()=>v25DecoratePlayerCommands());
-  }
-  window.addEventListener('load', ()=>{ setTimeout(v29Install, 500); setTimeout(v29Install, 1200); }, {once:false});
-  window.addEventListener('resize', ()=>setTimeout(v29Install, 50), {passive:true});
-  document.addEventListener('fullscreenchange', ()=>setTimeout(v29Install, 50));
-  const mo=new MutationObserver(()=>{ clearTimeout(window.__v29MO); window.__v29MO=setTimeout(v29Install,60); });
-  mo.observe(document.documentElement,{childList:true,subtree:true});
-  window.__mementoV29={install:v29Install};
-  setTimeout(v29Install, 120);
-})();
+<script id="memento-v30-boot">
+(function(){"use strict";let queued=0;function run(){if(!document.body)return;document.body.dataset.mementoBuild="v30-desktop-polish";document.title="MEMENTO — Pocket Previs · V30 DESKTOP POLISH";try{window.__mementoV30&&window.__mementoV30.install&&window.__mementoV30.install()}catch(e){console.warn("V30 polish install",e)}}function schedule(ms){clearTimeout(queued);queued=setTimeout(run,ms||30)}window.addEventListener("load",()=>{[160,520,1100,1900].forEach(ms=>setTimeout(run,ms))},{once:true});window.addEventListener("resize",()=>schedule(60),{passive:true});document.addEventListener("visibilitychange",()=>{if(!document.hidden)schedule(40)});setTimeout(run,70)})();
 </script>
 
 </body>
