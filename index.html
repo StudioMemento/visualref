@@ -4306,10 +4306,15 @@ const ENG=(function(){
   CUBE.computeBoundingSphere();
   const BASE_RADIUS=(CUBE.boundingSphere&&CUBE.boundingSphere.radius)||0.98;
 
-  const subject=new THREE.Group();
-  const heroRoot=new THREE.Group();
+  const subjectPlacement=new THREE.Group(); subjectPlacement.name="MEMENTO_HERO_PLACEMENT_ROOT";
+  const subject=new THREE.Group(); subject.name="MEMENTO_HERO_CREATIVE_ROOT";
+  const heroCalibrationRoot=new THREE.Group(); heroCalibrationRoot.name="MEMENTO_HERO_DIRECT_CALIBRATION_ROOT";
+  const heroPivotRoot=new THREE.Group(); heroPivotRoot.name="MEMENTO_HERO_PIVOT_OFFSET_ROOT";
+  const heroRoot=new THREE.Group(); heroRoot.name="MEMENTO_HERO_NORMALIZATION_ROOT";
   const defaultHero=new THREE.Mesh(CUBE,mat); defaultHero.name="MEMENTO_PROXY";
-  heroRoot.add(defaultHero); subject.add(heroRoot); scene.add(subject);
+  heroRoot.add(defaultHero); heroPivotRoot.add(heroRoot); heroCalibrationRoot.add(heroPivotRoot); subject.add(heroCalibrationRoot); subjectPlacement.add(subject); scene.add(subjectPlacement);
+  const heroPivotLocal=new THREE.Vector3();
+  let heroCalibration={pivotMode:"bounds-center",pivotAnchorId:"visualCenter",pivotLocal:[0,0,0],sourcePivotLocal:[0,0,0],selectedNodeId:null,selectedNodeName:null,showPivot:true,placement:[0,0,0],directRotation:[0,0,0],directScale:1};
   let heroIsDefault=true, heroHalf=.575, heroRadius=BASE_RADIUS, heroMixer=null, heroAnimDuration=0;
   let heroMeta={name:"MEMENTO proxy",meshes:1,triangles:Math.round((CUBE.index?CUBE.index.count:CUBE.attributes.position.count)/3),animated:false,proxyClones:false};
   let v36AState=null,v36ALightState=null,v36ACameraState={status:"ready",lastRepair:null,lastKnownGood:null,near:.1,far:200,outsideSafetyVolume:true,finite:true};
@@ -4354,12 +4359,15 @@ const ENG=(function(){
     });
     remove.forEach(o=>o.parent&&o.parent.remove(o));
   }
-  function normalizeObject(root,target){
-    root.updateMatrixWorld(true);let box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3());
-    const max=Math.max(size.x,size.y,size.z,.0001),scale=(target||1.15)/max;root.scale.multiplyScalar(scale);root.updateMatrixWorld(true);
-    box=new THREE.Box3().setFromObject(root);const center=box.getCenter(new THREE.Vector3());root.position.sub(center);root.updateMatrixWorld(true);
+  function normalizeObject(root,target,normalizationRoot){
+    /* Imported node transforms remain untouched. Unit normalization and centering
+       belong to the dedicated wrapper so SOURCE PIVOT can always recover the
+       authoring origin without destructively rewriting the GLB hierarchy. */
+    const nr=normalizationRoot||root;nr.position.set(0,0,0);nr.quaternion.identity();nr.scale.set(1,1,1);nr.updateMatrixWorld(true);root.updateMatrixWorld(true);
+    let box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3()),centerWorld=box.getCenter(new THREE.Vector3()),centerLocal=nr.worldToLocal(centerWorld.clone());
+    const max=Math.max(size.x,size.y,size.z,.0001),scale=(target||1.15)/max;nr.scale.setScalar(scale);nr.position.copy(centerLocal).multiplyScalar(-scale);nr.updateMatrixWorld(true);root.updateMatrixWorld(true);
     box=new THREE.Box3().setFromObject(root);size=box.getSize(new THREE.Vector3());const sphere=box.getBoundingSphere(new THREE.Sphere());
-    return {half:Math.max(.05,size.y/2),radius:Math.max(.08,sphere.radius),size};
+    return {half:Math.max(.05,size.y/2),radius:Math.max(.08,sphere.radius),size,unitScale:scale,sourceCenter:centerLocal.toArray()};
   }
   function darkCloneSource(){
     const source=heroRoot.clone(true),mats=new Map();
@@ -4404,39 +4412,98 @@ const ENG=(function(){
   function setVisualLook(definition){visualLookState=Object.assign({id:"look.neutral",exposure:1},definition||{});return Object.assign({},visualLookState)}
   function setHeroObject(root,clips,meta){
     if(!root)return null;const previous=!heroIsDefault&&heroRoot.children[0];clearCloneObjects();while(heroRoot.children.length)heroRoot.remove(heroRoot.children[0]);
-    prepareImported(root);const bounds=normalizeObject(root,1.15);heroRoot.add(root);heroIsDefault=false;heroHalf=bounds.half;heroRadius=bounds.radius;
+    subjectPlacement.position.set(0,0,0);subjectPlacement.quaternion.identity();subjectPlacement.scale.set(1,1,1);
+    heroCalibrationRoot.position.set(0,0,0);heroCalibrationRoot.quaternion.identity();heroCalibrationRoot.scale.set(1,1,1);
+    heroPivotRoot.position.set(0,0,0);heroPivotLocal.set(0,0,0);heroRoot.position.set(0,0,0);heroRoot.quaternion.identity();heroRoot.scale.set(1,1,1);
+    prepareImported(root);heroRoot.add(root);const bounds=normalizeObject(root,1.15,heroRoot);heroRoot.updateMatrixWorld(true);heroIsDefault=false;heroHalf=bounds.half;heroRadius=bounds.radius;
+    const sourceOrigin=heroRoot.worldToLocal(root.localToWorld(new THREE.Vector3()));
+    heroCalibration={pivotMode:"bounds-center",pivotAnchorId:"visualCenter",pivotLocal:[0,0,0],sourcePivotLocal:sourceOrigin.toArray(),selectedNodeId:null,selectedNodeName:null,showPivot:true,placement:[0,0,0],directRotation:[0,0,0],directScale:1};
     const st=objectStats(root);heroMeta={name:(meta&&meta.name)||root.name||"Imported hero",meshes:st.meshes,triangles:st.triangles,animated:!!(clips&&clips.length),proxyClones:false};
-    captureHeroMaterialBaseline(root);configureHeroAnimations(root,clips||[]);heroVariantId="base";v36ARefreshFeatureAnchors(root,false);
-    rebuildClones();layoutSecondary();if(previous)disposeImported(previous);return Object.assign({},heroMeta,{half:heroHalf,radius:heroRadius,animations:[...heroAnimationActions.keys()]});
+    captureHeroMaterialBaseline(root);v36DMarkIBLMaterialsDirty();v36DPrepareIBLMaterials();configureHeroAnimations(root,clips||[]);heroVariantId="base";v36ARefreshFeatureAnchors(root,false);
+    rebuildClones();layoutSecondary();if(previous)disposeImported(previous);return Object.assign({},heroMeta,{half:heroHalf,radius:heroRadius,animations:[...heroAnimationActions.keys()],calibration:heroCalibrationState()});
   }
   function resetHeroObject(){
     const previous=!heroIsDefault&&heroRoot.children[0];clearCloneObjects();while(heroRoot.children.length)heroRoot.remove(heroRoot.children[0]);heroRoot.add(defaultHero);
+    subjectPlacement.position.set(0,0,0);subjectPlacement.quaternion.identity();subjectPlacement.scale.set(1,1,1);heroCalibrationRoot.position.set(0,0,0);heroCalibrationRoot.quaternion.identity();heroCalibrationRoot.scale.set(1,1,1);heroPivotRoot.position.set(0,0,0);heroPivotLocal.set(0,0,0);heroRoot.position.set(0,0,0);heroRoot.quaternion.identity();heroRoot.scale.set(1,1,1);
+    heroCalibration={pivotMode:"bounds-center",pivotAnchorId:"visualCenter",pivotLocal:[0,0,0],sourcePivotLocal:[0,0,0],selectedNodeId:null,selectedNodeName:null,showPivot:true,placement:[0,0,0],directRotation:[0,0,0],directScale:1};
     heroIsDefault=true;heroHalf=.575;heroRadius=BASE_RADIUS;heroMixer=null;heroAnimDuration=0;heroAnimationActions=new Map();heroAnimationId=null;heroVariantId="base";heroMeta={name:"MEMENTO proxy",meshes:1,triangles:Math.round((CUBE.index?CUBE.index.count:CUBE.attributes.position.count)/3),animated:false,proxyClones:false};
-    captureHeroMaterialBaseline(defaultHero);v36ARefreshFeatureAnchors(defaultHero,true);rebuildClones();layoutSecondary();if(previous)disposeImported(previous);return Object.assign({},heroMeta);
+    captureHeroMaterialBaseline(defaultHero);v36DMarkIBLMaterialsDirty();v36ARefreshFeatureAnchors(defaultHero,true);rebuildClones();layoutSecondary();if(previous)disposeImported(previous);return Object.assign({},heroMeta,{calibration:heroCalibrationState()});
   }
+  function heroCalibrationState(){return Object.assign({},heroCalibration,{pivotLocal:heroPivotLocal.toArray(),placement:subjectPlacement.position.toArray(),directRotation:[THREE.MathUtils.radToDeg(heroCalibrationRoot.rotation.x),THREE.MathUtils.radToDeg(heroCalibrationRoot.rotation.y),THREE.MathUtils.radToDeg(heroCalibrationRoot.rotation.z)],directScale:Number(heroCalibrationRoot.scale.x)||1,heroDefault:heroIsDefault})}
+  function heroAnchorById(id){const all=(v36AFeatureAnchors||[]).concat(v36AState&&Array.isArray(v36AState.anchors)?v36AState.anchors:[]);return all.find(a=>a.id===id)||null}
+  function resolveHeroPivotLocal(config){config=config||{};const mode=String(config.mode||heroCalibration.pivotMode||"bounds-center"),anchorId=String(config.anchorId||heroCalibration.pivotAnchorId||"visualCenter");
+    if(mode==="source")return new THREE.Vector3().fromArray(heroCalibration.sourcePivotLocal||[0,0,0]);
+    if(mode==="ground")return new THREE.Vector3(0,-heroHalf,0);
+    if(mode==="active-anchor"||mode==="visual-center"||mode==="anchor"){const a=heroAnchorById(mode==="visual-center"?"visualCenter":anchorId);if(a)return new THREE.Vector3().fromArray(a.localPosition||[0,0,0])}
+    if(mode==="custom"||mode==="custom-surface")return new THREE.Vector3().fromArray(config.localPosition||heroCalibration.pivotLocal||[0,0,0]);
+    return new THREE.Vector3(0,0,0)
+  }
+  function setHeroPivot(config){config=config||{};subjectPlacement.updateMatrixWorld(true);subject.updateMatrixWorld(true);heroPivotRoot.updateMatrixWorld(true);heroRoot.updateMatrixWorld(true);
+    const before=heroRoot.getWorldPosition(new THREE.Vector3()),next=resolveHeroPivotLocal(config);
+    if(![next.x,next.y,next.z].every(Number.isFinite))return {ok:false,code:"PIVOT_NON_FINITE",state:heroCalibrationState()};
+    heroPivotLocal.copy(next);heroPivotRoot.position.copy(next).multiplyScalar(-1);heroPivotRoot.updateMatrixWorld(true);heroRoot.updateMatrixWorld(true);
+    const after=heroRoot.getWorldPosition(new THREE.Vector3());if(config.preserveWorld!==false)subjectPlacement.position.add(before.sub(after));
+    subjectPlacement.updateMatrixWorld(true);heroCalibration=Object.assign({},heroCalibration,{pivotMode:String(config.mode||heroCalibration.pivotMode||"custom"),pivotAnchorId:String(config.anchorId||heroCalibration.pivotAnchorId||"visualCenter"),pivotLocal:next.toArray(),placement:subjectPlacement.position.toArray(),showPivot:config.showPivot==null?heroCalibration.showPivot:!!config.showPivot});
+    return {ok:true,state:heroCalibrationState()}
+  }
+  function setHeroPivotVisible(on){heroCalibration.showPivot=!!on;return heroCalibration.showPivot}
+  function setHeroPlacement(value){const v=Array.isArray(value)?new THREE.Vector3().fromArray(value):new THREE.Vector3(Number(value&&value.x)||0,Number(value&&value.y)||0,Number(value&&value.z)||0);if(![v.x,v.y,v.z].every(Number.isFinite))return false;subjectPlacement.position.copy(v);heroCalibration.placement=v.toArray();return heroCalibrationState()}
+  function setHeroDirectTransform(patch){patch=patch||{};if(Array.isArray(patch.rotation)){const r=patch.rotation;heroCalibrationRoot.rotation.set(THREE.MathUtils.degToRad(Number(r[0])||0),THREE.MathUtils.degToRad(Number(r[1])||0),THREE.MathUtils.degToRad(Number(r[2])||0),"YXZ")}if(patch.scale!=null)heroCalibrationRoot.scale.setScalar(Math.max(.001,Number(patch.scale)||1));heroCalibration.directRotation=[THREE.MathUtils.radToDeg(heroCalibrationRoot.rotation.x),THREE.MathUtils.radToDeg(heroCalibrationRoot.rotation.y),THREE.MathUtils.radToDeg(heroCalibrationRoot.rotation.z)];heroCalibration.directScale=Number(heroCalibrationRoot.scale.x)||1;return heroCalibrationState()}
+  const v36DRaycaster=new THREE.Raycaster(),v36DPointer=new THREE.Vector2();
+  function raycastHero(ndcX,ndcY){ndcX=Number(ndcX);ndcY=Number(ndcY);if(!Number.isFinite(ndcX)||!Number.isFinite(ndcY))return null;v36DPointer.set(THREE.MathUtils.clamp(ndcX,-1,1),THREE.MathUtils.clamp(ndcY,-1,1));
+    subjectPlacement.updateMatrixWorld(true);heroRoot.updateMatrixWorld(true);v36DRaycaster.setFromCamera(v36DPointer,cam);const hits=v36DRaycaster.intersectObject(heroRoot,true).filter(h=>h.object&&h.object.isMesh&&h.object.visible!==false);if(!hits.length)return null;const hit=hits[0],local=heroRoot.worldToLocal(hit.point.clone());let normalWorld=new THREE.Vector3(0,0,1);if(hit.face&&hit.face.normal)normalWorld.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);const rootQ=heroRoot.getWorldQuaternion(new THREE.Quaternion());const normalLocal=normalWorld.applyQuaternion(rootQ.invert()).normalize();heroCalibration.selectedNodeId=hit.object.uuid;heroCalibration.selectedNodeName=hit.object.name||"Unnamed mesh";return{nodeId:hit.object.uuid,nodeName:hit.object.name||"Unnamed mesh",distance:hit.distance,pointWorld:hit.point.toArray(),localPoint:local.toArray(),localNormal:normalLocal.toArray(),faceIndex:hit.faceIndex==null?null:hit.faceIndex}}
   captureHeroMaterialBaseline(defaultHero);
+  let v36DSelectedAssetId="hero-primary";
+  function v36DNormalizeSecondary(imported,target,normalizationRoot){
+    imported.updateMatrixWorld(true);const sourceBox=new THREE.Box3().setFromObject(imported),sourceSize=sourceBox.getSize(new THREE.Vector3()),sourceCenter=sourceBox.getCenter(new THREE.Vector3()),max=Math.max(sourceSize.x,sourceSize.y,sourceSize.z,.0001),scale=(target||.66)/max;
+    normalizationRoot.scale.setScalar(scale);normalizationRoot.position.copy(sourceCenter).multiplyScalar(-scale);normalizationRoot.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(imported),size=box.getSize(new THREE.Vector3()),sphere=box.getBoundingSphere(new THREE.Sphere());return{half:Math.max(.05,size.y/2),radius:Math.max(.08,sphere.radius),size,sourceSize:sourceSize.toArray(),sourceCenter:sourceCenter.toArray(),unitScale:scale}
+  }
+  function secondaryCalibrationState(id){const a=secondaryAssets.get(id);if(!a)return null;return Object.assign({},a.calibration,{assetId:id,pivotLocal:a.pivotLocal.toArray(),placement:a.placementRoot.position.toArray(),directRotation:[THREE.MathUtils.radToDeg(a.directRoot.rotation.x),THREE.MathUtils.radToDeg(a.directRoot.rotation.y),THREE.MathUtils.radToDeg(a.directRoot.rotation.z)],directScale:Number(a.directRoot.scale.x)||1,visible:a.root.visible})}
+  function v36DSecondaryPivotLocal(a,config){config=config||{};const mode=String(config.mode||a.calibration.pivotMode||"bounds-center");if(mode==="source")return new THREE.Vector3().fromArray(a.calibration.sourcePivotLocal||[0,0,0]);if(mode==="ground")return new THREE.Vector3(0,-a.half,0);if(mode==="custom"||mode==="custom-surface")return new THREE.Vector3().fromArray(config.localPosition||a.calibration.pivotLocal||[0,0,0]);return new THREE.Vector3(0,0,0)}
+  function v36DWorldDeltaToLocal(parent,delta){if(!parent)return delta;const q=parent.getWorldQuaternion(new THREE.Quaternion()).invert(),scale=parent.getWorldScale(new THREE.Vector3());return delta.applyQuaternion(q).set(delta.x/Math.max(.000001,scale.x),delta.y/Math.max(.000001,scale.y),delta.z/Math.max(.000001,scale.z))}
+  function setSecondaryPivot(id,config){const a=secondaryAssets.get(id);if(!a||a.calibration.locked)return null;config=config||{};a.root.updateMatrixWorld(true);a.normalizationRoot.updateMatrixWorld(true);const before=a.normalizationRoot.getWorldPosition(new THREE.Vector3()),next=v36DSecondaryPivotLocal(a,config);if(![next.x,next.y,next.z].every(Number.isFinite))return{ok:false,code:"PIVOT_NON_FINITE",state:secondaryCalibrationState(id)};a.pivotLocal.copy(next);a.pivotRoot.position.copy(next).multiplyScalar(-1);a.root.updateMatrixWorld(true);a.normalizationRoot.updateMatrixWorld(true);const after=a.normalizationRoot.getWorldPosition(new THREE.Vector3());if(config.preserveWorld!==false)a.placementRoot.position.add(v36DWorldDeltaToLocal(a.placementRoot.parent,before.sub(after)));a.calibration=Object.assign({},a.calibration,{pivotMode:String(config.mode||"custom"),pivotLocal:next.toArray(),showPivot:config.showPivot==null?a.calibration.showPivot:!!config.showPivot});return{ok:true,state:secondaryCalibrationState(id)}}
+  function setSecondaryPlacement(id,value){const a=secondaryAssets.get(id);if(!a)return false;const v=Array.isArray(value)?new THREE.Vector3().fromArray(value):new THREE.Vector3(Number(value&&value.x)||0,Number(value&&value.y)||0,Number(value&&value.z)||0);if(![v.x,v.y,v.z].every(Number.isFinite))return false;a.placementRoot.position.copy(v);return secondaryCalibrationState(id)}
+  function setSecondaryDirectTransform(id,patch){const a=secondaryAssets.get(id);if(!a)return null;patch=patch||{};if(Array.isArray(patch.rotation)){const r=patch.rotation;a.directRoot.rotation.set(THREE.MathUtils.degToRad(Number(r[0])||0),THREE.MathUtils.degToRad(Number(r[1])||0),THREE.MathUtils.degToRad(Number(r[2])||0),"YXZ")}if(patch.scale!=null)a.directRoot.scale.setScalar(Math.max(.001,Number(patch.scale)||1));return secondaryCalibrationState(id)}
+  function assetCalibration(id){return id==="hero-primary"?heroCalibrationState():secondaryCalibrationState(id)}
+  function setAssetPivot(id,config){return id==="hero-primary"?setHeroPivot(config):setSecondaryPivot(id,config)}
+  function setAssetPlacement(id,value){return id==="hero-primary"?setHeroPlacement(value):setSecondaryPlacement(id,value)}
+  function setAssetDirectTransform(id,patch){return id==="hero-primary"?setHeroDirectTransform(patch):setSecondaryDirectTransform(id,patch)}
+  function selectAsset(id){if(id==="hero-primary"||secondaryAssets.has(id))v36DSelectedAssetId=id;return v36DSelectedAssetId}
+  function raycastAsset(ndcX,ndcY,assetId){if(assetId==="hero-primary")return Object.assign({assetId:"hero-primary"},raycastHero(ndcX,ndcY)||{});ndcX=Number(ndcX);ndcY=Number(ndcY);if(!Number.isFinite(ndcX)||!Number.isFinite(ndcY))return null;v36DPointer.set(THREE.MathUtils.clamp(ndcX,-1,1),THREE.MathUtils.clamp(ndcY,-1,1));v36DRaycaster.setFromCamera(v36DPointer,cam);const assets=assetId?[secondaryAssets.get(assetId)]:[...secondaryAssets.values()],hits=[];assets.filter(Boolean).forEach(a=>{a.root.updateMatrixWorld(true);const hit=v36DRaycaster.intersectObject(a.importedRoot,true).find(h=>h.object&&h.object.isMesh&&h.object.visible!==false);if(hit)hits.push({a,hit})});if(!assetId){const heroHit=raycastHero(ndcX,ndcY);if(heroHit)hits.push({hero:true,hit:{distance:heroHit.distance},data:Object.assign({assetId:"hero-primary"},heroHit)})}if(!hits.length)return null;hits.sort((x,y)=>x.hit.distance-y.hit.distance);const best=hits[0];if(best.hero)return best.data;const a=best.a,hit=best.hit,local=a.normalizationRoot.worldToLocal(hit.point.clone());let normalWorld=new THREE.Vector3(0,0,1);if(hit.face&&hit.face.normal)normalWorld.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);const q=a.normalizationRoot.getWorldQuaternion(new THREE.Quaternion()).invert(),normalLocal=normalWorld.applyQuaternion(q).normalize();return{assetId:a.id,nodeId:hit.object.uuid,nodeName:hit.object.name||"Unnamed mesh",distance:hit.distance,pointWorld:hit.point.toArray(),localPoint:local.toArray(),localNormal:normalLocal.toArray(),faceIndex:hit.faceIndex==null?null:hit.faceIndex}}
+  function assetWorldMatrix(id){if(id==="hero-primary"){subjectPlacement.updateMatrixWorld(true);heroRoot.updateMatrixWorld(true);return heroRoot.matrixWorld.toArray().slice()}const a=secondaryAssets.get(id);if(!a)return null;a.root.updateMatrixWorld(true);a.normalizationRoot.updateMatrixWorld(true);return a.normalizationRoot.matrixWorld.toArray().slice()}
+  function assetCalibrations(){const out={"hero-primary":heroCalibrationState()};secondaryAssets.forEach((a,id)=>out[id]=secondaryCalibrationState(id));return out}
   function layoutSecondary(){
-    const items=[...secondaryAssets.values()];items.forEach((a,i)=>{const ring=Math.floor(i/6),slot=i%6,count=Math.min(6,items.length-ring*6),ang=(slot/Math.max(1,count))*Math.PI*2+.55;
-      const r=2.15+ring*1.35;a.root.position.set(Math.cos(ang)*r,-heroHalf+a.half,Math.sin(ang)*r-1.25);a.root.rotation.y=-ang+.3});
+    const items=[...secondaryAssets.values()];items.forEach((a,i)=>{const ring=Math.floor(i/6),slot=i%6,count=Math.min(6,items.length-ring*6),ang=(slot/Math.max(1,count))*Math.PI*2+.55,r=2.15+ring*1.35;a.root.position.set(Math.cos(ang)*r,-heroHalf+a.half,Math.sin(ang)*r-1.25);a.root.rotation.y=-ang+.3});
   }
-  function addSecondary(root,clips,meta){
-    if(!root||secondaryAssets.size>=8)return null;prepareImported(root);const bounds=normalizeObject(root,.66),st=objectStats(root),id=(meta&&meta.id)||("sec_"+(++secondarySerial)+"_"+Date.now().toString(36));root.userData.mementoNormalizedScale=Number(root.scale.x)||1;
-    root.name=(meta&&meta.name)||root.name||id;secondaryRoot.add(root);let mixer=null,duration=0;if(clips&&clips.length){mixer=new THREE.AnimationMixer(root);clips.forEach(c=>{mixer.clipAction(c).play();duration=Math.max(duration,c.duration||0)})}
-    secondaryAssets.set(id,{id,root,name:root.name,half:bounds.half,radius:bounds.radius,meshes:st.meshes,triangles:st.triangles,mixer,duration,visible:true,normalizedScale:root.userData.mementoNormalizedScale});layoutSecondary();return {id,name:root.name,meshes:st.meshes,triangles:st.triangles};
+  function addSecondary(importedRoot,clips,meta){
+    if(!importedRoot||secondaryAssets.size>=8)return null;prepareImported(importedRoot);const id=(meta&&meta.id)||("sec_"+(++secondarySerial)+"_"+Date.now().toString(36)),compositionRoot=new THREE.Group(),placementRoot=new THREE.Group(),directRoot=new THREE.Group(),creativeRoot=new THREE.Group(),pivotRoot=new THREE.Group(),normalizationRoot=new THREE.Group();compositionRoot.name="MEMENTO_ASSET_COMPOSITION_"+id;placementRoot.name="MEMENTO_ASSET_PLACEMENT_"+id;directRoot.name="MEMENTO_ASSET_DIRECT_"+id;creativeRoot.name="MEMENTO_ASSET_CREATIVE_"+id;pivotRoot.name="MEMENTO_ASSET_PIVOT_"+id;normalizationRoot.name="MEMENTO_ASSET_NORMALIZATION_"+id;normalizationRoot.add(importedRoot);pivotRoot.add(normalizationRoot);creativeRoot.add(pivotRoot);directRoot.add(creativeRoot);placementRoot.add(directRoot);compositionRoot.add(placementRoot);secondaryRoot.add(compositionRoot);const bounds=v36DNormalizeSecondary(importedRoot,.66,normalizationRoot),st=objectStats(importedRoot),sourcePivot=normalizationRoot.worldToLocal(importedRoot.localToWorld(new THREE.Vector3()));importedRoot.name=(meta&&meta.name)||importedRoot.name||id;let mixer=null,duration=0;if(clips&&clips.length){mixer=new THREE.AnimationMixer(importedRoot);clips.forEach(c=>{mixer.clipAction(c).play();duration=Math.max(duration,c.duration||0)})}const calibration={pivotMode:"bounds-center",pivotLocal:[0,0,0],sourcePivotLocal:sourcePivot.toArray(),placement:[0,0,0],directRotation:[0,0,0],directScale:1,showPivot:true,locked:false,normalization:{unitScale:bounds.unitScale,sourceCenter:bounds.sourceCenter,sourceSize:bounds.sourceSize}};v36DMarkIBLMaterialsDirty();v36DPrepareIBLMaterials();secondaryAssets.set(id,{id,root:compositionRoot,placementRoot,directRoot,creativeRoot,pivotRoot,normalizationRoot,importedRoot,pivotLocal:new THREE.Vector3(),calibration,name:importedRoot.name,half:bounds.half,radius:bounds.radius,meshes:st.meshes,triangles:st.triangles,mixer,duration,visible:true,normalizedScale:1});layoutSecondary();return{id,name:importedRoot.name,meshes:st.meshes,triangles:st.triangles,calibration:secondaryCalibrationState(id)};
   }
-  function removeSecondary(id){const a=secondaryAssets.get(id);if(!a)return false;secondaryRoot.remove(a.root);secondaryAssets.delete(id);disposeImported(a.root);layoutSecondary();return true}
+  function removeSecondary(id){const a=secondaryAssets.get(id);if(!a)return false;secondaryRoot.remove(a.root);secondaryAssets.delete(id);v36DMarkIBLMaterialsDirty();disposeImported(a.importedRoot||a.root);if(v36DSelectedAssetId===id)v36DSelectedAssetId="hero-primary";layoutSecondary();return true}
   function clearSecondary(){[...secondaryAssets.keys()].forEach(removeSecondary)}
   function setSecondaryVisible(id,on){const a=secondaryAssets.get(id);if(!a)return false;a.visible=!!on;a.root.visible=!!on;return true}
 
   const pmrem=new THREE.PMREMGenerator(gl);pmrem.compileEquirectangularShader();
-  let hdriSource=null,hdriRT=null,hdriName="",hdriBackground=false;
-  function setHDRI(tex,name){
-    if(!tex)return false;if(hdriRT)hdriRT.dispose();if(hdriSource)hdriSource.dispose();hdriSource=tex;hdriName=name||"HDRI";
-    tex.mapping=THREE.EquirectangularReflectionMapping;hdriRT=pmrem.fromEquirectangular(tex);scene.environment=hdriRT.texture;scene.background=hdriBackground?hdriSource:null;return true;
-  }
-  function setHDRIBackground(on){hdriBackground=!!on;scene.background=hdriBackground&&hdriSource?hdriSource:null;return hdriBackground}
-  function clearHDRI(){if(hdriRT)hdriRT.dispose();if(hdriSource)hdriSource.dispose();hdriRT=null;hdriSource=null;hdriName="";hdriBackground=false;scene.environment=studioEnv;scene.background=null}
-  function assetState(){return {hero:Object.assign({},heroMeta,{variantId:heroVariantId,animationId:heroAnimationId,animations:[...heroAnimationActions.keys()]}),secondary:[...secondaryAssets.values()].map(a=>({id:a.id,name:a.name,meshes:a.meshes,triangles:a.triangles,visible:a.visible})),hdri:{name:hdriName,loaded:!!hdriSource,background:hdriBackground},visualLook:Object.assign({},visualLookState)}}
+  let hdriSource=null,hdriRT=null,hdriRotationTarget=null,hdriName="";
+  let hdriState={name:"",loaded:false,lightingEnabled:true,backgroundEnabled:false,linkRotation:true,lightingYaw:0,lightingPitch:0,backgroundYaw:0,backgroundPitch:0,lightingIntensity:1,reflectionIntensity:1,backgroundIntensity:1,backgroundExposure:0,backgroundBlur:0,backgroundOffset:0,mirror:false,tint:"#ffffff",authority:"auto",locks:{rotation:false,lighting:false,reflection:false,background:false}};
+  const hdriRotationScene=new THREE.Scene(),hdriRotationCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  const hdriRotationMaterial=new THREE.ShaderMaterial({uniforms:{uMap:{value:null},uYaw:{value:0},uPitch:{value:0},uMirror:{value:0}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}',fragmentShader:'uniform sampler2D uMap;uniform float uYaw;uniform float uPitch;uniform float uMirror;varying vec2 vUv;const float PI=3.141592653589793;mat3 ry(float a){float c=cos(a),s=sin(a);return mat3(c,0.,-s,0.,1.,0.,s,0.,c);}mat3 rx(float a){float c=cos(a),s=sin(a);return mat3(1.,0.,0.,0.,c,s,0.,-s,c);}vec2 uvFromDir(vec3 d){d=normalize(d);return vec2(atan(d.x,d.z)/(2.*PI)+.5,acos(clamp(d.y,-1.,1.))/PI);}void main(){float th=(vUv.x-.5)*2.*PI;float ph=vUv.y*PI;vec3 d=vec3(sin(ph)*sin(th),cos(ph),sin(ph)*cos(th));d=rx(-uPitch)*ry(-uYaw)*d;vec2 uv=uvFromDir(d);if(uMirror>.5)uv.x=1.-uv.x;gl_FragColor=texture2D(uMap,vec2(fract(uv.x),clamp(uv.y,.001,.999)));}'});
+  hdriRotationScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),hdriRotationMaterial));
+  const hdriBackgroundMaterial=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,depthTest:false,toneMapped:true,uniforms:{uMap:{value:null},uYaw:{value:0},uPitch:{value:0},uMirror:{value:0},uIntensity:{value:1},uExposure:{value:0},uBlur:{value:0},uOffset:{value:0},uTint:{value:new THREE.Color(0xffffff)}},vertexShader:'varying vec3 vDir;void main(){vDir=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'uniform sampler2D uMap;uniform float uYaw;uniform float uPitch;uniform float uMirror;uniform float uIntensity;uniform float uExposure;uniform float uBlur;uniform float uOffset;uniform vec3 uTint;varying vec3 vDir;const float PI=3.141592653589793;mat3 ry(float a){float c=cos(a),s=sin(a);return mat3(c,0.,-s,0.,1.,0.,s,0.,c);}mat3 rx(float a){float c=cos(a),s=sin(a);return mat3(1.,0.,0.,0.,c,s,0.,-s,c);}vec2 uvFromDir(vec3 d){d=normalize(d);return vec2(atan(d.x,d.z)/(2.*PI)+.5,acos(clamp(d.y,-1.,1.))/PI);}vec3 smp(vec2 uv){return texture2D(uMap,vec2(fract(uv.x),clamp(uv.y,.001,.999))).rgb;}void main(){vec3 d=rx(-uPitch)*ry(-uYaw)*normalize(vDir);vec2 uv=uvFromDir(d);uv.y=clamp(uv.y+uOffset,.001,.999);if(uMirror>.5)uv.x=1.-uv.x;float b=uBlur*.018;vec3 c=smp(uv);c+=smp(uv+vec2(b,0.));c+=smp(uv-vec2(b,0.));c+=smp(uv+vec2(0.,b*.55));c+=smp(uv-vec2(0.,b*.55));c*=.2;c*=uTint*uIntensity*exp2(uExposure);gl_FragColor=vec4(c,1.);\n#include <tonemapping_fragment>\n#include <encodings_fragment>\n}'});
+  const hdriBackgroundSphere=new THREE.Mesh(new THREE.SphereGeometry(55,48,24),hdriBackgroundMaterial);hdriBackgroundSphere.name="MEMENTO_HDRI_BACKGROUND";hdriBackgroundSphere.renderOrder=-10000;hdriBackgroundSphere.frustumCulled=false;hdriBackgroundSphere.visible=false;scene.add(hdriBackgroundSphere);
+  let v36DIBLMaterials=[],v36DIBLMaterialsDirty=true,v36DLastReflectionFactor=NaN,v36DLastLightingFactor=NaN;
+  function v36DMarkIBLMaterialsDirty(){v36DIBLMaterialsDirty=true;v36DLastReflectionFactor=NaN;v36DLastLightingFactor=NaN}
+  function v36DAllMaterials(){if(!v36DIBLMaterialsDirty)return v36DIBLMaterials;const out=[],seen=new Set(),visit=root=>root&&root.traverse&&root.traverse(o=>{if(!o.isMesh)return;(Array.isArray(o.material)?o.material:[o.material]).filter(Boolean).forEach(m=>{if(!seen.has(m.uuid)){seen.add(m.uuid);out.push(m)}})});visit(heroRoot);visit(secondaryRoot);v36DIBLMaterials=out;v36DIBLMaterialsDirty=false;return out}
+  function v36DPrepareIBLMaterial(material){if(!material||material.userData.mementoV36DIBLPrepared||!(material.isMeshStandardMaterial||material.isMeshPhysicalMaterial))return;material.userData.mementoV36DIBLPrepared=true;material.userData.mementoV36DLightingUniform={value:1};const previous=material.onBeforeCompile;material.onBeforeCompile=function(shader,renderer){if(previous)previous.call(this,shader,renderer);shader.uniforms.mementoHdriLightingIntensity=material.userData.mementoV36DLightingUniform;shader.fragmentShader='uniform float mementoHdriLightingIntensity;\n'+shader.fragmentShader;const chunk=THREE.ShaderChunk&&THREE.ShaderChunk.lights_fragment_maps;if(chunk){const patched=chunk.replace(/iblIrradiance\s*\+=\s*getIBLIrradiance\(\s*geometry\.normal\s*\)\s*;/,'iblIrradiance += getIBLIrradiance( geometry.normal ) * mementoHdriLightingIntensity;');shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',patched)}};const previousKey=material.customProgramCacheKey&&material.customProgramCacheKey.bind(material);material.customProgramCacheKey=function(){return(previousKey?previousKey():"")+"|memento-v36d-ibl-1"};material.needsUpdate=true}
+  function v36DPrepareIBLMaterials(){v36DAllMaterials().forEach(v36DPrepareIBLMaterial)}
+  function v36DApplyReflectionIntensity(){const contribution=v36ALightState&&v36ALightState.environmentContribution||null,manual=hdriState.authority==="manual",active=!!(hdriSource&&hdriState.lightingEnabled),reflectionRig=manual||hdriState.locks&&hdriState.locks.reflection?1:Math.max(0,Number(contribution&&contribution.reflectionIntensity)||1),lightingRig=manual||hdriState.locks&&hdriState.locks.lighting?1:Math.max(0,Number(contribution&&contribution.hdriIntensity)||1),reflectionFactor=active?Math.max(0,Math.min(4,Number(hdriState.reflectionIntensity)||0))*reflectionRig:1,lightingFactor=active?Math.max(0,Math.min(4,Number(hdriState.lightingIntensity)||0))*lightingRig:1;v36DPrepareIBLMaterials();if(reflectionFactor===v36DLastReflectionFactor&&lightingFactor===v36DLastLightingFactor)return;v36DLastReflectionFactor=reflectionFactor;v36DLastLightingFactor=lightingFactor;v36DAllMaterials().forEach(m=>{if("envMapIntensity" in m){if(m.userData.mementoV36DEnvBase==null)m.userData.mementoV36DEnvBase=Number(m.envMapIntensity)||1;m.envMapIntensity=Math.max(0,m.userData.mementoV36DEnvBase*reflectionFactor)}if(m.userData.mementoV36DLightingUniform)m.userData.mementoV36DLightingUniform.value=lightingFactor})}
+  function v36DRegeneratePMREM(){if(!hdriSource)return false;const img=hdriSource.image||{},w=Math.max(256,Math.min(1024,Number(img.width)||1024)),h=Math.max(128,Math.min(512,Number(img.height)||Math.round(w/2)));try{if(hdriRotationTarget)hdriRotationTarget.dispose();hdriRotationTarget=new THREE.WebGLRenderTarget(w,h,{type:THREE.HalfFloatType,format:THREE.RGBAFormat,depthBuffer:false,stencilBuffer:false});hdriRotationMaterial.uniforms.uMap.value=hdriSource;hdriRotationMaterial.uniforms.uYaw.value=THREE.MathUtils.degToRad(Number(hdriState.lightingYaw)||0);hdriRotationMaterial.uniforms.uPitch.value=THREE.MathUtils.degToRad(Number(hdriState.lightingPitch)||0);hdriRotationMaterial.uniforms.uMirror.value=hdriState.mirror?1:0;const previous=gl.getRenderTarget(),auto=gl.autoClear;gl.autoClear=true;gl.setRenderTarget(hdriRotationTarget);gl.clear();gl.render(hdriRotationScene,hdriRotationCamera);gl.setRenderTarget(previous);gl.autoClear=auto;if(hdriRT)hdriRT.dispose();hdriRotationTarget.texture.mapping=THREE.EquirectangularReflectionMapping;hdriRT=pmrem.fromEquirectangular(hdriRotationTarget.texture);return true}catch(error){console.warn("HDRI rotation fallback",error);if(hdriRT)hdriRT.dispose();hdriRT=pmrem.fromEquirectangular(hdriSource);return false}}
+  function v36DApplyHDRIState(){hdriState.name=hdriName;hdriState.loaded=!!hdriSource;const bgYaw=hdriState.linkRotation?hdriState.lightingYaw:hdriState.backgroundYaw,bgPitch=hdriState.linkRotation?hdriState.lightingPitch:hdriState.backgroundPitch;hdriBackgroundMaterial.uniforms.uMap.value=hdriSource;hdriBackgroundMaterial.uniforms.uYaw.value=THREE.MathUtils.degToRad(Number(bgYaw)||0);hdriBackgroundMaterial.uniforms.uPitch.value=THREE.MathUtils.degToRad(Number(bgPitch)||0);hdriBackgroundMaterial.uniforms.uMirror.value=hdriState.mirror?1:0;hdriBackgroundMaterial.uniforms.uIntensity.value=Math.max(0,Math.min(4,Number(hdriState.backgroundIntensity)||0));hdriBackgroundMaterial.uniforms.uExposure.value=Math.max(-6,Math.min(6,Number(hdriState.backgroundExposure)||0));hdriBackgroundMaterial.uniforms.uBlur.value=Math.max(0,Math.min(1,Number(hdriState.backgroundBlur)||0));hdriBackgroundMaterial.uniforms.uOffset.value=Math.max(-.45,Math.min(.45,Number(hdriState.backgroundOffset)||0));hdriBackgroundMaterial.uniforms.uTint.value.set(hdriState.tint||"#ffffff");hdriBackgroundSphere.visible=!!(hdriSource&&hdriState.backgroundEnabled);scene.environment=hdriSource&&hdriState.lightingEnabled&&hdriRT?hdriRT.texture:studioEnv;v36DApplyReflectionIntensity();return hdriStateSnapshot()}
+  function setHDRI(tex,name){if(!tex)return false;if(hdriRT)hdriRT.dispose();if(hdriRotationTarget)hdriRotationTarget.dispose();if(hdriSource)hdriSource.dispose();hdriSource=tex;hdriName=name||"HDRI";tex.mapping=THREE.EquirectangularReflectionMapping;hdriState=Object.assign({},hdriState,{name:hdriName,loaded:true});v36DRegeneratePMREM();v36DApplyHDRIState();return true}
+  function setHDRIState(next,options){next=next||{};const oldYaw=hdriState.lightingYaw,oldPitch=hdriState.lightingPitch,oldMirror=hdriState.mirror;hdriState=Object.assign({},hdriState,next,{locks:Object.assign({},hdriState.locks,next.locks||{})});if(hdriState.linkRotation){if(next.lightingYaw!=null)hdriState.backgroundYaw=Number(next.lightingYaw)||0;if(next.lightingPitch!=null)hdriState.backgroundPitch=Number(next.lightingPitch)||0}const rotationChanged=oldYaw!==hdriState.lightingYaw||oldPitch!==hdriState.lightingPitch||oldMirror!==hdriState.mirror;if(hdriSource&&rotationChanged&&options&&options.commit)v36DRegeneratePMREM();return v36DApplyHDRIState()}
+  function hdriStateSnapshot(){return JSON.parse(JSON.stringify(hdriState))}
+  function setHDRIBackground(on){hdriState.backgroundEnabled=!!on;return v36DApplyHDRIState().backgroundEnabled}
+  function clearHDRI(){if(hdriRT)hdriRT.dispose();if(hdriRotationTarget)hdriRotationTarget.dispose();if(hdriSource)hdriSource.dispose();hdriRT=null;hdriRotationTarget=null;hdriSource=null;hdriName="";hdriState=Object.assign({},hdriState,{name:"",loaded:false,backgroundEnabled:false});hdriBackgroundSphere.visible=false;scene.environment=studioEnv;scene.background=null;return hdriStateSnapshot()}
+  function assetState(){return {hero:Object.assign({},heroMeta,{variantId:heroVariantId,animationId:heroAnimationId,animations:[...heroAnimationActions.keys()],calibration:heroCalibrationState()}),secondary:[...secondaryAssets.values()].map(a=>({id:a.id,name:a.name,meshes:a.meshes,triangles:a.triangles,visible:a.visible,calibration:secondaryCalibrationState(a.id)})),hdri:hdriStateSnapshot(),visualLook:Object.assign({},visualLookState)}}
 
   /* ---- starfield: reads camera movement. Two shells at different depths so
      orbit/truck produce real parallax instead of a flat drift. ---- */
@@ -4640,6 +4707,7 @@ const ENG=(function(){
   grid.visible=false; rig.add(grid);   /* y set per-frame, see applyScene */
   const axesH=new THREE.AxesHelper(1.1); axesH.visible=false; rig.add(axesH);
   const subjWire=new THREE.BoxHelper(subject,0x5c5c61); subjWire.material.transparent=true; subjWire.material.opacity=.42; subjWire.visible=false; scene.add(subjWire);
+  const heroPivotMarker=new THREE.Group();heroPivotMarker.name="MEMENTO_HERO_PIVOT_MARKER";heroPivotMarker.add(new THREE.Mesh(new THREE.SphereGeometry(.055,14,10),new THREE.MeshBasicMaterial({color:0xffffff,depthTest:false})));const heroPivotAxes=new THREE.AxesHelper(.32);heroPivotAxes.material.depthTest=false;heroPivotMarker.add(heroPivotAxes);heroPivotMarker.renderOrder=200;heroPivotMarker.visible=false;scene.add(heroPivotMarker);
 
   /* ---- The camera rig. ONE function decides where the camera is at time t,
      used by the preview, by the dashed path overlay, and by the work-view
@@ -4771,12 +4839,12 @@ const ENG=(function(){
     heroRoot.visible=true;
     if(heroMixer)heroMixer.setTime(heroAnimDuration>0?(t%heroAnimDuration):t);
     secondaryAssets.forEach(a=>{if(a.mixer)a.mixer.setTime(a.duration>0?(t%a.duration):t)});
-    scene.background=forWork?null:(hdriBackground&&hdriSource?hdriSource:null);
+    scene.background=null;hdriBackgroundSphere.visible=!!(!forWork&&hdriSource&&hdriState.backgroundEnabled);
 
     /* ground follows the subject's real size */
     const anyEnv=(p.floor>0.5)||(p.cove>0.5);
     const gy=-(heroHalf*(p.sscale||1)*resolvedWorldScale)-0.02;
-    subject.position.set(0,0,0);
+    subject.position.set(0,0,0);subjectPlacement.updateMatrixWorld(true);heroPivotRoot.updateMatrixWorld(true);const selectedPivot=v36DSelectedAssetId==="hero-primary"?heroPivotRoot:secondaryAssets.get(v36DSelectedAssetId)&&secondaryAssets.get(v36DSelectedAssetId).pivotRoot,selectedCalibration=assetCalibration(v36DSelectedAssetId);if(selectedPivot){selectedPivot.updateMatrixWorld(true);heroPivotMarker.position.copy(selectedPivot.getWorldPosition(new THREE.Vector3()))}heroPivotMarker.visible=!!(forWork&&selectedPivot&&selectedCalibration&&selectedCalibration.showPivot!==false);
     floor.visible=p.floor>0.5&&!forWork; floor.position.y=gy;
     cove.visible=p.cove>0.5&&!forWork; cove.position.y=gy;
     coveGuide.visible=p.cove>0.5&&!!forWork; coveGuide.position.y=gy;
@@ -4812,7 +4880,7 @@ const ENG=(function(){
     amb.intensity=0.55*(1-0.7*p.silh);
     key.intensity=0.42*(1-0.8*p.silh);
     hemi.intensity=.24*(1-.72*p.silh);
-    v36AApplyLightRig(p,t);
+    v36AApplyLightRig(p,t);if(hdriSource&&hdriState.lightingEnabled){const contribution=v36ALightState&&v36ALightState.environmentContribution||null,rigFactor=hdriState.authority==="manual"||hdriState.locks&&hdriState.locks.lighting?1:Math.max(0,Number(contribution&&contribution.hdriIntensity)||1),environmentLight=Math.max(0,Math.min(4,Number(hdriState.lightingIntensity)||0))*rigFactor;ambStudio.intensity+=environmentLight*.28;hemi.intensity+=environmentLight*.18}v36DApplyReflectionIntensity();
 
     /* animated curated rigs: a few meaningful systems instead of a free light
        editor. Every motion is seamless over LOOP seconds. */
@@ -4960,7 +5028,9 @@ const ENG=(function(){
       floor:floor.visible,
       cove:cove.visible,
       coveGuide:coveGuide.visible,
-      contact:contactShadow?contactShadow.visible:false
+      contact:contactShadow?contactShadow.visible:false,
+      hdriBackground:hdriBackgroundSphere.visible,
+      pivotMarker:heroPivotMarker.visible
     };
 
     if(opts.work){
@@ -5010,7 +5080,7 @@ const ENG=(function(){
       }
     }
 
-    cam.aspect=hostAspect; cam.updateProjectionMatrix();
+    cam.aspect=hostAspect; cam.updateProjectionMatrix();hdriBackgroundSphere.position.copy(cam.position);hdriBackgroundSphere.visible=!!(!opts.work&&hdriSource&&hdriState.backgroundEnabled);
     if(!opts.work)gl.toneMappingExposure=saved.exposure*Math.max(.25,Math.min(2.5,Number(visualLookState.exposure)||1));
     gl.setSize(W,H,false);
     gl.render(scene,cam);
@@ -5021,7 +5091,7 @@ const ENG=(function(){
     gl.toneMappingExposure=saved.exposure;
     stars.visible=saved.stars; dust.visible=saved.dust; fxPoints.visible=saved.fx;
     clones.visible=saved.clones; floor.visible=saved.floor; cove.visible=saved.cove;
-    coveGuide.visible=saved.coveGuide;
+    coveGuide.visible=saved.coveGuide;hdriBackgroundSphere.visible=saved.hdriBackground;heroPivotMarker.visible=saved.pivotMarker;
     if(contactShadow) contactShadow.visible=saved.contact;
 
     ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1;
@@ -5072,7 +5142,7 @@ const ENG=(function(){
     const set=v36AState&&v36AState.subjectTransform||{},a=set.start||{worldScale:1,quaternion:[0,0,0,1]},b=set.end||a;let mix=Number(v36AState&&v36AState.previewMix);
     if(!Number.isFinite(mix)){try{mix=Math.max(0,Math.min(1,Number(v13ShotRenderedMix)||Number(v13SeqMix)||1))}catch(_){mix=1}}
     const qa=new THREE.Quaternion().fromArray(a.quaternion||[0,0,0,1]),qb=new THREE.Quaternion().fromArray(b.quaternion||a.quaternion||[0,0,0,1]),q=new THREE.Quaternion();q.slerpQuaternions(qa,qb,mix);
-    return{worldScale:THREE.MathUtils.lerp(Number(a.worldScale)||1,Number(b.worldScale)||1,mix),frameSizeClass:mix<.5?a.frameSizeClass:b.frameSizeClass,quaternion:q.toArray(),yaw:THREE.MathUtils.lerp(Number(a.yaw)||0,Number(b.yaw)||0,mix),pitch:THREE.MathUtils.lerp(Number(a.pitch)||0,Number(b.pitch)||0,mix),roll:THREE.MathUtils.lerp(Number(a.roll)||0,Number(b.roll)||0,mix)}
+    return{worldScale:THREE.MathUtils.lerp(Number(a.worldScale)||1,Number(b.worldScale)||1,mix),frameSizeClass:mix<.5?a.frameSizeClass:b.frameSizeClass,quaternion:q.toArray(),yaw:THREE.MathUtils.lerp(Number(a.yaw)||0,Number(b.yaw)||0,mix),pitch:THREE.MathUtils.lerp(Number(a.pitch)||0,Number(b.pitch)||0,mix),roll:THREE.MathUtils.lerp(Number(a.roll)||0,Number(b.roll)||0,mix),pivotAnchorId:mix<.5?a.pivotAnchorId:b.pivotAnchorId,pivotLocal:heroPivotLocal.toArray()}
   }
   function v36BPreviewMix(){let mix=Number(v36BState&&v36BState.previewMix);try{const live=!!v13ShotPlaying||!!seqTimelinePlaying||!!v21ShotPlaying,seq=Number(v13SeqMix),shot=Number(v13ShotRenderedMix);if(live||!Number.isFinite(mix))mix=Number.isFinite(seq)?seq:Number.isFinite(shot)?shot:1}catch(_){if(!Number.isFinite(mix))mix=1}return THREE.MathUtils.clamp(mix,0,1)}
   function v36BResolvedFocus(r){const fallback=new THREE.Vector3(Number(r&&r.tx)||0,Number(r&&r.ty)||0,Number(r&&r.tz)||0),focus=v36BState&&v36BState.focusState;if(!focus)return fallback;const mix=v36BPreviewMix(),a=focus.start||[fallback.x,fallback.y,fallback.z],b=focus.end||a,weight=THREE.MathUtils.clamp(Number(focus.weight)||0,0,1),target=new THREE.Vector3(THREE.MathUtils.lerp(Number(a[0])||0,Number(b[0])||0,mix),THREE.MathUtils.lerp(Number(a[1])||0,Number(b[1])||0,mix),THREE.MathUtils.lerp(Number(a[2])||0,Number(b[2])||0,mix));return fallback.lerp(target,weight)}
@@ -5089,22 +5159,29 @@ const ENG=(function(){
   function applyV36BState(state){const wasClipping=v36BState&&v36BState.reveal&&v36BState.reveal.mechanism==="clipping-plane";v36BState=v36AClone(state)||null;const clipping=v36BState&&v36BState.reveal&&v36BState.reveal.mechanism==="clipping-plane";if(wasClipping&&!clipping)v36BSetClipping(false);else if(clipping)v36BSetClipping(true);if(!v36BState){v36BOccluder.visible=false;layoutSecondary();secondaryAssets.forEach(a=>{if(/^v36-hero-variant-0[1-5]$/.test(a.id)){a.visible=false;a.root.visible=false}});v36BRendererStateCache={status:"inactive",activeRoots:[],reveal:null,screenSafety:null,worldSafety:null,performance:null}}return v36BRendererSnapshot()}
   function v36BRendererSnapshot(){return v36AClone(Object.assign({},v36BRendererStateCache,{secondary:[...secondaryAssets.values()].map(a=>({id:a.id,name:a.name,visible:a.root.visible,position:a.root.position.toArray(),quaternion:a.root.quaternion.toArray(),scale:a.root.scale.toArray()})),hero:{visible:subject.visible,position:subject.position.toArray(),quaternion:subject.quaternion.toArray(),scale:subject.scale.toArray()},camera:v36ACameraState,contextLost:!!(gl.getContext&&gl.getContext().isContextLost&&gl.getContext().isContextLost())}))}
   function v36AAnchor(id){const manual=v36AState&&Array.isArray(v36AState.anchors)?v36AState.anchors:[],all=manual.concat(v36AFeatureAnchors);return all.find(a=>a.id===id)||all.find(a=>a.id==="visualCenter")||all.find(a=>a.id==="center")||{localPosition:[0,0,0],localNormal:[0,0,1],localRadius:heroRadius*.12}}
-  function v36AAnchorWorld(id,transform){const a=v36AAnchor(id),v=new THREE.Vector3().fromArray(a.localPosition||[0,0,0]),q=new THREE.Quaternion().fromArray(transform.quaternion||[0,0,0,1]);return v.multiplyScalar(Number(transform.worldScale)||1).applyQuaternion(q)}
-  function v36ANormalWorld(id,transform){const a=v36AAnchor(id),v=new THREE.Vector3().fromArray(a.localNormal||[0,0,1]),q=new THREE.Quaternion().fromArray(transform.quaternion||[0,0,0,1]);v.applyQuaternion(q);return v.lengthSq()>.000001?v.normalize():new THREE.Vector3(0,0,1)}
+  function v36AAnchorWorld(id,transform){const a=v36AAnchor(id),v=new THREE.Vector3().fromArray(a.localPosition||[0,0,0]).sub(heroPivotLocal),directQ=heroCalibrationRoot.quaternion,q=new THREE.Quaternion().fromArray(transform.quaternion||[0,0,0,1]);v.multiplyScalar(Number(heroCalibrationRoot.scale.x)||1).applyQuaternion(directQ).multiplyScalar(Number(transform.worldScale)||1).applyQuaternion(q);const placement=subjectPlacement.position.clone(),creative=subject.position.clone();return v.add(placement).add(creative)}
+  function v36ANormalWorld(id,transform){const a=v36AAnchor(id),v=new THREE.Vector3().fromArray(a.localNormal||[0,0,1]),q=new THREE.Quaternion().fromArray(transform.quaternion||[0,0,0,1]);v.applyQuaternion(heroCalibrationRoot.quaternion).applyQuaternion(q);return v.lengthSq()>.000001?v.normalize():new THREE.Vector3(0,0,1)}
   function v36AMixRole(start,end,key,mix,fallback){return THREE.MathUtils.lerp(Number(start&&start.roles&&start.roles[key])||fallback||0,Number(end&&end.roles&&end.roles[key])||fallback||0,mix)}
+  let v36DFixtureOverrides={};
+  function v36DFixtureMap(){return{key:keyL,fill:fillL,rim:rimA,accent:rimB,top:topL,bounce:underL,glow:backL2}}
+  function v36DColorFromTemperature(k){k=Math.max(1000,Math.min(40000,Number(k)||6500))/100;let r,g,b;if(k<=66){r=255;g=99.4708025861*Math.log(k)-161.1195681661;b=k<=19?0:138.5177312231*Math.log(k-10)-305.0447927307}else{r=329.698727446*Math.pow(k-60,-.1332047592);g=288.1221695283*Math.pow(k-60,-.0755148492);b=255}return new THREE.Color(Math.max(0,Math.min(255,r))/255,Math.max(0,Math.min(255,g))/255,Math.max(0,Math.min(255,b))/255)}
+  function v36DApplyFixtureOverrides(){const map=v36DFixtureMap();Object.entries(v36DFixtureOverrides).forEach(([role,o])=>{const light=map[role];if(!light||!o)return;if(o.enabled===false){light.intensity=0;return}if(o.intensity!=null)light.intensity=Math.max(0,Math.min(30,Number(o.intensity)||0));if(o.temperatureK!=null)light.color.copy(v36DColorFromTemperature(o.temperatureK));if(o.color)light.color.set(o.color);if(o.tint){const tint=new THREE.Color(o.tint);light.color.lerp(tint,Math.max(0,Math.min(1,Number(o.tintMix)||.22)))}if(o.azimuth!=null||o.elevation!=null||o.distance!=null){const az=THREE.MathUtils.degToRad(Number(o.azimuth)||0),el=THREE.MathUtils.degToRad(Number(o.elevation)||25),dist=Math.max(.25,Number(o.distance)||4);light.position.set(Math.cos(el)*Math.sin(az)*dist,Math.sin(el)*dist,Math.cos(el)*Math.cos(az)*dist)}})}
+  function setLightFixtureOverride(role,values){if(!v36DFixtureMap()[role])return null;v36DFixtureOverrides[role]=Object.assign({},v36DFixtureOverrides[role]||{},values||{});v36DApplyFixtureOverrides();return lightFixtureState()}
+  function clearLightFixtureOverrides(role){if(role)delete v36DFixtureOverrides[role];else v36DFixtureOverrides={};return lightFixtureState()}
+  function lightFixtureState(){const map=v36DFixtureMap(),out={};Object.entries(map).forEach(([role,light])=>out[role]={enabled:light.intensity>0,intensity:light.intensity,color:"#"+light.color.getHexString(),position:light.position.toArray(),override:v36AClone(v36DFixtureOverrides[role]||{})});return{fixtures:out,overrides:v36AClone(v36DFixtureOverrides)}}
   function v36AApplyLightRig(p,time){
     const light=v36AState&&v36AState.lightRig;if(!light)return;const a=light.start||light.resolved,b=light.end||light.resolved||a;if(!a||!b)return;let mix=Number(v36AState.previewMix);if(!Number.isFinite(mix)){try{mix=Math.max(0,Math.min(1,Number(v13ShotRenderedMix)||Number(v13SeqMix)||1))}catch(_){mix=1}}
     const keyI=v36AMixRole(a,b,"key",mix,.7),fillI=v36AMixRole(a,b,"fill",mix,.3),rimI=v36AMixRole(a,b,"rim",mix,.4),topI=v36AMixRole(a,b,"top",mix,.15),bounceI=v36AMixRole(a,b,"bounce",mix,.12),glowI=v36AMixRole(a,b,"glow",mix,.08),accentI=v36AMixRole(a,b,"accents",mix,.12),soft=THREE.MathUtils.lerp(Number(a.shadowSoftness)||.5,Number(b.shadowSoftness)||.5,mix),contrast=THREE.MathUtils.lerp(Number(a.contrast)||.5,Number(b.contrast)||.5,mix);
-    keyL.intensity=keyI*2.6;fillL.intensity=fillI*1.9;rimA.intensity=rimI*3.4;rimB.intensity=accentI*2.4;topL.intensity=topI*2.1;underL.intensity=bounceI*1.8;backL2.intensity=glowI*3.0;ambStudio.intensity=Math.max(.02,(1-contrast)*.42);hemi.intensity=Math.max(.025,(1-contrast)*.3);
+    keyL.intensity=keyI*2.6;fillL.intensity=fillI*1.9;rimA.intensity=rimI*3.4;rimB.intensity=accentI*2.4;topL.intensity=topI*2.1;underL.intensity=bounceI*1.8;backL2.intensity=glowI*3.0;ambStudio.intensity=Math.max(.02,(1-contrast)*.42);hemi.intensity=Math.max(.025,(1-contrast)*.3);v36DHDRIAmbientBase={amb:ambStudio.intensity,hemi:hemi.intensity};
     const cool=(b.toneTags||[]).includes("cool"),warm=(b.toneTags||[]).includes("warm");keyL.color.set(warm?0xffe1cf:cool?0xd8e8ff:0xfff0e6);fillL.color.set(cool?0xabc9ff:0xd7ddff);rimA.color.set(cool?0x80b9ff:warm?0xff9b72:0xff7950);topL.color.set(warm?0xffd8c2:0xe8f2ff);
     keyL.position.set(-2.8,2.4,3.4);fillL.position.set(3.1,.8,2.4);rimA.position.set(3.2,1.35,-2.3);rimB.position.set(-3.0,.9,-2.0);topL.position.set(0,5,.7);backL2.position.set(.5,2.7,-3.6);
-    if(contactShadow)contactShadow.material.opacity=THREE.MathUtils.lerp(.78,.28,soft);
-    v36ALightState={rigId:mix<.5?a.id:b.id,key:keyL.intensity,fill:fillL.intensity,rim:rimA.intensity,top:topL.intensity,bounce:underL.intensity,glow:backL2.intensity,accents:rimB.intensity,shadowSoftness:soft,contrast,specularFeel:mix<.5?a.specularFeel:b.specularFeel,environmentContribution:mix<.5?a.environmentContribution:b.environmentContribution,fixtureObjectsReused:true,at:Number(time)||0}
+    if(contactShadow)contactShadow.material.opacity=THREE.MathUtils.lerp(.78,.28,soft);v36DApplyFixtureOverrides();
+    v36ALightState={rigId:mix<.5?a.id:b.id,key:keyL.intensity,fill:fillL.intensity,rim:rimA.intensity,top:topL.intensity,bounce:underL.intensity,glow:backL2.intensity,accents:rimB.intensity,shadowSoftness:soft,contrast,specularFeel:mix<.5?a.specularFeel:b.specularFeel,environmentContribution:mix<.5?a.environmentContribution:b.environmentContribution,fixtureObjectsReused:true,fixtureOverrides:v36AClone(v36DFixtureOverrides),at:Number(time)||0}
   }
   function applyV36AState(state){v36AState=v36AClone(state)||null;if(v36AState&&v36AState.camera&&v36AState.camera.diagnostics&&v36AState.camera.diagnostics.length)v36ACameraState.lastRepair=v36AState.camera.diagnostics[v36AState.camera.diagnostics.length-1].code||null;return v36RendererState()}
-  function v36RendererState(){const tr=v36AInterpolatedTransform();return{subjectTransform:tr,subjectMatrix:subject.matrix.toArray(),subjectScale:subject.scale.toArray(),camera:v36AClone(v36ACameraState),lightRig:v36AClone(v36ALightState),anchors:v36AFeatureAnchors.length,heroBounds:{radius:heroRadius,half:heroHalf},contextLost:!!(gl.getContext&&gl.getContext().isContextLost&&gl.getContext().isContextLost())}}
+  function v36RendererState(){const tr=v36AInterpolatedTransform(),directScale=Number(heroCalibrationRoot.scale.x)||1;return{subjectTransform:tr,subjectMatrix:subject.matrix.toArray(),subjectScale:subject.scale.toArray(),subjectPlacement:subjectPlacement.position.toArray(),assetCalibration:heroCalibrationState(),pivot:heroCalibrationState(),hdri:hdriStateSnapshot(),camera:v36AClone(v36ACameraState),lightRig:v36AClone(v36ALightState),anchors:v36AFeatureAnchors.length,heroBounds:{radius:heroRadius*directScale,half:heroHalf*directScale},contextLost:!!(gl.getContext&&gl.getContext().isContextLost&&gl.getContext().isContextLost())}}
   v36ARefreshFeatureAnchors(defaultHero,true);
-  return {renderTo:renderTo,setHeroObject:setHeroObject,resetHeroObject:resetHeroObject,setHeroVariant:setHeroVariant,setHeroAnimation:setHeroAnimation,setVisualLook:setVisualLook,addSecondary:addSecondary,removeSecondary:removeSecondary,clearSecondary:clearSecondary,setSecondaryVisible:setSecondaryVisible,setHDRI:setHDRI,setHDRIBackground:setHDRIBackground,clearHDRI:clearHDRI,assetState:assetState,applyV36AState:applyV36AState,featureAnchors:()=>v36AClone(v36AFeatureAnchors),cameraSafety:()=>v36AClone(v36ACameraState),v36RendererState:v36RendererState,heroBounds:()=>({radius:heroRadius,half:heroHalf}),applyV36BState:applyV36BState,v36BRendererState:v36BRendererSnapshot};
+  return {renderTo:renderTo,setHeroObject:setHeroObject,resetHeroObject:resetHeroObject,setHeroVariant:setHeroVariant,setHeroAnimation:setHeroAnimation,setVisualLook:setVisualLook,addSecondary:addSecondary,removeSecondary:removeSecondary,clearSecondary:clearSecondary,setSecondaryVisible:setSecondaryVisible,setHDRI:setHDRI,setHDRIState:setHDRIState,hdriState:hdriStateSnapshot,setHDRIBackground:setHDRIBackground,clearHDRI:clearHDRI,assetState:assetState,setHeroPivot:setHeroPivot,heroCalibration:heroCalibrationState,setHeroPivotVisible:setHeroPivotVisible,setHeroPlacement:setHeroPlacement,raycastHero:raycastHero,heroWorldMatrix:()=>assetWorldMatrix("hero-primary"),assetCalibration:assetCalibration,assetCalibrations:assetCalibrations,setAssetPivot:setAssetPivot,setAssetPlacement:setAssetPlacement,setAssetDirectTransform:setAssetDirectTransform,raycastAsset:raycastAsset,assetWorldMatrix:assetWorldMatrix,selectAsset:selectAsset,selectedAsset:()=>v36DSelectedAssetId,setLightFixtureOverride:setLightFixtureOverride,clearLightFixtureOverrides:clearLightFixtureOverrides,lightFixtureState:lightFixtureState,applyV36AState:applyV36AState,featureAnchors:()=>v36AClone(v36AFeatureAnchors),cameraSafety:()=>v36AClone(v36ACameraState),v36RendererState:v36RendererState,heroBounds:()=>{const scale=Number(heroCalibrationRoot.scale.x)||1;return{radius:heroRadius*scale,half:heroHalf*scale}},applyV36BState:applyV36BState,v36BRendererState:v36BRendererSnapshot};
 })();
 
 "use strict";
@@ -12485,7 +12562,7 @@ function v36CEntryGate(){const it=v36CActiveShot(false),camera=ENG&&ENG.cameraSa
 function v36CRefreshEntryGate(force){const it=v36CActiveShot(false),camera=ENG&&ENG.cameraSafety?ENG.cameraSafety():null,signature=[it&&it.uid||"none",v36CSlotReady("hero-primary"),typeof v36BAvailableVariantSlots==="function"?v36BAvailableVariantSlots().length:0,camera&&camera.finite,camera&&!!camera.lastKnownGood,document.body.dataset.v36bApiReady].join("|");if(force||signature!==v36CEntryGateSignature){v36CEntryGateSignature=signature;V36C_ENTRY_GATE=v36CEntryGate()}if(V36C_ENTRY_GATE.pass&&v36CCommandSerial===0)v36CStableDOM={player:document.querySelector(".shot-player-rig"),timeline:document.querySelector(".timeline-editor"),transport:document.getElementById("seqProjectTransportV21")};return V36C_ENTRY_GATE}
 let V36C_ENTRY_GATE={build:V36B_BUILD,requiredTests:35,total:0,passed:0,pass:false,cameraFinite:false,cameraRollback:false,heroHoldReadable:false,realPrimary:false,realVariantCount:0,stableDOM:false};
 
-function v36CCompatibility(presetOrId,it,state){const preset=typeof presetOrId==="string"?V36C_PRESET_MAP.get(presetOrId):presetOrId;it=it||v36CActiveShot(false);state=state||it&&v36CEnsureShotState(it);const diagnostics=[],duration=v36CDuration(it),aspect=v36BAspectId(),performance=typeof v36BPerformanceBudget==="function"?v36BPerformanceBudget():{tier:"unknown",maxVariants:0},camera=ENG&&ENG.cameraSafety?ENG.cameraSafety():null,variantCount=typeof v36BAvailableVariantSlots==="function"?v36BAvailableVariantSlots().length:0,caps=new Set((v34Hero()&&v34Hero().capabilities)||[]);let score=100,blocked=false;if(!preset)return{presetId:null,status:"blocked",score:0,compatible:false,diagnostics:[{severity:"error",code:"PRESET_NOT_FOUND",message:"The requested Shot Preset does not exist in the native registry."}]};const composition=V36B_COMPOSITION_PATTERN_MAP.get(preset.compositionPatternId),reveal=V36B_REVEAL_PATTERN_MAP.get(preset.revealPatternId),rig=V36A_LIGHT_RIG_MAP.get(preset.lightRigId);if(!composition||!reveal||!rig){blocked=true;score=0;diagnostics.push({severity:"error",code:"PRESET_REGISTRY_REFERENCE_MISSING",message:"Preset references a missing V36A/V36B registry entry."})}if(!v36CSlotReady("hero-primary")){blocked=true;score=0;diagnostics.push({severity:"error",code:"HERO_PRIMARY_SLOT_EMPTY",message:"Assign a real Hero Primary GLB before applying a Shot Preset."})}const requiredVariants=Math.max(Number(preset.minVariants)||0,composition?Math.max(0,composition.minElements-1):0);if(variantCount<requiredVariants){blocked=true;score-=55;diagnostics.push({severity:"warning",code:"PRESET_VARIANT_REQUIREMENT_UNMET",requested:requiredVariants,resolved:variantCount,message:"Preset requires "+requiredVariants+" assigned Hero Variant slot"+(requiredVariants===1?".":"s.")})}for(const slotId of preset.requiredSlots||[])if(!v36CSlotReady(slotId)){blocked=true;score-=50;diagnostics.push({severity:"warning",code:"PRESET_REQUIRED_SLOT_EMPTY",requested:slotId,resolved:null,message:"Preset requires the "+slotId+" asset socket; an explicit fallback will be used."})}const missingCaps=(preset.requiredCapabilities||[]).filter(cap=>!caps.has(cap)).concat(composition?(composition.requiredCapabilities||[]).filter(cap=>!caps.has(cap)):[],reveal?(reveal.requiredCapabilities||[]).filter(cap=>!caps.has(cap)):[]);if(missingCaps.length){blocked=true;score-=60;diagnostics.push({severity:"warning",code:"PRESET_CAPABILITY_REQUIREMENT_UNMET",requested:[...new Set(missingCaps)],resolved:null,message:"Required model capability is unavailable; the preset cannot be applied as authored."})}if(preset.generationEligibility!=="default"&&!state?.preset?.advancedEnabled){blocked=true;score-=45;diagnostics.push({severity:"warning",code:"ADVANCED_PRESET_GATE_REQUIRED",requested:preset.id,resolved:null,message:"Enable Advanced presets to apply this override-only Shot Preset."})}if(reveal&&reveal.generationEligibility==="forbidden"){blocked=true;score=0;diagnostics.push({severity:"error",code:"FORBIDDEN_REVEAL_EXCLUDED",requested:reveal.id,resolved:null,message:"A forbidden V36B reveal cannot be selected by the Shot Preset Engine."})}if(!preset.aspects.includes(aspect)){score-=14;diagnostics.push({severity:"warning",code:"PRESET_ASPECT_ADAPTED",requested:preset.aspects,resolved:aspect,message:"V36B authored aspect adaptation will repair the preset for "+aspect+"."})}if(duration.seconds<preset.duration[0]||duration.seconds>preset.duration[1]){score-=Math.min(24,Math.round(Math.abs(duration.seconds-preset.idealDuration)*4));diagnostics.push({severity:"warning",code:"PRESET_DURATION_ADAPTED",requested:preset.duration,resolved:Number(duration.seconds.toFixed(3)),message:"Five reveal phases will be retimed inside the existing clip duration; clip geometry is unchanged."})}if(requiredVariants>Number(performance.maxVariants||0)){blocked=true;score-=35;diagnostics.push({severity:"warning",code:"PRESET_PERFORMANCE_BUDGET_EXCEEDED",message:"The current performance tier cannot keep the authored Variant count; a simpler preset will be used."})}if(!camera||!camera.finite||!camera.lastKnownGood){blocked=true;score=0;diagnostics.push({severity:"error",code:"V36A_CAMERA_SAFETY_UNAVAILABLE",message:"V36A camera safety has no finite rollback state. Preset application is blocked."})}const a=it&&v36AEnsureShotState(it),b=it&&v36BEnsureShotState(it);if(a&&a.locks.lightRig)diagnostics.push({severity:"info",code:"LIGHT_RIG_LOCK_PRESERVED",message:"The authored Light Rig is locked and will not be overwritten."});if(b&&b.composition.locks.pattern)diagnostics.push({severity:"info",code:"COMPOSITION_LOCK_PRESERVED",message:"The composition pattern lock remains authoritative."});if(b&&b.revealPlan.locks.pattern)diagnostics.push({severity:"info",code:"REVEAL_LOCK_PRESERVED",message:"The reveal pattern lock remains authoritative."});score=Math.max(0,Math.min(100,Math.round(score)));return{presetId:preset.id,status:blocked?"blocked":diagnostics.some(x=>x.severity==="warning")?"adapted":"ready",score,compatible:!blocked,aspect,duration,variantCount,requiredVariants,performanceTier:performance.tier,cameraFinite:!!(camera&&camera.finite),diagnostics}}
+function v36CCompatibility(presetOrId,it,state){const preset=typeof presetOrId==="string"?V36C_PRESET_MAP.get(presetOrId):presetOrId;it=it||v36CActiveShot(false);state=state||it&&v36CEnsureShotState(it);const diagnostics=[],duration=v36CDuration(it),aspect=v36BAspectId(),performance=typeof v36BPerformanceBudget==="function"?v36BPerformanceBudget():{tier:"unknown",maxVariants:0},camera=ENG&&ENG.cameraSafety?ENG.cameraSafety():null,variantCount=typeof v36BAvailableVariantSlots==="function"?v36BAvailableVariantSlots().length:0,caps=new Set((v34Hero()&&v34Hero().capabilities)||[]);let score=100,blocked=false;if(!preset)return{presetId:null,status:"blocked",score:0,compatible:false,diagnostics:[{severity:"error",code:"PRESET_NOT_FOUND",message:"The requested Shot Preset does not exist in the native registry."}]};const composition=V36B_COMPOSITION_PATTERN_MAP.get(preset.compositionPatternId),reveal=V36B_REVEAL_PATTERN_MAP.get(preset.revealPatternId),rig=V36A_LIGHT_RIG_MAP.get(preset.lightRigId);if(!composition||!reveal||!rig){blocked=true;score=0;diagnostics.push({severity:"error",code:"PRESET_REGISTRY_REFERENCE_MISSING",message:"Preset references a missing V36A/V36B registry entry."})}if(!v36CSlotReady("hero-primary")){score-=12;diagnostics.push({severity:"info",code:"PROXY_HERO_PREVIEW",message:"Preset is previewing on the built-in proxy. Assign Hero Primary to validate asset-specific compatibility."})}const requiredVariants=Math.max(Number(preset.minVariants)||0,composition?Math.max(0,composition.minElements-1):0);if(variantCount<requiredVariants){blocked=true;score-=55;diagnostics.push({severity:"warning",code:"PRESET_VARIANT_REQUIREMENT_UNMET",requested:requiredVariants,resolved:variantCount,message:"Preset requires "+requiredVariants+" assigned Hero Variant slot"+(requiredVariants===1?".":"s.")})}for(const slotId of preset.requiredSlots||[])if(!v36CSlotReady(slotId)){blocked=true;score-=50;diagnostics.push({severity:"warning",code:"PRESET_REQUIRED_SLOT_EMPTY",requested:slotId,resolved:null,message:"Preset requires the "+slotId+" asset socket; an explicit fallback will be used."})}const missingCaps=(preset.requiredCapabilities||[]).filter(cap=>!caps.has(cap)).concat(composition?(composition.requiredCapabilities||[]).filter(cap=>!caps.has(cap)):[],reveal?(reveal.requiredCapabilities||[]).filter(cap=>!caps.has(cap)):[]);if(missingCaps.length){blocked=true;score-=60;diagnostics.push({severity:"warning",code:"PRESET_CAPABILITY_REQUIREMENT_UNMET",requested:[...new Set(missingCaps)],resolved:null,message:"Required model capability is unavailable; the preset cannot be applied as authored."})}if(preset.generationEligibility!=="default"&&!state?.preset?.advancedEnabled){blocked=true;score-=45;diagnostics.push({severity:"warning",code:"ADVANCED_PRESET_GATE_REQUIRED",requested:preset.id,resolved:null,message:"Enable Advanced presets to apply this override-only Shot Preset."})}if(reveal&&reveal.generationEligibility==="forbidden"){blocked=true;score=0;diagnostics.push({severity:"error",code:"FORBIDDEN_REVEAL_EXCLUDED",requested:reveal.id,resolved:null,message:"A forbidden V36B reveal cannot be selected by the Shot Preset Engine."})}if(!preset.aspects.includes(aspect)){score-=14;diagnostics.push({severity:"warning",code:"PRESET_ASPECT_ADAPTED",requested:preset.aspects,resolved:aspect,message:"V36B authored aspect adaptation will repair the preset for "+aspect+"."})}if(duration.seconds<preset.duration[0]||duration.seconds>preset.duration[1]){score-=Math.min(24,Math.round(Math.abs(duration.seconds-preset.idealDuration)*4));diagnostics.push({severity:"warning",code:"PRESET_DURATION_ADAPTED",requested:preset.duration,resolved:Number(duration.seconds.toFixed(3)),message:"Five reveal phases will be retimed inside the existing clip duration; clip geometry is unchanged."})}if(requiredVariants>Number(performance.maxVariants||0)){blocked=true;score-=35;diagnostics.push({severity:"warning",code:"PRESET_PERFORMANCE_BUDGET_EXCEEDED",message:"The current performance tier cannot keep the authored Variant count; a simpler preset will be used."})}if(!camera||!camera.finite||!camera.lastKnownGood){blocked=true;score=0;diagnostics.push({severity:"error",code:"V36A_CAMERA_SAFETY_UNAVAILABLE",message:"V36A camera safety has no finite rollback state. Preset application is blocked."})}const a=it&&v36AEnsureShotState(it),b=it&&v36BEnsureShotState(it);if(a&&a.locks.lightRig)diagnostics.push({severity:"info",code:"LIGHT_RIG_LOCK_PRESERVED",message:"The authored Light Rig is locked and will not be overwritten."});if(b&&b.composition.locks.pattern)diagnostics.push({severity:"info",code:"COMPOSITION_LOCK_PRESERVED",message:"The composition pattern lock remains authoritative."});if(b&&b.revealPlan.locks.pattern)diagnostics.push({severity:"info",code:"REVEAL_LOCK_PRESERVED",message:"The reveal pattern lock remains authoritative."});score=Math.max(0,Math.min(100,Math.round(score)));return{presetId:preset.id,status:blocked?"blocked":diagnostics.some(x=>x.severity==="warning")?"adapted":"ready",score,compatible:!blocked,aspect,duration,variantCount,requiredVariants,performanceTier:performance.tier,cameraFinite:!!(camera&&camera.finite),diagnostics}}
 function v36CResolvePreset(requestedId,it,state){const requested=V36C_PRESET_MAP.get(requestedId)||V36C_SHOT_PRESET_REGISTRY[0],requestedCompatibility=v36CCompatibility(requested,it,state),diagnostics=[...requestedCompatibility.diagnostics];if(requestedCompatibility.compatible)return{requested,resolved:requested,compatibility:requestedCompatibility,diagnostics};const candidates=[...(requested.fallbacks||[]),...V36C_DEFAULT_PRESET_IDS.filter(id=>id!==requested.id)],seen=new Set();for(const id of candidates){if(seen.has(id))continue;seen.add(id);const candidate=V36C_PRESET_MAP.get(id),compatibility=candidate&&v36CCompatibility(candidate,it,state);if(candidate&&compatibility.compatible){diagnostics.push({severity:"warning",code:"SHOT_PRESET_FALLBACK_APPLIED",requested:requested.id,resolved:candidate.id,message:"Requested preset was incompatible; "+candidate.title+" was applied through the same V36A/V36B sources of truth."});return{requested,resolved:candidate,compatibility,diagnostics}}}diagnostics.push({severity:"error",code:"SHOT_PRESET_APPLICATION_BLOCKED",requested:requested.id,resolved:null,message:"No compatible preset fallback is available. Existing composition state was preserved."});return{requested,resolved:null,compatibility:requestedCompatibility,diagnostics}}
 function v36CPreserveLockedElements(previous,state){const prior=new Map((previous||[]).map(element=>[element.id,element]));for(const element of state.elements){const old=prior.get(element.id);if(!old)continue;element.locked=!!old.locked;element.lockedChannels=v36CClone(old.lockedChannels||[]);if(element.locked){element.start=v36CClone(old.start);element.end=v36CClone(old.end);element.pivotAnchorId=old.pivotAnchorId;continue}for(const channel of element.lockedChannels){if(channel==="frame-anchor"){element.start.frameAnchor=v36CClone(old.start.frameAnchor);element.end.frameAnchor=v36CClone(old.end.frameAnchor)}else if(channel==="frame-scale"){element.start.frameScale=old.start.frameScale;element.end.frameScale=old.end.frameScale}else if(channel==="depth"){element.start.worldPosition[2]=old.start.worldPosition[2];element.end.worldPosition[2]=old.end.worldPosition[2]}else if(channel==="world-transform"){for(const side of ["start","end"]){element[side].worldPosition=v36CClone(old[side].worldPosition);element[side].worldScale=old[side].worldScale;element[side].quaternion=v36CClone(old[side].quaternion)}}else if(channel==="visibility"){element.start.visible=old.start.visible;element.end.visible=old.end.visible}}}}
 function v36CPresetSeed(it,state,label){const meta=v34ClipMeta(it),seed=String(meta.seed||it.seed||v34State.projectSeed),iteration=Number(state.preset.iteration)||0;return v34Hash(seed+"|v36c|"+iteration+"|"+label)}
@@ -12541,6 +12618,306 @@ v36AInstall=function(){const result=__v36AInstallV36C();if(document.body.dataset
 try{window.__mementoV36C=v36CPublicAPI();document.documentElement.dataset.v36cBoot="api-ready"}catch(error){window.__mementoV36CError=String(error&&error.stack||error);document.documentElement.dataset.v36cBoot="api-error"}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",v36CInstall,{once:true});else v36CInstall();window.addEventListener("load",v36CInstall,{once:true});[180,480,980].forEach(delay=>setTimeout(v36CInstall,delay));
 
+
+
+
+
+/* ================= MEMENTO V36D · CORE EXPERIENCE RESET ================= */
+(function(){
+"use strict";
+const V36D_BUILD="v36d-core-experience-reset",V36D_SCHEMA="36D.1";
+const v36DClone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+const v36DSafe=(fn,fallback)=>{try{return fn()}catch(error){console.warn("V36D",error);return fallback}};
+const v36DDefaults={
+  schemaVersion:V36D_SCHEMA,advanced:false,pair:"render",tool:"orbit",side:"both",family:"hero",selectedSlot:"hero-primary",selectedNode:null,
+  pivot:{mode:"bounds-center",anchorId:"visualCenter",localPosition:[0,0,0]},assetCalibrations:{},
+  hdri:null,fixtureOverrides:{},development:false,diagnostics:[]
+};
+let v36DState=Object.assign({},v36DDefaults),v36DMounted=false,v36DInstalling=false,v36DSyncQueued=false,v36DGesture=null,v36DViewportGesture=null;
+const v36DInputHistory=new WeakMap();
+const v36DStable={player:null,timeline:null,transport:null};
+
+function v36DReadPersisted(){
+  const data=v36DSafe(()=>JSON.parse(localStorage.getItem(PROJECT_KEY)||localStorage.getItem(LEGACY_PROJECT_KEY)||"null"),null),saved=data&&data.v36D&&data.v36D.state;
+  if(saved)v36DState=Object.assign({},v36DDefaults,saved,{pivot:Object.assign({},v36DDefaults.pivot,saved.pivot||{}),assetCalibrations:Object.assign({},saved.assetCalibrations||{}),fixtureOverrides:Object.assign({},saved.fixtureOverrides||{})});
+  return v36DState
+}
+function v36DIdentity(){
+  if(!document.body)return;document.body.dataset.mementoBuild=V36D_BUILD;document.body.dataset.v36dReady="true";document.body.classList.add("memento-v36a","memento-v36b","memento-v36c","memento-v36d");
+  document.body.classList.toggle("v36d-advanced",!!v36DState.advanced);document.body.classList.toggle("v36d-development",!!v36DState.development);
+  [...document.body.classList].filter(x=>x.indexOf("v36d-tool-")===0).forEach(x=>document.body.classList.remove(x));document.body.classList.add("v36d-tool-"+v36DState.tool);
+  document.title="MEMENTO — Pocket Previs · V36D CORE EXPERIENCE";
+  if(window.__mementoV34)Object.assign(window.__mementoV34,{build:V36D_BUILD,version:36.4,v36D:window.__mementoV36D})
+}
+function v36DSlotEngineId(slotId){if(!slotId||slotId==="hero-primary")return"hero-primary";const binding=v36AFoundation&&v36AFoundation.slots&&v36AFoundation.slots[slotId];return binding&&binding.metadata&&binding.metadata.engineId||("v36-"+slotId)}
+function v36DSelectedEngineId(){return v36DSlotEngineId(v36DState.selectedSlot||"hero-primary")}
+function v36DSelectedAssetAvailable(){const slotId=v36DState.selectedSlot||"hero-primary";if(slotId==="hero-primary")return true;const binding=v36AFoundation&&v36AFoundation.slots&&v36AFoundation.slots[slotId],engineId=v36DSlotEngineId(slotId);return!!(binding&&binding.status==="ready"&&ENG&&ENG.assetCalibration&&ENG.assetCalibration(engineId))}
+function v36DBlockEmptyAssetControl(){const status=document.getElementById("v36DAssetStatus");if(status)status.innerHTML='<strong>ASSIGN ASSET FIRST</strong> · '+escapeHTML(String(v36DState.selectedSlot||"selected socket").replace(/[-_]/g," "))+' has no calibratable 3D root yet.';return false}
+function v36DEngineSnapshot(){
+  const pivot=ENG&&ENG.heroCalibration?ENG.heroCalibration():v36DState.pivot,calibrations=ENG&&ENG.assetCalibrations?ENG.assetCalibrations():v36DState.assetCalibrations,hdri=ENG&&ENG.hdriState?ENG.hdriState():v36DState.hdri,fixtures=ENG&&ENG.lightFixtureState?ENG.lightFixtureState():{overrides:v36DState.fixtureOverrides};
+  v36DState.pivot=Object.assign({},v36DState.pivot,pivot||{});v36DState.assetCalibrations=Object.assign({},v36DState.assetCalibrations||{},v36DClone(calibrations)||{});v36DState.hdri=hdri||v36DState.hdri;v36DState.fixtureOverrides=v36DClone(fixtures&&fixtures.overrides||v36DState.fixtureOverrides||{});return{pivot:v36DState.pivot,assetCalibrations:v36DState.assetCalibrations,hdri:v36DState.hdri,fixtureOverrides:v36DState.fixtureOverrides}
+}
+
+/* V36A/B/C remain authoritative services, but their milestone labs are development-only. */
+const v36DOriginalMountA=typeof v36AMountUI==="function"?v36AMountUI:null,
+      v36DOriginalMountB=typeof v36BMountUI==="function"?v36BMountUI:null,
+      v36DOriginalMountC=typeof v36CMountUI==="function"?v36CMountUI:null,
+      v36DOriginalMount35=typeof v35MountPanels==="function"?v35MountPanels:null;
+if(v36DOriginalMountA)v36AMountUI=function(){return document.body&&document.body.classList.contains("v36d-development")?v36DOriginalMountA.apply(this,arguments):null};
+if(v36DOriginalMountB)v36BMountUI=function(){return document.body&&document.body.classList.contains("v36d-development")?v36DOriginalMountB.apply(this,arguments):null};
+if(v36DOriginalMountC)v36CMountUI=function(){return document.body&&document.body.classList.contains("v36d-development")?v36DOriginalMountC.apply(this,arguments):null};
+if(v36DOriginalMount35)v35MountPanels=function(){return document.body&&document.body.classList.contains("v36d-development")?v36DOriginalMount35.apply(this,arguments):null};
+function v36DRemoveMilestoneLabs(){["v34CreativeCore","v36AFoundation","v36BCompositionLab","v36CShotPresetBrowser","v35AxisLab"].forEach(id=>document.getElementById(id)?.remove());document.querySelectorAll("[data-v342-shot-browser],[data-v342-timeline-browser]").forEach(node=>node.remove())}
+
+/* Persist the consolidated experience and calibration state through the canonical project payload. */
+const v36DProjectPayloadBase=projectPayload;
+projectPayload=function(stripImages){const payload=v36DProjectPayloadBase(stripImages);v36DEngineSnapshot();payload.build=V36D_BUILD;payload.v36D={schemaVersion:V36D_SCHEMA,state:v36DClone(v36DState)};return payload};
+const v36DRestoreBase=restoreHistorySnapshot;
+restoreHistorySnapshot=function(raw){const data=v36DSafe(()=>JSON.parse(raw),null),result=v36DRestoreBase(raw);if(data&&data.v36D&&data.v36D.state)v36DState=Object.assign({},v36DDefaults,data.v36D.state,{pivot:Object.assign({},v36DDefaults.pivot,data.v36D.state.pivot||{}),assetCalibrations:Object.assign({},data.v36D.state.assetCalibrations||{})});requestAnimationFrame(()=>{v36DApplyPersistedEngineState();v36DSync()});return result};
+
+function v36DBefore(){return typeof projectSnapshot==="function"?projectSnapshot():JSON.stringify(projectPayload(false))}
+function v36DCommit(before){if(before&&typeof pushHistory==="function")pushHistory(before);if(typeof persistProject==="function")persistProject();v36DQueueSync()}
+function v36DMutate(mutator,before){const snapshot=before||v36DBefore(),result=mutator();v36DEngineSnapshot();v36DCommit(snapshot);return result}
+function v36DActiveShot(create){let it=typeof v34ResolveShotTarget==="function"?v34ResolveShotTarget():null;if(!it&&create&&typeof v34EnsureShotTarget==="function"){const target=v34EnsureShotTarget(null,true);it=target&&target.it}return it}
+function v36DActiveA(){const it=v36DActiveShot(false);return it&&typeof v36AEnsureShotState==="function"?v36AEnsureShotState(it):null}
+function v36DActiveB(){const it=v36DActiveShot(false);return it&&typeof v36BEnsureShotState==="function"?v36BEnsureShotState(it):null}
+function v36DActiveC(){const it=v36DActiveShot(false);return it&&typeof v36CEnsureShotState==="function"?v36CEnsureShotState(it):null}
+function v36DLocalized(value){if(value==null)return"—";if(typeof value==="string")return value;if(typeof value==="object")return value[currentLang&&currentLang()||"en"]||value.en||value.it||value.name||value.id||"—";return String(value)}
+function v36DOption(value,label,selected){return '<option value="'+escapeHTML(String(value))+'"'+(String(value)===String(selected)?' selected':'')+'>'+escapeHTML(String(label))+'</option>'}
+
+function v36DSetPair(pair,clickTab){
+  pair=pair==="viewport"?"viewport":"render";v36DState.pair=pair;const render=pair==="render";
+  if(clickTab){const tab=document.getElementById(render?"cVpPrev":"cVpWork");if(tab&&tab.getAttribute("aria-selected")!=="true")tab.click()}
+  document.getElementById("v36DEditPanel")?.classList.toggle("active",render);document.getElementById("v36DAssetPanel")?.classList.toggle("active",!render);
+  const copy=document.querySelector(".v36d-pair-copy");if(copy){copy.querySelector("span").textContent=render?"RENDER + EDIT":"VIEWPORT + ASSET 3D";copy.querySelector("b").textContent=render?"CINEMATIC DIRECTION":"SCENE & ASSET CALIBRATION"}
+  if(!render&&v36DState.tool==="orbit"){}else if(render)v36DState.tool="orbit";
+  v36DIdentity();return pair
+}
+function v36DSetAdvanced(on){v36DState.advanced=!!on;const state=v36DActiveC();if(state&&state.preset&&state.preset.advancedEnabled!==!!on&&typeof v36CExecuteCommand==="function")v36CExecuteCommand("SET_SHOT_PRESET_ADVANCED_GATE",{target:v36DActiveShot(false),enabled:!!on,history:false});v36DIdentity();v36DRenderNativePresets();v36DSync();if(typeof persistProject==="function")persistProject();return v36DState.advanced}
+function v36DSetTool(tool){const allowed=["orbit","select","move","rotate","scale","pivot","anchor"];v36DState.tool=allowed.includes(tool)?tool:"orbit";if(v36DState.pair!=="viewport")v36DSetPair("viewport",true);v36DIdentity();v36DSync();return v36DState.tool}
+
+const V36D_CORE_FAMILIES=["hero","reveal","motion","detail","technical","graphic","closing"];
+function v36DCoreFamily(p){const id=String(p&&p.id||""),family=String(p&&p.family||"");if(/technical|clipping|scan/i.test(id))return"technical";if(/traverse|parallax|motion|orbit/i.test(id))return"motion";if(/landing|closing|cta|claim/i.test(id))return"closing";if(family==="feature"||/macro|detail|surface/i.test(id))return"detail";if(family==="editorial"||/editorial|graphic|copy/i.test(id))return"graphic";if(family==="variant"||family==="compare"||/variant|lineup|reveal/i.test(id))return"reveal";return"hero"}
+function v36DNativeFamilies(){return V36D_CORE_FAMILIES.slice()}
+function v36DPresetState(){const c=v36DActiveC();return c&&c.preset||null}
+function v36DRenderNativePresets(){
+  const familyHost=document.getElementById("shotTechDial"),presetHost=document.getElementById("shotPresetRail");if(!familyHost||!presetHost)return;
+  const active=v36DPresetState(),activeId=active&&active.resolvedId||active&&active.requestedId||V36C_SHOT_PRESET_REGISTRY[0].id,activePreset=V36C_PRESET_MAP.get(activeId)||V36C_SHOT_PRESET_REGISTRY[0];
+  if(!v36DState.family||!v36DNativeFamilies().includes(v36DState.family))v36DState.family=v36DCoreFamily(activePreset);
+  const families=v36DNativeFamilies();
+  familyHost.innerHTML=families.map(f=>{const count=V36C_SHOT_PRESET_REGISTRY.filter(p=>v36DCoreFamily(p)===f&&(v36DState.advanced||p.generationEligibility==="default")).length;return '<button class="dial-item '+(f===v36DState.family?'active':'')+'" type="button" data-v36d-family="'+escapeHTML(f)+'"><b>'+escapeHTML(f.toUpperCase())+'</b><span>'+count+' PRESET</span></button>'}).join("");
+  const it=v36DActiveShot(false),candidates=V36C_SHOT_PRESET_REGISTRY.filter(p=>v36DCoreFamily(p)===v36DState.family&&(v36DState.advanced||p.generationEligibility==="default"));
+  presetHost.innerHTML=candidates.map(p=>{const comp=typeof v36CCompatibility==="function"?v36CCompatibility(p,it,v36DActiveC()):{compatible:true,status:"ready",score:100},blocked=!comp.compatible,activeCard=p.id===activeId;return '<button class="shot-preset '+(activeCard?'active ':'')+(blocked?'blocked':'')+'" type="button" data-v36d-preset="'+escapeHTML(p.id)+'" title="'+escapeHTML((comp.diagnostics&&comp.diagnostics[0]&&comp.diagnostics[0].message)||p.description)+'"><b>'+escapeHTML(p.title)+'</b><span>'+escapeHTML(p.description)+'</span><small>'+escapeHTML((blocked?'REPAIR / FALLBACK':p.generationEligibility.toUpperCase())+' · '+comp.score)+'</small></button>'}).join("")||'<div class="v36d-dev-status">No preset in this family.</div>';
+}
+function v36DApplyPreset(id){const it=v36DActiveShot(true),preset=V36C_PRESET_MAP.get(id);if(!it||!preset)return null;v36DState.family=v36DCoreFamily(preset);const result=v36CExecuteCommand("APPLY_SHOT_PRESET",{target:it,presetId:id,source:"v36d-core-shot-face"});v36DRenderNativePresets();v36DShowCurrentDiagnostic();return result}
+function v36DVariant(distance){const it=v36DActiveShot(true);if(!it)return null;const type=distance==="bold"?"REROLL_SHOT_PRESET_BOLD":"REROLL_SHOT_PRESET_NEAR",result=v36CExecuteCommand(type,{target:it});v36DRenderNativePresets();v36DShowCurrentDiagnostic();return result}
+function v36DShowCurrentDiagnostic(){const warning=document.getElementById("v36DContextWarning"),state=v36DPresetState(),diag=state&&state.diagnostics&&state.diagnostics.find(d=>d.severity==="error"||d.severity==="warning");if(warning){warning.textContent=diag?diag.message:"";warning.classList.toggle("on",!!diag)}}
+
+function v36DBuildRenderAdvanced(){
+  const root=document.createElement("div");root.id="v36DRenderAdvanced";root.className="v36d-advanced-only";
+  const anchorOptions=(ENG&&ENG.featureAnchors?ENG.featureAnchors():[]).map(a=>v36DOption(a.id,a.name||a.id)).join("");
+  const scaleOptions=V36A_SCALE_REGISTRY.map(x=>v36DOption(x.id,x.label+(x.eligibility==="override-only"?" · OVERRIDE":""))).join("");
+  const patternOptions=V36B_COMPOSITION_PATTERN_REGISTRY.map(x=>v36DOption(x.id,v36DLocalized(x.title)||x.id)).join("");
+  const revealOptions=V36B_REVEAL_PATTERN_REGISTRY.filter(x=>x.generationEligibility!=="forbidden").map(x=>v36DOption(x.id,v36DLocalized(x.title)||x.id)).join("");
+  const rigOptions=V36A_LIGHT_RIG_REGISTRY.map(x=>v36DOption(x.id,x.name)).join("");
+  root.innerHTML='\
+  <details class="v36d-advanced-section" open><summary><span>SHOT OVERRIDES</span><small>AUTO · LOCKED · EXCLUDED · MANUAL</small></summary><div class="v36d-section-body">\
+    <div class="v36d-side-row"><button class="v36d-btn start" data-v36d-side="start">START</button><button class="v36d-btn" data-v36d-side="both">BOTH</button><button class="v36d-btn" data-v36d-side="end">END</button></div>\
+    <div class="v36d-control-grid">\
+      <label class="v36d-field"><span>CAMERA TIER</span><select id="v36DCameraTier">'+V36A_DISTANCE_TIERS.map(x=>v36DOption(x,x==="superMacro"?"SUPER MACRO":x.toUpperCase())).join("")+'</select></label>\
+      <label class="v36d-field"><span>FEATURE TARGET</span><select id="v36DFeatureTarget">'+anchorOptions+'</select></label>\
+      <label class="v36d-field"><span>TARGET COVERAGE <output id="v36DCoverageOut">62%</output></span><input id="v36DCoverage" type="range" min="18" max="96" step="1"></label>\
+      <label class="v36d-field"><span>SIZE IN FRAME</span><select id="v36DFrameSize">'+V36A_SIZE_CLASSES.map(x=>v36DOption(x,x)).join("")+'</select></label>\
+      <label class="v36d-field"><span>WORLD SCALE</span><select id="v36DWorldScale">'+scaleOptions+'</select></label>\
+      <label class="v36d-field"><span>LIGHT MOOD</span><select id="v36DLightRig">'+rigOptions+'</select></label>\
+    </div>\
+    <div class="v36d-control-grid" style="margin-top:6px">'+["yaw","pitch","roll"].map(axis=>'<label class="v36d-field"><span>'+axis.toUpperCase()+' <output id="v36D'+axis+'Out">0°</output></span><input id="v36D'+axis+'" data-v36d-rotation="'+axis+'" type="range" min="'+(axis==="yaw"?-360:-180)+'" max="'+(axis==="yaw"?360:180)+'" step="1"></label>').join("")+'<label class="v36d-field"><span>GENERATION POOL</span><button class="v36d-btn" id="v36DGenerationPolicy" type="button">SAFE DEFAULTS</button></label></div>\
+  </div></details>\
+  <details class="v36d-advanced-section"><summary><span>COMPOSITION & REVEAL</span><small>V36B SERVICE</small></summary><div class="v36d-section-body"><div class="v36d-control-grid">\
+    <label class="v36d-field"><span>HERO LAYOUT</span><select id="v36DCompositionPattern">'+patternOptions+'</select></label>\
+    <label class="v36d-field"><span>REVEAL TYPE</span><select id="v36DRevealPattern">'+revealOptions+'</select></label>\
+    <label class="v36d-field"><span>NEGATIVE SPACE</span><select id="v36DNegativeSpace"><option value="none">NONE</option><option value="left">LEFT</option><option value="right">RIGHT</option><option value="top">TOP</option><option value="bottom">BOTTOM</option></select></label>\
+    <label class="v36d-field"><span>VARIANT BEHAVIOR</span><select id="v36DVariantStrategy"><option value="hold">HOLD</option><option value="match-position">MATCH POSITION</option><option value="occlusion">OCCLUSION</option><option value="light-flash">LIGHT FLASH</option><option value="material-crossfade">MATERIAL CROSSFADE</option></select></label>\
+  </div></div></details>';
+  return root
+}
+
+function v36DBuildAssetPanel(assetBody){
+  const panel=document.createElement("section");panel.id="v36DAssetPanel";panel.className="v36d-pair-panel";
+  panel.innerHTML='\
+    <div class="v36d-toolstrip" role="toolbar" aria-label="Viewport tools">'+["orbit","select","move","rotate","scale","pivot","anchor"].map(t=>'<button class="v36d-btn" type="button" data-v36d-tool="'+t+'">'+t.toUpperCase()+'</button>').join("")+'<span class="v36d-tool-status" id="v36DToolStatus">ORBIT CAMERA</span></div>\
+    <div class="v36d-socket-head"><span>ASSET SOCKETS</span><b>ONE ROLE · ONE SOURCE</b></div><div id="v36DAssetSockets"></div>\
+    <div class="v36d-section-head"><span>LIGHT RIG</span><b>MOOD FIRST</b></div><div class="v36d-rig-grid" id="v36DLightRigs"></div>\
+    <div id="v36DAssetLegacyHost"></div>\
+    <div class="v36d-advanced-only">\
+      <details class="v36d-advanced-section" open><summary><span>SELECTED ASSET TRANSFORM</span><small>VIEWPORT CALIBRATION · NOT SHOT MOTION</small></summary><div class="v36d-section-body">\
+        <div class="v36d-transform-caption"><b id="v36DSelectedAssetName">HERO PRIMARY</b><small>MOVE · ROTATE · SCALE</small></div>\
+        <div class="v36d-control-grid">\
+          ' + ["x","y","z"].map((axis,i)=>'<label class="v36d-field"><span>POSITION '+axis.toUpperCase()+'</span><input data-v36d-asset-position="'+i+'" type="number" step="0.001"></label>').join("") + '\
+          ' + ["x","y","z"].map((axis,i)=>'<label class="v36d-field"><span>ROTATION '+axis.toUpperCase()+'</span><input data-v36d-asset-rotation="'+i+'" type="number" step="0.1"></label>').join("") + '\
+          <label class="v36d-field"><span>DIRECT SCALE</span><input id="v36DAssetDirectScale" type="number" min="0.001" max="32" step="0.01"></label>\
+        </div><div class="v36d-inline-actions"><button class="v36d-btn" type="button" data-v36d-action="apply-asset-transform">APPLY TRANSFORM</button><button class="v36d-btn" type="button" data-v36d-action="reset-asset-transform">RESET TRANSFORM</button></div>\
+      </div></details>\
+      <details class="v36d-advanced-section" open><summary><span>MODEL NORMALIZATION & PIVOT</span><small>NON-DESTRUCTIVE</small></summary><div class="v36d-section-body">\
+        <div class="v36d-control-grid">\
+          <label class="v36d-field"><span>PIVOT MODE</span><select id="v36DPivotMode"><option value="source">SOURCE PIVOT</option><option value="bounds-center">BOUNDS CENTER</option><option value="visual-center">VISUAL CENTER</option><option value="ground">GROUND CONTACT</option><option value="active-anchor">ACTIVE FEATURE ANCHOR</option><option value="custom">CUSTOM XYZ</option></select></label>\
+          <label class="v36d-field"><span>FEATURE ANCHOR</span><select id="v36DPivotAnchor"></select></label>\
+          '+["x","y","z"].map((axis,i)=>'<label class="v36d-field"><span>PIVOT '+axis.toUpperCase()+'</span><input id="v36DPivot'+axis.toUpperCase()+'" type="number" step="0.001"></label>').join("")+'\
+        </div>\
+        <div class="v36d-inline-actions"><button class="v36d-btn" type="button" data-v36d-action="apply-pivot">APPLY PIVOT</button><button class="v36d-btn" type="button" data-v36d-action="pick-pivot">PICK SURFACE</button><button class="v36d-btn" type="button" data-v36d-action="reset-pivot">RESET CENTER</button></div>\
+        <div class="v36d-pivot-readout"><div><small>MODE</small><b id="v36DPivotModeOut">—</b></div><div><small>LOCAL XYZ</small><b id="v36DPivotXYZOut">—</b></div><div><small>SELECTED MESH</small><b id="v36DSelectedMesh">—</b></div></div>\
+      </div></details>\
+      <details class="v36d-advanced-section"><summary><span>FEATURE TARGETS</span><small>TRUE RAYCAST</small></summary><div class="v36d-section-body"><div class="v36d-control-grid">\
+        <label class="v36d-field"><span>ANCHOR NAME</span><input id="v36DAnchorName" type="text" value="customFeature"></label>\
+        <label class="v36d-field"><span>CAMERA TARGET</span><select id="v36DCameraTargetAsset"></select></label>\
+        <label class="v36d-field"><span>FOCUS TARGET</span><select id="v36DFocusTargetAsset"></select></label>\
+      </div><div class="v36d-inline-actions"><button class="v36d-btn" type="button" data-v36d-action="pick-anchor">ADD SURFACE ANCHOR</button><button class="v36d-btn" type="button" data-v36d-action="delete-anchor">DELETE SELECTED MANUAL</button></div></div></details>\
+      <details class="v36d-advanced-section" open><summary><span>HDRI / FALSE ENVIRONMENT</span><small>LIGHTING ≠ BACKGROUND</small></summary><div class="v36d-section-body">\
+        <div class="v36d-hdri-grid">\
+          <label class="v36d-field v36d-toggle-field"><span>ENVIRONMENT LIGHT</span><input data-v36d-hdri="lightingEnabled" type="checkbox"></label>\
+          <label class="v36d-field v36d-toggle-field"><span>VISIBLE BACKGROUND</span><input data-v36d-hdri="backgroundEnabled" type="checkbox"></label>\
+          <label class="v36d-field v36d-toggle-field"><span>LINK ROTATION</span><input data-v36d-hdri="linkRotation" type="checkbox"></label>\
+          <label class="v36d-field v36d-toggle-field"><span>MIRROR</span><input data-v36d-hdri="mirror" type="checkbox"></label>\
+          '+[["lightingYaw","LIGHT YAW",-180,180,1],["lightingPitch","LIGHT PITCH",-90,90,1],["backgroundYaw","BACKGROUND YAW",-180,180,1],["backgroundPitch","BACKGROUND PITCH",-90,90,1],["lightingIntensity","ENV LIGHT",0,3,.01],["reflectionIntensity","REFLECTION",0,3,.01],["backgroundIntensity","BACKGROUND",0,3,.01],["backgroundExposure","BG EXPOSURE",-4,4,.05],["backgroundBlur","BG BLUR",0,1,.01],["backgroundOffset","HORIZON OFFSET",-.4,.4,.005]].map(x=>'<label class="v36d-field"><span>'+x[1]+' <output data-v36d-hdri-out="'+x[0]+'">—</output></span><input data-v36d-hdri="'+x[0]+'" type="range" min="'+x[2]+'" max="'+x[3]+'" step="'+x[4]+'"></label>').join("")+'\
+          <label class="v36d-field"><span>BACKGROUND TINT</span><input data-v36d-hdri="tint" type="color" value="#ffffff"></label>\
+        </div><div class="v36d-inline-actions"><button class="v36d-btn" data-v36d-action="commit-hdri-rotation" type="button">COMMIT REFLECTION ROTATION</button><button class="v36d-btn" data-v36d-action="reset-hdri" type="button">RESET HDRI CONTROLS</button></div>\
+      </div></details>\
+      <details class="v36d-advanced-section"><summary><span>LIGHT FIXTURE OVERRIDES</span><small>CONTEXTUAL PROFESSIONAL CONTROL</small></summary><div class="v36d-section-body"><div id="v36DFixtureControls"></div><div class="v36d-inline-actions"><button class="v36d-btn" data-v36d-action="clear-fixtures" type="button">RESET FIXTURE OVERRIDES</button></div></div></details>\
+      <div class="v36d-dev-status" id="v36DAssetStatus"><strong>READY</strong> · Select VIEWPORT tools only when calibration is needed. Advanced OFF preserves every value.</div>\
+    </div>';
+  if(assetBody)panel.querySelector("#v36DAssetLegacyHost").appendChild(assetBody);return panel
+}
+
+function v36DAdoptCanonicalNodes(){
+  const workspace=document.getElementById("shotWorkspaceOp"),playerPane=document.getElementById("shotPlayerPaneOp"),player=document.querySelector(".shot-player-rig"),edit=document.getElementById("v36DEditPanel"),warning=document.getElementById("v36DContextWarning"),advanced=document.getElementById("v36DRenderAdvanced"),tech=document.querySelector(".tech-dial-block"),params=document.querySelector(".shot-parameter-section"),assetHost=document.getElementById("v36DAssetLegacyHost"),assetBody=document.getElementById("assetWorldBody");
+  if(workspace&&playerPane&&player&&player.parentElement!==playerPane)playerPane.appendChild(player);
+  if(edit&&tech&&tech.parentElement!==edit)edit.insertBefore(tech,warning||edit.firstChild);
+  if(edit&&warning&&warning.parentElement!==edit)edit.appendChild(warning);
+  if(edit&&params&&params.parentElement!==edit)edit.insertBefore(params,advanced||null);
+  if(edit&&advanced&&advanced.parentElement!==edit)edit.appendChild(advanced);
+  if(assetHost&&assetBody&&assetBody.parentElement!==assetHost)assetHost.appendChild(assetBody);
+  return{player,tech,params,assetBody}
+}
+
+function v36DMountWorkspace(){
+  if(v36DMounted){v36DAdoptCanonicalNodes();return document.getElementById("v36DPairBody")}
+  if(!document.getElementById("shotWorkspaceOp")&&typeof arrangeShotOperational==="function")arrangeShotOperational();
+  const workspace=document.getElementById("shotWorkspaceOp"),controls=document.getElementById("shotControlPaneOp"),tech=document.querySelector(".tech-dial-block"),params=document.querySelector(".shot-parameter-section"),assetBody=document.getElementById("assetWorldBody");if(!workspace||!controls||!tech||!params)return null;
+  const header=document.createElement("header");header.className="v36d-pair-head";header.innerHTML='<div class="v36d-pair-copy"><span>RENDER + EDIT</span><b>CINEMATIC DIRECTION</b></div><button class="v36d-advanced-toggle" id="v36DAdvancedToggle" type="button" aria-pressed="false"><span>ADVANCED</span><i></i></button>';
+  const body=document.createElement("div");body.id="v36DPairBody";body.className="v36d-pair-body";const edit=document.createElement("section");edit.id="v36DEditPanel";edit.className="v36d-pair-panel active";
+  const warning=document.createElement("div");warning.id="v36DContextWarning";warning.className="v36d-context-warning";
+  params.hidden=false;edit.append(tech,warning,params,v36DBuildRenderAdvanced());const asset=v36DBuildAssetPanel(assetBody);body.append(edit,asset);controls.replaceChildren(header,body);
+  v36DMounted=true;v36DAdoptCanonicalNodes();v36DStable.player=document.querySelector(".shot-player-rig");v36DStable.timeline=document.querySelector(".timeline-editor");v36DStable.transport=document.getElementById("seqProjectTransportV21");
+  v36DBindCoreEvents(controls);const renderTab=document.getElementById("cVpPrev"),viewportTab=document.getElementById("cVpWork");if(renderTab&&!renderTab.dataset.v36dPair){renderTab.dataset.v36dPair="1";renderTab.addEventListener("click",()=>{v36DSetPair("render",false);v36DSync()})}if(viewportTab&&!viewportTab.dataset.v36dPair){viewportTab.dataset.v36dPair="1";viewportTab.addEventListener("click",()=>{v36DSetPair("viewport",false);v36DSync()})}v36DBindViewportTools();v36DWireCreativeActions();v36DRemoveMilestoneLabs();v36DRenderNativePresets();return body
+}
+
+function v36DRenderSockets(){const host=document.getElementById("v36DAssetSockets");if(!host)return;host.innerHTML=V36A_ASSET_SLOT_REGISTRY.filter(d=>!d.future).map(def=>{const b=v36AFoundation&&v36AFoundation.slots&&v36AFoundation.slots[def.id]||{},status=b.status||"empty",file=b.fileName||"EMPTY",locked=!!b.locked,accept=def.role==="hdri"?".hdr,image/vnd.radiance":".glb,.gltf,model/gltf-binary,model/gltf+json";return '<article class="v36d-socket '+escapeHTML(status)+(locked?' locked':'')+(def.id===v36DState.selectedSlot?' active':'')+'" data-v36d-slot="'+escapeHTML(def.id)+'"><div class="v36d-socket-icon">'+(def.role==="hdri"?'◌':'⬡')+'</div><div class="v36d-socket-copy"><b>'+escapeHTML(def.label)+'</b><small>'+escapeHTML(file)+' · '+escapeHTML(def.generationEligibility.toUpperCase())+'</small></div><span class="v36d-socket-state">'+escapeHTML(status.toUpperCase())+'</span><div class="v36d-socket-actions"><button class="v36d-btn" type="button" data-v36d-slot-action="replace" data-slot="'+escapeHTML(def.id)+'">REPLACE</button><button class="v36d-btn" type="button" data-v36d-slot-action="clear" data-slot="'+escapeHTML(def.id)+'">CLEAR</button><button class="v36d-btn '+(locked?'active':'')+'" type="button" data-v36d-slot-action="lock" data-slot="'+escapeHTML(def.id)+'">LOCK</button><input type="file" data-v36d-slot-input="'+escapeHTML(def.id)+'" accept="'+accept+'"></div></article>'}).join("")}
+function v36DRenderRigs(){const host=document.getElementById("v36DLightRigs"),a=v36DActiveA(),side=v36DState.side==="start"?"start":"end",active=a&&a[side]&&a[side].lightRig&&(a[side].lightRig.resolvedId||a[side].lightRig.requestedId);if(!host)return;host.innerHTML=V36A_LIGHT_RIG_REGISTRY.map(r=>'<button class="v36d-rig-card '+(r.id===active?'active':'')+'" type="button" data-v36d-rig="'+escapeHTML(r.id)+'"><b>'+escapeHTML(r.name)+'</b><small>'+escapeHTML(r.moodTags.slice(0,2).join(" · "))+'</small></button>').join("")}
+function v36DAnchorOptions(select,value){if(!select)return;const anchors=(ENG&&ENG.featureAnchors?ENG.featureAnchors():[]).concat(v36AFoundation&&v36AFoundation.manualAnchors||[]),seen=new Set();select.innerHTML=anchors.filter(a=>a&&a.id&&!seen.has(a.id)&&seen.add(a.id)).map(a=>v36DOption(a.id,(a.name||a.id)+(a.source==="manual-pick"?" · MANUAL":""),value)).join("")||'<option value="visualCenter">visualCenter</option>'}
+function v36DRenderFixtures(){const host=document.getElementById("v36DFixtureControls"),state=ENG&&ENG.lightFixtureState?ENG.lightFixtureState():null;if(!host||!state)return;host.innerHTML=["key","fill","rim","top"].map(role=>{const f=state.fixtures[role]||{intensity:0,color:"#ffffff"};return '<div class="v36d-fixture-row"><b>'+role.toUpperCase()+'</b><input data-v36d-fixture="intensity" data-role="'+role+'" type="range" min="0" max="8" step=".01" value="'+Number(f.intensity||0).toFixed(2)+'"><input data-v36d-fixture="color" data-role="'+role+'" type="color" value="'+escapeHTML(f.color||"#ffffff")+'"></div>'}).join("")}
+
+function v36DApplyPersistedEngineState(){
+  if(!ENG)return;if(v36DState.pivot&&ENG.setHeroPivot)ENG.setHeroPivot({mode:v36DState.pivot.pivotMode||v36DState.pivot.mode||"custom",anchorId:v36DState.pivot.pivotAnchorId||v36DState.pivot.anchorId,localPosition:v36DState.pivot.pivotLocal||v36DState.pivot.localPosition,preserveWorld:false,showPivot:true});
+  if(v36DState.pivot&&v36DState.pivot.placement&&ENG.setHeroPlacement)ENG.setHeroPlacement(v36DState.pivot.placement);if(v36DState.pivot&&ENG.setAssetDirectTransform)ENG.setAssetDirectTransform("hero-primary",{rotation:v36DState.pivot.directRotation||[0,0,0],scale:v36DState.pivot.directScale==null?1:v36DState.pivot.directScale});if(ENG.setAssetPivot)Object.entries(v36DState.assetCalibrations||{}).forEach(([id,cal])=>{if(id==="hero-primary")return;ENG.setAssetPivot(id,{mode:cal.pivotMode||"custom",localPosition:cal.pivotLocal||[0,0,0],preserveWorld:false,showPivot:cal.showPivot!==false});if(ENG.setAssetPlacement&&cal.placement)ENG.setAssetPlacement(id,cal.placement);if(ENG.setAssetDirectTransform)ENG.setAssetDirectTransform(id,{rotation:cal.directRotation||[0,0,0],scale:cal.directScale==null?1:cal.directScale})});if(ENG.selectAsset)ENG.selectAsset(v36DSelectedEngineId());if(v36DState.hdri&&ENG.setHDRIState)ENG.setHDRIState(v36DState.hdri,{commit:true});if(v36DState.fixtureOverrides&&ENG.setLightFixtureOverride)Object.entries(v36DState.fixtureOverrides).forEach(([role,value])=>ENG.setLightFixtureOverride(role,value));if(window.__repaint)window.__repaint()
+}
+function v36DWireCreativeActions(){
+  const near=document.getElementById("cRand"),reset=document.getElementById("cReset");if(near){near.innerHTML='<span>GENERA VARIANTE</span><small>same shot principles</small>';near.onclick=()=>v36DVariant("near")}
+  if(reset)reset.onclick=()=>v36CExecuteCommand("RESET_SHOT_PRESET",{target:v36DActiveShot(true)});
+  let bold=document.getElementById("v36DBoldPreset");if(!bold&&near&&near.parentNode){bold=document.createElement("button");bold.id="v36DBoldPreset";bold.type="button";bold.className="cbtn v36d-advanced-only";bold.textContent="BOLD";bold.onclick=()=>v36DVariant("bold");near.parentNode.insertBefore(bold,reset||null)}
+  const variant=document.getElementById("shotVariantOp");if(variant)variant.onclick=()=>v36DVariant("near");const random=document.getElementById("shotRandomOp");if(random)random.onclick=()=>generateRandomShotOperational()
+}
+
+function v36DSyncRenderAdvanced(){
+  const it=v36DActiveShot(false),a=it&&v36AEnsureShotState(it),b=it&&v36BEnsureShotState(it);if(!a)return;const side=v36DState.side==="start"?"start":"end",s=a[side],tr=s.transform.resolved||s.transform.requested,macro=s.macro.resolved||s.macro.requested;
+  document.querySelectorAll("[data-v36d-side]").forEach(btn=>btn.classList.toggle("active",btn.dataset.v36dSide===v36DState.side));
+  const set=(id,value)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=String(value)};set("v36DCameraTier",macro.tier||s.macro.requested.tier);v36DAnchorOptions(document.getElementById("v36DFeatureTarget"),s.macro.requested.targetAnchorId);set("v36DFeatureTarget",s.macro.requested.targetAnchorId);set("v36DCoverage",Math.round((Number(macro.targetCoverage)||.62)*100));if(document.getElementById("v36DCoverageOut"))document.getElementById("v36DCoverageOut").textContent=Math.round((Number(macro.targetCoverage)||.62)*100)+"%";set("v36DFrameSize",tr.frameSizeClass||"M");set("v36DWorldScale",tr.worldScaleId||"1x");set("v36DLightRig",s.lightRig.resolvedId||s.lightRig.requestedId);
+  ["yaw","pitch","roll"].forEach(axis=>{set("v36D"+axis,Number(tr[axis])||0);const out=document.getElementById("v36D"+axis+"Out");if(out)out.textContent=(Number(tr[axis])||0).toFixed(0)+"°"});
+  if(b){set("v36DCompositionPattern",b.composition.patternId);set("v36DRevealPattern",b.revealPlan.patternId);set("v36DNegativeSpace",b.composition.safeAreaPolicy.negativeSpaceSide||"none");set("v36DVariantStrategy",b.variantTransition.requestedState.strategy||"hold")}
+}
+function v36DSyncAssetAdvanced(){
+  const engineId=v36DSelectedEngineId(),pivot=ENG&&ENG.assetCalibration?ENG.assetCalibration(engineId):(ENG&&ENG.heroCalibration?ENG.heroCalibration():v36DState.pivot),hdri=ENG&&ENG.hdriState?ENG.hdriState():v36DState.hdri||{};if(engineId==="hero-primary")v36DState.pivot=pivot||v36DState.pivot;if(pivot)v36DState.assetCalibrations[engineId]=v36DClone(pivot);v36DState.hdri=hdri||v36DState.hdri;
+  const set=(id,value)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=String(value==null?"":value)},binding=v36AFoundation&&v36AFoundation.slots&&v36AFoundation.slots[v36DState.selectedSlot],selectedName=document.getElementById("v36DSelectedAssetName");if(selectedName)selectedName.textContent=String(binding&&binding.fileName||v36DState.selectedSlot||engineId).replace(/[-_]/g," ").toUpperCase();const placement=pivot&&pivot.placement||[0,0,0],directRotation=pivot&&pivot.directRotation||[0,0,0];document.querySelectorAll("[data-v36d-asset-position]").forEach(input=>{if(document.activeElement!==input)input.value=Number(placement[Number(input.dataset.v36dAssetPosition)]||0).toFixed(4)});document.querySelectorAll("[data-v36d-asset-rotation]").forEach(input=>{if(document.activeElement!==input)input.value=Number(directRotation[Number(input.dataset.v36dAssetRotation)]||0).toFixed(2)});set("v36DAssetDirectScale",pivot&&pivot.directScale==null?1:pivot.directScale);set("v36DPivotMode",pivot.pivotMode||pivot.mode||"bounds-center");v36DAnchorOptions(document.getElementById("v36DPivotAnchor"),pivot.pivotAnchorId||pivot.anchorId||"visualCenter");const xyz=pivot.pivotLocal||pivot.localPosition||[0,0,0];["X","Y","Z"].forEach((axis,i)=>set("v36DPivot"+axis,Number(xyz[i]||0).toFixed(4)));const mo=document.getElementById("v36DPivotModeOut"),xo=document.getElementById("v36DPivotXYZOut"),sm=document.getElementById("v36DSelectedMesh");if(mo)mo.textContent=String(pivot.pivotMode||pivot.mode||"center").toUpperCase();if(xo)xo.textContent=xyz.map(x=>Number(x).toFixed(3)).join(" · ");if(sm)sm.textContent=v36DState.selectedNode&&v36DState.selectedNode.nodeName||pivot.selectedNodeName||"—";
+  v36DAnchorOptions(document.getElementById("v36DCameraTargetAsset"),v36DActiveA()&&v36DActiveA().end.macro.requested.targetAnchorId);v36DAnchorOptions(document.getElementById("v36DFocusTargetAsset"),v36DActiveA()&&v36DActiveA().end.macro.requested.focusAnchorId);
+  document.querySelectorAll("[data-v36d-hdri]").forEach(input=>{const key=input.dataset.v36dHdri,value=hdri&&hdri[key];if(input.type==="checkbox")input.checked=!!value;else if(document.activeElement!==input&&value!=null)input.value=String(value);const out=document.querySelector('[data-v36d-hdri-out="'+key+'"]');if(out)out.textContent=typeof value==="number"?Number(value).toFixed(key.toLowerCase().includes("yaw")||key.toLowerCase().includes("pitch")?0:2):String(value||"—")});
+  const assetAvailable=v36DSelectedAssetAvailable();document.querySelectorAll("[data-v36d-tool]").forEach(btn=>{const requiresAsset=["move","rotate","scale","pivot"].includes(btn.dataset.v36dTool);btn.classList.toggle("active",btn.dataset.v36dTool===v36DState.tool);btn.disabled=requiresAsset&&!assetAvailable;btn.title=requiresAsset&&!assetAvailable?"Assign an asset to this socket first":""});document.querySelectorAll('[data-v36d-action="apply-pivot"],[data-v36d-action="pick-pivot"],[data-v36d-action="reset-pivot"],[data-v36d-action="apply-asset-transform"],[data-v36d-action="reset-asset-transform"]').forEach(btn=>btn.disabled=!assetAvailable);const status=document.getElementById("v36DToolStatus");if(status)status.textContent=(!assetAvailable&&v36DState.selectedSlot!=="hero-primary"?"ASSET REQUIRED":v36DState.tool+((v36DState.tool==="pivot")?" · CLICK SELECTED ASSET":(v36DState.tool==="anchor"?" · CLICK HERO":""))).toUpperCase();if(!assetAvailable&&v36DState.selectedSlot!=="hero-primary")v36DBlockEmptyAssetControl();v36DRenderFixtures()
+}
+function v36DSync(){
+  if(!document.body)return;v36DIdentity();v36DRemoveMilestoneLabs();v36DMountWorkspace();v36DAdoptCanonicalNodes();const advanced=document.getElementById("v36DAdvancedToggle");if(advanced)advanced.setAttribute("aria-pressed",String(!!v36DState.advanced));v36DSetPair(VP&&VP.combo&&VP.combo.on?"viewport":"render",false);v36DRenderNativePresets();v36DRenderSockets();v36DRenderRigs();v36DSyncRenderAdvanced();v36DSyncAssetAdvanced();v36DWireCreativeActions();v36DShowCurrentDiagnostic();if(window.__repaint)window.__repaint();return window.__mementoV36D
+}
+function v36DQueueSync(){if(v36DSyncQueued)return;v36DSyncQueued=true;requestAnimationFrame(()=>{v36DSyncQueued=false;v36DSync()})}
+
+function v36DSetA(type,payload){const it=v36DActiveShot(true);return v36AExecuteCommand(type,Object.assign({target:it,side:v36DState.side},payload||{}))}
+function v36DApplyPivotFromUI(){const mode=document.getElementById("v36DPivotMode")?.value||"bounds-center",anchorId=document.getElementById("v36DPivotAnchor")?.value||"visualCenter",localPosition=["X","Y","Z"].map(a=>Number(document.getElementById("v36DPivot"+a)?.value)||0),engineId=v36DSelectedEngineId();return v36DMutate(()=>ENG.setAssetPivot?ENG.setAssetPivot(engineId,{mode,anchorId,localPosition,preserveWorld:true,showPivot:true}):ENG.setHeroPivot({mode,anchorId,localPosition,preserveWorld:true,showPivot:true}))}
+function v36DUpdateHDRI(key,value,commit,history,beforeOverride){if(!ENG||!ENG.setHDRIState)return null;const before=history?(beforeOverride||v36DBefore()):null,result=ENG.setHDRIState({[key]:value},{commit:!!commit});v36DEngineSnapshot();if(history)v36DCommit(before);else{if(typeof persistProject==="function")persistProject();v36DQueueSync()}if(window.__repaint)window.__repaint();return result}
+
+function v36DBindCoreEvents(root){if(root.dataset.v36dBound)return;root.dataset.v36dBound="1";
+  root.addEventListener("click",async event=>{
+    const family=event.target.closest("[data-v36d-family]");if(family){v36DState.family=family.dataset.v36dFamily;v36DRenderNativePresets();return}
+    const preset=event.target.closest("[data-v36d-preset]");if(preset){v36DApplyPreset(preset.dataset.v36dPreset);return}
+    const tool=event.target.closest("[data-v36d-tool]");if(tool){v36DSetTool(tool.dataset.v36dTool);return}
+    const rig=event.target.closest("[data-v36d-rig]");if(rig){v36DSetA("APPLY_LIGHT_RIG",{rigId:rig.dataset.v36dRig,side:"both"});return}
+    const side=event.target.closest("[data-v36d-side]");if(side){v36DState.side=side.dataset.v36dSide;v36AUI.side=v36DState.side;v36DSync();return}
+    const slotCard=event.target.closest("[data-v36d-slot]");if(slotCard&&!event.target.closest("[data-v36d-slot-action]")){v36DState.selectedSlot=slotCard.dataset.v36dSlot;ENG&&ENG.selectAsset&&ENG.selectAsset(v36DSelectedEngineId());v36DQueueSync();return}
+    const socket=event.target.closest("[data-v36d-slot-action]");if(socket){const slot=socket.dataset.slot,action=socket.dataset.v36dSlotAction;v36DState.selectedSlot=slot;ENG&&ENG.selectAsset&&ENG.selectAsset(v36DSelectedEngineId());if(action==="replace")root.querySelector('[data-v36d-slot-input="'+CSS.escape(slot)+'"]')?.click();else if(action==="clear"){const engineId=v36DSlotEngineId(slot);await v36AClearSlot(slot);if(engineId&&engineId!=="hero-primary")delete v36DState.assetCalibrations[engineId]}else if(action==="lock")v36AExecuteCommand("LOCK_ASSET_SLOT",{slotId:slot});v36DQueueSync();return}
+    const action=event.target.closest("[data-v36d-action]");if(action){const type=action.dataset.v36dAction,needsAsset=["apply-pivot","pick-pivot","reset-pivot","apply-asset-transform","reset-asset-transform"].includes(type);if(needsAsset&&!v36DSelectedAssetAvailable()){v36DBlockEmptyAssetControl();return}if(type==="apply-pivot")v36DApplyPivotFromUI();else if(type==="pick-pivot")v36DSetTool("pivot");else if(type==="reset-pivot")v36DMutate(()=>ENG.setAssetPivot?ENG.setAssetPivot(v36DSelectedEngineId(),{mode:"bounds-center",localPosition:[0,0,0],preserveWorld:true,showPivot:true}):ENG.setHeroPivot({mode:"bounds-center",localPosition:[0,0,0],preserveWorld:true,showPivot:true}));else if(type==="pick-anchor")v36DSetTool("anchor");else if(type==="delete-anchor"){const id=document.getElementById("v36DCameraTargetAsset")?.value;if(id&&String(id).startsWith("custom-"))v36AExecuteCommand("DELETE_FEATURE_ANCHOR",{anchorId:id})}else if(type==="commit-hdri-rotation")v36DMutate(()=>ENG.setHDRIState({}, {commit:true}));else if(type==="reset-hdri")v36DMutate(()=>ENG.setHDRIState({lightingEnabled:true,backgroundEnabled:false,linkRotation:true,lightingYaw:0,lightingPitch:0,backgroundYaw:0,backgroundPitch:0,lightingIntensity:1,reflectionIntensity:1,backgroundIntensity:1,backgroundExposure:0,backgroundBlur:0,backgroundOffset:0,mirror:false,tint:"#ffffff"},{commit:true}));else if(type==="clear-fixtures")v36DMutate(()=>ENG.clearLightFixtureOverrides());else if(type==="apply-asset-transform"){const position=[...document.querySelectorAll("[data-v36d-asset-position]")].sort((a,b)=>Number(a.dataset.v36dAssetPosition)-Number(b.dataset.v36dAssetPosition)).map(input=>Number(input.value)||0),rotation=[...document.querySelectorAll("[data-v36d-asset-rotation]")].sort((a,b)=>Number(a.dataset.v36dAssetRotation)-Number(b.dataset.v36dAssetRotation)).map(input=>Number(input.value)||0),scale=Math.max(.001,Number(document.getElementById("v36DAssetDirectScale")?.value)||1),engineId=v36DSelectedEngineId();v36DMutate(()=>{ENG.setAssetPlacement&&ENG.setAssetPlacement(engineId,position);ENG.setAssetDirectTransform&&ENG.setAssetDirectTransform(engineId,{rotation,scale});return ENG.assetCalibration&&ENG.assetCalibration(engineId)})}else if(type==="reset-asset-transform"){const engineId=v36DSelectedEngineId();v36DMutate(()=>{ENG.setAssetPlacement&&ENG.setAssetPlacement(engineId,[0,0,0]);ENG.setAssetDirectTransform&&ENG.setAssetDirectTransform(engineId,{rotation:[0,0,0],scale:1});return ENG.assetCalibration&&ENG.assetCalibration(engineId)})}return}
+    const advancedToggle=event.target.closest("#v36DAdvancedToggle");if(advancedToggle){v36DSetAdvanced(advancedToggle.getAttribute("aria-pressed")!=="true");return}
+    if(event.target.id==="v36DGenerationPolicy"){const current=v36AFoundation.generationPolicy||{},enabled=!current.allowExtremeScale;v36AExecuteCommand("SET_GENERATION_ELIGIBILITY_POLICY",{policy:{allowExtremeScale:enabled,allowExtremeRotation:enabled,allowHighCostRigs:enabled}});return}
+  });
+  root.addEventListener("change",async event=>{const input=event.target,before=v36DInputHistory.get(input);v36DInputHistory.delete(input);
+    if(input.dataset.v36dSlotInput){const file=input.files&&input.files[0];if(file)await v36AImportSlotFile(input.dataset.v36dSlotInput,file);input.value="";v36DQueueSync();return}
+    if(input.id==="v36DCameraTier")v36DSetA("SET_CAMERA_DISTANCE_TIER",{tier:input.value});else if(input.id==="v36DFeatureTarget")v36DSetA("SET_CAMERA_TARGET_ANCHOR",{anchorId:input.value});else if(input.id==="v36DFrameSize")v36DSetA("SET_SUBJECT_FRAME_SCALE",{sizeClass:input.value});else if(input.id==="v36DWorldScale")v36DSetA("SET_SUBJECT_WORLD_SCALE",{scaleId:input.value});else if(input.id==="v36DLightRig")v36DSetA("APPLY_LIGHT_RIG",{rigId:input.value});else if(input.id==="v36DCompositionPattern")v36BExecuteCommand("APPLY_COMPOSITION_PATTERN",{target:v36DActiveShot(true),patternId:input.value});else if(input.id==="v36DRevealPattern")v36BExecuteCommand("APPLY_REVEAL_PATTERN",{target:v36DActiveShot(true),patternId:input.value});else if(input.id==="v36DNegativeSpace")v36BExecuteCommand("SET_COMPOSITION_NEGATIVE_SPACE",{target:v36DActiveShot(true),negativeSpaceSide:input.value});else if(input.id==="v36DVariantStrategy")v36BExecuteCommand("SET_VARIANT_TRANSITION_STRATEGY",{target:v36DActiveShot(true),strategy:input.value});else if(input.id==="v36DCameraTargetAsset")v36DSetA("SET_CAMERA_TARGET_ANCHOR",{anchorId:input.value,side:"both"});else if(input.id==="v36DFocusTargetAsset")v36DSetA("SET_FOCUS_TARGET_ANCHOR",{anchorId:input.value,side:"both"});
+    else if(input.dataset.v36dRotation){const axis=input.dataset.v36dRotation;v36DSetA("SET_SUBJECT_ROTATION",{[axis]:Number(input.value),before});}
+    else if(input.dataset.v36dHdri){const key=input.dataset.v36dHdri,value=input.type==="checkbox"?input.checked:input.type==="color"?input.value:Number(input.value);v36DUpdateHDRI(key,value,true,true,before)}
+    else if(input.dataset.v36dFixture){const role=input.dataset.role,key=input.dataset.v36dFixture,value=input.type==="color"?input.value:Number(input.value);v36DMutate(()=>ENG.setLightFixtureOverride(role,{[key]:value}),before)}
+    v36DQueueSync()
+  });
+  root.addEventListener("input",event=>{const input=event.target;if(!v36DInputHistory.has(input))v36DInputHistory.set(input,v36DBefore());
+    if(input.id==="v36DCoverage"){document.getElementById("v36DCoverageOut").textContent=input.value+"%";v36DSetA("SET_TARGET_COVERAGE",{value:Number(input.value)/100,history:false});return}
+    if(input.dataset.v36dRotation){const axis=input.dataset.v36dRotation;document.getElementById("v36D"+axis+"Out").textContent=input.value+"°";v36AExecuteCommand("SET_SUBJECT_ROTATION",{target:v36DActiveShot(true),side:v36DState.side,[axis]:Number(input.value),history:false});return}
+    if(input.dataset.v36dHdri){const key=input.dataset.v36dHdri;if(input.type==="range"||input.type==="color"){const value=input.type==="color"?input.value:Number(input.value);v36DUpdateHDRI(key,value,false,false)}return}
+    if(input.dataset.v36dFixture){const role=input.dataset.role,key=input.dataset.v36dFixture,value=input.type==="color"?input.value:Number(input.value);ENG.setLightFixtureOverride(role,{[key]:value});v36DEngineSnapshot();if(window.__repaint)window.__repaint()}
+  })
+}
+
+function v36DViewportNDC(event,host){const rect=host.getBoundingClientRect();return{x:((event.clientX-rect.left)/Math.max(1,rect.width))*2-1,y:-(((event.clientY-rect.top)/Math.max(1,rect.height))*2-1)}}
+function v36DSlotFromEngineId(id){if(id==="hero-primary")return"hero-primary";const pair=Object.entries(v36AFoundation&&v36AFoundation.slots||{}).find(([slot,b])=>b&&b.metadata&&b.metadata.engineId===id);return pair?pair[0]:v36DState.selectedSlot}
+function v36DHandlePick(event,host){const ndc=v36DViewportNDC(event,host),filter=v36DState.tool==="select"?null:v36DSelectedEngineId();if(filter&&filter!=="hero-primary"&&!v36DSelectedAssetAvailable())return v36DBlockEmptyAssetControl();const hit=ENG&&ENG.raycastAsset?ENG.raycastAsset(ndc.x,ndc.y,filter):(ENG&&ENG.raycastHero?Object.assign({assetId:"hero-primary"},ENG.raycastHero(ndc.x,ndc.y)||{}):null);if(!hit||!hit.localPoint){const status=document.getElementById("v36DAssetStatus");if(status)status.innerHTML='<strong>NO HIT</strong> · No fake point was created.';return null}v36DState.selectedNode=hit;if(v36DState.tool==="select"){v36DState.selectedSlot=v36DSlotFromEngineId(hit.assetId);ENG&&ENG.selectAsset&&ENG.selectAsset(hit.assetId);v36DQueueSync();return hit}if(v36DState.tool==="pivot")v36DMutate(()=>ENG.setAssetPivot?ENG.setAssetPivot(hit.assetId||v36DSelectedEngineId(),{mode:"custom-surface",localPosition:hit.localPoint,preserveWorld:true,showPivot:true}):ENG.setHeroPivot({mode:"custom-surface",localPosition:hit.localPoint,preserveWorld:true,showPivot:true}));else if(v36DState.tool==="anchor"&&hit.assetId==="hero-primary"){const name=(document.getElementById("v36DAnchorName")?.value||"customFeature").trim()||"customFeature",id="custom-"+v34Hash(name+"|"+hit.localPoint.map(n=>Number(n).toFixed(4)).join("|")).toString(36);v36AExecuteCommand("ADD_FEATURE_ANCHOR",{anchor:{id,name,category:"custom",source:"manual-pick",targetNodeId:hit.nodeId,localPosition:hit.localPoint,localNormal:hit.localNormal,localRadius:Math.max(.025,(ENG.heroBounds?ENG.heroBounds().radius:.8)*.06),safeFocusDistance:Math.max(.04,(ENG.heroBounds?ENG.heroBounds().radius:.8)*.1),confidence:1,tags:[hit.nodeName]}});v36AExecuteCommand("SET_CAMERA_TARGET_ANCHOR",{target:v36DActiveShot(true),side:"both",anchorId:id});}else if(v36DState.tool==="anchor"){const status=document.getElementById("v36DAssetStatus");if(status)status.innerHTML='<strong>HERO ONLY</strong> · Feature anchors belong to Hero Primary.'}v36DQueueSync();return hit}
+function v36DBindViewportTools(){const host=document.getElementById("cprev");if(!host||host.dataset.v36dTools)return;host.dataset.v36dTools="1";
+  host.addEventListener("pointerdown",event=>{if(v36DState.pair!=="viewport"||v36DState.tool==="orbit")return;if(!["select","pivot","anchor","move","rotate","scale"].includes(v36DState.tool))return;event.preventDefault();event.stopImmediatePropagation();const hit=v36DHandlePick(event,host);if(["select","pivot","anchor"].includes(v36DState.tool))return;const engineId=v36DSelectedEngineId(),cal=ENG&&ENG.assetCalibration?ENG.assetCalibration(engineId):(ENG&&ENG.heroCalibration?ENG.heroCalibration():{placement:[0,0,0]});v36DViewportGesture={id:event.pointerId,tool:v36DState.tool,x:event.clientX,y:event.clientY,before:v36DBefore(),engineId,slotId:v36DState.selectedSlot,placement:(cal&&cal.placement||[0,0,0]).slice(),directRotation:(cal&&cal.directRotation||[0,0,0]).slice(),directScale:Number(cal&&cal.directScale)||1};try{host.setPointerCapture(event.pointerId)}catch(_){}} ,true);
+  host.addEventListener("pointermove",event=>{const g=v36DViewportGesture;if(!g||g.id!==event.pointerId)return;event.preventDefault();event.stopImmediatePropagation();const dx=event.clientX-g.x,dy=event.clientY-g.y;if(g.tool==="rotate")ENG.setAssetDirectTransform&&ENG.setAssetDirectTransform(g.engineId,{rotation:[g.directRotation[0]-dy*.35,g.directRotation[1]+dx*.45,g.directRotation[2]]});else if(g.tool==="scale")ENG.setAssetDirectTransform&&ENG.setAssetDirectTransform(g.engineId,{scale:Math.max(.05,Math.min(32,g.directScale*Math.exp(-dy*.012)))});else if(g.tool==="move"){const next=[g.placement[0]+dx*.005,g.placement[1]-dy*.005,g.placement[2]];if(ENG.setAssetPlacement)ENG.setAssetPlacement(g.engineId,next);else ENG.setHeroPlacement(next);if(g.engineId==="hero-primary")v36DState.pivot=ENG.heroCalibration()}if(window.__repaint)window.__repaint();v36DQueueSync()},true);
+  const end=event=>{const g=v36DViewportGesture;if(!g||g.id!==event.pointerId)return;event.preventDefault();event.stopImmediatePropagation();v36DViewportGesture=null;v36DEngineSnapshot();v36DCommit(g.before)};host.addEventListener("pointerup",end,true);host.addEventListener("pointercancel",end,true)
+}
+
+function v36DSource(){const script=document.getElementById("memento-v36d-core-script");return script&&script.textContent||[v36DInstall,v36DSync,v36DBindCoreEvents,v36DBindViewportTools].map(fn=>String(fn)).join("\n")}
+function v36DRunTests(){
+  const tests=[],add=(id,pass,detail)=>tests.push({id,pass:!!pass,detail:v36DClone(detail)}),source=v36DSource(),it=v36DActiveShot(false),timing=it&&typeof v34Timing==="function"?v34Timing(it):null;
+  add("one-canonical-shot-surface",document.querySelectorAll("#v36DPairBody").length===1,null);add("milestone-labs-not-mounted",!["v36AFoundation","v36BCompositionLab","v36CShotPresetBrowser","v35AxisLab"].some(id=>document.getElementById(id)),null);add("paired-render-edit",!!document.getElementById("v36DEditPanel"),null);add("paired-viewport-asset",!!document.getElementById("v36DAssetPanel"),null);add("advanced-off-default",typeof v36DState.advanced==="boolean",v36DState.advanced);add("native-v36c-registry-face",document.querySelectorAll("#shotPresetRail [data-v36d-preset]").length>0,V36C_SHOT_PRESET_REGISTRY.length);add("renderer-pivot-contract",!!(ENG&&ENG.setHeroPivot&&ENG.heroCalibration&&ENG.heroWorldMatrix&&ENG.setAssetPivot&&ENG.assetCalibration&&ENG.assetWorldMatrix&&ENG.setAssetDirectTransform&&ENG.setAssetPlacement),null);add("renderer-raycast-contract",!!(ENG&&ENG.raycastHero&&ENG.raycastAsset),null);add("renderer-hdri-contract",!!(ENG&&ENG.setHDRIState&&ENG.hdriState),null);add("fixture-override-contract",!!(ENG&&ENG.setLightFixtureOverride&&ENG.lightFixtureState),null);
+  let pivotPreserved=false,pivotDetail=null;if(ENG&&ENG.heroWorldMatrix&&ENG.setHeroPivot){const before=ENG.heroWorldMatrix(),state=ENG.heroCalibration();ENG.setHeroPivot({mode:"custom",localPosition:[.17,.08,-.04],preserveWorld:true});const after=ENG.heroWorldMatrix();pivotPreserved=before.length===after.length&&before.every((v,i)=>Math.abs(v-after[i])<1e-5);ENG.setHeroPivot({mode:state.pivotMode||"custom",anchorId:state.pivotAnchorId,localPosition:state.pivotLocal,preserveWorld:true});pivotDetail={before:before.slice(12,15),after:after.slice(12,15)}}add("pivot-preserve-world",pivotPreserved,pivotDetail);
+  const hdri=ENG&&ENG.hdriState?ENG.hdriState():null;add("hdri-independent-state",!!(hdri&&Object.prototype.hasOwnProperty.call(hdri,"lightingEnabled")&&Object.prototype.hasOwnProperty.call(hdri,"backgroundEnabled")&&Object.prototype.hasOwnProperty.call(hdri,"reflectionIntensity")),hdri);add("all-ready-3d-slots-calibratable",Object.entries(v36AFoundation&&v36AFoundation.slots||{}).filter(([id,b])=>b&&b.status==="ready"&&id!=="hdri").every(([id,b])=>!!(ENG&&ENG.assetCalibration&&ENG.assetCalibration(v36DSlotEngineId(id)))),ENG&&ENG.assetCalibrations&&ENG.assetCalibrations());add("asset-sockets-single-registry",V36A_ASSET_SLOT_REGISTRY.length===12&&new Set(V36A_ASSET_SLOT_REGISTRY.map(x=>x.id)).size===12,V36A_ASSET_SLOT_REGISTRY.length);add("v36c-sole-shot-preset-registry",V36C_SHOT_PRESET_REGISTRY.length===20&&V36C_PRESET_MAP.size===20,null);add("clip-geometry-finite",!timing||[timing.startFrame,timing.durationFrames].every(Number.isFinite),timing);add("stable-player-dom",v36DStable.player===document.querySelector(".shot-player-rig"),null);add("stable-timeline-dom",!v36DStable.timeline||v36DStable.timeline===document.querySelector(".timeline-editor"),null);add("no-v36d-direct-math-random",!/\bMath\.random\s*\(/.test(source),null);add("no-v36d-global-observer",!source.includes("Mutation"+"Observer"),null);add("no-global-horizontal-overflow",document.documentElement.scrollWidth<=document.documentElement.clientWidth+2,{scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth});const payload=v36DSafe(()=>projectPayload(false),null);add("v36d-project-payload-contract",!!(payload&&payload.v36D&&payload.v36D.schemaVersion===V36D_SCHEMA&&payload.v36D.state),payload&&payload.v36D);const selectedCal=ENG&&ENG.assetCalibration?ENG.assetCalibration(v36DSelectedEngineId()):null;add("direct-asset-transform-state",!!(selectedCal&&Array.isArray(selectedCal.placement)&&Array.isArray(selectedCal.directRotation)&&Number.isFinite(Number(selectedCal.directScale))),selectedCal);const hdriKeys=["lightingEnabled","backgroundEnabled","linkRotation","lightingYaw","lightingPitch","backgroundYaw","backgroundPitch","lightingIntensity","reflectionIntensity","backgroundIntensity","backgroundExposure","backgroundBlur","backgroundOffset","mirror","tint","authority","locks"];add("hdri-state-complete",!!(hdri&&hdriKeys.every(key=>Object.prototype.hasOwnProperty.call(hdri,key))),hdri&&hdriKeys.filter(key=>!Object.prototype.hasOwnProperty.call(hdri,key)));add("advanced-state-preserves-core-dom",!!(document.querySelector(".shot-player-rig")&&document.getElementById("shotPresetRail")&&document.getElementById("cAxes")),null);add("build-identity",document.body.dataset.mementoBuild===V36D_BUILD,document.body.dataset.mementoBuild);
+  const passed=tests.filter(t=>t.pass).length,report={build:V36D_BUILD,schemaVersion:V36D_SCHEMA,runAt:new Date().toISOString(),total:tests.length,passed,failed:tests.length-passed,pass:passed===tests.length,tests};document.body.dataset.v36dAcceptance=encodeURIComponent(JSON.stringify(report));return report
+}
+
+function v36DInstall(){if(v36DInstalling)return window.__mementoV36D;v36DInstalling=true;try{v36DReadPersisted();v36DRemoveMilestoneLabs();v36DMountWorkspace();v36DApplyPersistedEngineState();window.__mementoV36D={build:V36D_BUILD,schemaVersion:V36D_SCHEMA,state:()=>v36DClone(v36DState),install:v36DInstall,setPair:v36DSetPair,setAdvanced:v36DSetAdvanced,setTool:v36DSetTool,sync:v36DSync,applyPreset:v36DApplyPreset,near:()=>v36DVariant("near"),bold:()=>v36DVariant("bold"),runTests:v36DRunTests,renderer:()=>ENG&&ENG.v36RendererState?ENG.v36RendererState():null,assetCalibration:id=>ENG&&ENG.assetCalibration?ENG.assetCalibration(id||v36DSelectedEngineId()):null,assetCalibrations:()=>ENG&&ENG.assetCalibrations?ENG.assetCalibrations():{},hdri:()=>ENG&&ENG.hdriState?ENG.hdriState():null,fixtures:()=>ENG&&ENG.lightFixtureState?ENG.lightFixtureState():null,save:()=>projectPayload(false),restore:raw=>restoreHistorySnapshot(typeof raw==="string"?raw:JSON.stringify(raw))};v36DIdentity();v36DSync();if(!window.__mementoV36DListeners){window.__mementoV36DListeners=true;window.addEventListener("resize",v36DQueueSync,{passive:true});window.addEventListener("orientationchange",v36DQueueSync,{passive:true})}[250,800,1800].forEach(delay=>setTimeout(()=>{v36DRemoveMilestoneLabs();v36DApplyPersistedEngineState();v36DSync()},delay));return window.__mementoV36D}catch(error){console.error("V36D install",error);document.body.dataset.v36dError=String(error&&error.stack||error).slice(0,1000);return null}finally{v36DInstalling=false}}
+
+/* Keep the canonical identity and face after older install/finalize retries. */
+if(typeof v36CIdentity==="function"){const base=v36CIdentity;v36CIdentity=function(){const r=base.apply(this,arguments);if(document.body&&document.body.dataset.v36dReady==="true")v36DIdentity();return r}}
+if(typeof v36ASyncUI==="function"){const base=v36ASyncUI;v36ASyncUI=function(){const r=base.apply(this,arguments);v36DQueueSync();return r}}
+if(typeof v36BSyncUI==="function"){const base=v36BSyncUI;v36BSyncUI=function(){const r=base.apply(this,arguments);v36DQueueSync();return r}}
+if(typeof v36CSyncUI==="function"){const base=v36CSyncUI;v36CSyncUI=function(){const r=base.apply(this,arguments);v36DQueueSync();return r}}
+if(typeof syncTechDial==="function")syncTechDial=function(){v36DRenderNativePresets()};
+if(typeof buildTechDial==="function")buildTechDial=function(){v36DRenderNativePresets()};
+if(typeof renderShotPresetRail==="function")renderShotPresetRail=function(){v36DRenderNativePresets()};
+if(typeof activateShotPanelOperational==="function")activateShotPanelOperational=function(key){return v36DSetPair(key==="asset"?"viewport":"render",true)};
+if(typeof arrangeShotOperational==="function"){const base=arrangeShotOperational;arrangeShotOperational=function(){if(v36DMounted)return document.getElementById("v36DPairBody");const r=base.apply(this,arguments);requestAnimationFrame(v36DMountWorkspace);return r}}
+if(typeof importHeroAsset==="function"){const base=importHeroAsset;importHeroAsset=async function(){const result=await base.apply(this,arguments);setTimeout(()=>{if(v36DState.pivot&&ENG&&ENG.setHeroPivot)ENG.setHeroPivot({mode:v36DState.pivot.pivotMode||"custom",anchorId:v36DState.pivot.pivotAnchorId,localPosition:v36DState.pivot.pivotLocal,preserveWorld:false});if(v36DState.pivot&&ENG&&ENG.setHeroPlacement)ENG.setHeroPlacement(v36DState.pivot.placement||[0,0,0]);if(v36DState.pivot&&ENG&&ENG.setAssetDirectTransform)ENG.setAssetDirectTransform("hero-primary",{rotation:v36DState.pivot.directRotation||[0,0,0],scale:v36DState.pivot.directScale==null?1:v36DState.pivot.directScale});v36DSync()},0);return result}}
+if(typeof importHDRIAsset==="function"){const base=importHDRIAsset;importHDRIAsset=async function(){const result=await base.apply(this,arguments);setTimeout(()=>{if(v36DState.hdri&&ENG&&ENG.setHDRIState)ENG.setHDRIState(v36DState.hdri,{commit:true});v36DSync()},0);return result}}
+if(typeof v36AImportSlotFile==="function"){const base=v36AImportSlotFile;v36AImportSlotFile=async function(slotId,file){const result=await base.apply(this,arguments);setTimeout(()=>{const engineId=v36DSlotEngineId(slotId),cal=engineId&&v36DState.assetCalibrations&&v36DState.assetCalibrations[engineId];if(cal&&ENG&&ENG.setAssetPivot){ENG.setAssetPivot(engineId,{mode:cal.pivotMode||"custom",localPosition:cal.pivotLocal||[0,0,0],preserveWorld:false,showPivot:cal.showPivot!==false});ENG.setAssetPlacement&&ENG.setAssetPlacement(engineId,cal.placement||[0,0,0]);ENG.setAssetDirectTransform&&ENG.setAssetDirectTransform(engineId,{rotation:cal.directRotation||[0,0,0],scale:cal.directScale==null?1:cal.directScale})}v36DSync()},0);return result}}
+if(typeof v36ARestoreAssetSlots==="function"){const base=v36ARestoreAssetSlots;v36ARestoreAssetSlots=async function(){const result=await base.apply(this,arguments);v36DApplyPersistedEngineState();v36DSync();return result}}
+
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",v36DInstall,{once:true});else v36DInstall();window.addEventListener("load",v36DInstall,{once:true});setTimeout(v36DInstall,120);
+})();
+
+/* ================= END MEMENTO V36D CORE ================= */
 
 const restored=loadProject();
 if(restored){TL=restored.timeline;activeShotUid=restored.activeShotUid;applyProjectFormat(restored.format,false);const selected=selectedShot();if(selected){selected.selected=true;activeShotUid=selected.uid}}
@@ -16239,12 +16616,221 @@ body.memento-v36a #assetWorldBody>.asset-chip-list{display:none!important}
 @media(max-width:520px){.v36a-head{align-items:flex-start}.v36a-head-state{font-size:6px}.v36a-mode-row{align-items:flex-start;flex-direction:column}.v36a-select-row{grid-template-columns:1fr 74px}.v36a-select-row button{grid-column:1/3}.v36a-axis-row{grid-template-columns:70px minmax(66px,1fr) 54px 40px;padding-inline:4px}.v36a-axis-row small{display:none}}
 @media(prefers-reduced-motion:reduce){.v36a-foundation *{scroll-behavior:auto!important;transition:none!important}}
 </style>
+<style id="memento-v36d-core-style">
+/* ========================================================================
+   MEMENTO V36D — CORE EXPERIENCE RESET & ASSET CALIBRATION
+   One product surface. V36A/B/C remain engine services, not permanent labs.
+   ======================================================================== */
+:root{
+  --v36d-panel:#09090c;
+  --v36d-panel-2:#0e0e12;
+  --v36d-line:rgba(255,255,255,.085);
+  --v36d-line-strong:rgba(255,255,255,.15);
+  --v36d-start:#50d6ff;
+  --v36d-end:#ff7950;
+  --v36d-text:#ececef;
+  --v36d-muted:#787880;
+  --v36d-control-w:390px;
+}
+body[data-memento-build="v36d-core-experience-reset"] #v36AFoundation,
+body[data-memento-build="v36d-core-experience-reset"] #v36BCompositionLab,
+body[data-memento-build="v36d-core-experience-reset"] #v36CShotPresetBrowser,
+body[data-memento-build="v36d-core-experience-reset"] #v35AxisLab,
+body[data-memento-build="v36d-core-experience-reset"] #shotTabsOp,
+body[data-memento-build="v36d-core-experience-reset"] #shotPanelsOp,
+body[data-memento-build="v36d-core-experience-reset"] .technical-readout-op,
+body[data-memento-build="v36d-core-experience-reset"] .shot-delta-summary{display:none!important}
+
+body[data-memento-build="v36d-core-experience-reset"] .shot-workspace-op{
+  --shot-player-pct-local:minmax(0,1fr);
+  grid-template-columns:minmax(420px,1fr) 8px minmax(320px,var(--v36d-control-w))!important;
+  background:#050506;
+}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-pane-op{background:#111115!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-control-pane-op{
+  display:grid!important;grid-template-rows:48px minmax(0,1fr)!important;
+  min-width:0!important;border-left:0!important;background:var(--v36d-panel)!important;
+}
+body[data-memento-build="v36d-core-experience-reset"] .shot-splitter-op{width:8px!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-splitter-op::after{top:18px!important;bottom:18px!important;width:1px!important;background:#29292e!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig{border-radius:10px!important}
+
+.v36d-pair-head{
+  display:flex;align-items:center;gap:10px;min-width:0;padding:6px 8px;
+  border:1px solid var(--v36d-line);border-bottom-color:var(--v36d-line-strong);border-radius:10px 10px 0 0;
+  background:#0b0b0e;
+}
+.v36d-pair-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.v36d-pair-copy span{font:800 6.5px/1 var(--mono);letter-spacing:.17em;color:var(--v36d-end)}
+.v36d-pair-copy b{font:700 9px/1.15 Inter;color:var(--v36d-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v36d-advanced-toggle{appearance:none;display:flex;align-items:center;gap:7px;min-height:34px;padding:6px 9px;border:1px solid var(--v36d-line-strong);border-radius:7px;background:#111115;color:#9999a1;cursor:pointer;font:800 6.5px/1 var(--mono);letter-spacing:.12em}
+.v36d-advanced-toggle i{width:22px;height:12px;border-radius:999px;background:#29292e;position:relative;transition:.15s}
+.v36d-advanced-toggle i::after{content:"";position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:#77777f;transition:.15s}
+.v36d-advanced-toggle[aria-pressed="true"]{color:#fff;border-color:rgba(255,121,80,.48);background:#17110e}
+.v36d-advanced-toggle[aria-pressed="true"] i{background:rgba(255,121,80,.34)}
+.v36d-advanced-toggle[aria-pressed="true"] i::after{left:12px;background:var(--v36d-end)}
+.v36d-pair-body{position:relative;min-width:0;min-height:0;border:1px solid var(--v36d-line);border-top:0;border-radius:0 0 10px 10px;background:var(--v36d-panel);overflow:hidden}
+.v36d-pair-panel{position:absolute;inset:0;display:none;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#34343a transparent}
+.v36d-pair-panel.active{display:block}
+.v36d-pair-panel::-webkit-scrollbar{width:7px}.v36d-pair-panel::-webkit-scrollbar-thumb{background:#34343a;border-radius:8px}
+
+/* RENDER + EDIT — legacy face with native V36C presets. */
+#v36DEditPanel{background:#08080a}
+#v36DEditPanel>.tech-dial-block{height:auto!important;min-height:0!important;margin:0!important;border:0!important;border-radius:0!important;background:#08080a!important;overflow:visible!important}
+#v36DEditPanel .tech-dial-block>.dial-caption{display:flex!important;min-height:36px!important;padding:7px 9px!important;border-bottom:1px solid var(--v36d-line)!important;background:#0b0b0e!important}
+#v36DEditPanel .tech-dial-block>.dial-caption>span{font:800 6.5px/1 var(--mono)!important;letter-spacing:.15em!important;color:#73737a!important}
+#v36DEditPanel .dial-window{background:#08080a!important}
+#v36DEditPanel #shotTechDial{display:flex!important;gap:5px!important;overflow-x:auto!important;padding:7px 8px 8px!important;scroll-snap-type:x proximity!important;scrollbar-width:none!important}
+#v36DEditPanel #shotTechDial::-webkit-scrollbar,#v36DEditPanel #shotPresetRail::-webkit-scrollbar{display:none}
+#v36DEditPanel #shotTechDial .dial-item{
+  flex:0 0 auto!important;min-width:92px!important;min-height:36px!important;padding:6px 8px!important;
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:3px!important;
+  border-radius:7px!important;background:#0f0f13!important;opacity:1!important;transform:none!important;text-align:left!important;
+}
+#v36DEditPanel #shotTechDial .dial-item b{font-size:8px!important;line-height:1!important;color:#a9a9b0!important}
+#v36DEditPanel #shotTechDial .dial-item span{font:700 5.7px/1 var(--mono)!important;letter-spacing:.1em!important;color:#5f5f66!important}
+#v36DEditPanel #shotTechDial .dial-item.active{border-color:var(--v36d-end)!important;background:#17110e!important;box-shadow:inset 0 -2px 0 var(--v36d-end)!important}
+#v36DEditPanel #shotTechDial .dial-item.active b,#v36DEditPanel #shotTechDial .dial-item.active span{color:var(--v36d-end)!important}
+#v36DEditPanel #shotPresetRail{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:8px!important;min-height:0!important;border-top:1px solid var(--v36d-line)!important;background:#09090c!important;overflow:visible!important}
+#v36DEditPanel #shotPresetRail .shot-preset{
+  min-width:0!important;min-height:76px!important;padding:9px!important;border:1px solid var(--v36d-line)!important;border-radius:8px!important;
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;background:#0e0e12!important;color:#8e8e95!important;text-align:left!important;
+}
+#v36DEditPanel #shotPresetRail .shot-preset:hover{border-color:rgba(255,121,80,.38)!important;background:#14100f!important}
+#v36DEditPanel #shotPresetRail .shot-preset b{font-size:9px!important;line-height:1.2!important;color:#d4d4d8!important;margin:0 0 5px!important;white-space:normal!important}
+#v36DEditPanel #shotPresetRail .shot-preset span{font:600 6.2px/1.35 Inter!important;color:#77777f!important;white-space:normal!important}
+#v36DEditPanel #shotPresetRail .shot-preset small{display:block;margin-top:auto;padding-top:7px;font:800 5.7px/1 var(--mono);letter-spacing:.09em;color:#5e5e65}
+#v36DEditPanel #shotPresetRail .shot-preset.active{border-color:var(--v36d-end)!important;background:#17110e!important;box-shadow:inset 0 -2px 0 var(--v36d-end)!important}
+#v36DEditPanel #shotPresetRail .shot-preset.active b,#v36DEditPanel #shotPresetRail .shot-preset.active small{color:var(--v36d-end)!important}
+#v36DEditPanel #shotPresetRail .shot-preset.blocked{opacity:.52;border-style:dashed!important}
+#v36DEditPanel .shot-primary-actions{position:sticky!important;bottom:0!important;z-index:7!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;gap:5px!important;margin:0!important;padding:7px 8px!important;border-top:1px solid var(--v36d-line)!important;background:rgba(9,9,12,.97)!important;backdrop-filter:blur(12px)}
+#v36DEditPanel .shot-primary-actions .cbtn{min-height:36px!important;padding:7px 9px!important;justify-content:center!important;font-size:8px!important}
+#v36DEditPanel .shot-parameter-section{display:block!important;margin:0!important;padding:8px!important;border-top:1px solid var(--v36d-line)!important;background:#08080a!important}
+#v36DEditPanel .shot-parameter-section>.parameter-kicker{display:flex!important;margin:0 0 7px!important;padding:0!important;border:0!important}
+#v36DEditPanel #cAxes{display:block!important}
+#v36DEditPanel .cgrp{margin:0 0 7px!important}
+#v36DEditPanel .copts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;overflow:visible!important;padding:0!important}
+#v36DEditPanel .axis-summary-v13,#v36DEditPanel .copt-wrap-v12,#v36DEditPanel .copt-wrap-v12>.copt{min-height:68px!important;height:68px!important}
+#v36DEditPanel .axis-summary-v13{padding:7px 28px 7px 7px!important}
+#v36DEditPanel .copt-wrap-v12>.copt{padding:7px!important}
+#v36DEditPanel .cread{display:none!important}
+.v36d-context-warning{display:none;margin:7px 8px;padding:8px 9px;border-left:2px solid var(--v36d-end);background:#110e0d;color:#9e9ea5;font:600 7px/1.35 Inter}
+.v36d-context-warning.on{display:block}
+
+/* One advanced layer, hidden without destroying state. */
+.v36d-advanced-only{display:none!important}
+body.v36d-advanced .v36d-advanced-only{display:block!important}
+.v36d-advanced-section{margin:8px;border:1px solid var(--v36d-line);border-radius:9px;background:#0c0c10;overflow:hidden}
+.v36d-advanced-section>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:38px;padding:8px 10px;cursor:pointer;border-bottom:1px solid transparent;color:#a5a5ac}
+.v36d-advanced-section>summary::-webkit-details-marker{display:none}
+.v36d-advanced-section[open]>summary{border-bottom-color:var(--v36d-line);color:#fff;background:#101014}
+.v36d-advanced-section>summary span{font:800 6.5px/1 var(--mono);letter-spacing:.15em}.v36d-advanced-section>summary small{margin-left:auto;font:700 5.8px/1 var(--mono);letter-spacing:.08em;color:#65656c}
+.v36d-section-body{padding:8px}
+.v36d-control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.v36d-control-grid.one{grid-template-columns:1fr}
+.v36d-field{min-width:0;display:grid;gap:5px;padding:7px;border:1px solid rgba(255,255,255,.055);border-radius:7px;background:#0a0a0d;color:#6e6e75;font:800 5.8px/1 var(--mono);letter-spacing:.08em}
+.v36d-field>span{display:flex;align-items:center;justify-content:space-between;gap:6px}.v36d-field output{color:var(--v36d-end);font-variant-numeric:tabular-nums}
+.v36d-field input[type="range"]{width:100%;accent-color:var(--v36d-end)}
+.v36d-field input[type="number"],.v36d-field input[type="text"],.v36d-field select{width:100%;height:32px;border:1px solid #2b2b31;border-radius:6px;background:#111115;color:#e5e5e8;padding:0 7px;font:650 8px/1 Inter}
+.v36d-field input[type="color"]{width:100%;height:34px;padding:3px;border:1px solid #2b2b31;border-radius:6px;background:#111115}
+.v36d-inline-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.v36d-btn{appearance:none;min-height:32px;border:1px solid #2b2b31;border-radius:6px;background:#111115;color:#929299;padding:6px 9px;cursor:pointer;font:800 6px/1 var(--mono);letter-spacing:.08em}
+.v36d-btn:hover{border-color:var(--v36d-end);color:var(--v36d-end)}
+.v36d-btn.active,.v36d-btn[aria-pressed="true"]{border-color:var(--v36d-end);background:#17110e;color:var(--v36d-end)}
+.v36d-btn.start{border-color:rgba(80,214,255,.35);color:var(--v36d-start)}
+.v36d-btn.danger{color:#d17f69}
+.v36d-side-row{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:7px}
+.v36d-side-row .v36d-btn[data-side="start"]{color:var(--v36d-start)}
+.v36d-side-row .v36d-btn[data-side="end"]{color:var(--v36d-end)}
+
+/* VIEWPORT + ASSET 3D */
+#v36DAssetPanel{background:#08080a}
+.v36d-toolstrip{position:sticky;top:0;z-index:10;display:flex;gap:4px;overflow-x:auto;padding:7px 8px;border-bottom:1px solid var(--v36d-line);background:rgba(10,10,13,.97);backdrop-filter:blur(12px);scrollbar-width:none}
+.v36d-toolstrip::-webkit-scrollbar{display:none}.v36d-toolstrip .v36d-btn{flex:0 0 auto;min-height:31px;padding-inline:8px}
+.v36d-tool-status{margin-left:auto;min-width:0;display:flex;align-items:center;padding:0 3px;font:750 5.8px/1 var(--mono);letter-spacing:.08em;color:#6f6f77;white-space:nowrap}
+.v36d-socket-head,.v36d-section-head{display:flex;align-items:baseline;gap:8px;padding:9px 8px 6px}.v36d-socket-head span,.v36d-section-head span{font:800 6.5px/1 var(--mono);letter-spacing:.16em;color:#85858c}.v36d-socket-head b,.v36d-section-head b{margin-left:auto;font:700 5.8px/1 var(--mono);letter-spacing:.08em;color:#5f5f66}
+#v36DAssetSockets{display:grid;grid-template-columns:1fr;gap:5px;padding:0 8px 8px}
+.v36d-socket{display:grid;grid-template-columns:28px minmax(0,1fr) auto;grid-template-rows:auto auto;gap:4px 7px;align-items:center;min-height:56px;padding:7px;border:1px solid var(--v36d-line);border-radius:8px;background:#0d0d11}
+.v36d-socket.ready{box-shadow:inset 2px 0 0 var(--v36d-start)}.v36d-socket.warning,.v36d-socket.error{box-shadow:inset 2px 0 0 var(--v36d-end)}.v36d-socket.locked{border-style:double}
+.v36d-socket-icon{grid-row:1/3;display:grid;place-items:center;width:28px;height:28px;border:1px solid #303037;border-radius:6px;color:#aaaab0;font-size:12px}
+.v36d-socket-copy{min-width:0;display:grid;gap:3px}.v36d-socket-copy b{font-size:8px;color:#d8d8dc}.v36d-socket-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 6px/1 var(--mono);color:#68686f}
+.v36d-socket-state{font:800 5.7px/1 var(--mono);letter-spacing:.08em;color:#77777e}.v36d-socket.ready .v36d-socket-state{color:var(--v36d-start)}
+.v36d-socket-actions{grid-column:2/4;display:flex;gap:4px;overflow-x:auto}.v36d-socket-actions .v36d-btn{min-height:26px;padding:4px 7px;font-size:5.5px}.v36d-socket-actions input{display:none}
+#v36DAssetPanel .asset-actions,#v36DAssetPanel .asset-status-line,#v36DAssetPanel .asset-chip-list{display:none!important}
+#v36DAssetPanel .asset-world-body{display:block!important;padding:0!important}
+.v36d-rig-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:0 8px 8px}
+.v36d-rig-card{appearance:none;min-height:49px;padding:8px;border:1px solid var(--v36d-line);border-radius:8px;background:#0d0d11;color:#a4a4aa;text-align:left;cursor:pointer}
+.v36d-rig-card b{display:block;font-size:8px;margin-bottom:4px}.v36d-rig-card small{display:block;font:600 5.8px/1.25 var(--mono);color:#63636a;text-transform:uppercase}.v36d-rig-card.active{border-color:var(--v36d-end);background:#17110e;color:var(--v36d-end)}
+.v36d-pivot-readout{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:7px}.v36d-pivot-readout div{padding:7px;border:1px solid rgba(255,255,255,.055);border-radius:6px;background:#09090c}.v36d-pivot-readout small{display:block;font:750 5.5px/1 var(--mono);color:#626269}.v36d-pivot-readout b{display:block;margin-top:5px;font:700 7px/1 var(--mono);color:#d5d5d9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v36d-hdri-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.v36d-toggle-field{display:flex!important;grid-template-columns:none!important;align-items:center;justify-content:space-between;min-height:42px}.v36d-toggle-field input{width:18px;height:18px;accent-color:var(--v36d-end)}
+.v36d-fixture-row{display:grid;grid-template-columns:58px minmax(0,1fr) 46px;gap:6px;align-items:center;padding:7px;border:1px solid rgba(255,255,255,.055);border-radius:7px;background:#09090c}.v36d-fixture-row>b{font:800 6px/1 var(--mono);letter-spacing:.11em;color:#9a9aa1}.v36d-fixture-row input[type="range"]{width:100%;accent-color:var(--v36d-end)}.v36d-fixture-row input[type="color"]{width:42px;height:30px;padding:2px;border:1px solid #2b2b31;border-radius:5px;background:#111115}
+
+.v36d-dev-status{margin:8px;padding:8px;border:1px solid var(--v36d-line);border-radius:7px;background:#09090c;color:#73737a;font:650 6.2px/1.4 var(--mono)}
+.v36d-dev-status strong{color:var(--v36d-start)}
+
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig .vpbar{display:flex!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig .vptabs{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig .vptab{min-height:38px!important;font-size:8px!important;letter-spacing:.14em!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig .vptab[aria-selected="true"]{color:#fff!important;background:#111115!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig .vptab[aria-selected="true"]::after{background:var(--v36d-end)!important}
+body[data-memento-build="v36d-core-experience-reset"] .shot-player-rig .cprev.work{cursor:grab}
+body[data-memento-build="v36d-core-experience-reset"].v36d-tool-select .shot-player-rig .cprev.work,
+body[data-memento-build="v36d-core-experience-reset"].v36d-tool-pivot .shot-player-rig .cprev.work,
+body[data-memento-build="v36d-core-experience-reset"].v36d-tool-anchor .shot-player-rig .cprev.work{cursor:crosshair}
+body[data-memento-build="v36d-core-experience-reset"].v36d-tool-move .shot-player-rig .cprev.work{cursor:move}
+body[data-memento-build="v36d-core-experience-reset"].v36d-tool-rotate .shot-player-rig .cprev.work{cursor:ew-resize}
+body[data-memento-build="v36d-core-experience-reset"].v36d-tool-scale .shot-player-rig .cprev.work{cursor:ns-resize}
+
+@media(min-width:1500px){:root{--v36d-control-w:430px}}
+@media(max-width:1180px) and (min-width:901px){
+  :root{--v36d-control-w:360px}
+  body[data-memento-build="v36d-core-experience-reset"] .shot-workspace-op{grid-template-columns:minmax(360px,1fr) 7px minmax(310px,var(--v36d-control-w))!important}
+}
+@media(max-width:900px){
+  :root{--v36d-control-w:auto}
+  body[data-memento-build="v36d-core-experience-reset"] .shot-workspace-op{grid-template-columns:1fr!important;grid-template-rows:minmax(230px,46%) minmax(0,1fr)!important;gap:6px!important}
+  body[data-memento-build="v36d-core-experience-reset"] .shot-splitter-op{display:none!important}
+  body[data-memento-build="v36d-core-experience-reset"] .shot-control-pane-op{grid-template-rows:46px minmax(0,1fr)!important}
+  .v36d-pair-head{border-radius:9px 9px 0 0;padding:5px 7px}.v36d-advanced-toggle{min-height:34px}
+  #v36DEditPanel #shotPresetRail{grid-template-columns:1fr!important}
+  #v36DEditPanel .copts{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .v36d-control-grid,.v36d-hdri-grid{grid-template-columns:1fr!important}
+  .v36d-rig-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v36d-field input,.v36d-field select,.v36d-btn{min-height:40px}
+  .v36d-toolstrip .v36d-btn{min-height:38px}
+  .v36d-socket-actions .v36d-btn{min-height:36px}
+}
+@media(max-width:520px){
+  .v36d-pair-copy b{font-size:8px}.v36d-advanced-toggle span{display:none}
+  #v36DEditPanel .copts{grid-template-columns:1fr 1fr!important}
+  .v36d-rig-grid{grid-template-columns:1fr 1fr}
+  .v36d-fixture-row{grid-template-columns:50px minmax(0,1fr) 42px}
+}
+
+/* V36D generic asset calibration selection. */
+.v36d-socket{cursor:pointer;transition:border-color .14s var(--ease),background .14s var(--ease),box-shadow .14s var(--ease)}
+.v36d-socket:hover{border-color:rgba(255,255,255,.22);background:#111116}
+.v36d-socket.active{border-color:var(--v36d-text);background:#151519;box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}
+.v36d-socket.active .v36d-socket-state{color:var(--v36d-text)}
+
+.v36d-transform-caption{display:flex;align-items:baseline;gap:8px;margin:0 0 7px;padding:7px;border:1px solid rgba(255,255,255,.055);border-radius:7px;background:#09090c}.v36d-transform-caption b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px;color:#ededf0}.v36d-transform-caption small{margin-left:auto;font:750 5.7px/1 var(--mono);letter-spacing:.09em;color:#65656c;white-space:nowrap}
+
+/* Superseded milestone surfaces stay service-only in V36D. */
+body.memento-v36d #v34CreativeCore,body.memento-v36d [data-v342-shot-browser],body.memento-v36d [data-v342-timeline-browser],body.memento-v36d #v35AxisLab,body.memento-v36d #v36AFoundation,body.memento-v36d #v36BCompositionLab,body.memento-v36d #v36CShotPresetBrowser{display:none!important}
+
+</style>
 <script id="memento-v36b-finalize">
 (function(){"use strict";function finish(){try{if(window.__mementoV36B&&window.__mementoV36B.install)window.__mementoV36B.install();else if(window.__mementoV36A&&window.__mementoV36A.install)window.__mementoV36A.install();document.body.dataset.mementoBuild="v36b-cinematic-composition-reveal-grammar";document.body.classList.add("memento-v36a","memento-v36b");document.title="MEMENTO — Pocket Previs · V36B CINEMATIC COMPOSITION & REVEAL"}catch(error){console.error("V36B finalize",error)}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",finish,{once:true});else finish();window.addEventListener("load",finish,{once:true});setTimeout(finish,240)})();
 </script>
 
 <script id="memento-v36c-finalize">
 (function(){"use strict";function finish(){try{if(window.__mementoV36C&&window.__mementoV36C.install)window.__mementoV36C.install();document.body.dataset.mementoBuild="v36c-shot-preset-engine";document.body.classList.add("memento-v36a","memento-v36b","memento-v36c");document.title="MEMENTO — Pocket Previs · V36C SHOT PRESET ENGINE"}catch(error){console.error("V36C finalize",error)}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",finish,{once:true});else finish();window.addEventListener("load",finish,{once:true});setTimeout(finish,1100)})();
+</script>
+
+
+
+<script id="memento-v36d-finalize">
+(function(){"use strict";function finish(){try{if(window.__mementoV36D){if(window.__mementoV36D.install)window.__mementoV36D.install();if(window.__mementoV36D.sync)window.__mementoV36D.sync()}if(document.body){document.body.dataset.mementoBuild="v36d-core-experience-reset";document.body.classList.add("memento-v36d")}document.title="MEMENTO — Pocket Previs · V36D CORE EXPERIENCE"}catch(error){console.error("V36D finalize",error)}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",finish,{once:true});else finish();window.addEventListener("load",finish,{once:true});[350,1250,2250].forEach(delay=>setTimeout(finish,delay))})();
 </script>
 
 </body>
