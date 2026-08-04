@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050506">
   <meta name="description" content="MEMENTO V41 — game-like cinematic previs, viewport and timeline studio.">
-  <title>MEMENTO V41 — Core Reunification</title>
+  <title>MEMENTO V41B — Editor Reunification</title>
   <style>
 :root{
   --void:#050506;
@@ -339,13 +339,44 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
 @media(max-width:520px){.preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.preset-card{min-height:126px}.preset-card span{display:none}.result-action small{display:none}.macro-rail{grid-template-columns:repeat(2,1fr)}.macro-options{grid-template-columns:1fr 1fr}.transform-row{grid-template-columns:54px repeat(3,minmax(0,1fr));}.transform-row>button{display:none}.field-grid.two,.field-grid.three,.field-grid.four{grid-template-columns:1fr}.transport-secondary .transport-field:nth-of-type(n+2){display:none}}
 
 .tree-row .tree-mini svg{width:12px;height:12px;display:block}.tree-row .tree-icon{display:grid;place-items:center;width:18px;height:18px}
+
+/* =========================================================
+   MEMENTO V41B · EDITOR REUNIFICATION
+   Editor-first Render · right-edge Outliner · restored Timeline tools
+   ========================================================= */
+body[data-mode="render"] .render-inspector{grid-template-rows:52px 42px minmax(0,1fr)}
+body[data-mode="render"] .legacy-axis-editor{display:block!important;min-height:100%;background:#060607;padding-bottom:106px}
+body[data-mode="render"] .macro-editor{display:none!important}
+body[data-mode="render"] .inspector-scroll{position:relative}
+.edit-master{height:48px;grid-template-columns:minmax(62px,1fr) 190px 74px minmax(62px,1fr);position:sticky;top:0;z-index:18;background:rgba(7,7,9,.98)}
+.axis-section-label{height:28px;padding:0 10px;font-size:8px;letter-spacing:.18em;background:#050506;position:sticky;top:48px;z-index:10}
+.axis-row{position:relative;background:#08080a}.axis-head{min-height:40px;height:40px;padding:0 8px}.axis-context>svg{width:14px;height:14px}.axis-title-copy b{font-size:9px}.axis-flow{font-size:8px;margin-top:3px}.axis-tools{height:40px}.axis-advanced{height:100%;border:0;border-left:1px solid var(--line);background:transparent;color:#65656d;padding:0 9px;font-size:7.5px;font-weight:850;letter-spacing:.08em;cursor:pointer}.axis-advanced:hover{color:#fff;background:#111115}.axis-pool{padding:0 8px;font-size:7.5px}.axis-pool span{display:inline}.axis-action{width:34px}
+.axis-options{grid-template-columns:104px repeat(auto-fill,minmax(92px,1fr));border-top:1px solid #15151a}.axis-icon-tile{height:58px;display:grid;grid-template-columns:25px 1fr;align-items:center;gap:7px;padding:0 9px;border-right:1px solid var(--line);border-bottom:1px solid #15151a;background:#0b0b0e;color:#8b8b94}.axis-icon-tile svg{width:19px;height:19px;color:#d0d0d5}.axis-icon-tile span{font-size:7.5px;font-weight:850;letter-spacing:.08em;line-height:1.3}.axis-option{height:58px;grid-template-rows:minmax(0,1fr) 18px}.axis-option-main{font-size:8.5px;padding:0 8px;text-align:center}.axis-endpoint{font-size:7px}.axis-endpoint span{display:block}.axis-status-line{display:none;height:21px;align-items:center;justify-content:space-between;padding:0 10px;border-top:1px dashed #303037;font-size:7px;font-weight:850;letter-spacing:.09em}.axis-status-line .pool-status{color:#777780}.axis-status-line .lock-status{color:var(--white)}.axis-row.excluded .axis-status-line,.axis-row.locked .axis-status-line{display:flex}.axis-row.excluded .pool-status{color:#c06b5e}.axis-row.excluded .pool-status::before{content:"EXCLUDED FROM RANDOM · "}.axis-row.locked .lock-status::before{content:"LOCKED · "}.axis-row.excluded .axis-options{opacity:.42}.axis-row.excluded .axis-options::after{content:"EXCLUDED FROM GENERATION";position:absolute;left:112px;right:10px;top:50%;height:20px;display:grid;place-items:center;transform:translateY(-50%);border:1px solid rgba(192,107,94,.34);background:rgba(7,7,9,.88);color:#c06b5e;font-size:7px;letter-spacing:.12em;pointer-events:none}.axis-row .axis-options{position:relative}.axis-row.locked .axis-action{color:#fff;background:#121216;box-shadow:inset 0 -2px 0 #fff}.axis-row.excluded .axis-pool{color:#c06b5e}
+body[data-mode="render"] .embedded-properties{margin:0;border-width:1px 0 0;grid-template-rows:48px 38px auto;background:#070709}.properties-close{width:31px;height:31px;border:1px solid var(--line);margin-left:4px}.editor-navigation{position:sticky;bottom:0;z-index:30;display:grid;grid-template-rows:38px 48px;border-top:1px solid #303038;background:rgba(6,6,8,.98);backdrop-filter:blur(10px);box-shadow:0 -16px 32px rgba(0,0,0,.38)}.editor-scrub{display:grid;grid-template-columns:44px minmax(0,1fr) 38px;align-items:center;gap:8px;padding:0 8px;color:#72727b;font-size:7px;font-weight:850;letter-spacing:.09em}.editor-scrub span:first-child{color:var(--start)}.editor-scrub span:last-child{color:var(--accent);text-align:right}.editor-scrub input{height:3px;background:linear-gradient(90deg,var(--start),rgba(255,255,255,.28) 50%,var(--accent))}.editor-scrub input::-webkit-slider-thumb{background:#fff}.editor-transport{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:4px}.editor-state{border:1px solid var(--line);background:#0b0b0e;color:#777780;display:flex;align-items:center;justify-content:center;gap:7px;font-size:8px;font-weight:850;letter-spacing:.11em;cursor:pointer}.editor-state svg{width:13px;height:13px}.editor-state.start{color:var(--start);border-color:rgba(89,215,223,.35)}.editor-state.end{color:var(--accent);border-color:rgba(255,121,80,.35)}.editor-state.play.active,.editor-state:hover{color:#fff;background:#121216}
+/* Presets are secondary but use real player pixels. */
+.preset-card canvas{background:#020203;object-fit:cover}.preset-card:hover canvas{filter:brightness(1.08)}
+/* Viewport: Viewport | Details | Outliner, with Outliner at the far right. */
+body[data-mode="viewport"] .workspace,body[data-mode="viewport"][data-advanced="true"] .workspace{grid-template-columns:minmax(440px,1fr) var(--splitter-w) minmax(370px,var(--details-w)) var(--outliner-w)}
+body[data-mode="viewport"] .player-column{grid-column:1}body[data-mode="viewport"] .workspace-splitter{grid-column:2}body[data-mode="viewport"] .viewport-inspector{grid-column:3}body[data-mode="viewport"] .viewport-outliner{grid-column:4;border-right:0;border-left:1px solid var(--line)}
+body.outliner-collapsed{--outliner-w:0px}.viewport-details-scroll>.panel-section{border-bottom:1px solid var(--line)}.source-upload{min-height:64px;display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:10px;margin:10px 12px;border:1px solid var(--line);background:#0a0a0d;color:#96969f;padding:8px 10px;position:relative;cursor:pointer}.source-upload:hover{border-color:rgba(89,215,223,.42);background:#0d1112}.source-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}.source-upload-icon{width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(89,215,223,.24);color:var(--start)}.source-upload-icon svg{width:17px;height:17px}.source-upload b,.source-upload small{display:block}.source-upload b{font-size:9px;color:#e1e1e5;letter-spacing:.06em}.source-upload small{margin-top:5px;font-size:8px;color:#707078;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.source-upload.compact{min-height:54px}.asset-upload-pair{display:grid;grid-template-columns:1fr 1fr}.asset-upload-pair .source-upload{margin-right:0}.asset-upload-pair .source-upload+ .source-upload{margin-left:6px;margin-right:12px}.background-list .asset-card{box-shadow:inset 2px 0 0 rgba(228,195,74,.45)}.hdri-dedicated{background:linear-gradient(180deg,rgba(89,215,223,.025),transparent 160px)}.hdri-upload{border-color:rgba(89,215,223,.25)}
+/* Timeline tools, lane affordances, overview and explicit interaction modes. */
+.timeline-head{display:grid;grid-template-rows:auto auto auto}.timeline-tool-group{display:flex;height:100%;border-right:1px solid var(--line);margin-right:3px}.timeline-tool{min-width:54px;height:100%;border:0;border-right:1px solid var(--line);background:#08080a;color:#686871;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 7px;cursor:pointer}.timeline-tool svg{width:12px;height:12px}.timeline-tool span{font-size:7px;font-weight:850;letter-spacing:.08em}.timeline-tool.active{color:#fff;background:#15100e;box-shadow:inset 0 -2px 0 var(--accent)}.timeline-overview{height:26px;display:grid;grid-template-columns:48px 1fr;align-items:center;gap:7px;padding:0 8px;border-top:1px solid var(--line);background:#070709;color:#66666e;font-size:7px;font-weight:850;letter-spacing:.09em}.timeline-overview input{height:3px;background:#303038}.timeline-overview input::-webkit-slider-thumb{background:#fff}.timeline-canvas[data-tool="blade"]{cursor:crosshair}.timeline-canvas[data-tool="hand"]{cursor:grab}.timeline-canvas[data-tool="hand"]:active{cursor:grabbing}.lane-add{position:absolute;z-index:9;top:50%;translate:-50% -50%;width:20px;height:20px;border:1px solid #34343c;background:#0b0b0e;color:#7d7d85;padding:0;opacity:.22;cursor:pointer}.lane-add.zero{left:0;translate:0 -50%}.track-lane:hover .lane-add{opacity:.8}.lane-add:hover{opacity:1!important;color:#fff;border-color:var(--accent);background:#15100e}.timeline-bottom{max-height:250px}.track-policy,.timeline-project{display:block}.track-policy>summary,.timeline-project>summary{cursor:pointer}
+@media(max-width:1180px){body[data-mode="viewport"] .workspace,body[data-mode="viewport"][data-advanced="true"] .workspace{grid-template-columns:minmax(380px,1fr) var(--splitter-w) minmax(330px,380px) 230px}.axis-options{grid-template-columns:96px repeat(auto-fill,minmax(82px,1fr))}.axis-advanced{font-size:0;width:32px}.axis-advanced::before{content:"ADV";font-size:7px}}
+@media(max-width:900px){body[data-mode="viewport"] .workspace,body[data-mode="viewport"][data-advanced="true"] .workspace{grid-template-columns:1fr;grid-template-rows:minmax(250px,42%) minmax(0,1fr)}body[data-mode="viewport"] .player-column{grid-column:1;grid-row:1}body[data-mode="viewport"] .viewport-inspector{grid-column:1;grid-row:2}body[data-mode="viewport"] .viewport-outliner{display:none}.axis-options{grid-template-columns:78px repeat(2,minmax(0,1fr))}.axis-icon-tile{height:54px}.asset-upload-pair{grid-template-columns:1fr}.asset-upload-pair .source-upload{margin:8px 10px}.timeline-tool span{display:none}.timeline-tool{min-width:34px}.editor-navigation{position:sticky}}
+
+
+/* V41B validation polish */
+body[data-mode="viewport"] .viewport-outliner{height:auto;align-self:stretch;min-height:0}
+.axis-option-main,.axis-endpoint{font-size:9px}
+
+body[data-mode="viewport"] .viewport-outliner{height:calc(100dvh - var(--header-h))!important}
 </style>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
 </head>
-<body data-mode="render" data-advanced="false" data-view="render" data-lang="en" data-build="v41" data-macro-advanced="false">
+<body data-mode="render" data-advanced="false" data-view="render" data-lang="en" data-build="v41b" data-macro-advanced="false">
 <svg class="svg-sprite" aria-hidden="true">
   <symbol id="i-shot" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m9 9 6 3-6 3z"/></symbol>
   <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></symbol>
@@ -488,12 +519,12 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
       <span class="status-pill" id="shotDeltaMeta">0 DELTA</span>
     </div>
     <nav class="inspector-tabs" aria-label="Render controls" role="tablist">
-      <button class="inspector-tab active" data-render-tab="presets" role="tab" aria-selected="true">PRESETS</button>
-      <button class="inspector-tab" data-render-tab="edit" role="tab" aria-selected="false">EDIT</button>
+      <button class="inspector-tab active" data-render-tab="edit" role="tab" aria-selected="true">EDITOR</button>
+      <button class="inspector-tab" data-render-tab="presets" role="tab" aria-selected="false">SHOT PRESETS</button>
       <button class="inspector-tab" data-render-tab="analysis" role="tab" aria-selected="false">ANALYSIS</button>
     </nav>
     <div class="inspector-scroll">
-      <section class="inspector-panel active" data-render-panel="presets" role="tabpanel">
+      <section class="inspector-panel" data-render-panel="presets" role="tabpanel">
         <section class="panel-section preset-command-section">
           <div class="result-actions">
             <button class="result-action" id="nearVariantButton"><svg><use href="#i-variant"/></svg><span><b>NEAR</b><small>Same shot, controlled variation</small></span></button>
@@ -513,13 +544,17 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
           <div class="preset-grid" id="presetGrid"></div>
         </section>
       </section>
-      <section class="inspector-panel" data-render-panel="edit" role="tabpanel">
-        <div id="axisEditor" class="axis-editor legacy-axis-editor" hidden></div>
-        <div id="macroEditor" class="macro-editor"></div>
+      <section class="inspector-panel active" data-render-panel="edit" role="tabpanel">
+        <div id="axisEditor" class="axis-editor legacy-axis-editor"></div>
+        <div id="macroEditor" class="macro-editor" hidden></div>
         <section class="properties-panel embedded-properties" id="propertiesPanel">
-          <div class="properties-head"><div><span>ADVANCED PROPERTIES</span><b id="propertyAxisLabel">CAMERA MOTION</b></div><span class="properties-hint" id="propertyHint">CONTEXTUAL</span></div>
+          <div class="properties-head"><div><span>ADVANCED PROPERTIES</span><b id="propertyAxisLabel">CAMERA MOTION</b></div><span class="properties-hint" id="propertyHint">CONTEXTUAL</span><button class="icon-button properties-close" id="closeAxisAdvanced" title="Close advanced properties"><svg><use href="#i-close"/></svg></button></div>
           <div class="property-scope" role="group"><button data-property-scope="start">START</button><button class="active" data-property-scope="both">BOTH</button><button data-property-scope="end">END</button></div>
           <div class="properties-scroll" id="propertiesContent"></div>
+        </section>
+        <section class="editor-navigation" id="editorNavigation" aria-label="Shot navigation">
+          <label class="editor-scrub"><span>START</span><input id="editorScrub" type="range" min="0" max="1000" value="0"><span>END</span></label>
+          <div class="editor-transport"><button id="editorStart" class="editor-state start"><svg><use href="#i-start"/></svg><span>START</span></button><button id="editorPlay" class="editor-state play"><svg><use href="#i-play"/></svg><span>PLAY</span></button><button id="editorEnd" class="editor-state end"><span>END</span><svg><use href="#i-end"/></svg></button></div>
         </section>
       </section>
       <section class="inspector-panel" data-render-panel="analysis" role="tabpanel">
@@ -546,139 +581,60 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
 
   <aside class="inspector viewport-inspector" id="assetInspector">
     <div class="inspector-head viewport-details-head">
-      <div><span>VIEWPORT | DETAILS</span><b id="detailsSelectionName">HERO PRIMARY</b></div>
+      <div><span>VIEWPORT | ASSET EDITOR</span><b id="detailsSelectionName">HERO PRIMARY</b></div>
       <span class="status-pill" id="assetCount">1 ASSET</span>
     </div>
-    <div class="inspector-scroll">
-      <section class="panel-section viewport-selection-card">
+    <div class="inspector-scroll viewport-details-scroll">
+      <section class="panel-section asset-role-section subject-source-section">
+        <div class="section-head"><span>SUBJECT</span><b>PRIMARY SOURCE</b></div>
+        <label class="source-upload hero-upload"><span class="source-upload-icon"><svg><use href="#i-cube"/></svg></span><span><b>UPLOAD / REPLACE SUBJECT</b><small>GLB or embedded GLTF · identity owner</small></span><input id="assetHeroInput" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
         <div class="selection-summary"><span class="selection-icon" id="detailsSelectionIcon"><svg><use href="#i-cube"/></svg></span><div><small id="detailsSelectionRole">HERO</small><b id="detailsSelectionTitle">Hero Proxy</b><span id="detailsSelectionStatus">PROXY · READY</span></div><button class="text-button" id="detailsFrameSelected">FRAME</button></div>
       </section>
       <section class="panel-section transform-component">
-        <div class="section-head"><span>TRANSFORM</span><b><button class="mini-select" id="transformSpaceButton">WORLD</button> · SNAP <button class="mini-select" id="transformSnapButton">OFF</button></b></div>
+        <div class="section-head"><span>SUBJECT TRANSFORM</span><b><button class="mini-select" id="transformSpaceButton">WORLD</button> · SNAP <button class="mini-select" id="transformSnapButton">OFF</button></b></div>
         <div class="transform-table" id="viewportTransformFields">
           <div class="transform-row"><span>LOCATION</span><label>X<input data-asset-pos="0" type="number" step=".001"></label><label>Y<input data-asset-pos="1" type="number" step=".001"></label><label>Z<input data-asset-pos="2" type="number" step=".001"></label><button data-transform-reset="position" aria-label="Reset location">↺</button></div>
           <div class="transform-row"><span>ROTATION</span><label>X<input data-asset-rot="0" type="number" step=".1"></label><label>Y<input data-asset-rot="1" type="number" step=".1"></label><label>Z<input data-asset-rot="2" type="number" step=".1"></label><button data-transform-reset="rotation" aria-label="Reset rotation">↺</button></div>
           <div class="transform-row"><span>SCALE</span><label>X<input data-asset-scale="0" type="number" min=".001" max="32" step=".01"></label><label>Y<input data-asset-scale="1" type="number" min=".001" max="32" step=".01"></label><label>Z<input data-asset-scale="2" type="number" min=".001" max="32" step=".01"></label><button data-transform-reset="scale3" aria-label="Reset scale">↺</button></div>
         </div>
+        <input id="assetScale" type="number" hidden min=".001" max="32" step=".01">
+        <button id="resetAssetTransform" hidden></button>
       </section>
-      <section class="panel-section viewport-variant-section">
-        <div class="section-head"><span>HERO VARIANTS</span><b id="variantCountMeta">0 ASSIGNED</b></div><div class="variant-strip" id="variantStrip"></div>
-      </section>
-      <section class="panel-section viewport-animation-section">
-        <div class="section-head"><span>ANIMATION</span><b>VIEWPORT PREVIEW</b></div>
+      <details class="panel-section viewport-variant-section" open>
+        <summary class="section-head"><span>HERO VARIANTS</span><b id="variantCountMeta">0 ASSIGNED</b></summary>
+        <div class="variant-strip" id="variantStrip"></div>
+        <label class="source-upload compact"><span class="source-upload-icon"><svg><use href="#i-variant"/></svg></span><span><b>UPLOAD VARIANT</b><small>Configuration, material or structural version</small></span><input id="assetVariantInput" type="file" multiple accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
+      </details>
+      <details class="panel-section viewport-animation-section" open>
+        <summary class="section-head"><span>SUBJECT ANIMATION</span><b>VIEWPORT PREVIEW</b></summary>
         <div class="section-body"><div class="field-grid two"><label class="field wide"><span>CLIP</span><select id="assetAnimationClip"><option value="">HOLD</option></select></label><label class="toggle-field"><span>PLAY</span><input id="assetAnimationPlaying" type="checkbox"></label><label class="toggle-field"><span>LOOP</span><input id="assetAnimationLoop" type="checkbox"></label><label class="field wide"><span>SPEED <output id="assetAnimationSpeedOut">1.00×</output></span><input id="assetAnimationSpeed" type="range" min=".1" max="2" step=".05"></label></div></div>
-      </section>
-      <section class="panel-section">
-        <div class="section-head"><span>CONTEXT</span><b>ADVANCED PROPERTIES TARGET</b></div>
-        <div class="inline-actions" style="margin:0 12px 12px">
-          <button class="text-button primary" data-property-context="asset">ASSET</button><button class="text-button" data-property-context="pivot">PIVOT</button><button class="text-button" data-property-context="anchor">ANCHOR</button><button class="text-button" data-property-context="hdri">HDRI</button><button class="text-button" data-property-context="light-fixture">LIGHT</button>
-        </div>
-      </section>
-      <section class="panel-section upload-section">
-        <div class="section-head"><span>SCENE INGREDIENTS</span><b>ONE ROLE · ONE SOURCE</b></div>
-        <div class="upload-grid">
-          <label class="upload-button"><svg><use href="#i-cube"/></svg><span><b>HERO GLB</b><small>Replace the proxy</small></span><input id="assetHeroInput" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
-          <label class="upload-button"><svg><use href="#i-plus"/></svg><span><b>SECONDARY</b><small>Props and variants</small></span><input id="assetSecondaryInput" type="file" multiple accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
-          <label class="upload-button"><svg><use href="#i-hdri"/></svg><span><b>HDRI</b><small>Light and background</small></span><input id="assetHdriInput" type="file" accept=".hdr,image/vnd.radiance"></label>
-        </div>
-      </section>
-      <section class="panel-section">
-        <div class="section-head"><span>ASSET SOCKETS</span><b>SELECT TO CALIBRATE</b></div>
+      </details>
+      <details class="panel-section" open>
+        <summary class="section-head"><span>SECONDARY / PROP ASSETS</span><b>MULTI ASSET</b></summary>
+        <div class="asset-upload-pair"><label class="source-upload compact"><span class="source-upload-icon"><svg><use href="#i-plus"/></svg></span><span><b>UPLOAD SECONDARY</b><small>Props, foreground and staging assets</small></span><input id="assetSecondaryInput" type="file" multiple accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label><label class="source-upload compact"><span class="source-upload-icon"><svg><use href="#i-plus"/></svg></span><span><b>UPLOAD ENVIRONMENT MESH</b><small>Set, stage or practical environment</small></span><input id="assetEnvironmentInput" type="file" multiple accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label></div>
         <div class="asset-list" id="assetList"></div>
-        <div class="quick-fix-grid simple-only">
-          <button class="text-button" data-calibrate="center">AUTO CENTER</button>
-          <button class="text-button" data-calibrate="ground">GROUND MODEL</button>
-          <button class="text-button" data-calibrate="normalize">NORMALIZE SCALE</button>
-        </div>
-      </section>
-      <section class="panel-section simple-only">
-        <div class="section-head"><span>ENVIRONMENT</span><b>GAME CONTROLS</b></div>
-        <div class="field-grid two">
-          <label class="toggle-field"><span>ENV LIGHT</span><input data-hdri="lightingEnabled" type="checkbox"></label>
-          <label class="toggle-field"><span>VISIBLE BG</span><input data-hdri="backgroundEnabled" type="checkbox"></label>
-          <label class="field wide"><span>ROTATE ENVIRONMENT <output data-hdri-out="lightingYaw">0°</output></span><input data-hdri="lightingYaw" type="range" min="-180" max="180" step="1"></label>
-          <label class="field wide"><span>ENV INTENSITY <output data-hdri-out="lightingIntensity">1.00</output></span><input data-hdri="lightingIntensity" type="range" min="0" max="3" step=".01"></label>
-        </div>
-      </section>
-      <details class="panel-section viewport-tech legacy-transform-details">
-        <summary class="section-head"><span>SELECTED ASSET TRANSFORM</span><b>NOT SHOT MOTION</b></summary>
-        <div class="section-body">
-          <div class="field-grid three">
-            <label class="field"><span>POSITION X</span><input data-asset-pos="0" type="number" step=".001"></label>
-            <label class="field"><span>POSITION Y</span><input data-asset-pos="1" type="number" step=".001"></label>
-            <label class="field"><span>POSITION Z</span><input data-asset-pos="2" type="number" step=".001"></label>
-            <label class="field"><span>ROTATION X</span><input data-asset-rot="0" type="number" step=".1"></label>
-            <label class="field"><span>ROTATION Y</span><input data-asset-rot="1" type="number" step=".1"></label>
-            <label class="field"><span>ROTATION Z</span><input data-asset-rot="2" type="number" step=".1"></label>
-            <label class="field"><span>DIRECT SCALE</span><input id="assetScale" type="number" min=".001" max="32" step=".01"></label>
-          </div>
-          <div class="inline-actions"><button class="text-button" id="resetAssetTransform">RESET TRANSFORM</button></div>
-        </div>
+        <div class="quick-fix-grid"><button class="text-button" data-calibrate="center">AUTO CENTER</button><button class="text-button" data-calibrate="ground">GROUND MODEL</button><button class="text-button" data-calibrate="normalize">NORMALIZE SCALE</button></div>
+      </details>
+      <details class="panel-section background-asset-section" open>
+        <summary class="section-head"><span>BACKGROUND ASSET</span><b>GEOMETRY / PLATE</b></summary>
+        <label class="source-upload compact"><span class="source-upload-icon"><svg><use href="#i-image"/></svg></span><span><b>UPLOAD BACKGROUND MODEL</b><small>Cyclorama, room, terrain or backdrop mesh</small></span><input id="assetBackgroundInput" type="file" multiple accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
+        <div class="asset-list background-list" id="backgroundAssetList"></div>
       </details>
       <details class="panel-section viewport-tech" open>
         <summary class="section-head"><span>MODEL NORMALIZATION & PIVOT</span><b>NON-DESTRUCTIVE</b></summary>
-        <div class="section-body">
-          <div class="field-grid two">
-            <label class="field"><span>PIVOT MODE</span><select id="pivotMode"><option value="source">SOURCE PIVOT</option><option value="bounds-center">BOUNDS CENTER</option><option value="visual-center">VISUAL CENTER</option><option value="ground">GROUND CONTACT</option><option value="active-anchor">ACTIVE FEATURE ANCHOR</option><option value="custom">CUSTOM XYZ</option></select></label>
-            <label class="field"><span>FEATURE ANCHOR</span><select id="pivotAnchor"></select></label>
-          </div>
-          <div class="field-grid three">
-            <label class="field"><span>PIVOT X</span><input data-pivot="0" type="number" step=".001"></label>
-            <label class="field"><span>PIVOT Y</span><input data-pivot="1" type="number" step=".001"></label>
-            <label class="field"><span>PIVOT Z</span><input data-pivot="2" type="number" step=".001"></label>
-          </div>
-          <div class="inline-actions"><button class="text-button primary" id="applyPivotButton">APPLY PIVOT</button><button class="text-button" id="pickPivotButton">PICK SURFACE</button><button class="text-button" id="resetPivotButton">RESET CENTER</button></div>
-          <p class="help" id="pivotReadout">Pivot remains separate from shot animation and is preserved across every preset.</p>
-        </div>
+        <div class="section-body"><div class="field-grid two"><label class="field"><span>PIVOT MODE</span><select id="pivotMode"><option value="source">SOURCE PIVOT</option><option value="bounds-center">BOUNDS CENTER</option><option value="visual-center">VISUAL CENTER</option><option value="ground">GROUND CONTACT</option><option value="active-anchor">ACTIVE FEATURE ANCHOR</option><option value="custom">CUSTOM XYZ</option></select></label><label class="field"><span>FEATURE ANCHOR</span><select id="pivotAnchor"></select></label></div><div class="field-grid three"><label class="field"><span>PIVOT X</span><input data-pivot="0" type="number" step=".001"></label><label class="field"><span>PIVOT Y</span><input data-pivot="1" type="number" step=".001"></label><label class="field"><span>PIVOT Z</span><input data-pivot="2" type="number" step=".001"></label></div><div class="inline-actions"><button class="text-button primary" id="applyPivotButton">APPLY PIVOT</button><button class="text-button" id="pickPivotButton">PICK SURFACE</button><button class="text-button" id="resetPivotButton">RESET CENTER</button></div><p class="help" id="pivotReadout">Pivot remains separate from shot animation and is preserved across presets.</p><label class="field"><span>ANCHOR NAME</span><input id="anchorName" type="text" value="CUSTOM FEATURE"></label><div class="inline-actions"><button class="text-button primary" id="pickAnchorButton">ADD SURFACE ANCHOR</button><button class="text-button danger" id="deleteAnchorButton">DELETE SELECTED MANUAL</button></div></div>
+      </details>
+      <details class="panel-section hdri-dedicated" id="hdriDetailsSection" open>
+        <summary class="section-head"><span>HDRI ENVIRONMENT</span><b>LIGHTING ≠ BACKGROUND</b></summary>
+        <label class="source-upload hdri-upload"><span class="source-upload-icon"><svg><use href="#i-hdri"/></svg></span><span><b>UPLOAD / REPLACE HDRI</b><small id="hdriSourceMeta">No environment assigned</small></span><input id="assetHdriInput" type="file" accept=".hdr,image/vnd.radiance"></label>
+        <div class="section-body"><div class="field-grid two"><label class="toggle-field"><span>ENVIRONMENT LIGHT</span><input data-hdri="lightingEnabled" type="checkbox"></label><label class="toggle-field"><span>VISIBLE BACKGROUND</span><input data-hdri="backgroundEnabled" type="checkbox"></label><label class="toggle-field"><span>LINK ROTATION</span><input data-hdri="linkRotation" type="checkbox"></label><label class="toggle-field"><span>MIRROR</span><input data-hdri="mirror" type="checkbox"></label><label class="field"><span>LIGHT YAW <output data-hdri-out="lightingYaw">0°</output></span><input data-hdri="lightingYaw" type="range" min="-180" max="180" step="1"></label><label class="field"><span>LIGHT PITCH <output data-hdri-out="lightingPitch">0°</output></span><input data-hdri="lightingPitch" type="range" min="-90" max="90" step="1"></label><label class="field"><span>BACKGROUND YAW <output data-hdri-out="backgroundYaw">0°</output></span><input data-hdri="backgroundYaw" type="range" min="-180" max="180" step="1"></label><label class="field"><span>BACKGROUND PITCH <output data-hdri-out="backgroundPitch">0°</output></span><input data-hdri="backgroundPitch" type="range" min="-90" max="90" step="1"></label><label class="field"><span>ENV LIGHT <output data-hdri-out="lightingIntensity">1.00</output></span><input data-hdri="lightingIntensity" type="range" min="0" max="3" step=".01"></label><label class="field"><span>REFLECTION <output data-hdri-out="reflectionIntensity">1.00</output></span><input data-hdri="reflectionIntensity" type="range" min="0" max="3" step=".01"></label><label class="field"><span>BACKGROUND <output data-hdri-out="backgroundIntensity">1.00</output></span><input data-hdri="backgroundIntensity" type="range" min="0" max="3" step=".01"></label><label class="field"><span>BG EXPOSURE <output data-hdri-out="backgroundExposure">0.00</output></span><input data-hdri="backgroundExposure" type="range" min="-4" max="4" step=".05"></label><label class="field"><span>BG BLUR <output data-hdri-out="backgroundBlur">0%</output></span><input data-hdri="backgroundBlur" type="range" min="0" max="1" step=".01"></label><label class="field"><span>HORIZON OFFSET <output data-hdri-out="backgroundOffset">0.00</output></span><input data-hdri="backgroundOffset" type="range" min="-.4" max=".4" step=".005"></label><label class="field"><span>BACKGROUND TINT</span><input data-hdri="tint" type="color"></label></div><div class="inline-actions"><button class="text-button primary" id="commitHdriButton">COMMIT REFLECTION ROTATION</button><button class="text-button" id="resetHdriButton">RESET HDRI CONTROLS</button></div></div>
       </details>
       <details class="panel-section viewport-tech">
-        <summary class="section-head"><span>FEATURE TARGETS</span><b>RAYCAST</b></summary>
-        <div class="section-body">
-          <label class="field"><span>ANCHOR NAME</span><input id="anchorName" type="text" value="CUSTOM FEATURE"></label>
-          <div class="inline-actions"><button class="text-button primary" id="pickAnchorButton">ADD SURFACE ANCHOR</button><button class="text-button danger" id="deleteAnchorButton">DELETE SELECTED MANUAL</button></div>
-        </div>
+        <summary class="section-head"><span>RENDER QUALITY</span><b>ADAPTIVE</b></summary><div class="section-body"><div class="field-grid two"><label class="field"><span>RENDER SCALE <output id="renderScaleOut">1.0×</output></span><input id="renderScale" type="range" min=".5" max="2" step=".1"></label><label class="field"><span>MAX DPR</span><select id="maxDpr"><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><label class="toggle-field"><span>SHADOWS</span><input id="shadowsEnabled" type="checkbox"></label><label class="toggle-field"><span>AUTO QUALITY</span><input id="autoQuality" type="checkbox"></label></div></div>
       </details>
-      <details class="panel-section viewport-tech">
-        <summary class="section-head"><span>HDRI / FALSE ENVIRONMENT</span><b>LIGHTING ≠ BACKGROUND</b></summary>
-        <div class="section-body">
-          <div class="field-grid two">
-            <label class="toggle-field"><span>ENVIRONMENT LIGHT</span><input data-hdri="lightingEnabled" type="checkbox"></label>
-            <label class="toggle-field"><span>VISIBLE BACKGROUND</span><input data-hdri="backgroundEnabled" type="checkbox"></label>
-            <label class="toggle-field"><span>LINK ROTATION</span><input data-hdri="linkRotation" type="checkbox"></label>
-            <label class="toggle-field"><span>MIRROR</span><input data-hdri="mirror" type="checkbox"></label>
-            <label class="field"><span>LIGHT YAW <output data-hdri-out="lightingYaw">0°</output></span><input data-hdri="lightingYaw" type="range" min="-180" max="180" step="1"></label>
-            <label class="field"><span>LIGHT PITCH <output data-hdri-out="lightingPitch">0°</output></span><input data-hdri="lightingPitch" type="range" min="-90" max="90" step="1"></label>
-            <label class="field"><span>BACKGROUND YAW <output data-hdri-out="backgroundYaw">0°</output></span><input data-hdri="backgroundYaw" type="range" min="-180" max="180" step="1"></label>
-            <label class="field"><span>BACKGROUND PITCH <output data-hdri-out="backgroundPitch">0°</output></span><input data-hdri="backgroundPitch" type="range" min="-90" max="90" step="1"></label>
-            <label class="field"><span>ENV LIGHT <output data-hdri-out="lightingIntensity">1.00</output></span><input data-hdri="lightingIntensity" type="range" min="0" max="3" step=".01"></label>
-            <label class="field"><span>REFLECTION <output data-hdri-out="reflectionIntensity">1.00</output></span><input data-hdri="reflectionIntensity" type="range" min="0" max="3" step=".01"></label>
-            <label class="field"><span>BACKGROUND <output data-hdri-out="backgroundIntensity">1.00</output></span><input data-hdri="backgroundIntensity" type="range" min="0" max="3" step=".01"></label>
-            <label class="field"><span>BG EXPOSURE <output data-hdri-out="backgroundExposure">0.00</output></span><input data-hdri="backgroundExposure" type="range" min="-4" max="4" step=".05"></label>
-            <label class="field"><span>BG BLUR <output data-hdri-out="backgroundBlur">0%</output></span><input data-hdri="backgroundBlur" type="range" min="0" max="1" step=".01"></label>
-            <label class="field"><span>HORIZON OFFSET <output data-hdri-out="backgroundOffset">0.00</output></span><input data-hdri="backgroundOffset" type="range" min="-.4" max=".4" step=".005"></label>
-            <label class="field"><span>BACKGROUND TINT</span><input data-hdri="tint" type="color"></label>
-          </div>
-          <div class="inline-actions"><button class="text-button primary" id="commitHdriButton">COMMIT REFLECTION ROTATION</button><button class="text-button" id="resetHdriButton">RESET HDRI CONTROLS</button></div>
-        </div>
-      </details>
-      <details class="panel-section viewport-tech">
-        <summary class="section-head"><span>RENDER QUALITY</span><b>ADAPTIVE</b></summary>
-        <div class="section-body">
-          <div class="field-grid two">
-            <label class="field"><span>RENDER SCALE <output id="renderScaleOut">1.0×</output></span><input id="renderScale" type="range" min=".5" max="2" step=".1"></label>
-            <label class="field"><span>MAX DPR</span><select id="maxDpr"><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
-            <label class="toggle-field"><span>SHADOWS</span><input id="shadowsEnabled" type="checkbox"></label>
-            <label class="toggle-field"><span>AUTO QUALITY</span><input id="autoQuality" type="checkbox"></label>
-          </div>
-        </div>
-      </details>
-      <details class="panel-section viewport-tech">
-        <summary class="section-head"><span>PLAYER HEALTH</span><b>REAL PIXELS</b></summary>
-        <div class="section-body"><button class="text-button" id="inspectorRefresh"><svg><use href="#i-health"/></svg>RUN HEALTH CHECK</button><div class="diagnostics" id="assetDiagnostics"></div></div>
-      </details>
+      <details class="panel-section viewport-tech"><summary class="section-head"><span>PLAYER HEALTH</span><b>REAL PIXELS</b></summary><div class="section-body"><button class="text-button" id="inspectorRefresh"><svg><use href="#i-health"/></svg>RUN HEALTH CHECK</button><div class="diagnostics" id="assetDiagnostics"></div></div></details>
     </div>
   </aside>
-
 
   <section class="timeline-workspace" id="timelineWorkspace">
     <div class="timeline-head">
@@ -687,6 +643,7 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
         <div class="sequence-rail" id="sequenceList"></div>
       </div>
       <div class="timeline-toolbar">
+        <div class="timeline-tool-group" role="toolbar" aria-label="Timeline tools"><button class="timeline-tool active" id="timelineToolSelect" data-timeline-tool="select" title="Select tool · V"><svg><use href="#i-select"/></svg><span>SELECT</span></button><button class="timeline-tool" id="timelineToolBlade" data-timeline-tool="blade" title="Blade tool · B"><svg><use href="#i-split"/></svg><span>BLADE</span></button><button class="timeline-tool" id="timelineToolHand" data-timeline-tool="hand" title="Hand tool · H"><svg><use href="#i-hand"/></svg><span>HAND</span></button></div>
         <button class="icon-button" id="timelineStart" title="Project start"><svg><use href="#i-start"/></svg></button>
         <button class="icon-button" id="timelinePrevCut" title="Previous cut"><svg><use href="#i-prev"/></svg></button>
         <button class="icon-button" id="timelinePlay" title="Play / Pause"><svg><use href="#i-play"/></svg></button>
@@ -699,6 +656,7 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
         <button class="text-button" id="timelineAddActiveShot"><svg><use href="#i-plus"/></svg>ADD SHOT</button>
         <button class="text-button" id="timelineOpenSelected">OPEN RENDER</button>
       </div>
+      <label class="timeline-overview"><span>CANVAS</span><input id="timelineOverview" type="range" min="0" max="1000" value="0" aria-label="Timeline horizontal overview"></label>
     </div>
     <div class="timeline-board">
       <div class="timeline-scroll" id="timelineScroll"><div class="timeline-canvas" id="timelineCanvas"></div></div>
@@ -719,11 +677,11 @@ body[data-mode="timeline"] .viewport-outliner{display:none}.clip.selected{border
           <label class="text-button file-button"><svg><use href="#i-audio"/></svg>AUDIO<input id="audioInput" type="file" accept="audio/*"></label>
           <button class="text-button danger" id="timelineClear">CLEAR TIMELINE</button>
         </div>
-        <details class="advanced-only track-policy">
+        <details class="track-policy" open>
           <summary class="section-head"><span>TRACK POLICY</span><b>FX · V3 · V2 · V1 · A2 · A1</b></summary>
           <div id="trackPolicy"></div>
         </details>
-        <details class="advanced-only timeline-project">
+        <details class="timeline-project">
           <summary class="section-head"><span>PROJECT FORMAT</span><b>FRAME ACCURATE</b></summary>
           <div class="field-grid four">
             <label class="field"><span>FPS</span><select id="fpsSelect"><option>24</option><option>25</option><option>30</option><option>48</option><option>60</option></select></label>
@@ -760,7 +718,7 @@ window.addEventListener("DOMContentLoaded",()=>{
 "use strict";
 
 const VERSION=41;
-const BUILD="41.0.0";
+const BUILD="41.1.0";
 const SCHEMA="memento.v41";
 const LEGACY_SCHEMAS=new Set(["memento.v40","memento.v39.premium-core","memento.v38.studio-core","memento.v37.clean-core"]);
 const STORAGE_KEY="memento.v41.project";
@@ -1287,7 +1245,7 @@ function defaultState(){
   return{
     schema:SCHEMA,version:VERSION,
     project:{title:"MEMENTO FILM",seed:12037,fps:24,aspect:"16:9",inFrame:0,outFrame:shot.durationFrames,createdAt:Date.now(),updatedAt:Date.now()},
-    ui:{mode:"render",view:"render",advanced:false,renderTab:"presets",propertyAxis:"camera",propertyKind:"shot-axis",selectedTrackId:"v1",lang:"en",tool:"orbit",selectedAssetId:"hero",selectedShotId:shot.id,selectedClipId:clip.id,editSide:"both",family:"hero",shotMix:0,timelineZoom:4,snap:true,loop:true,focus:false,macro:"camera",macroAxis:"camera",macroAdvancedOpen:false,presetQuery:"",presetUseCase:"all",outlinerExpanded:{scene:true,hero:true,variants:true,environment:true,lights:true,cameras:true},viewportSpace:"world",transformSnap:false},
+    ui:{mode:"render",view:"render",advanced:false,renderTab:"edit",propertyAxis:"camera",propertyKind:"shot-axis",selectedTrackId:"v1",lang:"en",tool:"orbit",selectedAssetId:"hero",selectedShotId:shot.id,selectedClipId:clip.id,editSide:"both",family:"hero",shotMix:0,timelineZoom:4,timelineTool:"select",snap:true,loop:true,focus:false,macro:"camera",macroAxis:"camera",macroAdvancedOpen:false,presetQuery:"",presetUseCase:"all",outlinerExpanded:{scene:true,hero:true,variants:true,environment:true,lights:true,cameras:true},viewportSpace:"world",transformSnap:false},
     scene:{
       assets:[defaultHeroAsset()],
       environment:{fileName:"NONE",blobKey:null,lightingEnabled:true,backgroundEnabled:false,linkRotation:true,mirror:false,lightingYaw:0,lightingPitch:0,backgroundYaw:0,backgroundPitch:0,lightingIntensity:1,reflectionIntensity:1,backgroundIntensity:1,backgroundExposure:0,backgroundBlur:0,backgroundOffset:0,tint:"#ffffff"},
@@ -1329,7 +1287,7 @@ function normalizeState(raw){
   if(!raw||!(raw.schema===SCHEMA||LEGACY_SCHEMAS.has(raw.schema)))return base;
   const state={...base,...raw};
   state.project={...base.project,...raw.project};
-  state.ui={...base.ui,...raw.ui};state.schema=SCHEMA;state.version=41;state.ui.propertyAxis=AXIS_MAP.has(raw.ui?.propertyAxis)?raw.ui.propertyAxis:"camera";state.ui.lang=["en","it"].includes(raw.ui?.lang)?raw.ui.lang:"en";state.ui.renderTab=["edit","presets","analysis"].includes(raw.ui?.renderTab)?raw.ui.renderTab:"presets";state.ui.macro=V41_MACRO_MAP.has(raw.ui?.macro)?raw.ui.macro:"camera";state.ui.macroAxis=AXIS_MAP.has(raw.ui?.macroAxis)?raw.ui.macroAxis:(V41_MACRO_MAP.get(state.ui.macro)?.axes[0]||"camera");state.ui.macroAdvancedOpen=!!raw.ui?.macroAdvancedOpen;state.ui.presetQuery=String(raw.ui?.presetQuery||"");state.ui.presetUseCase=String(raw.ui?.presetUseCase||"all");state.ui.outlinerExpanded={...base.ui.outlinerExpanded,...(raw.ui?.outlinerExpanded||{})};state.ui.viewportSpace=raw.ui?.viewportSpace==="local"?"local":"world";state.ui.transformSnap=!!raw.ui?.transformSnap;
+  state.ui={...base.ui,...raw.ui};state.schema=SCHEMA;state.version=41;state.ui.propertyAxis=AXIS_MAP.has(raw.ui?.propertyAxis)?raw.ui.propertyAxis:"camera";state.ui.lang=["en","it"].includes(raw.ui?.lang)?raw.ui.lang:"en";state.ui.renderTab=["edit","presets","analysis"].includes(raw.ui?.renderTab)?raw.ui.renderTab:"edit";state.ui.timelineTool=["select","blade","hand"].includes(raw.ui?.timelineTool)?raw.ui.timelineTool:"select";state.ui.macro=V41_MACRO_MAP.has(raw.ui?.macro)?raw.ui.macro:"camera";state.ui.macroAxis=AXIS_MAP.has(raw.ui?.macroAxis)?raw.ui.macroAxis:(V41_MACRO_MAP.get(state.ui.macro)?.axes[0]||"camera");state.ui.macroAdvancedOpen=!!raw.ui?.macroAdvancedOpen;state.ui.presetQuery=String(raw.ui?.presetQuery||"");state.ui.presetUseCase=String(raw.ui?.presetUseCase||"all");state.ui.outlinerExpanded={...base.ui.outlinerExpanded,...(raw.ui?.outlinerExpanded||{})};state.ui.viewportSpace=raw.ui?.viewportSpace==="local"?"local":"world";state.ui.transformSnap=!!raw.ui?.transformSnap;
   state.scene={...base.scene,...raw.scene};
   state.scene.environment={...base.scene.environment,...(raw.scene?.environment||{})};
   state.scene.render={...base.scene.render,...(raw.scene?.render||{})};
@@ -1795,12 +1753,12 @@ class AssetManager extends Emitter{
       this.emit("status",{ok:true,message:result.fallback?`${file.name} cached · Canvas Safe active`:`${file.name} · ${result.meshes} mesh · ${Math.round(result.triangles/1000)}K tris · HEALTHY`});
     }catch(error){this.engine.confirmAsset?.(previous.id,false);await blobs.remove(key);store.run("Rollback hero import",state=>{const index=state.scene.assets.findIndex(asset=>asset.role==="hero");state.scene.assets[index]=normalizeAsset(previous,0)});this.emit("status",{ok:false,message:`Hero import rolled back: ${error.message}`})}
   }
-  async importSecondary(files){
+  async importSecondary(files,role="secondary"){
     for(const file of Array.from(files||[]).slice(0,8)){
       try{await this.validateModelFile(file)}catch(error){this.emit("status",{ok:false,message:`${file.name}: ${error.message}`});continue}
       const id=uid("asset"),key=`asset:${id}`;await blobs.put(key,file);
-      const meta=normalizeAsset({id,role:"secondary",name:file.name.replace(/\.[^.]+$/,""),fileName:file.name,blobKey:key,status:"loading",anchors:[]},1);
-      store.run("Add secondary asset",state=>{state.scene.assets.push(meta);state.ui.selectedAssetId=id});
+      const meta=normalizeAsset({id,role,name:file.name.replace(/\.[^.]+$/,""),fileName:file.name,blobKey:key,status:"loading",anchors:[]},1);
+      store.run(`Add ${role} asset`,state=>{if(role==="variant")meta.variant={enabled:true,slot:`variant-${String(v41VariantAssets(state).length+1).padStart(2,"0")}`,type:"configuration"};if(role==="background"){meta.transform.position=[0,0,-3];meta.transform.scale3=[1,1,1]}state.scene.assets.push(meta);state.ui.selectedAssetId=id});
       try{
         const result=await this.engine.loadAsset(meta,file);
         store.run("Analyze secondary asset",state=>{const asset=state.scene.assets.find(a=>a.id===id);if(!asset)return;asset.status=result.fallback?"cached":"ready";asset.normalizationScale=result.normalizationScale||1;asset.anchors=result.anchors||[];asset.analysis={meshes:result.meshes,triangles:result.triangles,bounds:result.bounds,normalizationScale:result.normalizationScale||1,animations:result.animations||[],capabilities:result.capabilities||{}};asset.animation.clip=result.animations?.[0]?.name||""});
@@ -1960,6 +1918,15 @@ function makeIndependentSelectedClip(){
     const shot={...clone(source),id:uid("shot"),name:`${source.name} INDEPENDENT`,createdAt:Date.now()};state.shots.push(shot);clip.shotId=shot.id;clip.name=shot.name;clip.presetId=shot.presetId;state.ui.selectedShotId=shot.id;
   });
 }
+function splitClipAt(id,frame){
+  store.run("Split clip at frame",state=>{const clip=clipById(id,state);if(!clip||clip.locked||state.timeline.tracks[clip.track]?.locked)return;const cut=Math.round(frame),end=clip.startFrame+clip.durationFrames;if(cut<=clip.startFrame||cut>=end)return;const leftDuration=cut-clip.startFrame,rightDuration=end-cut,right={...clone(clip),id:uid("clip"),startFrame:cut,durationFrames:rightDuration,sourceOffsetFrame:clip.sourceOffsetFrame+leftDuration,createdAt:Date.now()};clip.durationFrames=leftDuration;state.timeline.clips.push(right);state.ui.selectedClipId=right.id;state.ui.propertyKind="timeline-clip"})
+}
+function addTimelineElementAt(track,frame){
+  const state=store.get(),start=Math.max(0,Math.round(frame));if(state.timeline.tracks[track]?.locked)return;
+  if(["v1","v2","v3"].includes(track)){store.run("Add active shot at frame",next=>{const source=activeShot(next);if(!source)return;const clip=makeClip({shotId:source.id,track,startFrame:start,durationFrames:source.durationFrames,name:source.name,presetId:source.presetId});next.timeline.clips.push(clip);next.ui.selectedClipId=clip.id;next.ui.selectedTrackId=track;next.ui.propertyKind="timeline-clip";next.project.outFrame=Math.max(next.project.outFrame,start+clip.durationFrames)});return}
+  if(track==="fx"){store.run("Add FX at frame",next=>{const clip=makeClip({type:"fx",track:"fx",startFrame:start,durationFrames:12,name:"FADE / FX"});next.timeline.clips.push(clip);next.ui.selectedClipId=clip.id;next.ui.propertyKind="timeline-clip";next.project.outFrame=Math.max(next.project.outFrame,start+clip.durationFrames)});return}
+  document.getElementById("audioInput")?.click();
+}
 function splitSelectedClip(){
   store.run("Split clip at playhead",state=>{
     const clip=clipById(state.ui.selectedClipId,state);if(!clip||clip.locked||state.timeline.tracks[clip.track]?.locked)return;
@@ -2090,41 +2057,20 @@ class AppUI{
   }
 
 buildAxisEditor(){
-  const master=`<div class="edit-master">
-    <div class="endpoint-master start">START</div>
-    <div class="edit-scope-group" role="group" aria-label="Default edit scope">
-      <button type="button" data-edit-scope="start">START</button>
-      <button type="button" data-edit-scope="both">BOTH</button>
-      <button type="button" data-edit-scope="end">END</button>
-    </div>
-    <div class="delta-master"><span>DELTA</span><b id="axisDeltaCount">0</b></div>
-    <div class="endpoint-master end">END</div>
-    <select id="editSide" hidden><option value="start">START</option><option value="both">BOTH</option><option value="end">END</option></select>
-  </div>`;
-  const axisGroups=new Map([["profile","IDENTITY & SCENE INTENT"],["rotation-x","SUBJECT SPATIAL BEHAVIOR"],["motion-design","WORLD & MOTION LANGUAGE"]]);
-  const rows=AXIS_REGISTRY.map(axis=>`${axisGroups.has(axis.id)?`<div class="axis-section-label">${axisGroups.get(axis.id)}</div>`:""}<section class="axis-row" data-axis-row="${axis.id}">
-    <div class="axis-head">
-      <button class="axis-context" type="button" data-axis-context="${axis.id}" title="Show ${safe(axis.label)} properties">${icon(axis.icon)}<div class="axis-title-copy"><b>${safe(axis.label)}</b><span class="axis-flow" data-axis-flow="${axis.id}"><span class="start">AUTO</span><i>|</i><span class="end">AUTO</span></span></div></button>
-      <div class="axis-tools"><label class="axis-pool" title="Include this axis in generation"><input type="checkbox" data-axis-pool="${axis.id}">POOL</label><button class="axis-action" type="button" data-axis-lock="${axis.id}" title="Lock this axis">${icon("i-lock")}</button></div>
-    </div>
-    <div class="axis-options">${axis.options.map(([id,label])=>`<div class="axis-option" data-axis-option-card="${axis.id}:${id}"><button class="axis-option-main" type="button" data-axis-option-main="${axis.id}:${id}">${safe(label)}</button><div class="axis-endpoints"><button class="axis-endpoint start" type="button" data-axis-option="${axis.id}:${id}" data-axis-side="start">START</button><button class="axis-endpoint end" type="button" data-axis-option="${axis.id}:${id}" data-axis-side="end">END</button></div></div>`).join("")}</div>
-  </section>`).join("");
+  const master=`<div class="edit-master"><div class="endpoint-master start">START</div><div class="edit-scope-group" role="group" aria-label="Default edit scope"><button type="button" data-edit-scope="start">START</button><button type="button" data-edit-scope="both">BOTH</button><button type="button" data-edit-scope="end">END</button></div><div class="delta-master"><span>DELTA</span><b id="axisDeltaCount">0</b></div><div class="endpoint-master end">END</div><select id="editSide" hidden><option value="start">START</option><option value="both">BOTH</option><option value="end">END</option></select></div>`;
+  const groups=new Map([["profile","IDENTITY & SUPPORT"],["light","CINEMATIC CAMERA"],["size","SUBJECT TRANSFORM"],["motion-design","WORLD, MOTION & ATMOSPHERE"]]);
+  const rows=AXIS_REGISTRY.map(axis=>`${groups.has(axis.id)?`<div class="axis-section-label">${groups.get(axis.id)}</div>`:""}<section class="axis-row" data-axis-row="${axis.id}"><div class="axis-head"><button class="axis-context" type="button" data-axis-context="${axis.id}" title="Select ${safe(axis.label)}">${icon(axis.icon)}<div class="axis-title-copy"><b>${safe(axis.label)}</b><span class="axis-flow" data-axis-flow="${axis.id}"><span class="start">AUTO</span><i>→</i><span class="end">AUTO</span></span></div></button><div class="axis-tools"><button class="axis-advanced" type="button" data-axis-advanced="${axis.id}">ADVANCED</button><label class="axis-pool" title="Include in Random / Variant generation"><input type="checkbox" data-axis-pool="${axis.id}"><span>POOL</span></label><button class="axis-action" type="button" data-axis-lock="${axis.id}" title="Lock this axis">${icon("i-lock")}</button></div></div><div class="axis-options"><div class="axis-icon-tile" aria-hidden="true">${icon(axis.icon)}<span>${safe(axis.label)}</span></div>${axis.options.map(([id,label])=>`<div class="axis-option" data-axis-option-card="${axis.id}:${id}"><button class="axis-option-main" type="button" data-axis-option-main="${axis.id}:${id}">${safe(label)}</button><div class="axis-endpoints"><button class="axis-endpoint start" type="button" data-axis-option="${axis.id}:${id}" data-axis-side="start" title="Assign to Start"><span>S</span></button><button class="axis-endpoint end" type="button" data-axis-option="${axis.id}:${id}" data-axis-side="end" title="Assign to End"><span>E</span></button></div></div>`).join("")}</div><div class="axis-status-line"><span class="pool-status">IN RANDOM POOL</span><span class="lock-status">AXIS LOCKED</span></div></section>`).join("");
   $("#axisEditor").innerHTML=master+rows;
 }
 buildMacroEditor(){
   const host=$("#macroEditor");if(!host)return;host.innerHTML="";
 }
 macroForAxis(axisId){return V41_MACROS.find(macro=>macro.axes.includes(axisId))||V41_MACROS[0]}
-renderMacroEditor(){
-  const host=$("#macroEditor"),state=store.get(),shot=activeShot(state);if(!host||!shot)return;const macro=V41_MACRO_MAP.get(state.ui.macro)||V41_MACROS[0],axis=AXIS_MAP.get(macro.axes.includes(state.ui.macroAxis)?state.ui.macroAxis:macro.axes[0])||AXIS_REGISTRY[0],selection=shot.axisSelections?.[axis.id]||{},startLabel=axisOptionLabel(axis.id,selection.start),endLabel=axisOptionLabel(axis.id,selection.end),hold=selection.start===selection.end;
-  const macroChanged=m=>{const ids=m.axes;return{start:ids.some(id=>shot.axisSelections?.[id]?.start&&shot.axisSelections[id].start!==inferAxisSelections(PRESET_MAP.get(shot.presetId)||{start:shot.start,end:shot.end},shot.profile||"product")?.[id]?.start),end:ids.some(id=>shot.axisSelections?.[id]?.end&&shot.axisSelections[id].end!==inferAxisSelections(PRESET_MAP.get(shot.presetId)||{start:shot.start,end:shot.end},shot.profile||"product")?.[id]?.end)}};
-  host.innerHTML=`<div class="macro-master"><div class="macro-endpoint start">START</div><div class="macro-scope" role="group" aria-label="Edit scope"><button data-macro-scope="start">START</button><button data-macro-scope="both">BOTH</button><button data-macro-scope="end">END</button></div><div class="macro-delta"><span>DELTA</span><b>${this.deltaCount(shot)}</b></div><div class="macro-endpoint end">END</div></div><div class="macro-rail">${V41_MACROS.map(item=>{const changed=macroChanged(item);return`<button class="macro-chip ${item.id===macro.id?"active":""} ${changed.start?"changed-start":""} ${changed.end?"changed-end":""}" data-macro="${item.id}">${icon(item.icon)}<span>${item.label}</span></button>`}).join("")}</div><div class="macro-body"><div class="macro-heading"><div><small>${macro.label}</small><h3>${axis.label}</h3></div><div class="macro-recap"><span class="start">${safe(startLabel)}</span> ${hold?"· HOLD":"→"} <span class="end">${safe(endLabel)}</span></div></div><div class="macro-axis-rail">${macro.axes.filter(id=>AXIS_MAP.has(id)).map(id=>`<button class="macro-axis-tab ${id===axis.id?"active":""}" data-macro-axis="${id}">${safe(AXIS_MAP.get(id).label)}</button>`).join("")}</div><div class="macro-options">${axis.options.map(([id,label])=>{const selected=state.ui.editSide==="both"?selection.start===id&&selection.end===id:selection[state.ui.editSide]===id;return`<button class="macro-option ${selected?`selected ${state.ui.editSide}`:""} ${shot.axisPool?.[axis.id]===false?"excluded":""} ${shot.locks?.[axis.id]?"locked":""}" data-macro-option="${axis.id}:${id}">${safe(label)}</button>`}).join("")}</div><button class="macro-advanced-trigger" data-macro-advanced-toggle ${state.ui.advanced?"":"hidden"}><span>${state.ui.macroAdvancedOpen?"HIDE":"SHOW"} ADVANCED PROPERTIES</span><span>${state.ui.macroAdvancedOpen?"⌃":"⌄"}</span></button></div>`;
-  $$('[data-macro-scope]',host).forEach(button=>button.classList.toggle("active",button.dataset.macroScope===state.ui.editSide));document.body.dataset.macroAdvanced=String(!!state.ui.macroAdvancedOpen);this.syncPropertyContext();
-}
+renderMacroEditor(){document.body.dataset.macroAdvanced=String(!!store.get().ui.macroAdvancedOpen);this.syncPropertyContext()}
 renderViewportOutliner(){
   const host=$("#outlinerTree"),state=store.get();if(!host)return;const query=String($("#outlinerSearch")?.value||"").trim().toLowerCase(),expanded=state.ui.outlinerExpanded||{},rows=[];const add=(id,name,kind,depth=0,parent=null,options={})=>{if(query&&!`${name} ${kind} ${options.badge||""}`.toLowerCase().includes(query)&&!options.force)return;rows.push({id,name,kind,depth,parent,...options})};
   add("scene","SCENE","scene",0,null,{expandable:true,expanded:expanded.scene!==false,force:true});
-  const hero=state.scene.assets.find(a=>a.role==="hero");if(expanded.scene!==false){add("group:hero","HERO","group",1,"scene",{expandable:true,expanded:expanded.hero!==false,force:true});if(expanded.hero!==false&&hero)add(`asset:${hero.id}`,hero.name,"asset",2,"group:hero",{assetId:hero.id,badge:"PRIMARY",visible:hero.visible!==false,locked:hero.locked});add("group:variants","HERO VARIANTS","group",1,"scene",{expandable:true,expanded:expanded.variants!==false,force:true});if(expanded.variants!==false){const variants=v41VariantAssets(state);if(variants.length)variants.forEach(asset=>add(`asset:${asset.id}`,asset.name,"variant",2,"group:variants",{assetId:asset.id,badge:asset.variant?.slot||"VARIANT",visible:asset.visible!==false,locked:asset.locked}));else add("empty:variants","DROP SECONDARY · ASSIGN VARIANT","empty",2,"group:variants",{})}const secondaries=state.scene.assets.filter(a=>a.role!=="hero"&&!v41VariantAssets(state).some(v=>v.id===a.id));add("group:secondary","SECONDARY ASSETS","group",1,"scene",{expandable:true,expanded:expanded.secondary!==false,force:true});if(expanded.secondary!==false)secondaries.forEach(asset=>add(`asset:${asset.id}`,asset.name,"asset",2,"group:secondary",{assetId:asset.id,badge:asset.role.toUpperCase(),visible:asset.visible!==false,locked:asset.locked}));add("group:environment","ENVIRONMENT","environment",1,"scene",{expandable:true,expanded:expanded.environment!==false,force:true});if(expanded.environment!==false){add("environment:hdri",state.scene.environment.fileName||"HDRI · NONE","hdri",2,"group:environment",{badge:state.scene.environment.blobKey?"READY":"EMPTY"});add("environment:floor","FLOOR","environment",2,"group:environment",{});add("environment:atmosphere","ATMOSPHERE","environment",2,"group:environment",{})}add("group:lights","LIGHTS","light",1,"scene",{expandable:true,expanded:expanded.lights!==false,force:true});if(expanded.lights!==false)["KEY","FILL","RIM"].forEach(name=>add(`light:${name.toLowerCase()}`,name,"light",2,"group:lights",{}));add("group:cameras","CAMERAS","camera",1,"scene",{expandable:true,expanded:expanded.cameras!==false,force:true});if(expanded.cameras!==false){add("camera:shot","SHOT CAMERA","camera",2,"group:cameras",{});add("camera:viewport","VIEWPORT CAMERA","camera",2,"group:cameras",{})}}
+  const hero=state.scene.assets.find(a=>a.role==="hero");if(expanded.scene!==false){add("group:hero","HERO","group",1,"scene",{expandable:true,expanded:expanded.hero!==false,force:true});if(expanded.hero!==false&&hero)add(`asset:${hero.id}`,hero.name,"asset",2,"group:hero",{assetId:hero.id,badge:"PRIMARY",visible:hero.visible!==false,locked:hero.locked});add("group:variants","HERO VARIANTS","group",1,"scene",{expandable:true,expanded:expanded.variants!==false,force:true});if(expanded.variants!==false){const variants=v41VariantAssets(state);if(variants.length)variants.forEach(asset=>add(`asset:${asset.id}`,asset.name,"variant",2,"group:variants",{assetId:asset.id,badge:asset.variant?.slot||"VARIANT",visible:asset.visible!==false,locked:asset.locked}));else add("empty:variants","DROP SECONDARY · ASSIGN VARIANT","empty",2,"group:variants",{})}const secondaries=state.scene.assets.filter(a=>a.role!=="hero"&&a.role!=="background"&&!v41VariantAssets(state).some(v=>v.id===a.id));add("group:secondary","SECONDARY ASSETS","group",1,"scene",{expandable:true,expanded:expanded.secondary!==false,force:true});if(expanded.secondary!==false)secondaries.forEach(asset=>add(`asset:${asset.id}`,asset.name,"asset",2,"group:secondary",{assetId:asset.id,badge:asset.role.toUpperCase(),visible:asset.visible!==false,locked:asset.locked}));add("group:environment","ENVIRONMENT","environment",1,"scene",{expandable:true,expanded:expanded.environment!==false,force:true});if(expanded.environment!==false){add("environment:hdri",state.scene.environment.fileName||"HDRI · NONE","hdri",2,"group:environment",{badge:state.scene.environment.blobKey?"READY":"EMPTY"});state.scene.assets.filter(a=>a.role==="background").forEach(asset=>add(`asset:${asset.id}`,asset.name,"environment",2,"group:environment",{assetId:asset.id,badge:"BACKGROUND",visible:asset.visible!==false,locked:asset.locked}));add("environment:floor","FLOOR","environment",2,"group:environment",{});add("environment:atmosphere","ATMOSPHERE","environment",2,"group:environment",{})}add("group:lights","LIGHTS","light",1,"scene",{expandable:true,expanded:expanded.lights!==false,force:true});if(expanded.lights!==false)["KEY","FILL","RIM"].forEach(name=>add(`light:${name.toLowerCase()}`,name,"light",2,"group:lights",{}));add("group:cameras","CAMERAS","camera",1,"scene",{expandable:true,expanded:expanded.cameras!==false,force:true});if(expanded.cameras!==false){add("camera:shot","SHOT CAMERA","camera",2,"group:cameras",{});add("camera:viewport","VIEWPORT CAMERA","camera",2,"group:cameras",{})}}
   const selectedAsset=`asset:${state.ui.selectedAssetId}`;host.innerHTML=rows.map(row=>`<div class="tree-row ${row.id===selectedAsset?"selected":""} ${row.expanded?"expanded":""}" role="treeitem" aria-selected="${row.id===selectedAsset}" data-tree-id="${safe(row.id)}" data-asset-id="${safe(row.assetId||"")}" style="--depth:${row.depth}"><button class="tree-chevron" data-tree-toggle="${safe(row.id)}" ${row.expandable?"":"disabled"}>${row.expandable?icon("i-chevron"):""}</button><span class="tree-icon">${icon(row.kind==="camera"?"i-camera":row.kind==="light"?"i-light":row.kind==="environment"||row.kind==="hdri"?"i-hdri":row.kind==="variant"?"i-variant":"i-cube")}</span><span class="tree-name">${safe(row.name)}</span><span class="tree-badge">${safe(row.badge||"")}</span>${row.assetId?`<button class="tree-mini ${row.visible?"active":""}" data-tree-visible="${row.assetId}" aria-label="Toggle visibility">${icon("i-eye")}</button><button class="tree-mini ${row.locked?"active":""}" data-tree-lock="${row.assetId}" aria-label="Toggle lock">${icon("i-lock")}</button>`:""}</div>`).join("")||'<div class="tree-empty">No scene nodes match the current search.</div>';
 }
 renderViewportDetails(){
@@ -2278,8 +2224,11 @@ renderAxisEditorState(){
       const option=event.target.closest("[data-axis-option]");if(option){const [axisId,...rest]=option.dataset.axisOption.split(":"),optionId=rest.join(":"),side=option.dataset.axisSide||store.get().ui.editSide;store.run(`Set ${axisId} ${side}`,state=>{state.ui.propertyAxis=axisId;state.ui.propertyKind="shot-axis";applyAxisOption(activeShot(state),axisId,optionId,side)});return}
       const context=event.target.closest("[data-axis-context]");if(context){store.run("Select properties context",state=>{state.ui.propertyAxis=context.dataset.axisContext;state.ui.propertyKind="shot-axis"},{history:false,source:"navigation"});return}
       const lock=event.target.closest("[data-axis-lock]");if(lock){const axis=AXIS_MAP.get(lock.dataset.axisLock);store.run(`Lock ${axis.label}`,state=>{const shot=activeShot(state);shot.locks[axis.id]=!shot.locks[axis.id]});return}
+      const advanced=event.target.closest("[data-axis-advanced]");if(advanced){store.run("Open axis advanced properties",state=>{state.ui.advanced=true;state.ui.macroAdvancedOpen=true;state.ui.propertyAxis=advanced.dataset.axisAdvanced;state.ui.macroAxis=advanced.dataset.axisAdvanced;state.ui.propertyKind="shot-axis"},{history:false,source:"navigation"});return}
     });
     $("#axisEditor").addEventListener("change",event=>{const pool=event.target.closest("[data-axis-pool]");if(pool){const axis=AXIS_MAP.get(pool.dataset.axisPool);store.run(`Toggle ${axis.label} pool`,state=>{const shot=activeShot(state);shot.axisPool=shot.axisPool||profilePool(shot.profile||"product");shot.axisPool[axis.id]=pool.checked})}});
+    $("#closeAxisAdvanced")?.addEventListener("click",()=>store.run("Close axis advanced properties",state=>state.ui.macroAdvancedOpen=false,{history:false,source:"navigation"}));
+    $("#editorScrub")?.addEventListener("input",event=>player.scrubShot(Number(event.target.value)/1000));$("#editorStart")?.addEventListener("click",()=>player.goStart());$("#editorPlay")?.addEventListener("click",()=>player.toggle());$("#editorEnd")?.addEventListener("click",()=>player.goEnd());
     $("#propertiesPanel").addEventListener("click",event=>{const scope=event.target.closest("[data-property-scope]");if(scope)store.run("Edit property side",state=>state.ui.editSide=scope.dataset.propertyScope,{history:false,source:"navigation"})});
     $$("[data-mode-button]").forEach(button=>button.addEventListener("click",()=>this.setMode(button.dataset.modeButton)));
     $$("[data-view-button]").forEach(button=>button.addEventListener("click",()=>this.setView(button.dataset.viewButton)));
@@ -2338,7 +2287,10 @@ renderAxisEditorState(){
     $("#generationPool").addEventListener("change",event=>{const id=event.target.dataset.pool;if(id)store.run(`Toggle ${id} pool`,state=>{const shot=activeShot(state);shot.axisPool=shot.axisPool||profilePool(shot.profile||"product");shot.axisPool[id]=event.target.checked})});
     $("#generationPool").addEventListener("click",event=>{const button=event.target.closest("[data-lock]");if(button)store.run(`Toggle ${button.dataset.lock} lock`,state=>{const shot=activeShot(state);shot.locks[button.dataset.lock]=!shot.locks[button.dataset.lock]})});
     $("#assetHeroInput").addEventListener("change",event=>{const file=event.target.files?.[0];if(file)assetManager.importHero(file);event.target.value=""});
-    $("#assetSecondaryInput").addEventListener("change",event=>{if(event.target.files?.length)assetManager.importSecondary(event.target.files);event.target.value=""});
+    $("#assetSecondaryInput").addEventListener("change",event=>{if(event.target.files?.length)assetManager.importSecondary(event.target.files,"secondary");event.target.value=""});
+    $("#assetVariantInput")?.addEventListener("change",event=>{if(event.target.files?.length)assetManager.importSecondary(event.target.files,"variant");event.target.value=""});
+    $("#assetBackgroundInput")?.addEventListener("change",event=>{if(event.target.files?.length)assetManager.importSecondary(event.target.files,"background");event.target.value=""});
+    $("#assetEnvironmentInput")?.addEventListener("change",event=>{if(event.target.files?.length)assetManager.importSecondary(event.target.files,"environment");event.target.value=""});
     $("#assetHdriInput").addEventListener("change",event=>{const file=event.target.files?.[0];if(file)assetManager.importHDRI(file);event.target.value=""});
     $$("[data-asset-pos]").forEach(input=>input.addEventListener("change",event=>store.run("Asset position",state=>{activeAsset(state).transform.position[Number(event.target.dataset.assetPos)]=number(event.target.value)})));
     $$("[data-asset-rot]").forEach(input=>input.addEventListener("change",event=>store.run("Asset rotation",state=>{activeAsset(state).transform.rotation[Number(event.target.dataset.assetRot)]=number(event.target.value)})));
@@ -2369,6 +2321,8 @@ renderAxisEditorState(){
     $("#toolstrip").addEventListener("click",event=>{const button=event.target.closest("[data-tool]");if(button)store.run("Select viewport tool",state=>{state.ui.tool=button.dataset.tool;state.ui.mode="viewport";state.ui.view="viewport";state.ui.propertyKind=button.dataset.tool==="pivot"?"pivot":button.dataset.tool==="anchor"?"anchor":"asset"},{history:false,source:"navigation"})});
     $("#assetInspector").addEventListener("click",event=>{const context=event.target.closest("[data-property-context]");if(context)store.run("Select viewport properties",state=>{state.ui.propertyKind=context.dataset.propertyContext;state.ui.mode="viewport";state.ui.view="viewport"},{history:false,source:"navigation"})});
     $("#trackPolicy").addEventListener("click",event=>{const button=event.target.closest("[data-track-action]");if(button)store.run(`Track ${button.dataset.trackAction}`,state=>{const track=state.timeline.tracks[button.dataset.track];track[button.dataset.trackAction]=!track[button.dataset.trackAction]})});
+    $$('[data-timeline-tool]').forEach(button=>button.addEventListener("click",()=>store.run("Select timeline tool",state=>state.ui.timelineTool=button.dataset.timelineTool,{history:false,source:"navigation"})));
+    $("#timelineOverview")?.addEventListener("input",event=>{const max=Math.max(0,this.timelineScroll.scrollWidth-this.timelineScroll.clientWidth);this.timelineScroll.scrollLeft=max*Number(event.target.value)/1000});
     $("#timelinePlay").addEventListener("click",()=>player.toggle());$("#timelinePrevCut").addEventListener("click",()=>player.previousCut());$("#timelineNextCut").addEventListener("click",()=>player.nextCut());$("#timelineStart").addEventListener("click",()=>player.seekTimeline(store.get().project.inFrame));$("#timelineEnd").addEventListener("click",()=>player.seekTimeline(store.get().project.outFrame));$("#timelineLoop").addEventListener("click",()=>store.run("Toggle timeline loop",state=>state.ui.loop=!state.ui.loop,{history:false,source:"transport"}));
     $("#snapButton").addEventListener("click",()=>store.run("Toggle snapping",state=>state.ui.snap=!state.ui.snap,{history:false,source:"navigation"}));
     this.bindRange("timelineZoom",(state,value)=>state.ui.timelineZoom=value);
@@ -2436,6 +2390,7 @@ renderAxisEditorState(){
       if(event.ctrlKey||event.metaKey){event.preventDefault();this.timelineScroll.scrollLeft+=event.deltaY+event.deltaX}
     },{passive:false});
     this.timelineCanvas.addEventListener("click",event=>{
+      const laneAdd=event.target.closest("[data-lane-add]");if(laneAdd){const [track,frame]=laneAdd.dataset.laneAdd.split(":");addTimelineElementAt(track,Number(frame));return}
       const remove=event.target.closest("[data-delete]");if(remove){deleteClip(remove.dataset.delete);return}
       const policy=event.target.closest("[data-track-mini]");if(policy){const track=policy.closest("[data-track]").dataset.track,key=policy.dataset.trackMini;store.run(`Track ${key}`,state=>{state.timeline.tracks[track][key]=!state.timeline.tracks[track][key];state.ui.selectedTrackId=track;state.ui.propertyKind="timeline-track"});return}
       const label=event.target.closest("[data-track-label]");if(label){store.run("Select timeline track",state=>{state.ui.selectedTrackId=label.dataset.trackLabel;state.ui.propertyKind="timeline-track"},{history:false,source:"selection"});return}
@@ -2443,11 +2398,12 @@ renderAxisEditorState(){
     });
     this.timelineCanvas.addEventListener("change",event=>{if(event.target.classList.contains("clip-alias")){const id=event.target.closest(".clip").dataset.clip;store.run("Rename clip",state=>{const clip=clipById(id,state);if(clip)clip.name=event.target.value})}});
     this.timelineCanvas.addEventListener("pointerdown",event=>{
-      if(event.button===1||event.button===2){event.preventDefault();const startX=event.clientX,startScroll=this.timelineScroll.scrollLeft,move=pointer=>{this.timelineScroll.scrollLeft=startScroll-(pointer.clientX-startX)},up=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",up);document.removeEventListener("pointercancel",up)};document.addEventListener("pointermove",move);document.addEventListener("pointerup",up);document.addEventListener("pointercancel",up);return}
+      const timelineTool=store.get().ui.timelineTool||"select";
+      if(event.button===1||event.button===2||(event.button===0&&timelineTool==="hand")){event.preventDefault();const startX=event.clientX,startY=event.clientY,startScroll=this.timelineScroll.scrollLeft,startTop=this.timelineScroll.scrollTop,move=pointer=>{this.timelineScroll.scrollLeft=startScroll-(pointer.clientX-startX);this.timelineScroll.scrollTop=startTop-(pointer.clientY-startY)},up=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",up);document.removeEventListener("pointercancel",up)};document.addEventListener("pointermove",move);document.addEventListener("pointerup",up);document.addEventListener("pointercancel",up);return}
       if(event.button!==0||event.target.closest("button,input"))return;
       const clipElement=event.target.closest(".clip"),ruler=event.target.closest("[data-ruler]"),lane=event.target.closest("[data-lane]");
       if((ruler||lane)&&!clipElement){event.preventDefault();const surface=ruler||this.timelineCanvas,seek=move=>{const rect=surface.getBoundingClientRect(),offset=ruler?0:this.labelW,frame=(move.clientX-rect.left-offset)/this.ppf-this.preRoll;player.seekTimeline(this.snapFrame(frame,null,true))};seek(event);const up=()=>{document.removeEventListener("pointermove",seek);document.removeEventListener("pointerup",up);document.removeEventListener("pointercancel",up)};document.addEventListener("pointermove",seek);document.addEventListener("pointerup",up);document.addEventListener("pointercancel",up);return}
-      if(!clipElement)return;const id=clipElement.dataset.clip,clip=clipById(id),trackPolicy=store.get().timeline.tracks[clip?.track];if(!clip||clip.locked||trackPolicy?.locked)return;
+      if(!clipElement)return;const id=clipElement.dataset.clip,clip=clipById(id),trackPolicy=store.get().timeline.tracks[clip?.track];if(timelineTool==="blade"){event.preventDefault();const rect=clipElement.parentElement.getBoundingClientRect(),frame=(event.clientX-rect.left)/this.ppf-this.preRoll;splitClipAt(id,this.snapFrame(frame,id,false,event.shiftKey));return}if(!clip||clip.locked||trackPolicy?.locked)return;
       event.preventDefault();const handle=event.target.closest("[data-trim]"),mode=handle?`trim-${handle.dataset.trim}`:"move",startX=event.clientX,original=clone(clip);
       store.run("Select clip",state=>{state.ui.selectedClipId=id;state.ui.selectedShotId=clip.shotId||state.ui.selectedShotId;state.ui.propertyKind="timeline-clip"},{history:false,source:"selection"});store.beginGesture(mode==="move"?"Move timeline clip":"Trim timeline clip");clipElement.classList.add("dragging");
       const move=pointer=>{const delta=(pointer.clientX-startX)/this.ppf;store.updateGesture(state=>{const target=clipById(id,state);if(!target)return;if(mode==="move"){target.startFrame=this.snapFrame(original.startFrame+delta,id,false,pointer.shiftKey);const laneElement=$$("[data-lane]",this.timelineCanvas).find(lane=>{const rect=lane.getBoundingClientRect();return pointer.clientY>=rect.top&&pointer.clientY<=rect.bottom&&pointer.clientX>=rect.left}),nextTrack=laneElement?.dataset.lane;if(nextTrack&&compatibleTracks(target.type).includes(nextTrack)&&!state.timeline.tracks[nextTrack]?.locked)target.track=nextTrack}else if(mode==="trim-start"){const end=original.startFrame+original.durationFrames,next=this.snapFrame(original.startFrame+delta,id,false,pointer.shiftKey);target.startFrame=Math.max(0,Math.min(end-1,next));target.sourceOffsetFrame=Math.max(0,original.sourceOffsetFrame+(target.startFrame-original.startFrame));target.durationFrames=Math.max(1,end-target.startFrame)}else{let end=this.snapFrame(original.startFrame+original.durationFrames+delta,id,false,pointer.shiftKey);if(target.type==="audio"&&Number.isFinite(target.sourceDurationFrames))end=Math.min(end,original.startFrame+Math.max(1,target.sourceDurationFrames-original.sourceOffsetFrame));target.durationFrames=Math.max(1,end-original.startFrame)}state.project.outFrame=Math.max(state.project.outFrame,target.startFrame+target.durationFrames)},"timeline-live");this.syncClipElement(clipElement,id)};
@@ -2467,7 +2423,7 @@ renderAxisEditorState(){
       if(key==="1"&&!event.ctrlKey&&!event.metaKey){this.setMode("render");return}if(key==="2"&&!event.ctrlKey&&!event.metaKey){this.setMode("viewport");return}if(key==="3"&&!event.ctrlKey&&!event.metaKey){this.setMode("timeline");return}
       if(key==="r"&&mode==="render"&&!event.ctrlKey&&!event.metaKey){event.preventDefault();dispatchV41("RANDOM_SHOT");return}if(key==="n"&&mode==="render"){event.preventDefault();dispatchV41("NEAR_VARIANT");return}if(key==="b"&&mode==="render"){event.preventDefault();dispatchV41("BOLD_VARIANT");return}
       if(mode==="viewport"){const tools={q:"select",w:"move",e:"rotate",r:"scale",p:"pivot",a:"anchor"};if(tools[key]){event.preventDefault();store.run("Select viewport tool",state=>state.ui.tool=tools[key],{history:false,source:"navigation"});return}if(key==="f"){const asset=activeAsset();if(asset){engine.frameAsset(asset.id);player.request()}return}if(event.key==="Home"){engine.frameAll?.();player.request();return}}
-      if(mode==="timeline"){if(event.key==="ArrowLeft"){event.preventDefault();player.seekTimeline(store.get().timeline.playheadFrame-1);return}if(event.key==="ArrowRight"){event.preventDefault();player.seekTimeline(store.get().timeline.playheadFrame+1);return}if((event.ctrlKey||event.metaKey)&&key==="k"){event.preventDefault();splitSelectedClip();return}if(event.key==="Delete"||event.key==="Backspace"){const id=store.get().ui.selectedClipId;if(id)deleteClip(id);return}}
+      if(mode==="timeline"){if(key==="v"){event.preventDefault();store.run("Select tool",state=>state.ui.timelineTool="select",{history:false,source:"navigation"});return}if(key==="b"){event.preventDefault();store.run("Blade tool",state=>state.ui.timelineTool="blade",{history:false,source:"navigation"});return}if(key==="h"){event.preventDefault();store.run("Hand tool",state=>state.ui.timelineTool="hand",{history:false,source:"navigation"});return}if(event.key==="ArrowUp"){event.preventDefault();player.previousCut();return}if(event.key==="ArrowDown"){event.preventDefault();player.nextCut();return}if(event.key==="Home"){event.preventDefault();player.seekTimeline(store.get().project.inFrame);return}if(event.key==="End"){event.preventDefault();player.seekTimeline(store.get().project.outFrame);return}if(event.key==="ArrowLeft"){event.preventDefault();player.seekTimeline(store.get().timeline.playheadFrame-1);return}if(event.key==="ArrowRight"){event.preventDefault();player.seekTimeline(store.get().timeline.playheadFrame+1);return}if((event.ctrlKey||event.metaKey)&&key==="k"){event.preventDefault();splitSelectedClip();return}if(event.key==="Delete"||event.key==="Backspace"){const id=store.get().ui.selectedClipId;if(id)deleteClip(id);return}}
     });
   }
   toggleFocus(force){
@@ -2484,7 +2440,8 @@ syncLanguage(){
 workspaceSplitMetrics(rect,state=store.get(),advanced=!!state.ui.advanced){
   const root=getComputedStyle(document.documentElement),propertiesW=Number.parseFloat(root.getPropertyValue("--properties-w"))||344,editorW=Number.parseFloat(root.getPropertyValue("--editor-w"))||600,compact=rect.width<1400;
   if(state.ui.mode==="timeline")return{propertiesW,editorW,min:compact?320:380,rightMin:advanced?propertiesW+(compact?560:700):(compact?620:760)};
-  return{propertiesW,editorW,min:compact?420:520,rightMin:advanced?propertiesW+(compact?430:500):(compact?430:editorW)};
+  if(state.ui.mode==="viewport")return{propertiesW,editorW,min:compact?360:440,rightMin:(Number.parseFloat(root.getPropertyValue("--details-w"))||392)+(document.body.classList.contains("outliner-collapsed")?0:(Number.parseFloat(root.getPropertyValue("--outliner-w"))||272))+12};
+  return{propertiesW,editorW,min:compact?420:520,rightMin:compact?430:editorW};
 }
 syncWorkspaceSplit(){
   if(!this.workspace)return;const state=store.get(),rect=this.workspace.getBoundingClientRect(),metrics=this.workspaceSplitMetrics(rect,state),key=state.ui.mode==="timeline"?"memento.v41.split.timeline":"memento.v41.split.render",fallback=state.ui.mode==="timeline"?.36:.60,raw=storageGet(key),stored=raw==null?fallback:number(raw,fallback),max=Math.max(metrics.min,rect.width-metrics.rightMin-12),width=clamp(rect.width*stored,metrics.min,max);this.workspace.style.setProperty("--player-px",`${Math.round(width)}px`);
@@ -2492,7 +2449,7 @@ syncWorkspaceSplit(){
   bindWorkspaceSplitter(){
     if(!this.splitter||!this.workspace)return;
     const start=event=>{if(event.button!==0)return;event.preventDefault();this.splitter.classList.add("dragging");this.splitter.setPointerCapture?.(event.pointerId);const state=store.get(),rect=this.workspace.getBoundingClientRect(),metrics=this.workspaceSplitMetrics(rect,state),key=state.ui.mode==="timeline"?"memento.v41.split.timeline":"memento.v41.split.render";
-      const move=pointer=>{const max=Math.max(metrics.min,rect.width-metrics.rightMin-12),width=clamp(pointer.clientX-rect.left-(store.get().ui.mode==="viewport"?(document.body.classList.contains("outliner-collapsed")?0:(parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--outliner-w"))||272)):0),metrics.min,max);this.workspace.style.setProperty("--player-px",`${Math.round(width)}px`);storageSet(key,String(width/Math.max(1,rect.width)));this.syncGate();engine.resize();player.request()};
+      const move=pointer=>{const max=Math.max(metrics.min,rect.width-metrics.rightMin-12),width=clamp(pointer.clientX-rect.left,metrics.min,max);this.workspace.style.setProperty("--player-px",`${Math.round(width)}px`);storageSet(key,String(width/Math.max(1,rect.width)));this.syncGate();engine.resize();player.request()};
       const stop=()=>{this.splitter.classList.remove("dragging");this.splitter.removeEventListener("pointermove",move);this.splitter.removeEventListener("pointerup",stop);this.splitter.removeEventListener("pointercancel",stop);this.splitter.releasePointerCapture?.(event.pointerId)};this.splitter.addEventListener("pointermove",move);this.splitter.addEventListener("pointerup",stop);this.splitter.addEventListener("pointercancel",stop)};
     this.splitter.addEventListener("pointerdown",start);this.splitter.addEventListener("dblclick",()=>{const key=store.get().ui.mode==="timeline"?"memento.v41.split.timeline":"memento.v41.split.render";storageRemove(key);this.syncWorkspaceSplit();this.syncGate();engine.resize();player.request()});
   }
@@ -2523,16 +2480,16 @@ syncWorkspaceSplit(){
     setText("engineBadge",engine.type==="three-webgl"?"WEBGL READY":"CANVAS SAFE");$("#engineBadge").className=engine.type==="three-webgl"?"good":"warn";
     setText("hudMode",state.ui.mode.toUpperCase());setText("headerModeLabel",state.ui.mode.toUpperCase());setText("headerShotLabel",state.ui.mode==="viewport"?`${asset?.name||"HERO"} | SCENE CALIBRATION`:state.ui.mode==="timeline"?`${state.timeline.clips.length} CLIPS | ${formatTimecode(state.project.outFrame,state.project.fps)}`:`${this.deltaCount(shot)} DELTA`);const resolvedPreset=shot?V41_PRESET_MAP.get(v41EnsureShotState(shot)?.preset?.resolvedId):null;setText("hudPreset",state.ui.mode==="viewport"?`${asset?.name||"HERO"}`:resolvedPreset?.title||shot?.name||"SHOT");setText("hudLens",`${Math.round(ep.camera.focal)} MM`);setText("hudQuality",`${number(state.scene.render.scale,1).toFixed(1)}×`);setText("hudMix",`${Math.round(mix*100)}%`);
     setValue("formatSelect",state.project.aspect);setValue("timelineAspect",state.project.aspect);setValue("fpsSelect",state.project.fps);setValue("timelineZoom",state.ui.timelineZoom);
-    $("#loopButton").classList.toggle("active",state.ui.loop);$("#timelineLoop")?.classList.toggle("active",state.ui.loop);$("#snapButton").classList.toggle("active",state.ui.snap);this.syncPlayState(player.playing);this.syncClipboardState();
+    $("#loopButton").classList.toggle("active",state.ui.loop);$("#timelineLoop")?.classList.toggle("active",state.ui.loop);$("#snapButton").classList.toggle("active",state.ui.snap);$$('[data-timeline-tool]').forEach(button=>button.classList.toggle("active",button.dataset.timelineTool===(state.ui.timelineTool||"select")));this.timelineCanvas.dataset.tool=state.ui.timelineTool||"select";this.syncPlayState(player.playing);this.syncClipboardState();
     const frame=state.ui.mode==="timeline"?state.timeline.playheadFrame:Math.round(mix*Math.max(1,(shot?.durationFrames||1)-1)),total=state.ui.mode==="timeline"?Math.max(1,state.project.outFrame-state.project.inFrame):Math.max(1,(shot?.durationFrames||1)-1);
-    const normalized=state.ui.mode==="timeline"?clamp((frame-state.project.inFrame)/total,0,1):mix;setValue("shotScrub",Math.round(normalized*1000));setText("transportTime",formatTimecode(frame,state.project.fps));setText("transportFrame",`${Math.round(frame)}F`);setText("timelineTimecode",formatTimecode(state.timeline.playheadFrame,state.project.fps));setText("timelineFrame",`${Math.round(state.timeline.playheadFrame)}F`);
-    setText("shotDeltaMeta",`${this.deltaCount(shot)} DELTA`);setText("familyMeta",`${V41_PRESET_REGISTRY.filter(p=>p.story===state.ui.family&&(p.eligibility==="default"||shot?.v41?.preset?.advancedEnabled)).length} PRESETS`);setText("assetCount",`${state.scene.assets.length} ASSET${state.scene.assets.length===1?"":"S"}`);
+    const normalized=state.ui.mode==="timeline"?clamp((frame-state.project.inFrame)/total,0,1):mix;setValue("shotScrub",Math.round(normalized*1000));setValue("editorScrub",Math.round(mix*1000));setText("transportTime",formatTimecode(frame,state.project.fps));setText("transportFrame",`${Math.round(frame)}F`);setText("timelineTimecode",formatTimecode(state.timeline.playheadFrame,state.project.fps));setText("timelineFrame",`${Math.round(state.timeline.playheadFrame)}F`);
+    setText("shotDeltaMeta",`${this.deltaCount(shot)} DELTA`);setText("hdriSourceMeta",state.scene.environment.fileName&&state.scene.environment.fileName!=="NONE"?state.scene.environment.fileName:"No environment assigned");const maxScroll=Math.max(0,this.timelineScroll?.scrollWidth-this.timelineScroll?.clientWidth);if($("#timelineOverview")&&document.activeElement!==$("#timelineOverview"))$("#timelineOverview").value=maxScroll?Math.round(this.timelineScroll.scrollLeft/maxScroll*1000):0;setText("familyMeta",`${V41_PRESET_REGISTRY.filter(p=>p.story===state.ui.family&&(p.eligibility==="default"||shot?.v41?.preset?.advancedEnabled)).length} PRESETS`);setText("assetCount",`${state.scene.assets.length} ASSET${state.scene.assets.length===1?"":"S"}`);
     $$("[data-tool]").forEach(button=>button.classList.toggle("active",button.dataset.tool===state.ui.tool));$$('[data-property-context]').forEach(button=>button.classList.toggle("primary",button.dataset.propertyContext===state.ui.propertyKind));setText("toolStatus",state.ui.tool==="orbit"?"LMB ORBIT | RMB/MMB PAN | WHEEL ZOOM":`${state.ui.tool.toUpperCase()} ASSET | RMB/MMB PAN`);
     this.renderAxisEditorState();this.syncShotFields();this.syncAssetFields();this.syncEnvironmentFields();this.syncRenderFields();this.syncProjectFields();this.syncTrackPolicy();this.syncFixtureFields();this.syncPropertyFields();this.updatePlayhead();
   }
   syncPlayback(frame){this.syncDynamic();this.updatePlayhead()}
   syncPlayState(playing){
-    const use=playing?"i-pause":"i-play";$("#playButton").innerHTML=icon(use);$("#timelinePlay").innerHTML=icon(use);$("#playButton").classList.toggle("active",playing);$("#timelinePlay").classList.toggle("active",playing);
+    const use=playing?"i-pause":"i-play";$("#playButton").innerHTML=icon(use);$("#timelinePlay").innerHTML=icon(use);if($("#editorPlay"))$("#editorPlay").innerHTML=`${icon(use)}<span>${playing?"PAUSE":"PLAY"}</span>`;$("#playButton").classList.toggle("active",playing);$("#timelinePlay").classList.toggle("active",playing);$("#editorPlay")?.classList.toggle("active",playing);
   }
   deltaCount(shot){
     if(!shot)return 0;let count=0;
@@ -2583,7 +2540,7 @@ syncWorkspaceSplit(){
 
 
 
-  renderRenderTabs(){const tab=store.get().ui.renderTab||"presets";$$("[data-render-tab]").forEach(button=>{const active=button.dataset.renderTab===tab;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))});$$("[data-render-panel]").forEach(panel=>panel.classList.toggle("active",panel.dataset.renderPanel===tab));setText("renderInspectorTitle",tab==="presets"?"PLAY FIRST · REFINE SECOND":tab==="edit"?"MACRO CREATIVE CONTROL":"REQUESTED · RESOLVED · DIAGNOSE")}
+  renderRenderTabs(){const tab=store.get().ui.renderTab||"edit";$$("[data-render-tab]").forEach(button=>{const active=button.dataset.renderTab===tab;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active))});$$("[data-render-panel]").forEach(panel=>panel.classList.toggle("active",panel.dataset.renderPanel===tab));setText("renderInspectorTitle",tab==="edit"?"SHOT EDITOR · START / END GRAMMAR":tab==="presets"?"SHOT PRESETS · PLAYER SNAPSHOTS":"REQUESTED · RESOLVED · DIAGNOSE")}
   renderFamilyRail(){
     const state=store.get(),signature=`${state.ui.family}:${state.ui.advanced}:${activeShot(state)?.v41?.preset?.advancedEnabled}`;if(this.signatures.family===signature)return;this.signatures.family=signature;
     const host=$("#familyRail");host.innerHTML=V41_STORY_FAMILIES.map(family=>`<button class="family-card ${family.id===state.ui.family?"active":""}" data-family="${family.id}"><b>${family.label}</b><span>${V41_PRESET_REGISTRY.filter(p=>p.story===family.id&&(p.eligibility==="default"||activeShot(state)?.v41?.preset?.advancedEnabled)).length} PRESETS</span></button>`).join("");
@@ -2591,11 +2548,16 @@ syncWorkspaceSplit(){
   }
   renderPresetGrid(){
     const state=store.get(),shot=activeShot(state),v41=v41EnsureShotState(shot),query=String(state.ui.presetQuery||"").toLowerCase(),useCase=state.ui.presetUseCase||"all",advancedGate=!!v41.preset.advancedEnabled,list=V41_PRESET_REGISTRY.filter(p=>p.story===state.ui.family&&(p.eligibility==="default"||advancedGate)&&(useCase==="all"||p.useCase===useCase)&&(!query||`${p.title} ${p.outcome} ${p.story} ${p.useCase}`.toLowerCase().includes(query))),signature=`${state.ui.family}:${advancedGate}:${useCase}:${query}:${v41.preset.resolvedId}:${state.scene.assets.map(a=>`${a.id}:${a.role}:${a.status}`).join("|")}:${state.scene.environment.blobKey||"none"}`;
-    setText("familyMeta",`${list.length} CURATED`);setText("presetResultMeta",query?`${list.length} RESULTS`:"CLICK TO APPLY · AUTO PREVIEW");setValue("presetSearch",state.ui.presetQuery||"");setValue("presetUseCase",useCase);setChecked("advancedPresetGate",advancedGate);$("#lockPresetButton")?.classList.toggle("active",!!v41.preset.locked);$("#lockPresetButton")?.setAttribute("aria-pressed",String(!!v41.preset.locked));if(this.signatures.presets===signature)return;this.signatures.presets=signature;const host=$("#presetGrid");
+    setText("familyMeta",`${list.length} CURATED`);setText("presetResultMeta",query?`${list.length} RESULTS`:"CLICK TO APPLY · AUTO PREVIEW");setValue("presetSearch",state.ui.presetQuery||"");setValue("presetUseCase",useCase);setChecked("advancedPresetGate",advancedGate);$("#lockPresetButton")?.classList.toggle("active",!!v41.preset.locked);$("#lockPresetButton")?.setAttribute("aria-pressed",String(!!v41.preset.locked));if(this.signatures.presets===signature){const existing=$("#presetGrid");if(state.ui.renderTab==="presets"&&existing?.dataset.snapshotSignature!==signature){existing.dataset.snapshotSignature=signature;requestAnimationFrame(()=>this.drawPresetSnapshots(existing))}return}this.signatures.presets=signature;const host=$("#presetGrid");host.dataset.snapshotSignature="";
     host.innerHTML=list.map(preset=>{const compatibility=v41Compatibility(preset,state,shot),selected=preset.id===v41.preset.resolvedId,badge=preset.eligibility==="advanced"?'<span class="preset-badge">ADV</span>':"",resolved=v41.preset.requestedId===preset.id&&v41.preset.resolvedId&&v41.preset.resolvedId!==preset.id?`<span class="resolved-subtitle">RESOLVED · ${safe(V41_PRESET_MAP.get(v41.preset.resolvedId)?.title||"")}</span>`:"";return`<button class="preset-card ${selected?"selected active":""} ${compatibility.status}" data-v41-preset="${preset.id}" ${compatibility.compatible?"":"disabled"} title="${safe(compatibility.diagnostics[0]?.message||preset.outcome)}">${badge}<canvas aria-hidden="true"></canvas><div class="preset-topline"><b>${safe(preset.title)}</b><span class="preset-status ${compatibility.status}">${compatibility.status.toUpperCase()}</span></div><span>${safe(preset.outcome)}</span>${resolved}<small>${preset.useCase.toUpperCase()} · ${preset.durationFrames}F · Δ${preset.delta} · ${preset.risk.toUpperCase()}</small></button>`}).join("")||'<div class="tree-empty">No compatible presets match this filter.</div>';
-    host.onclick=event=>{const card=event.target.closest("[data-v41-preset]");if(card&&!card.disabled)dispatchV41("APPLY_PRESET",{presetId:card.dataset.v41Preset})};requestAnimationFrame(()=>$$('[data-v41-preset]',host).forEach(card=>{const preset=V41_PRESET_MAP.get(card.dataset.v41Preset),source=PRESET_MAP.get(preset?.sourcePresetId);this.drawThumbnail($("canvas",card),source,preset?.id)}));this.renderPresetResolution();
+    host.onclick=event=>{const card=event.target.closest("[data-v41-preset]");if(card&&!card.disabled)dispatchV41("APPLY_PRESET",{presetId:card.dataset.v41Preset})};if(state.ui.renderTab==="presets"){host.dataset.snapshotSignature=signature;requestAnimationFrame(()=>this.drawPresetSnapshots(host))}this.renderPresetResolution();
   }
   renderPresetResolution(){const shot=activeShot(),v41=v41EnsureShotState(shot),requested=V41_PRESET_MAP.get(v41.preset.requestedId),resolved=V41_PRESET_MAP.get(v41.preset.resolvedId),host=$("#presetResolution");if(!host)return;setText("resolutionMeta",String(v41.preset.status||"ready").toUpperCase());host.innerHTML=`<div class="resolution-line"><span>REQUESTED</span><b class="start">${safe(requested?.title||"—")}</b></div><div class="resolution-line"><span>RESOLVED</span><b class="end">${safe(resolved?.title||"BLOCKED")}</b></div><div class="resolution-line"><span>STATUS</span><b>${safe(String(v41.preset.status||"ready").toUpperCase())} · SCORE ${Math.round(v41.preset.score||0)}</b></div><div class="resolution-line"><span>STRATEGY</span><b>${safe(v41.variant?.requestedStrategy||"hold")} → ${safe(v41.variant?.resolvedStrategy||"hold")}</b></div><div class="resolution-note">${safe(v41.preset.diagnostics?.[0]?.message||"The authored preset is resolved without repairs. Duration and linked clip geometry are protected.")}</div>`}
+  drawPresetSnapshots(host){
+    const state=store.get(),cards=$$('[data-v41-preset]',host),restore=player.current,view=state.ui.mode==="viewport"?"viewport":"render",now=performance.now()/1000;
+    for(const card of cards){const wrapper=V41_PRESET_MAP.get(card.dataset.v41Preset),source=PRESET_MAP.get(wrapper?.sourcePresetId),canvas=$("canvas",card);if(!source||!canvas)continue;try{const ep=interpolateEndpoint(source.start,source.end,.58);engine.render(ep,state,"render",now);const dpr=Math.min(2,window.devicePixelRatio||1),width=Math.max(160,canvas.clientWidth||240),height=Math.max(90,canvas.clientHeight||135);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);ctx.drawImage(engine.canvas,0,0,width,height)}catch(error){this.drawThumbnail(canvas,source,wrapper?.id)}}
+    try{engine.render(restore.endpoint,state,view,now)}catch(error){}player.request();
+  }
   drawThumbnail(canvas,preset,key){
     if(!canvas||!preset)return;const dpr=Math.min(2,window.devicePixelRatio||1),width=Math.max(120,canvas.clientWidth||180),height=Math.max(68,canvas.clientHeight||101);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
     const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);const ep=preset.end||preset,background=ep.look?.background||"#08080a",gradient=ctx.createRadialGradient(width*.62,height*.32,2,width*.5,height*.5,width*.78);gradient.addColorStop(0,shade(background,1.85));gradient.addColorStop(.48,shade(background,.92));gradient.addColorStop(1,shade(background,.38));ctx.fillStyle=gradient;ctx.fillRect(0,0,width,height);
@@ -2603,9 +2565,10 @@ syncWorkspaceSplit(){
     ctx.save();ctx.translate(x,y);ctx.rotate(rad((ep.camera?.roll||0)+(ep.subject?.rotation?.[1]||0)*.045));drawProxyHero(ctx,size,{profile,view:"render",look:ep.look||{}});ctx.restore();const floor=ctx.createLinearGradient(0,height*.72,0,height);floor.addColorStop(0,"rgba(255,255,255,.04)");floor.addColorStop(1,"rgba(0,0,0,.32)");ctx.fillStyle=floor;ctx.fillRect(0,height*.72,width,height*.28);
   }
   renderAssetList(){
-    const state=store.get(),signature=state.scene.assets.map(a=>`${a.id}:${a.name}:${a.status}:${a.visible}:${a.locked}`).join("|")+`:${state.ui.selectedAssetId}`;if(this.signatures.assets===signature)return;this.signatures.assets=signature;const host=$("#assetList");
-    host.innerHTML=state.scene.assets.map(asset=>`<div class="asset-card ${asset.id===state.ui.selectedAssetId?"active":""}" data-asset="${asset.id}"><span class="asset-icon">${icon(asset.role==="hero"?"i-cube":"i-plus")}</span><span class="asset-copy"><b>${safe(asset.name)}</b><span>${safe(asset.fileName)} · ${asset.role.toUpperCase()}${asset.variant?.enabled?` · ${safe(asset.variant.slot||"VARIANT")}`:""}</span></span><span class="asset-state">${String(asset.status).toUpperCase()}</span>${asset.role!=="hero"?`<button class="icon-button" data-remove-asset="${asset.id}" aria-label="Remove">${icon("i-trash")}</button>`:""}</div>`).join("");
-    host.onclick=event=>{const remove=event.target.closest("[data-remove-asset]");if(remove){assetManager.remove(remove.dataset.removeAsset);return}const card=event.target.closest("[data-asset]");if(card)store.run("Select asset",state=>{state.ui.selectedAssetId=card.dataset.asset;state.ui.propertyKind="asset"},{history:false,source:"navigation"})};
+    const state=store.get(),signature=state.scene.assets.map(a=>`${a.id}:${a.name}:${a.role}:${a.status}:${a.visible}:${a.locked}`).join("|")+`:${state.ui.selectedAssetId}`;if(this.signatures.assets===signature)return;this.signatures.assets=signature;
+    const card=asset=>`<div class="asset-card ${asset.id===state.ui.selectedAssetId?"active":""}" data-asset="${asset.id}"><span class="asset-icon">${icon(asset.role==="hero"?"i-cube":asset.role==="background"?"i-image":asset.role==="variant"?"i-variant":"i-plus")}</span><span class="asset-copy"><b>${safe(asset.name)}</b><span>${safe(asset.fileName)} · ${asset.role.toUpperCase()}${asset.variant?.enabled?` · ${safe(asset.variant.slot||"VARIANT")}`:""}</span></span><span class="asset-state">${String(asset.status).toUpperCase()}</span>${asset.role!=="hero"?`<button class="icon-button" data-remove-asset="${asset.id}" aria-label="Remove">${icon("i-trash")}</button>`:""}</div>`;
+    const bind=host=>{if(!host)return;host.onclick=event=>{const remove=event.target.closest("[data-remove-asset]");if(remove){assetManager.remove(remove.dataset.removeAsset);return}const item=event.target.closest("[data-asset]");if(item)store.run("Select asset",next=>{next.ui.selectedAssetId=item.dataset.asset;next.ui.propertyKind="asset"},{history:false,source:"navigation"})}};
+    const main=$("#assetList"),background=$("#backgroundAssetList"),mainAssets=state.scene.assets.filter(asset=>asset.role!=="hero"&&asset.role!=="background"),backgrounds=state.scene.assets.filter(asset=>asset.role==="background");if(main)main.innerHTML=mainAssets.map(card).join("")||'<div class="tree-empty">No secondary assets. Upload props, variants or environment geometry.</div>';if(background)background.innerHTML=backgrounds.map(card).join("")||'<div class="tree-empty">No background geometry assigned.</div>';bind(main);bind(background);
   }
   renderSequenceList(){
     const state=store.get(),signature=state.timeline.activeSequenceId;if(this.signatures.sequence===signature)return;this.signatures.sequence=signature;const host=$("#sequenceList");
@@ -2632,7 +2595,7 @@ syncWorkspaceSplit(){
     const state=store.get(),ppf=Number(state.ui.timelineZoom)||4,pre=10,post=10,label=76,sequenceEnd=Math.max(state.project.outFrame,timelineEnd(state)),rulerEnd=sequenceEnd+post,trackHeight=82,width=Math.max(this.timelineScroll.clientWidth||760,label+(pre+rulerEnd)*ppf);
     this.ppf=ppf;this.preRoll=pre;this.labelW=label;this.timelineCanvas.style.width=`${width}px`;this.timelineCanvas.style.height=`${32+TRACKS.length*trackHeight}px`;this.timelineCanvas.style.setProperty("--label-w",`${label}px`);this.timelineCanvas.style.setProperty("--track-h",`${trackHeight}px`);this.timelineCanvas.style.setProperty("--grid",`${Math.max(8,state.project.fps*ppf)}px`);
     const minor=Math.max(1,Math.round(state.project.fps/4)),ticks=[];for(let frame=-pre;frame<=rulerEnd;frame+=minor){const major=frame===0||frame%state.project.fps===0;ticks.push(`<i class="tick ${major?"major":""}" style="left:${(pre+frame)*ppf}px">${major?`<span>${frame<0?frame:formatTimecode(frame,state.project.fps).slice(3,8)}</span>`:""}</i>`)}
-    const tracks=TRACKS.map(id=>{const policy=state.timeline.tracks[id],clips=state.timeline.clips.filter(c=>c.track===id).sort((a,b)=>a.startFrame-b.startFrame),selected=id===state.ui.selectedTrackId&&state.ui.propertyKind==="timeline-track";return `<div class="track ${policy.hidden?"hidden":""} ${selected?"selected-track":""}" data-track="${id}"><div class="track-label" data-track-label="${id}"><b class="track-code">${id.toUpperCase()}</b><span class="track-controls"><button data-track-mini="locked" class="${policy.locked?"active":""}" title="Lock">L</button><button data-track-mini="muted" class="${policy.muted?"active":""}" title="Mute">M</button><button data-track-mini="hidden" class="${policy.hidden?"active":""}" title="Hide">H</button></span></div><div class="track-lane" data-lane="${id}">${clips.map(clip=>this.clipHTML(clip,ppf,pre)).join("")}</div></div>`}).join("");
+    const tracks=TRACKS.map(id=>{const policy=state.timeline.tracks[id],clips=state.timeline.clips.filter(c=>c.track===id).sort((a,b)=>a.startFrame-b.startFrame),selected=id===state.ui.selectedTrackId&&state.ui.propertyKind==="timeline-track";return `<div class="track ${policy.hidden?"hidden":""} ${selected?"selected-track":""}" data-track="${id}"><div class="track-label" data-track-label="${id}"><b class="track-code">${id.toUpperCase()}</b><span class="track-controls"><button data-track-mini="locked" class="${policy.locked?"active":""}" title="Lock">L</button><button data-track-mini="muted" class="${policy.muted?"active":""}" title="Mute">M</button><button data-track-mini="hidden" class="${policy.hidden?"active":""}" title="Hide">H</button></span></div><div class="track-lane" data-lane="${id}"><button class="lane-add zero" data-lane-add="${id}:0" title="Add at frame 0">+</button><button class="lane-add append" data-lane-add="${id}:${Math.max(0,timelineEnd(state))}" style="left:${(pre+Math.max(0,timelineEnd(state)))*ppf}px" title="Append to ${id.toUpperCase()}">+</button>${clips.map(clip=>this.clipHTML(clip,ppf,pre)).join("")}</div></div>`}).join("");
     this.timelineCanvas.innerHTML=`<div class="timeline-ruler" data-ruler>${ticks.join("")}</div><div class="preroll" style="left:${label}px;width:${pre*ppf}px"></div><div class="inout-range" style="left:${label+(pre+state.project.inFrame)*ppf}px;width:${Math.max(1,(state.project.outFrame-state.project.inFrame)*ppf)}px"></div><div class="postroll" style="left:${label+(pre+state.project.outFrame)*ppf}px;width:${post*ppf}px"></div>${tracks}<div class="playhead" id="timelinePlayhead"></div>`;
     this.updatePlayhead();
     requestAnimationFrame(()=>{$$(".clip[data-shot-id] .clip-thumb canvas",this.timelineCanvas).forEach(canvas=>{const element=canvas.closest(".clip"),shot=shotById(element.dataset.shotId);if(shot)this.drawThumbnail(canvas,shot,`clip:${element.dataset.clip}`)});$$('.clip[data-type="audio"] .clip-thumb canvas',this.timelineCanvas).forEach(canvas=>this.drawAudioWave(canvas,canvas.closest(".clip").dataset.clip))});
@@ -2709,9 +2672,10 @@ function runAcceptance(){
     {id:"no-runtime-patch-contract",pass:!source.includes(forbiddenRemove)&&!source.includes(forbiddenObserver),detail:{parentRemovalMethod:source.includes(forbiddenRemove),mutationObserver:source.includes(forbiddenObserver)}},
     {id:"v41-preset-registry",pass:v41PresetIds.length>=18&&new Set(v41PresetIds).size===v41PresetIds.length,detail:v41PresetIds.length},
     {id:"v41-command-bus",pass:typeof dispatchV41==="function"&&typeof player.play==="function",detail:["APPLY_PRESET","NEAR_VARIANT","BOLD_VARIANT","RANDOM_SHOT"]},
-    {id:"presets-first-default",pass:state.ui.renderTab==="presets"||!!document.querySelector("[data-render-tab=\"presets\"].active"),detail:state.ui.renderTab},
-    {id:"eight-macro-categories",pass:V41_MACROS.length===8&&document.querySelectorAll("[data-macro]").length===8,detail:V41_MACROS.map(m=>m.id)},
-    {id:"viewport-outliner-details",pass:!!document.getElementById("viewportOutliner")&&!!document.getElementById("assetInspector"),detail:true},
+    {id:"editor-first-default",pass:document.querySelector("[data-render-tab]")?.dataset.renderTab==="edit",detail:document.querySelector("[data-render-tab]")?.dataset.renderTab},
+    {id:"axis-chip-editor",pass:document.querySelectorAll("#axisEditor [data-axis-row]").length===AXIS_REGISTRY.length&&!!document.getElementById("editorNavigation"),detail:document.querySelectorAll("#axisEditor [data-axis-row]").length},
+    {id:"viewport-outliner-right-details",pass:!!document.getElementById("viewportOutliner")&&!!document.getElementById("assetInspector")&&document.querySelectorAll("#assetInspector .source-upload").length>=4,detail:document.querySelectorAll("#assetInspector .source-upload").length},
+    {id:"timeline-toolset-restored",pass:document.querySelectorAll("[data-timeline-tool]").length===3&&!!document.getElementById("timelineOverview"),detail:document.querySelectorAll("[data-timeline-tool]").length},
     {id:"viewport-xyz-transform",pass:document.querySelectorAll("#viewportTransformFields [data-asset-pos]").length===3&&document.querySelectorAll("#viewportTransformFields [data-asset-rot]").length===3&&document.querySelectorAll("#viewportTransformFields [data-asset-scale]").length===3,detail:"3 × XYZ"},
     {id:"advanced-properties-embedded",pass:!!document.querySelector("#shotInspector #propertiesPanel"),detail:"nested below macro area"},
     {id:"v41-public-api",pass:typeof window.MementoV41==="object",detail:window.MementoV41?.build||null},
@@ -2740,7 +2704,7 @@ document.body.dataset.engine=engine.type;
 document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&document.body.classList.contains("focus-mode"))ui.toggleFocus(false)});
 window.addEventListener("resize",()=>{engine.resize();player.request()},{passive:true});
 window.addEventListener("beforeunload",()=>audioManager.stop());
-setTimeout(()=>{const result=runAcceptance();document.body.dataset.acceptance=result.pass?"pass":"fail";console.info("MEMENTO V41 acceptance",result)},350);
+setTimeout(()=>{const result=runAcceptance();document.body.dataset.acceptance=result.pass?"pass":"fail";console.info("MEMENTO V41B acceptance",result)},350);
 
 })();
 
