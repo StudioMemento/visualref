@@ -6,25 +6,39 @@ const workspaceLabel=value=>value.toUpperCase();
 
 export class PlayerController{
   constructor({root,store,commands,workspace,toast}){
-    this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.build();this.bind();
+    this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.hasComparison=workspace!=="viewport";
+    this.build();this.bind();
     this.renderer=new RendererService({canvas:this.canvas,onStatus:status=>{this.rendererStatus=status;this.renderStatus();}});
-    this.unsubscribe=store.subscribe((state,meta)=>{this.state=state;this.renderUI(meta);});
+    if(this.hasComparison){
+      this.startRenderer=new RendererService({canvas:this.startCanvas,forceFallback:true});
+      this.endRenderer=new RendererService({canvas:this.endCanvas,forceFallback:true});
+    }
+    this.layoutObserver=new ResizeObserver(()=>this.updateAllGates());this.layoutObserver.observe(this.root);
+    this.unsubscribe=store.subscribe((state,meta)=>{this.state=state;this.renderUI(meta);if(meta?.label!=="Playback tick")this.renderEndpointStills();});
     this.raf=requestAnimationFrame(time=>this.tick(time));
   }
   build(){
+    const comparison=this.hasComparison?`
+      <div class="endpoint-comparison" data-role="comparison">
+        ${endpointMarkup("start","START FRAME")}
+        ${endpointMarkup("end","END FRAME")}
+      </div>`:"";
     this.root.innerHTML=`
-      <section class="player-shell" aria-label="Shared VisualRef Player">
+      <section class="player-shell ${this.hasComparison?'shot-player-shell':'direct-player-shell'}" aria-label="Shared VisualRef Player">
         <header class="player-statusbar">
           <div class="player-status-left"><span class="workspace-label">${workspaceLabel(this.workspace)}</span><i>·</i><b class="renderer-badge fallback" data-role="renderer-status">BOOTING</b></div>
           <div class="player-status-center"><b data-role="shot-name">—</b><span data-role="playback-mode">SHOT</span></div>
           <div class="player-status-right"><b data-role="timecode">00:00:00:00</b><span data-role="format">16:9 · 24 FPS</span></div>
         </header>
-        <div class="stage-wrap" data-role="stage" tabindex="0" aria-label="3D player surface">
-          <div class="stage-placeholder"></div>
-          <canvas data-role="canvas"></canvas>
-          <div class="output-gate" data-role="gate"></div>
-          <div class="stage-overlay"><span class="stage-chip" data-role="stage-mode">SHOT PLAYER</span><span class="stage-chip" data-role="stage-note">CALIBRATED PROXY</span></div>
-          <div class="center-feedback" data-role="feedback">▶</div>
+        <div class="player-visuals ${this.hasComparison?'with-comparison':'direct-only'}">
+          ${comparison}
+          <div class="stage-wrap live-stage" data-role="stage" tabindex="0" aria-label="3D player surface">
+            <div class="stage-placeholder"></div>
+            <canvas data-role="canvas"></canvas>
+            <div class="output-gate" data-role="gate"></div>
+            <div class="stage-overlay"><span class="stage-chip" data-role="stage-mode">SHOT PLAYER</span><span class="stage-chip" data-role="stage-note">CALIBRATED PROXY</span></div>
+            <div class="center-feedback" data-role="feedback">▶</div>
+          </div>
         </div>
         <div class="transport-primary">
           <button class="transport-button" data-action="loop" title="Loop">↻</button>
@@ -50,6 +64,7 @@ export class PlayerController{
         </div>
       </section>`;
     this.canvas=this.root.querySelector('[data-role="canvas"]');this.stage=this.root.querySelector('[data-role="stage"]');this.gate=this.root.querySelector('[data-role="gate"]');this.scrub=this.root.querySelector('[data-role="scrub"]');
+    if(this.hasComparison){this.startCanvas=this.root.querySelector('[data-endpoint="start"] canvas');this.endCanvas=this.root.querySelector('[data-endpoint="end"] canvas');}
   }
   bind(){
     this.root.addEventListener("click",event=>{
@@ -88,7 +103,7 @@ export class PlayerController{
     this.root.querySelector('[data-role="playback-mode"]').textContent=isTimeline?"SEQUENCE":this.workspace==="viewport"?"VIEWPORT":"SHOT";
     this.root.querySelector('[data-role="timecode"]').textContent=formatTimecode(frame,state.settings.fps);
     this.root.querySelector('[data-role="format"]').textContent=`${state.settings.aspectRatio} · ${state.settings.fps} FPS`;
-    this.root.querySelector('[data-role="stage-mode"]').textContent=isTimeline?"SEQUENCE PLAYER":this.workspace==="viewport"?"DIRECT VIEWPORT":"SHOT PLAYER";
+    this.root.querySelector('[data-role="stage-mode"]').textContent=isTimeline?"SEQUENCE PLAYER":this.workspace==="viewport"?"DIRECT VIEWPORT":"LIVE INTERPOLATION";
     this.root.querySelector('[data-role="stage-note"]').textContent=state.assets.byId[state.assets.heroId]?.name||"CALIBRATED PROXY";
     this.scrub.max=String(duration);this.scrub.value=String(clamp(frame,0,duration));this.root.querySelector('[data-role="frame"]').textContent=String(Math.round(frame)).padStart(3,"0");this.root.querySelector('[data-role="delta"]').textContent=`${String(delta.count).padStart(2,"0")} Δ`;
     const loop=this.root.querySelector('[data-action="loop"]');loop.classList.toggle("active",state.playback.loop);
@@ -96,11 +111,25 @@ export class PlayerController{
     const seconds=this.root.querySelector('[data-role="seconds"]');if(document.activeElement!==seconds)seconds.value=(shot.durationFrames/state.settings.fps).toFixed(1);
     this.root.querySelector('[data-role="fps"]').value=String(state.settings.fps);this.root.querySelector('[data-role="aspect"]').value=state.settings.aspectRatio;this.root.querySelector('[data-role="variant-mode"]').value=shot.variantMode||"balanced";this.root.querySelector('[data-role="variant-count"]').textContent=`V${String(shot.variant).padStart(2,"0")}`;
     const add=this.root.querySelector('[data-action="add-timeline"]');add.textContent=isTimeline?"ADD ACTIVE SHOT":"ADD TO TIMELINE";
-    this.updateGate(state.settings.aspectRatio);this.renderStatus();
+    if(this.hasComparison){
+      const endpointShot=this.endpointShot(state);this.root.querySelector('[data-endpoint="start"] [data-role="endpoint-frame"]').textContent="FRAME 000";this.root.querySelector('[data-endpoint="end"] [data-role="endpoint-frame"]').textContent=`FRAME ${String(endpointShot.durationFrames).padStart(3,"0")}`;
+    }
+    this.updateAllGates();this.renderStatus();
   }
-  updateGate(aspect){
-    const ratio=aspectNumber(aspect),rect=this.stage.getBoundingClientRect();if(!rect.width||!rect.height)return;
-    const stageRatio=rect.width/rect.height;let width,height;if(stageRatio>ratio){height=rect.height*.9;width=height*ratio;}else{width=rect.width*.92;height=width/ratio;}this.gate.style.width=`${width}px`;this.gate.style.height=`${height}px`;this.gate.style.aspectRatio="auto";
+  endpointShot(state){
+    if(this.workspace==="timeline"){const clip=state.timeline.clips[state.timeline.selectedClipId];if(clip?.shotId&&state.shots.byId[clip.shotId])return state.shots.byId[clip.shotId];}
+    return activeShot(state);
+  }
+  renderEndpointStills(){
+    if(!this.hasComparison||!this.startRenderer||!this.endRenderer)return;const state=this.state,shot=this.endpointShot(state),start=evaluateShot(state,shot.id,0),end=evaluateShot(state,shot.id,shot.durationFrames);this.startRenderer.render(start,state,0);this.endRenderer.render(end,state,0);
+  }
+  updateAllGates(){
+    const aspect=this.state.settings.aspectRatio;this.updateGate(this.stage,this.gate,aspect);
+    if(this.hasComparison){for(const endpoint of ["start","end"]){const stage=this.root.querySelector(`[data-endpoint="${endpoint}"]`),gate=stage?.querySelector('[data-role="endpoint-gate"]');if(stage&&gate)this.updateGate(stage,gate,aspect,.94);}}
+  }
+  updateGate(stage,gate,aspect,coverage=.9){
+    const ratio=aspectNumber(aspect),rect=stage.getBoundingClientRect();if(!rect.width||!rect.height)return;
+    const stageRatio=rect.width/rect.height;let width,height;if(stageRatio>ratio){height=rect.height*coverage;width=height*ratio;}else{width=rect.width*coverage;height=width/ratio;}gate.style.width=`${width}px`;gate.style.height=`${height}px`;gate.style.aspectRatio="auto";
   }
   tick(now){
     const state=this.store.get(),fps=state.settings.fps,isTimeline=this.workspace==="timeline",duration=isTimeline?sequenceDuration(state):activeShot(state).durationFrames;
@@ -109,5 +138,9 @@ export class PlayerController{
     }
     this.lastTick=now;const current=this.store.get(),frame=isTimeline?current.timeline.playheadFrame:current.playback.frame,evaluated=isTimeline?evaluateSequence(current,frame):evaluateShot(current,current.shots.activeShotId,frame);this.renderer?.render(evaluated,current,now/1000);this.raf=requestAnimationFrame(time=>this.tick(time));
   }
-  dispose(){cancelAnimationFrame(this.raf);this.unsubscribe?.();this.renderer?.dispose();}
+  dispose(){cancelAnimationFrame(this.raf);this.unsubscribe?.();this.layoutObserver?.disconnect();this.renderer?.dispose();this.startRenderer?.dispose();this.endRenderer?.dispose();}
+}
+
+function endpointMarkup(endpoint,label){
+  return `<div class="endpoint-stage ${endpoint}" data-endpoint="${endpoint}"><div class="stage-placeholder"></div><canvas></canvas><div class="endpoint-gate" data-role="endpoint-gate"></div><div class="endpoint-label"><b>${label}</b><span data-role="endpoint-frame">FRAME 000</span></div></div>`;
 }

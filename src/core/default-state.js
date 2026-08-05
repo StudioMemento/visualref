@@ -1,4 +1,5 @@
 import {uid} from "./utils.js";
+import {CREATIVE_AXES,defaultCreativeChoices} from "../shots/creative-axes.js";
 
 export const SCHEMA_NAME="memento.visualref";
 export const SCHEMA_VERSION=43;
@@ -38,9 +39,10 @@ function shot(id="shot-001"){
     variantMode:"balanced",
     seed:43001,
     deltaTarget:.42,
-    start:{values:defaultValues("start")},
-    end:{values:defaultValues("end")},
+    start:{values:defaultValues("start"),choices:defaultCreativeChoices("start")},
+    end:{values:defaultValues("end"),choices:defaultCreativeChoices("end")},
     locks:Object.fromEntries(AXES.map(axis=>[axis.id,false])),
+    creativeLocks:Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),
     updatedAt:new Date().toISOString()
   };
 }
@@ -50,7 +52,7 @@ export function createDefaultState(){
   const now=new Date().toISOString();
   return {
     schema:{name:SCHEMA_NAME,version:SCHEMA_VERSION,migratedFrom:null},
-    meta:{id:projectId,name:"MEMENTO V43A",createdAt:now,updatedAt:now,language:"EN"},
+    meta:{id:projectId,name:"MEMENTO V43A.1",createdAt:now,updatedAt:now,language:"EN"},
     settings:{aspectRatio:"16:9",fps:24,resolution:"1920×1080",playbackQuality:"preview",performanceTier:"auto"},
     assets:{heroId:"hero-proxy",environmentId:"environment-proxy",hdriId:null,secondaryIds:[],audioIds:[],byId:{
       "hero-proxy":{id:"hero-proxy",type:"hero",name:"CALIBRATED PROXY",status:"ready",source:"builtin"},
@@ -66,15 +68,21 @@ export function createDefaultState(){
     playback:{mode:"shot",playing:false,frame:0,loop:true,lastTick:0},
     timeline:{durationFrames:180,playheadFrame:0,inFrame:0,outFrame:180,loop:true,snapEnabled:true,zoom:5,selectedClipId:null,selectedTrackId:"v1",markers:[],tracks:Object.fromEntries(TRACKS.map(track=>[track.id,{...track,locked:false,muted:false,visible:true}])),clips:{}},
     glossary:{preferences:{category:"all",query:""}},
-    ui:{activeWorkspace:"render",advanced:false,editScope:"both",splitter:.60,viewportTool:"translate",selectedNodeId:"hero-proxy",selectedAxisId:"subject.scale",projectDialogOpen:false,mobileMode:"shot"}
+    ui:{activeWorkspace:"render",advanced:false,editScope:"both",splitter:.50,viewportTool:"translate",selectedNodeId:"hero-proxy",selectedAxisId:"subject.scale",selectedCreativeAxisId:"light",projectDialogOpen:false,mobileMode:"shot"}
   };
 }
 export function normalizeState(input){
   if(!input||input.schema?.name!==SCHEMA_NAME||Number(input.schema?.version)!==SCHEMA_VERSION)return createDefaultState();
   const state=input;
-  state.ui??={};state.ui.activeWorkspace??="render";state.ui.editScope??="both";state.ui.splitter??=.60;state.ui.viewportTool??="translate";state.ui.selectedNodeId??="hero-proxy";
+  state.ui??={};state.ui.activeWorkspace??="render";state.ui.editScope??="both";state.ui.splitter=.50;state.ui.viewportTool??="translate";state.ui.selectedNodeId??="hero-proxy";state.ui.selectedCreativeAxisId??="light";
   state.playback??={mode:"shot",playing:false,frame:0,loop:true,lastTick:0};
   state.timeline??=createDefaultState().timeline;
   state.timeline.clips??={};state.timeline.tracks??=createDefaultState().timeline.tracks;
+  for(const shot of Object.values(state.shots?.byId||{})){
+    shot.start??={values:defaultValues("start")};shot.end??={values:defaultValues("end")};
+    shot.start.values={...defaultValues("start"),...(shot.start.values||{})};shot.end.values={...defaultValues("end"),...(shot.end.values||{})};
+    shot.start.choices={...defaultCreativeChoices("start"),...(shot.start.choices||{})};shot.end.choices={...defaultCreativeChoices("end"),...(shot.end.choices||{})};
+    shot.creativeLocks={...Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),...(shot.creativeLocks||{})};
+  }
   return state;
 }

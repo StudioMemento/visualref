@@ -9,7 +9,7 @@ export class AppShell{
     this.root.innerHTML=`<div class="app-shell">
       <header class="app-header"><div class="brand-zone">${LOGO}</div><nav class="mode-zone">${modeLinks}</nav><div class="action-zone">
         <button class="header-button" data-shell-action="undo" title="Undo">↶</button><button class="header-button" data-shell-action="redo" title="Redo">↷</button>
-        <button class="project-button" data-shell-action="project"><span data-role="project-name">MEMENTO V43A</span></button>
+        <button class="project-button" data-shell-action="project"><span data-role="project-name">MEMENTO V43A.1</span></button>
         <label class="advanced-switch"><input type="checkbox" data-role="advanced"><i></i><span>ADVANCED</span></label>
         <button class="header-button" data-shell-action="focus" title="Fullscreen">⛶</button>
       </div></header>
@@ -44,7 +44,7 @@ export class AppShell{
   }
   renderDialog(state){
     if(!state.ui.projectDialogOpen){this.dialogHost.innerHTML='';return;}
-    this.dialogHost.innerHTML=`<div class="project-dialog" data-project-close><section class="project-card" onclick="event.stopPropagation()"><header><div><small>PROJECT STATE</small><b>V43A FOUNDATION</b></div><button data-project-close>×</button></header><div class="project-body"><label class="project-field"><span>PROJECT NAME</span><input data-project-name value="${escapeHtml(state.meta.name)}"></label><div class="project-meta"><span>AUTOSAVE</span><b>INDEXEDDB READY</b><span>SCHEMA</span><b>${state.schema.name} · ${state.schema.version}</b><span>WORKSPACE</span><b>${state.ui.activeWorkspace.toUpperCase()}</b></div><div class="project-actions"><button data-project-save-name>SAVE NAME</button><button class="danger" data-project-reset>RESET PROJECT</button></div></div></section></div>`;
+    this.dialogHost.innerHTML=`<div class="project-dialog" data-project-close><section class="project-card" onclick="event.stopPropagation()"><header><div><small>PROJECT STATE</small><b>V43A.1 LAYOUT FOUNDATION</b></div><button data-project-close>×</button></header><div class="project-body"><label class="project-field"><span>PROJECT NAME</span><input data-project-name value="${escapeHtml(state.meta.name)}"></label><div class="project-meta"><span>AUTOSAVE</span><b>INDEXEDDB READY</b><span>SCHEMA</span><b>${state.schema.name} · ${state.schema.version}</b><span>WORKSPACE</span><b>${state.ui.activeWorkspace.toUpperCase()}</b></div><div class="project-actions"><button data-project-save-name>SAVE NAME</button><button class="danger" data-project-reset>RESET PROJECT</button></div></div></section></div>`;
     const input=this.dialogHost.querySelector('[data-project-name]');this.dialogHost.querySelector('[data-project-save-name]').addEventListener('click',()=>{this.commands.dispatch('project.rename',{name:input.value});this.toast('PROJECT NAME SAVED');});
   }
   toast(message){

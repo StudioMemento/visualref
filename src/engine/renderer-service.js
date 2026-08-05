@@ -13,10 +13,12 @@ class CanvasFallback{
 function roundRect(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();}
 
 export class RendererService{
-  constructor({canvas,onStatus}){this.canvas=canvas;this.onStatus=onStatus;this.mode="booting";this.THREE=null;this.resizeObserver=null;this.fallback=null;this.ready=this.init();}
+  constructor({canvas,onStatus,forceFallback=false}){this.canvas=canvas;this.onStatus=onStatus;this.forceFallback=forceFallback;this.mode="booting";this.THREE=null;this.resizeObserver=null;this.fallback=null;this.ready=this.init();}
   status(label,mode="ready"){this.mode=mode;this.onStatus?.({label,mode});}
   async init(){
     try{
+      if(this.forceFallback){this.fallback=new CanvasFallback(this.canvas);this.status("STILL · PROXY","fallback");return;}
+      if(globalThis.location?.protocol==="file:")throw new Error("Local file preview uses visible Canvas fallback");
       const THREE=await Promise.race([import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Three.js load timeout")),2800))]);this.THREE=THREE;this.initThree();this.status("THREE · READY","ready");
     }catch(error){console.warn("Three.js module unavailable, using visible fallback",error);this.fallback=new CanvasFallback(this.canvas);this.status("PROXY · FALLBACK","fallback");}
   }

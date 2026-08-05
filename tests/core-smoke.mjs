@@ -12,6 +12,16 @@ const state=createDefaultState(),history=new HistoryService(state.meta.id),persi
 const store=new ProjectStore({state,history,persistence,sync}),commands=new CommandBus({store,history,persistence,sync,toast(){}});registerCommands(commands);
 const shot=()=>store.get().shots.byId[store.get().shots.activeShotId];
 
+assert(shot().start.choices.light==='studio'&&shot().end.choices.light==='studio','Creative defaults are normalized');
+commands.dispatch('ui.setScope',{scope:'both'});commands.dispatch('shot.setCreativeChoice',{axisId:'camera',optionId:'push-in'});
+assert(shot().start.choices.camera==='push-in'&&shot().end.choices.camera==='push-in','Creative choice writes both endpoints');
+assert(shot().start.values['camera.distance']===6.2&&shot().end.values['camera.distance']===4.1,'Creative choice applies endpoint patches');
+commands.dispatch('ui.setScope',{scope:'start'});commands.dispatch('shot.setCreativeChoice',{axisId:'subject-rotation',optionId:'45'});
+assert(shot().start.choices['subject-rotation']==='45','Creative Start scope writes Start choice');
+assert(shot().end.choices['subject-rotation']!=='45','Creative Start scope preserves End choice');
+commands.dispatch('shot.toggleCreativeLock',{axisId:'subject-size'});
+assert(shot().creativeLocks['subject-size']===true&&shot().locks['subject.scale']===true,'Creative lock protects linked numeric axes');
+
 commands.dispatch('ui.setScope',{scope:'start'});commands.dispatch('shot.setAxis',{axisId:'subject.scale',value:1.2});
 assert(shot().start.values['subject.scale']===1.2,'Start scope writes Start');assert(shot().end.values['subject.scale']!==1.2,'Start scope does not write End');
 commands.dispatch('ui.setScope',{scope:'end'});commands.dispatch('shot.setAxis',{axisId:'subject.rotationY',value:64});assert(shot().end.values['subject.rotationY']===64,'End scope writes End');
@@ -19,5 +29,5 @@ commands.dispatch('shot.addToTimeline',{trackId:'v1'});const clip=Object.values(
 commands.dispatch('shot.generateVariant',{mode:'near'});assert(clip.shotId===shot().id,'Shot link survives generation');
 assert(Boolean(evaluateShot(store.get(),shot().id,0)),'Shot evaluates at Start');assert(Boolean(evaluateShot(store.get(),shot().id,shot().durationFrames)),'Shot evaluates at End');assert(Boolean(evaluateSequence(store.get(),clip.startFrame+4)),'Sequence evaluates linked clip');assert(deltaSummary(store.get()).count>0,'Delta is computed');
 const generatedName=shot().name;commands.dispatch('history.undo');assert(shot().name!==generatedName,'Undo restores previous Shot');commands.dispatch('history.redo');assert(shot().name===generatedName,'Redo restores generated Shot');
-console.log('V43A CORE SMOKE · PASS');
+console.log('V43A.1 CORE SMOKE · PASS');
 function assert(condition,label){if(!condition)throw new Error(`FAIL · ${label}`);console.log(`PASS · ${label}`)}

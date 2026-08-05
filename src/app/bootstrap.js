@@ -16,7 +16,7 @@ const root=document.getElementById("app");
 let shell,player,workspaceController,sync;
 
 boot().catch(error=>{
-  console.error("V43A bootstrap failed",error);
+  console.error("V43A.1 bootstrap failed",error);
   document.documentElement.classList.remove("is-booting");
   root.innerHTML=`<main style="min-height:100vh;display:grid;place-items:center;background:#060606;color:#ededed;font-family:Inter,system-ui;padding:24px;text-align:center"><div><h1 style="font-size:18px;letter-spacing:.12em">VISUALREF BOOT ERROR</h1><p style="color:#8b8b90;line-height:1.6">${String(error?.message||error)}</p><button onclick="location.reload()" style="margin-top:16px;padding:10px 16px;background:#17100e;border:1px solid #ff7950;color:#ff7950">RELOAD</button></div></main>`;
 });
@@ -36,7 +36,7 @@ async function boot(){
   else if(workspace==="viewport")workspaceController=new ViewportWorkspace({root:shell.panelRoot,stage:player.stage,store,commands:bus,toast});
   else workspaceController=new TimelineWorkspace({root:shell.panelRoot,store,commands:bus,toast});
   store.transient("Boot workspace",draft=>{draft.ui.activeWorkspace=workspace;draft.playback.mode=workspace==="timeline"?"sequence":workspace==="viewport"?"viewport":"shot";},{persist:true,broadcast:true});
-  globalThis.__MEMENTO_V43A__={workspace,store,commands:bus,history,persistence,player,shell,version:"43A",schema:state.schema};
+  globalThis.__MEMENTO_V43A1__=globalThis.__MEMENTO_V43A__={workspace,store,commands:bus,history,persistence,player,shell,version:"43A.1",schema:state.schema};
   requestAnimationFrame(()=>{document.documentElement.classList.remove("is-booting");document.body.dataset.ready="true";});
   addEventListener("beforeunload",()=>{persistence.saveNow(store.get());workspaceController?.dispose();player?.dispose();shell?.dispose();sync?.close();},{once:true});
 }

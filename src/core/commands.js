@@ -1,5 +1,6 @@
 import {AXIS_MAP,AXES,TRACKS,createDefaultState} from "./default-state.js";
 import {PRESET_MAP} from "../shots/presets.js";
+import {CREATIVE_AXIS_MAP,CREATIVE_AXES,defaultCreativeChoices,optionFor} from "../shots/creative-axes.js";
 import {clamp,deepClone,seeded,uid} from "./utils.js";
 
 function activeShot(state){return state.shots.byId[state.shots.activeShotId];}
@@ -9,6 +10,14 @@ function applyAxisMutable(state,axisId,value,scope=state.ui.editScope){
   if(scope==="start"||scope==="both")shot.start.values[axisId]=numeric;
   if(scope==="end"||scope==="both")shot.end.values[axisId]=numeric;
   shot.updatedAt=new Date().toISOString();state.ui.selectedAxisId=axisId;
+}
+function applyCreativeChoiceMutable(state,axisId,optionId,scope=state.ui.editScope){
+  const axis=CREATIVE_AXIS_MAP.get(axisId),option=optionFor(axisId,optionId);if(!axis||!option)return;
+  const shot=activeShot(state);shot.start.choices??=defaultCreativeChoices("start");shot.end.choices??=defaultCreativeChoices("end");
+  const applyEndpoint=(endpoint,patch)=>{shot[endpoint].choices[axisId]=optionId;for(const [numericAxisId,value] of Object.entries(patch||{}))applyAxisMutable(state,numericAxisId,value,endpoint);};
+  if(scope==="start"||scope==="both")applyEndpoint("start",option.start);
+  if(scope==="end"||scope==="both")applyEndpoint("end",option.end);
+  shot.updatedAt=new Date().toISOString();state.ui.selectedCreativeAxisId=axisId;
 }
 function clipEnd(clip){return clip.startFrame+clip.durationFrames;}
 function timelineDuration(state){return Math.max(state.timeline.outFrame,...Object.values(state.timeline.clips).map(clipEnd),1);}
@@ -24,15 +33,20 @@ export function registerCommands(bus){
   bus.register("ui.toggleAdvanced",({value})=>store.transient("Advanced mode",state=>state.ui.advanced=Boolean(value),{persist:true,broadcast:true}));
   bus.register("ui.setViewportTool",({tool})=>store.transient("Viewport tool",state=>state.ui.viewportTool=tool,{persist:true,broadcast:false}));
   bus.register("ui.selectNode",({nodeId})=>store.transient("Select node",state=>state.ui.selectedNodeId=nodeId,{persist:true,broadcast:false}));
+  bus.register("ui.selectCreativeAxis",({axisId})=>store.transient("Select creative axis",state=>state.ui.selectedCreativeAxisId=axisId,{persist:true,broadcast:false}));
   bus.register("ui.openProject",({open=true})=>store.transient("Project dialog",state=>state.ui.projectDialogOpen=open));
   bus.register("project.rename",({name})=>store.commit("Rename project",state=>state.meta.name=(name||"Untitled Project").trim()||"Untitled Project"));
   bus.register("project.reset",()=>{
-    const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43A FOUNDATION");
+    const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43A.1");
   });
   bus.register("shot.setAxis",({axisId,value,scope,gesture=false})=>{
     const mutate=state=>applyAxisMutable(state,axisId,value,scope);
     return gesture?store.updateGesture(`Edit ${AXIS_MAP.get(axisId)?.label||axisId}`,mutate):store.commit(`Edit ${AXIS_MAP.get(axisId)?.label||axisId}`,mutate);
   });
+  bus.register("shot.setCreativeChoice",({axisId,optionId,scope})=>store.commit(`Creative axis · ${axisId}`,state=>applyCreativeChoiceMutable(state,axisId,optionId,scope)));
+  bus.register("shot.toggleCreativeLock",({axisId})=>store.commit(`Lock creative axis · ${axisId}`,state=>{
+    const shot=activeShot(state),axis=CREATIVE_AXIS_MAP.get(axisId);if(!axis)return;shot.creativeLocks??={};const next=!shot.creativeLocks[axisId];shot.creativeLocks[axisId]=next;for(const numericAxisId of axis.advancedAxes||[])shot.locks[numericAxisId]=next;state.ui.selectedCreativeAxisId=axisId;
+  }));
   bus.register("shot.setDuration",({frames})=>store.commit("Edit shot duration",state=>{
     const shot=activeShot(state);shot.durationFrames=clamp(Math.round(Number(frames)||72),12,480);state.playback.frame=Math.min(state.playback.frame,shot.durationFrames);
   }));
@@ -51,7 +65,7 @@ export function registerCommands(bus){
     shot.variant+=1;shot.variantMode=mode;shot.presetId=null;shot.name=`${shot.name.replace(/ · V\d+$/,'')} · V${String(shot.variant).padStart(2,'0')}`;shot.updatedAt=new Date().toISOString();state.playback.frame=0;state.playback.playing=true;state.playback.lastTick=performance.now();
   }));
   bus.register("shot.reset",()=>store.commit("Reset active shot",state=>{
-    const shot=activeShot(state);for(const axis of AXES){shot.start.values[axis.id]=axis.defaultStart;shot.end.values[axis.id]=axis.defaultEnd;}shot.name="Silent Authority";shot.family="hero";shot.presetId="hero.silent-authority";shot.durationFrames=72;shot.variant=1;shot.updatedAt=new Date().toISOString();state.playback.frame=0;state.playback.playing=false;
+    const shot=activeShot(state);for(const axis of AXES){shot.start.values[axis.id]=axis.defaultStart;shot.end.values[axis.id]=axis.defaultEnd;shot.locks[axis.id]=false;}shot.start.choices=defaultCreativeChoices("start");shot.end.choices=defaultCreativeChoices("end");shot.creativeLocks=Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false]));shot.name="Silent Authority";shot.family="hero";shot.presetId="hero.silent-authority";shot.durationFrames=72;shot.variant=1;shot.updatedAt=new Date().toISOString();state.playback.frame=0;state.playback.playing=false;
   }));
   bus.register("shot.addToTimeline",({trackId="v1"}={})=>store.commit("Add shot to timeline",state=>{
     const shot=activeShot(state),clips=Object.values(state.timeline.clips).filter(clip=>clip.trackId===trackId),startFrame=clips.reduce((max,clip)=>Math.max(max,clipEnd(clip)),0),id=uid("clip");
