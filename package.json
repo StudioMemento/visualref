@@ -1,0 +1,10 @@
+{
+  "name": "memento-visualref-v43a",
+  "version": "43.0.1",
+  "private": true,
+  "type": "module",
+  "description": "MEMENTO VisualRef V43A static foundation",
+  "scripts": {
+    "test": "node tests/core-smoke.mjs"
+  }
+}
