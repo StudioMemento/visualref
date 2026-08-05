@@ -1,14 +1,14 @@
 class StorageMock{constructor(){this.map=new Map()}getItem(key){return this.map.get(key)??null}setItem(key,value){this.map.set(key,String(value))}removeItem(key){this.map.delete(key)}}
 globalThis.sessionStorage=new StorageMock();globalThis.localStorage=new StorageMock();globalThis.performance={now:()=>Date.now()};
 
-const {createDefaultState}=await import('../src/core/default-state.js');
+const {createDefaultState,normalizeState}=await import('../src/core/default-state.js');
 const {HistoryService}=await import('../src/core/history-service.js');
 const {ProjectStore}=await import('../src/core/project-store.js');
 const {CommandBus}=await import('../src/core/command-bus.js');
 const {registerCommands}=await import('../src/core/commands.js');
 const {evaluateShot,evaluateSequence,deltaSummary}=await import('../src/player/shot-interpolator.js');
 
-const state=createDefaultState(),history=new HistoryService(state.meta.id),persistence={save(){},clear(){}},sync={onState(){},broadcast(){}};
+const state=createDefaultState(),history=new HistoryService(state.meta.id),persistence={save(){},clear(){},clearAssets(){}},sync={onState(){},broadcast(){}};
 const store=new ProjectStore({state,history,persistence,sync}),commands=new CommandBus({store,history,persistence,sync,toast(){}});registerCommands(commands);
 const shot=()=>store.get().shots.byId[store.get().shots.activeShotId];
 
@@ -29,5 +29,15 @@ commands.dispatch('shot.addToTimeline',{trackId:'v1'});const clip=Object.values(
 commands.dispatch('shot.generateVariant',{mode:'near'});assert(clip.shotId===shot().id,'Shot link survives generation');
 assert(Boolean(evaluateShot(store.get(),shot().id,0)),'Shot evaluates at Start');assert(Boolean(evaluateShot(store.get(),shot().id,shot().durationFrames)),'Shot evaluates at End');assert(Boolean(evaluateSequence(store.get(),clip.startFrame+4)),'Sequence evaluates linked clip');assert(deltaSummary(store.get()).count>0,'Delta is computed');
 const generatedName=shot().name;commands.dispatch('history.undo');assert(shot().name!==generatedName,'Undo restores previous Shot');commands.dispatch('history.redo');assert(shot().name===generatedName,'Redo restores generated Shot');
-console.log('V43A.1 CORE SMOKE · PASS');
+
+assert('subject.positionZ' in shot().start.values&&'subject.rotationX' in shot().end.values,'V43B 3D transform axes are present');
+const migrated=normalizeState(structuredClone(store.get()));assert(migrated.schema.release==='V43B','V43A state normalizes into V43B release');
+commands.dispatch('asset.register',{asset:{id:'hero-test',type:'hero',name:'test.glb',source:'indexeddb',status:'ready',size:100},node:null});
+assert(store.get().assets.heroId==='hero-test'&&store.get().scene.nodes['hero-proxy'].assetId==='hero-test','Hero asset registration updates shared scene');
+const propNode={id:'prop-test',name:'Prop · test.glb',type:'prop',assetId:'prop-asset',visible:true,locked:false,baseTransform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]},correction:{pivot:[0,0,0],rotation:[0,0,0],scale:[1,1,1],groundOffset:0,autoNormalize:true,autoGround:true},helpers:{bounds:true,pivot:false}};
+commands.dispatch('asset.register',{asset:{id:'prop-asset',type:'prop',name:'prop.glb',source:'indexeddb',status:'ready',size:50,nodeId:'prop-test'},node:propNode});
+assert(store.get().assets.secondaryIds.includes('prop-asset')&&store.get().scene.nodes['prop-test'],'Prop registration creates an outliner node');
+commands.dispatch('scene.setNodeCorrection',{nodeId:'hero-proxy',field:'pivot',value:[.1,.2,.3]});assert(store.get().scene.nodes['hero-proxy'].correction.pivot[1]===.2,'Pivot correction is project state');
+commands.dispatch('scene.setEditorCamera',{camera:{position:[9,8,7],target:[1,2,3]}});assert(store.get().scene.editorCamera.position[0]===9&&shot().start.values['camera.distance']!==9,'Editor camera remains independent from Shot camera');
+console.log('V43B CORE + REAL SCENE STATE SMOKE · PASS');
 function assert(condition,label){if(!condition)throw new Error(`FAIL · ${label}`);console.log(`PASS · ${label}`)}

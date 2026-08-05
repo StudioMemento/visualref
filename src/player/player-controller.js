@@ -5,16 +5,12 @@ import {aspectNumber,clamp,formatTimecode} from "../core/utils.js";
 const workspaceLabel=value=>value.toUpperCase();
 
 export class PlayerController{
-  constructor({root,store,commands,workspace,toast}){
-    this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.hasComparison=workspace!=="viewport";
+  constructor({root,store,commands,workspace,toast,persistence}){
+    this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.persistence=persistence;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.hasComparison=workspace!=="viewport";
     this.build();this.bind();
-    this.renderer=new RendererService({canvas:this.canvas,onStatus:status=>{this.rendererStatus=status;this.renderStatus();}});
-    if(this.hasComparison){
-      this.startRenderer=new RendererService({canvas:this.startCanvas,forceFallback:true});
-      this.endRenderer=new RendererService({canvas:this.endCanvas,forceFallback:true});
-    }
+    this.renderer=new RendererService({canvas:this.canvas,persistence:this.persistence,workspace:this.workspace,onStatus:status=>{this.rendererStatus=status;this.renderStatus();}});
     this.layoutObserver=new ResizeObserver(()=>this.updateAllGates());this.layoutObserver.observe(this.root);
-    this.unsubscribe=store.subscribe((state,meta)=>{this.state=state;this.renderUI(meta);if(meta?.label!=="Playback tick")this.renderEndpointStills();});
+    this.unsubscribe=store.subscribe((state,meta)=>{this.state=state;this.renderUI(meta);if(meta?.label!=="Playback tick")this.scheduleEndpointStills();});
     this.raf=requestAnimationFrame(time=>this.tick(time));
   }
   build(){
@@ -120,8 +116,11 @@ export class PlayerController{
     if(this.workspace==="timeline"){const clip=state.timeline.clips[state.timeline.selectedClipId];if(clip?.shotId&&state.shots.byId[clip.shotId])return state.shots.byId[clip.shotId];}
     return activeShot(state);
   }
-  renderEndpointStills(){
-    if(!this.hasComparison||!this.startRenderer||!this.endRenderer)return;const state=this.state,shot=this.endpointShot(state),start=evaluateShot(state,shot.id,0),end=evaluateShot(state,shot.id,shot.durationFrames);this.startRenderer.render(start,state,0);this.endRenderer.render(end,state,0);
+  scheduleEndpointStills(){
+    if(!this.hasComparison)return;clearTimeout(this.stillTimer);this.stillTimer=setTimeout(()=>this.renderEndpointStills(),90);
+  }
+  async renderEndpointStills(){
+    if(!this.hasComparison||!this.renderer)return;const state=this.state,shot=this.endpointShot(state),start=evaluateShot(state,shot.id,0),end=evaluateShot(state,shot.id,shot.durationFrames);await this.renderer.captureToCanvas(start,state,this.startCanvas,0);await this.renderer.captureToCanvas(end,state,this.endCanvas,shot.durationFrames/state.settings.fps);
   }
   updateAllGates(){
     const aspect=this.state.settings.aspectRatio;this.updateGate(this.stage,this.gate,aspect);
@@ -138,7 +137,7 @@ export class PlayerController{
     }
     this.lastTick=now;const current=this.store.get(),frame=isTimeline?current.timeline.playheadFrame:current.playback.frame,evaluated=isTimeline?evaluateSequence(current,frame):evaluateShot(current,current.shots.activeShotId,frame);this.renderer?.render(evaluated,current,now/1000);this.raf=requestAnimationFrame(time=>this.tick(time));
   }
-  dispose(){cancelAnimationFrame(this.raf);this.unsubscribe?.();this.layoutObserver?.disconnect();this.renderer?.dispose();this.startRenderer?.dispose();this.endRenderer?.dispose();}
+  dispose(){cancelAnimationFrame(this.raf);this.unsubscribe?.();this.layoutObserver?.disconnect();clearTimeout(this.stillTimer);this.renderer?.dispose();}
 }
 
 function endpointMarkup(endpoint,label){

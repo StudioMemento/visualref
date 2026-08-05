@@ -1,9 +1,9 @@
 {
-  "name": "memento-visualref-v43a1",
-  "version": "43.1.0",
+  "name": "memento-visualref-v43b",
+  "version": "43.2.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V43A.1 layout stabilization",
+  "description": "MEMENTO VisualRef V43B real GLB/HDRI scene and dual-camera foundation",
   "scripts": {
     "test": "node tests/core-smoke.mjs"
   }

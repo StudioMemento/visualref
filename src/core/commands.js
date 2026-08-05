@@ -1,4 +1,4 @@
-import {AXIS_MAP,AXES,TRACKS,createDefaultState} from "./default-state.js";
+import {AXIS_MAP,AXES,TRACKS,createDefaultState,DEFAULT_CORRECTION,DEFAULT_TRANSFORM} from "./default-state.js";
 import {PRESET_MAP} from "../shots/presets.js";
 import {CREATIVE_AXIS_MAP,CREATIVE_AXES,defaultCreativeChoices,optionFor} from "../shots/creative-axes.js";
 import {clamp,deepClone,seeded,uid} from "./utils.js";
@@ -32,13 +32,57 @@ export function registerCommands(bus){
   bus.register("ui.setScope",({scope})=>store.transient("Edit scope",state=>state.ui.editScope=scope,{persist:true,broadcast:true}));
   bus.register("ui.toggleAdvanced",({value})=>store.transient("Advanced mode",state=>state.ui.advanced=Boolean(value),{persist:true,broadcast:true}));
   bus.register("ui.setViewportTool",({tool})=>store.transient("Viewport tool",state=>state.ui.viewportTool=tool,{persist:true,broadcast:false}));
+  bus.register("ui.setViewportCameraMode",({mode})=>store.transient("Viewport camera mode",state=>state.scene.viewportCameraMode=mode==="shot"?"shot":"editor",{persist:true,broadcast:false}));
+  bus.register("ui.setAssetBusy",({value})=>store.transient("Asset busy",state=>state.ui.assetBusy=Boolean(value),{persist:false,broadcast:false}));
   bus.register("ui.selectNode",({nodeId})=>store.transient("Select node",state=>state.ui.selectedNodeId=nodeId,{persist:true,broadcast:false}));
   bus.register("ui.selectCreativeAxis",({axisId})=>store.transient("Select creative axis",state=>state.ui.selectedCreativeAxisId=axisId,{persist:true,broadcast:false}));
   bus.register("ui.openProject",({open=true})=>store.transient("Project dialog",state=>state.ui.projectDialogOpen=open));
   bus.register("project.rename",({name})=>store.commit("Rename project",state=>state.meta.name=(name||"Untitled Project").trim()||"Untitled Project"));
-  bus.register("project.reset",()=>{
-    const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43A.1");
+  bus.register("project.reset",async()=>{
+    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B");
   });
+
+  bus.register("asset.register",({asset,node})=>store.commit(`Register ${asset.type} asset`,state=>{
+    state.assets.byId[asset.id]=asset;
+    if(asset.type==="hero"){
+      const old=state.assets.heroId;state.assets.heroId=asset.id;state.scene.nodes["hero-proxy"]={...state.scene.nodes["hero-proxy"],assetId:asset.id,name:`Hero · ${asset.name}`};
+      if(old&&old!=="hero-proxy"&&old!==asset.id)delete state.assets.byId[old];
+      state.ui.selectedNodeId="hero-proxy";
+    }else if(asset.type==="environment"){
+      const old=state.assets.environmentId;state.assets.environmentId=asset.id;state.scene.nodes["environment-proxy"]={...state.scene.nodes["environment-proxy"],assetId:asset.id,name:`Environment · ${asset.name}`};
+      if(old&&old!=="environment-proxy"&&old!==asset.id)delete state.assets.byId[old];
+      state.ui.selectedNodeId="environment-proxy";
+    }else if(asset.type==="hdri"){
+      const old=state.assets.hdriId;state.assets.hdriId=asset.id;if(old&&old!==asset.id)delete state.assets.byId[old];
+    }else if(asset.type==="prop"){
+      state.assets.secondaryIds=[...new Set([...(state.assets.secondaryIds||[]),asset.id])];
+      state.scene.nodes[node.id]=node;state.ui.selectedNodeId=node.id;
+    }
+  }));
+  bus.register("asset.remove",({assetId,nodeId})=>store.commit("Remove scene asset",state=>{
+    const asset=state.assets.byId[assetId];if(!asset)return;
+    if(asset.type==="hero"){state.assets.heroId="hero-proxy";state.scene.nodes["hero-proxy"]={...createDefaultState().scene.nodes["hero-proxy"]};state.ui.selectedNodeId="hero-proxy";}
+    else if(asset.type==="environment"){state.assets.environmentId="environment-proxy";state.scene.nodes["environment-proxy"]={...createDefaultState().scene.nodes["environment-proxy"]};state.ui.selectedNodeId="environment-proxy";}
+    else if(asset.type==="hdri"){state.assets.hdriId=null;state.scene.environment.backgroundVisible=false;}
+    else if(asset.type==="prop"){state.assets.secondaryIds=(state.assets.secondaryIds||[]).filter(id=>id!==assetId);if(nodeId)delete state.scene.nodes[nodeId];if(state.ui.selectedNodeId===nodeId)state.ui.selectedNodeId="hero-proxy";}
+    delete state.assets.byId[assetId];
+  }));
+  bus.register("scene.setNodeTransform",({nodeId,transform,gesture=false})=>{
+    const mutate=state=>{const node=state.scene.nodes[nodeId];if(!node)return;node.baseTransform={position:[...transform.position],rotation:[...transform.rotation],scale:[...transform.scale]};};
+    return gesture?store.updateGesture("Transform scene node",mutate):store.commit("Transform scene node",mutate);
+  });
+  bus.register("scene.setNodeCorrection",({nodeId,field,value,gesture=false})=>{
+    const mutate=state=>{const node=state.scene.nodes[nodeId];if(!node)return;node.correction??=structuredClone(DEFAULT_CORRECTION);if(["pivot","rotation","scale"].includes(field))node.correction[field]=value.slice(0,3).map(Number);else node.correction[field]=value;};
+    return gesture?store.updateGesture("Correct scene node",mutate):store.commit("Correct scene node",mutate);
+  });
+  bus.register("scene.resetNodeCorrection",({nodeId})=>store.commit("Reset node correction",state=>{const node=state.scene.nodes[nodeId];if(node)node.correction=structuredClone(DEFAULT_CORRECTION);}));
+  bus.register("scene.setNodeVisible",({nodeId,value})=>store.commit("Toggle node visibility",state=>{const node=state.scene.nodes[nodeId];if(node)node.visible=Boolean(value);}));
+  bus.register("scene.setEnvironment",({field,value})=>store.commit("Environment setting",state=>state.scene.environment[field]=value));
+  bus.register("scene.setRenderer",({field,value})=>store.commit("Renderer setting",state=>state.scene.rendererSettings[field]=value));
+  bus.register("scene.setEditorCamera",({camera})=>store.transient("Editor camera",state=>state.scene.editorCamera={...state.scene.editorCamera,...camera},{persist:true,broadcast:false}));
+  bus.register("scene.toggleGrid",()=>store.transient("Viewport grid",state=>state.scene.showGrid=!state.scene.showGrid,{persist:true,broadcast:false}));
+  bus.register("scene.toggleHelpers",()=>store.transient("Viewport helpers",state=>state.scene.showHelpers=!state.scene.showHelpers,{persist:true,broadcast:false}));
+
   bus.register("shot.setAxis",({axisId,value,scope,gesture=false})=>{
     const mutate=state=>applyAxisMutable(state,axisId,value,scope);
     return gesture?store.updateGesture(`Edit ${AXIS_MAP.get(axisId)?.label||axisId}`,mutate):store.commit(`Edit ${AXIS_MAP.get(axisId)?.label||axisId}`,mutate);
