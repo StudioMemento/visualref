@@ -12,3 +12,6 @@
 /* V43B responsive real-scene controls */
 @media(max-width:1280px) and (min-width:901px){.v43b-viewport .outliner>header>span{display:none}.outliner-add{padding:0 5px}.axis-list.compact .axis-control{grid-template-columns:84px minmax(70px,1fr) 52px}.vector-grid fieldset{grid-template-columns:1fr}.viewport-tool{min-width:82px;font-size:7.5px}}
 @media(max-width:900px){.v43b-viewport .viewport-toolbar{position:sticky;top:52px;z-index:5}.v43b-viewport .outliner>header{height:auto;min-height:48px;flex-wrap:wrap;padding:7px}.v43b-viewport .outliner>header>span{width:100%;height:18px}.outliner-add{flex:1}.vector-grid fieldset{grid-template-columns:repeat(3,minmax(0,1fr))}.viewport-content{display:block}.viewport-inspector>header{position:sticky;top:0;z-index:3}}
+
+@media(max-width:920px){.player-visuals.timeline-monitor{grid-template-rows:38px minmax(0,1fr)}.timeline-monitor-bar{height:38px;grid-template-columns:1fr 1fr repeat(4,38px)}.timeline-monitor-tab{font-size:7.5px}}
+@media(max-width:580px){.timeline-monitor-bar{grid-template-columns:1fr 1fr repeat(2,38px)}.timeline-monitor-tool[data-monitor-action="grid"],.timeline-monitor-tool[data-monitor-action="helpers"]{display:none}}

@@ -1,6 +1,6 @@
-# MEMENTO VisualRef V43B — Real Scene
+# MEMENTO VisualRef V43B.1 — Real Scene
 
-GitHub/Vercel-ready static application. V43B preserves the V43A.1 shared workflow and adds the first real scene layer:
+GitHub/Vercel-ready static application. V43B.1 preserves the V43A.1 shared workflow and adds the first real scene layer:
 
 - Hero `.glb` upload and replacement
 - Environment `.glb` upload
@@ -34,7 +34,7 @@ Open:
 5. Correct imported orientation or pivot without modifying the creative Start/End transform.
 6. Return to Render or Timeline. The same scene is restored from IndexedDB.
 
-V43B accepts self-contained `.glb` files. External-resource `.gltf` packages are deliberately excluded from this checkpoint.
+V43B.1 accepts self-contained `.glb` files. External-resource `.gltf` packages are deliberately excluded from this checkpoint.
 
 ## External runtime modules
 
@@ -45,3 +45,13 @@ The static pages use an import map pinned to Three.js `0.160.0` and the matching
 ```bash
 npm test
 ```
+
+
+## V43B.1 Timeline monitor correction
+
+The Timeline left 50% now contains one monitor with two explicit modes:
+
+- **PLAYER** — sequence playback through the Shot Camera.
+- **VIEWPORT** — orbit/pan/zoom through the independent Editor Camera, with grid/helpers and frame controls.
+
+Start/End still comparison remains exclusive to Render.

@@ -33,13 +33,14 @@ export function registerCommands(bus){
   bus.register("ui.toggleAdvanced",({value})=>store.transient("Advanced mode",state=>state.ui.advanced=Boolean(value),{persist:true,broadcast:true}));
   bus.register("ui.setViewportTool",({tool})=>store.transient("Viewport tool",state=>state.ui.viewportTool=tool,{persist:true,broadcast:false}));
   bus.register("ui.setViewportCameraMode",({mode})=>store.transient("Viewport camera mode",state=>state.scene.viewportCameraMode=mode==="shot"?"shot":"editor",{persist:true,broadcast:false}));
+  bus.register("ui.setTimelineMonitorMode",({mode})=>store.transient("Timeline monitor mode",state=>state.ui.timelineMonitorMode=mode==="viewport"?"viewport":"player",{persist:true,broadcast:false}));
   bus.register("ui.setAssetBusy",({value})=>store.transient("Asset busy",state=>state.ui.assetBusy=Boolean(value),{persist:false,broadcast:false}));
   bus.register("ui.selectNode",({nodeId})=>store.transient("Select node",state=>state.ui.selectedNodeId=nodeId,{persist:true,broadcast:false}));
   bus.register("ui.selectCreativeAxis",({axisId})=>store.transient("Select creative axis",state=>state.ui.selectedCreativeAxisId=axisId,{persist:true,broadcast:false}));
   bus.register("ui.openProject",({open=true})=>store.transient("Project dialog",state=>state.ui.projectDialogOpen=open));
   bus.register("project.rename",({name})=>store.commit("Rename project",state=>state.meta.name=(name||"Untitled Project").trim()||"Untitled Project"));
   bus.register("project.reset",async()=>{
-    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B");
+    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B.1");
   });
 
   bus.register("asset.register",({asset,node})=>store.commit(`Register ${asset.type} asset`,state=>{

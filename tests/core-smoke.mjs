@@ -30,8 +30,8 @@ commands.dispatch('shot.generateVariant',{mode:'near'});assert(clip.shotId===sho
 assert(Boolean(evaluateShot(store.get(),shot().id,0)),'Shot evaluates at Start');assert(Boolean(evaluateShot(store.get(),shot().id,shot().durationFrames)),'Shot evaluates at End');assert(Boolean(evaluateSequence(store.get(),clip.startFrame+4)),'Sequence evaluates linked clip');assert(deltaSummary(store.get()).count>0,'Delta is computed');
 const generatedName=shot().name;commands.dispatch('history.undo');assert(shot().name!==generatedName,'Undo restores previous Shot');commands.dispatch('history.redo');assert(shot().name===generatedName,'Redo restores generated Shot');
 
-assert('subject.positionZ' in shot().start.values&&'subject.rotationX' in shot().end.values,'V43B 3D transform axes are present');
-const migrated=normalizeState(structuredClone(store.get()));assert(migrated.schema.release==='V43B','V43A state normalizes into V43B release');
+assert('subject.positionZ' in shot().start.values&&'subject.rotationX' in shot().end.values,'V43B.1 3D transform axes are present');
+const migrated=normalizeState(structuredClone(store.get()));assert(migrated.schema.release==='V43B.1','Earlier state normalizes into V43B.1 release');
 commands.dispatch('asset.register',{asset:{id:'hero-test',type:'hero',name:'test.glb',source:'indexeddb',status:'ready',size:100},node:null});
 assert(store.get().assets.heroId==='hero-test'&&store.get().scene.nodes['hero-proxy'].assetId==='hero-test','Hero asset registration updates shared scene');
 const propNode={id:'prop-test',name:'Prop · test.glb',type:'prop',assetId:'prop-asset',visible:true,locked:false,baseTransform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]},correction:{pivot:[0,0,0],rotation:[0,0,0],scale:[1,1,1],groundOffset:0,autoNormalize:true,autoGround:true},helpers:{bounds:true,pivot:false}};
@@ -39,5 +39,7 @@ commands.dispatch('asset.register',{asset:{id:'prop-asset',type:'prop',name:'pro
 assert(store.get().assets.secondaryIds.includes('prop-asset')&&store.get().scene.nodes['prop-test'],'Prop registration creates an outliner node');
 commands.dispatch('scene.setNodeCorrection',{nodeId:'hero-proxy',field:'pivot',value:[.1,.2,.3]});assert(store.get().scene.nodes['hero-proxy'].correction.pivot[1]===.2,'Pivot correction is project state');
 commands.dispatch('scene.setEditorCamera',{camera:{position:[9,8,7],target:[1,2,3]}});assert(store.get().scene.editorCamera.position[0]===9&&shot().start.values['camera.distance']!==9,'Editor camera remains independent from Shot camera');
-console.log('V43B CORE + REAL SCENE STATE SMOKE · PASS');
+commands.dispatch('ui.setTimelineMonitorMode',{mode:'viewport'});assert(store.get().ui.timelineMonitorMode==='viewport','Timeline monitor switches to Viewport mode');
+commands.dispatch('ui.setTimelineMonitorMode',{mode:'player'});assert(store.get().ui.timelineMonitorMode==='player','Timeline monitor switches back to Player mode');
+console.log('V43B.1 CORE + TIMELINE MONITOR SMOKE · PASS');
 function assert(condition,label){if(!condition)throw new Error(`FAIL · ${label}`);console.log(`PASS · ${label}`)}

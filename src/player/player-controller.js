@@ -6,9 +6,10 @@ const workspaceLabel=value=>value.toUpperCase();
 
 export class PlayerController{
   constructor({root,store,commands,workspace,toast,persistence}){
-    this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.persistence=persistence;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.hasComparison=workspace!=="viewport";
+    this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.persistence=persistence;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.hasComparison=workspace==="render";this.hasTimelineMonitor=workspace==="timeline";this.timelineMonitorMode=this.state.ui.timelineMonitorMode||"player";this.lastTimelineMonitorKey="";
     this.build();this.bind();
     this.renderer=new RendererService({canvas:this.canvas,persistence:this.persistence,workspace:this.workspace,onStatus:status=>{this.rendererStatus=status;this.renderStatus();}});
+    if(this.hasTimelineMonitor)this.renderer.ready.then(()=>this.configureTimelineMonitor(this.state));
     this.layoutObserver=new ResizeObserver(()=>this.updateAllGates());this.layoutObserver.observe(this.root);
     this.unsubscribe=store.subscribe((state,meta)=>{this.state=state;this.renderUI(meta);if(meta?.label!=="Playback tick")this.scheduleEndpointStills();});
     this.raf=requestAnimationFrame(time=>this.tick(time));
@@ -19,6 +20,15 @@ export class PlayerController{
         ${endpointMarkup("start","START FRAME")}
         ${endpointMarkup("end","END FRAME")}
       </div>`:"";
+    const timelineMonitor=this.hasTimelineMonitor?`
+      <nav class="timeline-monitor-bar" data-role="timeline-monitor-bar" data-mode="player" aria-label="Timeline monitor mode">
+        <button class="timeline-monitor-tab active" data-monitor-mode="player">PLAYER</button>
+        <button class="timeline-monitor-tab" data-monitor-mode="viewport">VIEWPORT</button>
+        <button class="timeline-monitor-tool" data-monitor-action="frame-selected" title="Frame selected">▣</button>
+        <button class="timeline-monitor-tool" data-monitor-action="frame-all" title="Frame all">⊞</button>
+        <button class="timeline-monitor-tool" data-monitor-action="grid" title="Grid">#</button>
+        <button class="timeline-monitor-tool" data-monitor-action="helpers" title="Helpers">◇</button>
+      </nav>`:"";
     this.root.innerHTML=`
       <section class="player-shell ${this.hasComparison?'shot-player-shell':'direct-player-shell'}" aria-label="Shared VisualRef Player">
         <header class="player-statusbar">
@@ -26,8 +36,8 @@ export class PlayerController{
           <div class="player-status-center"><b data-role="shot-name">—</b><span data-role="playback-mode">SHOT</span></div>
           <div class="player-status-right"><b data-role="timecode">00:00:00:00</b><span data-role="format">16:9 · 24 FPS</span></div>
         </header>
-        <div class="player-visuals ${this.hasComparison?'with-comparison':'direct-only'}">
-          ${comparison}
+        <div class="player-visuals ${this.hasComparison?'with-comparison':this.hasTimelineMonitor?'timeline-monitor':'direct-only'}">
+          ${comparison}${timelineMonitor}
           <div class="stage-wrap live-stage" data-role="stage" tabindex="0" aria-label="3D player surface">
             <div class="stage-placeholder"></div>
             <canvas data-role="canvas"></canvas>
@@ -64,6 +74,10 @@ export class PlayerController{
   }
   bind(){
     this.root.addEventListener("click",event=>{
+      const monitorMode=event.target.closest("[data-monitor-mode]")?.dataset.monitorMode;
+      if(monitorMode){this.commands.dispatch("ui.setTimelineMonitorMode",{mode:monitorMode});return;}
+      const monitorAction=event.target.closest("[data-monitor-action]")?.dataset.monitorAction;
+      if(monitorAction){this.handleTimelineMonitorAction(monitorAction);return;}
       const action=event.target.closest("[data-action]")?.dataset.action;if(!action)return;
       if(action==="loop")this.commands.dispatch("playback.setLoop",{value:!this.state.playback.loop});
       if(action==="play")this.commands.dispatch("playback.toggle");
@@ -81,7 +95,7 @@ export class PlayerController{
     this.stage.addEventListener("pointerdown",event=>{pointerDown={x:event.clientX,y:event.clientY,time:performance.now()};});
     this.stage.addEventListener("pointerup",event=>{
       if(!pointerDown)return;const moved=Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y),elapsed=performance.now()-pointerDown.time;pointerDown=null;
-      if(moved<7&&elapsed<450&&this.workspace!=="viewport"){this.commands.dispatch("playback.toggle");this.showFeedback(this.state.playback.playing?"Ⅱ":"▶");}
+      if(moved<7&&elapsed<450&&!this.isViewportInteraction()){this.commands.dispatch("playback.toggle");this.showFeedback(this.state.playback.playing?"Ⅱ":"▶");}
     });
     addEventListener("keydown",event=>{
       if(event.code==="Space"&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||"")){event.preventDefault();this.commands.dispatch("playback.toggle");}
@@ -89,17 +103,36 @@ export class PlayerController{
       if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="y"){event.preventDefault();this.commands.dispatch("history.redo");}
     });
   }
+  isViewportInteraction(){return this.workspace==="viewport"||(this.hasTimelineMonitor&&this.timelineMonitorMode==="viewport");}
+  handleTimelineMonitorAction(action){
+    if(!this.hasTimelineMonitor||this.timelineMonitorMode!=="viewport")return;
+    if(action==="frame-selected")this.renderer?.frameNode(this.state.ui.selectedNodeId,false);
+    if(action==="frame-all")this.renderer?.frameNode(null,true);
+    if(action==="grid")this.commands.dispatch("scene.toggleGrid");
+    if(action==="helpers")this.commands.dispatch("scene.toggleHelpers");
+  }
+  configureTimelineMonitor(state){
+    if(!this.hasTimelineMonitor||!this.renderer)return;
+    const mode=state.ui.timelineMonitorMode==="viewport"?"viewport":"player",camera=state.scene.editorCamera||{},key=[mode,state.ui.selectedNodeId,state.scene.showGrid,state.scene.showHelpers,...(camera.position||[]),...(camera.target||[]),camera.fov].join("|");
+    this.timelineMonitorMode=mode;
+    if(key===this.lastTimelineMonitorKey)return;
+    this.renderer.setEditorCamera(camera);
+    this.lastTimelineMonitorKey=key;
+    this.renderer.configureViewport({active:mode==="viewport",nodeId:state.ui.selectedNodeId,tool:state.ui.viewportTool,cameraMode:"editor",
+      onCameraChange:camera=>this.commands.dispatch("scene.setEditorCamera",{camera}),onCameraEnd:()=>{}});
+  }
   showFeedback(symbol){const el=this.root.querySelector('[data-role="feedback"]');el.textContent=symbol;el.classList.add("on");clearTimeout(this.feedbackTimer);this.feedbackTimer=setTimeout(()=>el.classList.remove("on"),220);}
   renderStatus(){
     const el=this.root.querySelector('[data-role="renderer-status"]');if(!el)return;const status=this.rendererStatus||{label:"BOOTING",mode:"fallback"};el.textContent=status.label;el.className=`renderer-badge ${status.mode}`;
   }
   renderUI(){
     const state=this.state,shot=activeShot(state),isTimeline=this.workspace==="timeline",duration=isTimeline?sequenceDuration(state):shot.durationFrames,frame=isTimeline?state.timeline.playheadFrame:state.playback.frame,delta=deltaSummary(state);
+    if(this.hasTimelineMonitor){this.timelineMonitorMode=state.ui.timelineMonitorMode==="viewport"?"viewport":"player";this.configureTimelineMonitor(state);}
     this.root.querySelector('[data-role="shot-name"]').textContent=isTimeline?(state.timeline.selectedClipId?state.timeline.clips[state.timeline.selectedClipId]?.alias||"SEQUENCE":"SEQUENCE"):shot.name;
-    this.root.querySelector('[data-role="playback-mode"]').textContent=isTimeline?"SEQUENCE":this.workspace==="viewport"?"VIEWPORT":"SHOT";
+    this.root.querySelector('[data-role="playback-mode"]').textContent=isTimeline?(this.timelineMonitorMode==="viewport"?"TIMELINE VIEWPORT":"SEQUENCE"):this.workspace==="viewport"?"VIEWPORT":"SHOT";
     this.root.querySelector('[data-role="timecode"]').textContent=formatTimecode(frame,state.settings.fps);
     this.root.querySelector('[data-role="format"]').textContent=`${state.settings.aspectRatio} · ${state.settings.fps} FPS`;
-    this.root.querySelector('[data-role="stage-mode"]').textContent=isTimeline?"SEQUENCE PLAYER":this.workspace==="viewport"?"DIRECT VIEWPORT":"LIVE INTERPOLATION";
+    this.root.querySelector('[data-role="stage-mode"]').textContent=isTimeline?(this.timelineMonitorMode==="viewport"?"SCENE VIEWPORT":"SEQUENCE PLAYER"):this.workspace==="viewport"?"DIRECT VIEWPORT":"LIVE INTERPOLATION";
     this.root.querySelector('[data-role="stage-note"]').textContent=state.assets.byId[state.assets.heroId]?.name||"CALIBRATED PROXY";
     this.scrub.max=String(duration);this.scrub.value=String(clamp(frame,0,duration));this.root.querySelector('[data-role="frame"]').textContent=String(Math.round(frame)).padStart(3,"0");this.root.querySelector('[data-role="delta"]').textContent=`${String(delta.count).padStart(2,"0")} Δ`;
     const loop=this.root.querySelector('[data-action="loop"]');loop.classList.toggle("active",state.playback.loop);
@@ -109,6 +142,12 @@ export class PlayerController{
     const add=this.root.querySelector('[data-action="add-timeline"]');add.textContent=isTimeline?"ADD ACTIVE SHOT":"ADD TO TIMELINE";
     if(this.hasComparison){
       const endpointShot=this.endpointShot(state);this.root.querySelector('[data-endpoint="start"] [data-role="endpoint-frame"]').textContent="FRAME 000";this.root.querySelector('[data-endpoint="end"] [data-role="endpoint-frame"]').textContent=`FRAME ${String(endpointShot.durationFrames).padStart(3,"0")}`;
+    }
+    if(this.hasTimelineMonitor){
+      const bar=this.root.querySelector('[data-role="timeline-monitor-bar"]');bar.dataset.mode=this.timelineMonitorMode;
+      bar.querySelectorAll('[data-monitor-mode]').forEach(button=>button.classList.toggle('active',button.dataset.monitorMode===this.timelineMonitorMode));
+      bar.querySelector('[data-monitor-action="grid"]')?.classList.toggle('active',state.scene.showGrid!==false);
+      bar.querySelector('[data-monitor-action="helpers"]')?.classList.toggle('active',state.scene.showHelpers!==false);
     }
     this.updateAllGates();this.renderStatus();
   }

@@ -16,7 +16,7 @@ const root=document.getElementById("app");
 let shell,player,workspaceController,sync;
 
 boot().catch(error=>{
-  console.error("V43B bootstrap failed",error);
+  console.error("V43B.1 bootstrap failed",error);
   document.documentElement.classList.remove("is-booting");
   root.innerHTML=`<main style="min-height:100vh;display:grid;place-items:center;background:#060606;color:#ededed;font-family:Inter,system-ui;padding:24px;text-align:center"><div><h1 style="font-size:18px;letter-spacing:.12em">VISUALREF BOOT ERROR</h1><p style="color:#8b8b90;line-height:1.6">${String(error?.message||error)}</p><button onclick="location.reload()" style="margin-top:16px;padding:10px 16px;background:#17100e;border:1px solid #ff7950;color:#ff7950">RELOAD</button></div></main>`;
 });

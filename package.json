@@ -1,9 +1,9 @@
 {
   "name": "memento-visualref-v43b",
-  "version": "43.2.0",
+  "version": "43.2.1",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V43B real GLB/HDRI scene and dual-camera foundation",
+  "description": "MEMENTO VisualRef V43B.1 real scene with Timeline Player/Viewport monitor",
   "scripts": {
     "test": "node tests/core-smoke.mjs"
   }

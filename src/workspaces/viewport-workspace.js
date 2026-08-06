@@ -53,7 +53,7 @@ export class ViewportWorkspace{
     if(!files.length)return;this.commands.dispatch("ui.setAssetBusy",{value:true});
     try{
       for(const file of files){
-        if(kind!=="hdri"&&!file.name.toLowerCase().endsWith(".glb"))throw new Error("V43B accepts self-contained .glb files");
+        if(kind!=="hdri"&&!file.name.toLowerCase().endsWith(".glb"))throw new Error("V43B.1 accepts self-contained .glb files");
         const state=this.store.get(),oldId=kind==="hero"?state.assets.heroId:kind==="environment"?state.assets.environmentId:kind==="hdri"?state.assets.hdriId:null,id=uid(kind),nodeId=kind==="prop"?`prop-${id}`:kind==="hero"?"hero-proxy":kind==="environment"?"environment-proxy":null;
         await this.persistence.putAsset({id,blob:file,name:file.name,type:file.type,kind,meta:{lastModified:file.lastModified}});
         const asset={id,type:kind,kind:"uploaded",name:file.name,status:"ready",source:"indexeddb",size:file.size,mime:file.type||"application/octet-stream",nodeId,updatedAt:new Date().toISOString()};
