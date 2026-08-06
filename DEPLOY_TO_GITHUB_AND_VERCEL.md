@@ -1,4 +1,4 @@
-# Deploy V43B.1 to GitHub and Vercel
+# Deploy V43B.2 to GitHub and Vercel
 
 1. Extract the ZIP.
 2. Delete the old repository contents, except `.git` when working locally.
@@ -21,3 +21,13 @@ After deployment, clear the browser cache once or open a private window. Existin
 - Return to Render: Start and End stills show the real scene.
 - Add a Shot to Timeline: sequence Player shows the same scene.
 - Reload: assets and transforms recover from IndexedDB.
+
+## Render editor acceptance
+
+- The edit-scope control visibly exposes START, BOTH and END.
+- Click the left/right endpoint controls on option cards and confirm independent assignment.
+- Lock a creative category, generate a variant and confirm that category is unchanged.
+- Exclude an option with the pool control, generate repeatedly and confirm it is never rolled.
+- Manually select the excluded option and confirm explicit editing still works.
+- Exclude every option in one category and confirm generation treats that category as locked.
+- Restore the category pool and confirm every option becomes available again.

@@ -3,7 +3,7 @@ import {CREATIVE_AXES,defaultCreativeChoices} from "../shots/creative-axes.js";
 
 export const SCHEMA_NAME="memento.visualref";
 export const SCHEMA_VERSION=43;
-export const RELEASE="V43B.1";
+export const RELEASE="V43B.2";
 
 export const AXES=[
   {id:"subject.positionX",group:"Subject",label:"Position X",hint:"Horizontal framing",min:-6,max:6,step:.01,unit:"",defaultStart:-.18,defaultEnd:.18},
@@ -40,7 +40,9 @@ function defaultValues(endpoint){return Object.fromEntries(AXES.map(axis=>[axis.
 function shot(id="shot-001"){
   return {id,name:"Silent Authority",family:"hero",presetId:"hero.silent-authority",durationFrames:72,variant:1,variantMode:"balanced",seed:43001,deltaTarget:.42,
     start:{values:defaultValues("start"),choices:defaultCreativeChoices("start")},end:{values:defaultValues("end"),choices:defaultCreativeChoices("end")},
-    locks:Object.fromEntries(AXES.map(axis=>[axis.id,false])),creativeLocks:Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),updatedAt:new Date().toISOString()};
+    locks:Object.fromEntries(AXES.map(axis=>[axis.id,false])),
+    creativeLocks:Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),
+    creativeExclusions:{},updatedAt:new Date().toISOString()};
 }
 function node({id,name,type,assetId=null,transform=DEFAULT_TRANSFORM,correction=DEFAULT_CORRECTION,visible=true,locked=false,parentId=null}){
   return {id,name,type,assetId,parentId,visible,locked,baseTransform:structuredClone(transform),correction:structuredClone(correction),helpers:{bounds:true,pivot:false}};
@@ -49,7 +51,7 @@ export function createDefaultState(){
   const projectId=uid("project"),activeShot=shot(),now=new Date().toISOString();
   return {
     schema:{name:SCHEMA_NAME,version:SCHEMA_VERSION,release:RELEASE,migratedFrom:null},
-    meta:{id:projectId,name:"MEMENTO V43B.1",createdAt:now,updatedAt:now,language:"EN"},
+    meta:{id:projectId,name:"MEMENTO V43B.2",createdAt:now,updatedAt:now,language:"EN"},
     settings:{aspectRatio:"16:9",fps:24,resolution:"1920×1080",playbackQuality:"preview",performanceTier:"auto"},
     assets:{heroId:"hero-proxy",environmentId:"environment-proxy",hdriId:null,secondaryIds:[],audioIds:[],byId:{
       "hero-proxy":{id:"hero-proxy",type:"hero",kind:"builtin",name:"CALIBRATED PROXY",status:"ready",source:"builtin",size:0},
@@ -80,7 +82,7 @@ export function normalizeState(input){
   const defaults=createDefaultState(),state=input;
   state.schema={...defaults.schema,...state.schema,release:RELEASE};
   state.meta={...defaults.meta,...state.meta};
-  if(/^MEMENTO V43A/.test(state.meta.name||""))state.meta.name="MEMENTO V43B.1";
+  if(/^MEMENTO V43(?:A|B(?:\.1)?)/.test(state.meta.name||""))state.meta.name="MEMENTO V43B.2";
   state.settings={...defaults.settings,...state.settings};
   state.assets={...defaults.assets,...state.assets,byId:{...defaults.assets.byId,...(state.assets?.byId||{})}};
   state.assets.secondaryIds=Array.isArray(state.assets.secondaryIds)?state.assets.secondaryIds:[];
@@ -88,6 +90,12 @@ export function normalizeState(input){
   for(const [id,n] of Object.entries(state.scene.nodes)){n.id??=id;n.baseTransform=normalizeTransform(n.baseTransform);n.correction=normalizeCorrection(n.correction);n.helpers={bounds:true,pivot:false,...(n.helpers||{})};}
   state.ui={...defaults.ui,...(state.ui||{})};state.playback={...defaults.playback,...(state.playback||{})};state.timeline={...defaults.timeline,...(state.timeline||{})};state.timeline.clips??={};state.timeline.tracks={...defaults.timeline.tracks,...(state.timeline.tracks||{})};
   state.shots??=defaults.shots;state.shots.byId??=defaults.shots.byId;state.shots.order??=Object.keys(state.shots.byId);state.shots.activeShotId??=state.shots.order[0];
-  for(const shot of Object.values(state.shots.byId||{})){shot.start??={values:defaultValues("start")};shot.end??={values:defaultValues("end")};shot.start.values={...defaultValues("start"),...(shot.start.values||{})};shot.end.values={...defaultValues("end"),...(shot.end.values||{})};shot.start.choices={...defaultCreativeChoices("start"),...(shot.start.choices||{})};shot.end.choices={...defaultCreativeChoices("end"),...(shot.end.choices||{})};shot.locks={...Object.fromEntries(AXES.map(axis=>[axis.id,false])),...(shot.locks||{})};shot.creativeLocks={...Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),...(shot.creativeLocks||{})};}
+  for(const shot of Object.values(state.shots.byId||{})){shot.start??={values:defaultValues("start")};shot.end??={values:defaultValues("end")};shot.start.values={...defaultValues("start"),...(shot.start.values||{})};shot.end.values={...defaultValues("end"),...(shot.end.values||{})};shot.start.choices={...defaultCreativeChoices("start"),...(shot.start.choices||{})};shot.end.choices={...defaultCreativeChoices("end"),...(shot.end.choices||{})};shot.locks={...Object.fromEntries(AXES.map(axis=>[axis.id,false])),...(shot.locks||{})};shot.creativeLocks={...Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),...(shot.creativeLocks||{})};
+    for(const axis of AXES)shot.locks[axis.id]=false;
+    for(const creativeAxis of CREATIVE_AXES){if(!shot.creativeLocks[creativeAxis.id])continue;for(const numericAxisId of creativeAxis.advancedAxes||[])shot.locks[numericAxisId]=true;}
+    const validExclusions={};
+    for(const axis of CREATIVE_AXES){for(const option of axis.options){const key=`${axis.id}:${option.id}`;if(shot.creativeExclusions?.[key])validExclusions[key]=true;}}
+    shot.creativeExclusions=validExclusions;
+  }
   return state;
 }

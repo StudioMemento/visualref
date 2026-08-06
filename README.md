@@ -1,6 +1,6 @@
-# MEMENTO VisualRef V43B.1 — Real Scene
+# MEMENTO VisualRef V43B.2 — Real Scene
 
-GitHub/Vercel-ready static application. V43B.1 preserves the V43A.1 shared workflow and adds the first real scene layer:
+GitHub/Vercel-ready static application. V43B.2 preserves the V43A.1 shared workflow and adds the first real scene layer:
 
 - Hero `.glb` upload and replacement
 - Environment `.glb` upload
@@ -34,7 +34,7 @@ Open:
 5. Correct imported orientation or pivot without modifying the creative Start/End transform.
 6. Return to Render or Timeline. The same scene is restored from IndexedDB.
 
-V43B.1 accepts self-contained `.glb` files. External-resource `.gltf` packages are deliberately excluded from this checkpoint.
+V43B.2 accepts self-contained `.glb` files. External-resource `.gltf` packages are deliberately excluded from this checkpoint.
 
 ## External runtime modules
 
@@ -47,7 +47,7 @@ npm test
 ```
 
 
-## V43B.1 Timeline monitor correction
+## V43B.2 Timeline monitor correction
 
 The Timeline left 50% now contains one monitor with two explicit modes:
 
@@ -55,3 +55,17 @@ The Timeline left 50% now contains one monitor with two explicit modes:
 - **VIEWPORT** — orbit/pan/zoom through the independent Editor Camera, with grid/helpers and frame controls.
 
 Start/End still comparison remains exclusive to Render.
+
+## V43B.2 Shot editor parity correction
+
+Render now restores the V36C generation grammar as explicit project state:
+
+- persistent **START · BOTH · END** editing scope;
+- direct Start and End assignment on every creative option;
+- one generation lock per creative category;
+- one include/exclude control per option;
+- visible per-axis pool count and pool reset;
+- manual selection remains possible when an option is excluded;
+- Near, Balanced and Bold generation use only non-excluded options;
+- an empty pool behaves as a generation lock;
+- locks and exclusions survive autosave, reload, workspace navigation and undo/redo.

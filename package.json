@@ -1,9 +1,9 @@
 {
-  "name": "memento-visualref-v43b",
-  "version": "43.2.1",
+  "name": "memento-visualref-v43b2",
+  "version": "43.2.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V43B.1 real scene with Timeline Player/Viewport monitor",
+  "description": "MEMENTO VisualRef V43B.2 real scene, Timeline monitor, Start/Both/End locks and exclusion pools",
   "scripts": {
     "test": "node tests/core-smoke.mjs"
   }

@@ -4,6 +4,19 @@ import {CREATIVE_AXIS_MAP,CREATIVE_AXES,defaultCreativeChoices,optionFor} from "
 import {clamp,deepClone,seeded,uid} from "./utils.js";
 
 function activeShot(state){return state.shots.byId[state.shots.activeShotId];}
+function exclusionKey(axisId,optionId){return `${axisId}:${optionId}`;}
+function ensureCreativeState(shot){
+  shot.start.choices??=defaultCreativeChoices("start");shot.end.choices??=defaultCreativeChoices("end");
+  shot.creativeLocks??=Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false]));shot.creativeExclusions??={};
+}
+function allowedCreativeOptions(shot,axis){
+  ensureCreativeState(shot);return axis.options.filter(option=>!shot.creativeExclusions[exclusionKey(axis.id,option.id)]);
+}
+function syncNumericLocksFromCreativeLocks(shot){
+  shot.locks??=Object.fromEntries(AXES.map(axis=>[axis.id,false]));
+  for(const axis of AXES)shot.locks[axis.id]=false;
+  for(const creativeAxis of CREATIVE_AXES){if(!shot.creativeLocks?.[creativeAxis.id])continue;for(const numericAxisId of creativeAxis.advancedAxes||[])shot.locks[numericAxisId]=true;}
+}
 function applyAxisMutable(state,axisId,value,scope=state.ui.editScope){
   const axis=AXIS_MAP.get(axisId);if(!axis)return;
   const numeric=clamp(Number(value),axis.min,axis.max),shot=activeShot(state);
@@ -11,13 +24,21 @@ function applyAxisMutable(state,axisId,value,scope=state.ui.editScope){
   if(scope==="end"||scope==="both")shot.end.values[axisId]=numeric;
   shot.updatedAt=new Date().toISOString();state.ui.selectedAxisId=axisId;
 }
-function applyCreativeChoiceMutable(state,axisId,optionId,scope=state.ui.editScope){
-  const axis=CREATIVE_AXIS_MAP.get(axisId),option=optionFor(axisId,optionId);if(!axis||!option)return;
-  const shot=activeShot(state);shot.start.choices??=defaultCreativeChoices("start");shot.end.choices??=defaultCreativeChoices("end");
+function applyCreativeChoiceMutable(state,axisId,optionId,scope=state.ui.editScope,{select=true}={}){
+  const axis=CREATIVE_AXIS_MAP.get(axisId),option=optionFor(axisId,optionId);if(!axis||!option)return false;
+  const shot=activeShot(state);ensureCreativeState(shot);
   const applyEndpoint=(endpoint,patch)=>{shot[endpoint].choices[axisId]=optionId;for(const [numericAxisId,value] of Object.entries(patch||{}))applyAxisMutable(state,numericAxisId,value,endpoint);};
   if(scope==="start"||scope==="both")applyEndpoint("start",option.start);
   if(scope==="end"||scope==="both")applyEndpoint("end",option.end);
-  shot.updatedAt=new Date().toISOString();state.ui.selectedCreativeAxisId=axisId;
+  shot.updatedAt=new Date().toISOString();if(select)state.ui.selectedCreativeAxisId=axisId;return true;
+}
+function pickCreativeOption(pool,current,rng,{near=false,avoid=null}={}){
+  if(!pool.length)return null;if(pool.length===1)return pool[0];
+  const currentIndex=Math.max(0,pool.findIndex(option=>option.id===current));
+  let candidates=pool.filter(option=>option.id!==avoid&&option.id!==current);
+  if(!candidates.length)candidates=pool.filter(option=>option.id!==avoid);if(!candidates.length)candidates=pool;
+  if(near){const adjacent=[pool[currentIndex-1],pool[currentIndex+1]].filter(option=>option&&option.id!==avoid);if(adjacent.length)candidates=adjacent;}
+  return candidates[Math.floor(rng()*candidates.length)]||pool[0];
 }
 function clipEnd(clip){return clip.startFrame+clip.durationFrames;}
 function timelineDuration(state){return Math.max(state.timeline.outFrame,...Object.values(state.timeline.clips).map(clipEnd),1);}
@@ -29,7 +50,7 @@ export function registerCommands(bus){
   bus.register("gesture.begin",({label})=>store.beginGesture(label));
   bus.register("gesture.end",()=>store.endGesture());
   bus.register("gesture.cancel",()=>store.cancelGesture());
-  bus.register("ui.setScope",({scope})=>store.transient("Edit scope",state=>state.ui.editScope=scope,{persist:true,broadcast:true}));
+  bus.register("ui.setScope",({scope})=>store.transient("Edit scope",state=>state.ui.editScope=["start","both","end"].includes(scope)?scope:"both",{persist:true,broadcast:true}));
   bus.register("ui.toggleAdvanced",({value})=>store.transient("Advanced mode",state=>state.ui.advanced=Boolean(value),{persist:true,broadcast:true}));
   bus.register("ui.setViewportTool",({tool})=>store.transient("Viewport tool",state=>state.ui.viewportTool=tool,{persist:true,broadcast:false}));
   bus.register("ui.setViewportCameraMode",({mode})=>store.transient("Viewport camera mode",state=>state.scene.viewportCameraMode=mode==="shot"?"shot":"editor",{persist:true,broadcast:false}));
@@ -40,7 +61,7 @@ export function registerCommands(bus){
   bus.register("ui.openProject",({open=true})=>store.transient("Project dialog",state=>state.ui.projectDialogOpen=open));
   bus.register("project.rename",({name})=>store.commit("Rename project",state=>state.meta.name=(name||"Untitled Project").trim()||"Untitled Project"));
   bus.register("project.reset",async()=>{
-    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B.1");
+    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B.2");
   });
 
   bus.register("asset.register",({asset,node})=>store.commit(`Register ${asset.type} asset`,state=>{
@@ -90,7 +111,13 @@ export function registerCommands(bus){
   });
   bus.register("shot.setCreativeChoice",({axisId,optionId,scope})=>store.commit(`Creative axis · ${axisId}`,state=>applyCreativeChoiceMutable(state,axisId,optionId,scope)));
   bus.register("shot.toggleCreativeLock",({axisId})=>store.commit(`Lock creative axis · ${axisId}`,state=>{
-    const shot=activeShot(state),axis=CREATIVE_AXIS_MAP.get(axisId);if(!axis)return;shot.creativeLocks??={};const next=!shot.creativeLocks[axisId];shot.creativeLocks[axisId]=next;for(const numericAxisId of axis.advancedAxes||[])shot.locks[numericAxisId]=next;state.ui.selectedCreativeAxisId=axisId;
+    const shot=activeShot(state),axis=CREATIVE_AXIS_MAP.get(axisId);if(!axis)return;ensureCreativeState(shot);shot.creativeLocks[axisId]=!shot.creativeLocks[axisId];syncNumericLocksFromCreativeLocks(shot);state.ui.selectedCreativeAxisId=axisId;
+  }));
+  bus.register("shot.toggleCreativeExclusion",({axisId,optionId})=>store.commit(`Generation pool · ${axisId} · ${optionId}`,state=>{
+    const shot=activeShot(state),axis=CREATIVE_AXIS_MAP.get(axisId),option=optionFor(axisId,optionId);if(!axis||!option)return;ensureCreativeState(shot);const key=exclusionKey(axisId,optionId);if(shot.creativeExclusions[key])delete shot.creativeExclusions[key];else shot.creativeExclusions[key]=true;state.ui.selectedCreativeAxisId=axisId;shot.updatedAt=new Date().toISOString();
+  }));
+  bus.register("shot.resetCreativePool",({axisId}={})=>store.commit(axisId?`Reset generation pool · ${axisId}`:"Reset all generation pools",state=>{
+    const shot=activeShot(state);ensureCreativeState(shot);if(axisId){for(const option of CREATIVE_AXIS_MAP.get(axisId)?.options||[])delete shot.creativeExclusions[exclusionKey(axisId,option.id)];state.ui.selectedCreativeAxisId=axisId;}else shot.creativeExclusions={};shot.updatedAt=new Date().toISOString();
   }));
   bus.register("shot.setDuration",({frames})=>store.commit("Edit shot duration",state=>{
     const shot=activeShot(state);shot.durationFrames=clamp(Math.round(Number(frames)||72),12,480);state.playback.frame=Math.min(state.playback.frame,shot.durationFrames);
@@ -105,12 +132,27 @@ export function registerCommands(bus){
     });
   });
   bus.register("shot.generateVariant",({mode="balanced"})=>store.commit(`Generate ${mode} variant`,state=>{
-    const shot=activeShot(state),amount=mode==="near"?.07:mode==="bold"?.24:.14,rng=seeded(shot.seed+shot.variant*7919+(mode==="bold"?97:mode==="near"?13:41));
-    for(const axis of AXES){if(shot.locks[axis.id])continue;const range=axis.max-axis.min;const affect=rng()>.32;if(!affect)continue;const endDelta=(rng()-.5)*2*range*amount;shot.end.values[axis.id]=clamp(shot.end.values[axis.id]+endDelta,axis.min,axis.max);if(mode==="bold"&&rng()>.55)shot.start.values[axis.id]=clamp(shot.start.values[axis.id]+(rng()-.5)*range*.08,axis.min,axis.max);}
+    const shot=activeShot(state);ensureCreativeState(shot);syncNumericLocksFromCreativeLocks(shot);
+    const config=mode==="near"?{axisChance:.28,startChance:0,jitter:.025}:mode==="bold"?{axisChance:.78,startChance:.56,jitter:.10}:{axisChance:.52,startChance:.22,jitter:.055};
+    const rng=seeded(shot.seed+shot.variant*7919+(mode==="bold"?97:mode==="near"?13:41)),eligible=[],blockedNumericAxes=new Set();let creativeChanged=0;
+    for(const axis of CREATIVE_AXES){
+      const pool=allowedCreativeOptions(shot,axis);if(shot.creativeLocks[axis.id]||!pool.length){if(!pool.length)for(const numericAxisId of axis.advancedAxes||[])blockedNumericAxes.add(numericAxisId);continue;}eligible.push({axis,pool});if(rng()>config.axisChance)continue;
+      if(mode==="near"){
+        const option=pickCreativeOption(pool,shot.end.choices[axis.id],rng,{near:true});if(option&&option.id!==shot.end.choices[axis.id]){applyCreativeChoiceMutable(state,axis.id,option.id,"end",{select:false});creativeChanged++;}
+      }else if(mode==="balanced"){
+        if(rng()<config.startChance){const start=pickCreativeOption(pool,shot.start.choices[axis.id],rng,{near:true});if(start&&start.id!==shot.start.choices[axis.id]){applyCreativeChoiceMutable(state,axis.id,start.id,"start",{select:false});creativeChanged++;}}
+        const end=pickCreativeOption(pool,shot.end.choices[axis.id],rng,{avoid:shot.start.choices[axis.id]});if(end&&end.id!==shot.end.choices[axis.id]){applyCreativeChoiceMutable(state,axis.id,end.id,"end",{select:false});creativeChanged++;}
+      }else{
+        const start=pickCreativeOption(pool,shot.start.choices[axis.id],rng);if(start&&start.id!==shot.start.choices[axis.id]){applyCreativeChoiceMutable(state,axis.id,start.id,"start",{select:false});creativeChanged++;}
+        const end=pickCreativeOption(pool,shot.end.choices[axis.id],rng,{avoid:start?.id||shot.start.choices[axis.id]});if(end&&end.id!==shot.end.choices[axis.id]){applyCreativeChoiceMutable(state,axis.id,end.id,"end",{select:false});creativeChanged++;}
+      }
+    }
+    if(!creativeChanged&&eligible.length){const target=eligible[Math.floor(rng()*eligible.length)],scope=mode==="bold"?"both":"end",current=scope==="both"?shot.start.choices[target.axis.id]:shot.end.choices[target.axis.id],option=pickCreativeOption(target.pool,current,rng,{near:mode==="near"});if(option)applyCreativeChoiceMutable(state,target.axis.id,option.id,scope,{select:false});}
+    for(const axis of AXES){if(shot.locks[axis.id]||blockedNumericAxes.has(axis.id)||rng()>.34)continue;const range=axis.max-axis.min,endDelta=(rng()-.5)*2*range*config.jitter;shot.end.values[axis.id]=clamp(shot.end.values[axis.id]+endDelta,axis.min,axis.max);if(mode==="bold"&&rng()>.55)shot.start.values[axis.id]=clamp(shot.start.values[axis.id]+(rng()-.5)*range*config.jitter*.55,axis.min,axis.max);}
     shot.variant+=1;shot.variantMode=mode;shot.presetId=null;shot.name=`${shot.name.replace(/ · V\d+$/,'')} · V${String(shot.variant).padStart(2,'0')}`;shot.updatedAt=new Date().toISOString();state.playback.frame=0;state.playback.playing=true;state.playback.lastTick=performance.now();
   }));
   bus.register("shot.reset",()=>store.commit("Reset active shot",state=>{
-    const shot=activeShot(state);for(const axis of AXES){shot.start.values[axis.id]=axis.defaultStart;shot.end.values[axis.id]=axis.defaultEnd;shot.locks[axis.id]=false;}shot.start.choices=defaultCreativeChoices("start");shot.end.choices=defaultCreativeChoices("end");shot.creativeLocks=Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false]));shot.name="Silent Authority";shot.family="hero";shot.presetId="hero.silent-authority";shot.durationFrames=72;shot.variant=1;shot.updatedAt=new Date().toISOString();state.playback.frame=0;state.playback.playing=false;
+    const shot=activeShot(state);for(const axis of AXES){shot.start.values[axis.id]=axis.defaultStart;shot.end.values[axis.id]=axis.defaultEnd;shot.locks[axis.id]=false;}shot.start.choices=defaultCreativeChoices("start");shot.end.choices=defaultCreativeChoices("end");shot.creativeLocks=Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false]));shot.creativeExclusions={};shot.name="Silent Authority";shot.family="hero";shot.presetId="hero.silent-authority";shot.durationFrames=72;shot.variant=1;shot.updatedAt=new Date().toISOString();state.playback.frame=0;state.playback.playing=false;
   }));
   bus.register("shot.addToTimeline",({trackId="v1"}={})=>store.commit("Add shot to timeline",state=>{
     const shot=activeShot(state),clips=Object.values(state.timeline.clips).filter(clip=>clip.trackId===trackId),startFrame=clips.reduce((max,clip)=>Math.max(max,clipEnd(clip)),0),id=uid("clip");

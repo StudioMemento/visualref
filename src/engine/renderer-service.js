@@ -23,8 +23,8 @@ export class RendererService{
         Promise.all([import("three"),import("three/addons/loaders/GLTFLoader.js"),import("three/addons/loaders/RGBELoader.js"),import("three/addons/controls/OrbitControls.js"),import("three/addons/controls/TransformControls.js"),import("three/addons/loaders/DRACOLoader.js"),import("three/addons/libs/meshopt_decoder.module.js")]),
         new Promise((_,reject)=>setTimeout(()=>reject(new Error("Three.js modules timed out")),9000))
       ]);
-      this.T=T;this.GLTFLoader=gltfModule.GLTFLoader;this.RGBELoader=rgbeModule.RGBELoader;this.OrbitControls=orbitModule.OrbitControls;this.TransformControls=transformModule.TransformControls;this.DRACOLoader=dracoModule.DRACOLoader;this.MeshoptDecoder=meshoptModule.MeshoptDecoder;this.initThree();this.status("THREE · V43B.1 READY","ready");
-    }catch(error){console.warn("V43B.1 Three.js unavailable, using visible fallback",error);this.fallback=new CanvasFallback(this.canvas);this.status("PROXY · FALLBACK","fallback",String(error?.message||error));}
+      this.T=T;this.GLTFLoader=gltfModule.GLTFLoader;this.RGBELoader=rgbeModule.RGBELoader;this.OrbitControls=orbitModule.OrbitControls;this.TransformControls=transformModule.TransformControls;this.DRACOLoader=dracoModule.DRACOLoader;this.MeshoptDecoder=meshoptModule.MeshoptDecoder;this.initThree();this.status("THREE · V43B.2 READY","ready");
+    }catch(error){console.warn("V43B.2 Three.js unavailable, using visible fallback",error);this.fallback=new CanvasFallback(this.canvas);this.status("PROXY · FALLBACK","fallback",String(error?.message||error));}
   }
   initThree(){
     const T=this.T;
