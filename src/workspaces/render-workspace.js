@@ -105,7 +105,7 @@ export class RenderWorkspace{
       const allowed=axis.options.filter(option=>!shot.creativeExclusions[`${axis.id}:${option.id}`]);
       row.classList.toggle("selected-axis",selected);row.classList.toggle("locked-axis",locked);row.classList.toggle("empty-pool",allowed.length===0);
       const lockButton=row.querySelector("[data-creative-lock]");lockButton.innerHTML=locked?ICON.lock:ICON.unlock;lockButton.setAttribute("aria-pressed",String(locked));lockButton.title=locked?"Unlock category for generation":"Lock category for generation";
-      row.querySelector('[data-role="axis-lock-state"]').textContent=locked?"LOCKED":"GEN ACTIVE";
+      const lockState=row.querySelector('[data-role="axis-lock-state"]');if(lockState)lockState.textContent=locked?"LOCKED":"GEN ACTIVE";
       row.querySelector('[data-role="axis-pool-count"]').textContent=`POOL ${allowed.length}/${axis.options.length}`;
       row.querySelector('[data-creative-pool-reset]').disabled=allowed.length===axis.options.length;
       const current=row.querySelector('[data-role="axis-current"]');
@@ -137,7 +137,7 @@ function creativeAxisMarkup(axis){
     <header class="creative-axis-head"><span>${axis.label}</span><div class="creative-axis-meta"><button data-creative-pool-reset="${axis.id}" title="Restore the complete generation pool"><small data-role="axis-pool-count">POOL ${axis.options.length}/${axis.options.length}</small></button><div data-role="axis-current">—</div></div></header>
     <div class="creative-option-rail">
       <div class="creative-axis-tile">
-        <button class="creative-axis-main" data-creative-axis-select="${axis.id}" type="button"><i>${axis.icon}</i><b>${axis.label}</b><small data-role="axis-lock-state">GEN ACTIVE</small></button>
+        <button class="creative-axis-main" data-creative-axis-select="${axis.id}" type="button"><b>${axis.label}</b></button>
         <button class="creative-axis-lock" data-creative-lock="${axis.id}" type="button" aria-label="Lock ${axis.label} for generation">${ICON.unlock}</button>
       </div>
       ${axis.options.map(option=>creativeOptionMarkup(axis,option)).join("")}
@@ -147,7 +147,7 @@ function creativeAxisMarkup(axis){
 }
 function creativeOptionMarkup(axis,option){
   return `<div class="creative-option-shell" data-creative-option-shell data-creative-axis="${axis.id}" data-creative-option="${option.id}">
-    <div class="creative-option-main" aria-hidden="true"><b>${option.label}</b></div>
+    <div class="creative-option-label" aria-hidden="true"><b>${option.label}</b></div>
     <div class="creative-endpoint-zones">
       <button data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start"><span class="zone-icon">${ICON.start}</span></button>
       <button data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End"><span class="zone-icon both-state-mark"></span></button>

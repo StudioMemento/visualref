@@ -1,9 +1,9 @@
 {
   "name": "memento-visualref-v43b4",
-  "version": "43.7.0",
+  "version": "43.8.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V43B.7 label-only visible chips and category tiles",
+  "description": "MEMENTO VisualRef V43B.8 centered label and edge chevron chip correction",
   "scripts": {
     "test": "node tests/core-smoke.mjs"
   }

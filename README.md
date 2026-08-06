@@ -90,3 +90,7 @@ Render now restores the V36C generation grammar as explicit project state:
 
 ## V43B.7
 - Label-only visible creative chips and category tiles, while preserving the invisible 3-zone hover interaction grammar.
+
+
+## V43B.8
+- Uninterrupted centered-label chips with visible edge chevrons and invisible 30/40/30 Start/Both/End hit zones.

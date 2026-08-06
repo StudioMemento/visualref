@@ -203,3 +203,188 @@
 .creative-option-main b{font-size:10.2px;letter-spacing:.20em}
 @media(max-width:1180px){.creative-option-main b{font-size:9.4px;letter-spacing:.18em}}
 @media(max-width:900px){.creative-option-main b{font-size:8.6px;letter-spacing:.16em}.creative-axis-main b{font-size:7.2px}}
+
+/* V43B.8 — centered chevron chip correction */
+.creative-axis-main{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  padding:8px 26px 8px 11px!important;
+}
+.creative-axis-main i,.creative-axis-main small{display:none!important}
+.creative-axis-main b{
+  font-size:8.2px!important;
+  letter-spacing:.17em!important;
+  line-height:1!important;
+  text-transform:uppercase;
+}
+
+.creative-option-shell{
+  position:relative;
+  flex:0 0 154px;
+  min-width:154px;
+  height:68px;
+  border-radius:9px;
+  overflow:hidden;
+  background:#0d0d10;
+  isolation:isolate;
+}
+.creative-option-label{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  padding:10px 28px;
+  pointer-events:none;
+}
+.creative-option-label b{
+  max-width:100%;
+  font-size:10.2px;
+  font-weight:850;
+  line-height:1.06;
+  letter-spacing:.19em;
+  text-transform:uppercase;
+  text-align:center;
+  color:rgba(255,255,255,.92);
+  text-wrap:balance;
+  white-space:normal;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+.creative-option-main{display:none!important}
+.creative-endpoint-zones{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  height:auto;
+  display:grid;
+  grid-template-columns:3fr 4fr 3fr;
+  border:0;
+  background:none;
+  box-shadow:none;
+}
+.creative-endpoint-zones button{
+  position:relative;
+  border:0!important;
+  background:transparent!important;
+  padding:0;
+  cursor:pointer;
+  color:rgba(255,255,255,.32)!important;
+  transition:color .14s var(--ease);
+}
+.creative-endpoint-zones button[data-creative-endpoint="start"]{
+  display:grid;
+  place-items:center start;
+  padding-left:11px;
+}
+.creative-endpoint-zones button[data-creative-endpoint="end"]{
+  display:grid;
+  place-items:center end;
+  padding-right:11px;
+}
+.creative-endpoint-zones button[data-creative-endpoint="both"]{
+  display:block;
+}
+.creative-endpoint-zones .zone-icon{
+  display:grid!important;
+  place-items:center;
+  visibility:visible!important;
+  opacity:1!important;
+  width:15px;
+  height:15px;
+}
+.creative-endpoint-zones button[data-creative-endpoint="both"] .zone-icon{
+  visibility:hidden!important;
+  opacity:0!important;
+}
+.creative-endpoint-zones svg{
+  width:14px!important;
+  height:14px!important;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.15;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* Full-chip hover teaching. No visible internal divisions. */
+.creative-option-shell::before,
+.creative-option-shell::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .14s var(--ease);
+}
+.creative-option-shell:has([data-creative-endpoint="start"]:hover)::before{
+  opacity:1;
+  background:linear-gradient(90deg,rgba(89,215,223,.30) 0%,rgba(89,215,223,.12) 42%,rgba(89,215,223,0) 76%);
+}
+.creative-option-shell:has([data-creative-endpoint="end"]:hover)::before{
+  opacity:1;
+  background:linear-gradient(270deg,rgba(255,121,80,.30) 0%,rgba(255,121,80,.12) 42%,rgba(255,121,80,0) 76%);
+}
+.creative-option-shell:has([data-creative-endpoint="both"]:hover){
+  border-color:rgba(255,255,255,.76);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.96),inset 0 -2px 0 rgba(255,255,255,.96),0 0 0 1px rgba(255,255,255,.06);
+}
+.creative-option-shell:has([data-creative-endpoint="both"]:hover)::before{
+  opacity:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.17) 0%,rgba(255,255,255,.03) 24%,transparent 50%,rgba(255,255,255,.03) 76%,rgba(255,255,255,.17) 100%);
+}
+.creative-option-shell:has([data-creative-endpoint="start"]:hover) [data-creative-endpoint="start"]{color:var(--teal)!important}
+.creative-option-shell:has([data-creative-endpoint="end"]:hover) [data-creative-endpoint="end"]{color:var(--orange)!important}
+
+/* Active assignments. */
+.creative-option-shell.selected-start:not(.selected-end){
+  border-color:rgba(89,215,223,.52);
+  box-shadow:inset 2px 0 0 var(--teal);
+}
+.creative-option-shell.selected-start:not(.selected-end)::before{
+  opacity:1;
+  background:linear-gradient(90deg,rgba(89,215,223,.25) 0%,rgba(89,215,223,.08) 42%,transparent 78%);
+}
+.creative-option-shell.selected-start:not(.selected-end) [data-creative-endpoint="start"]{color:var(--teal)!important}
+.creative-option-shell.selected-end:not(.selected-start){
+  border-color:rgba(255,121,80,.54);
+  box-shadow:inset -2px 0 0 var(--orange);
+}
+.creative-option-shell.selected-end:not(.selected-start)::before{
+  opacity:1;
+  background:linear-gradient(270deg,rgba(255,121,80,.25) 0%,rgba(255,121,80,.08) 42%,transparent 78%);
+}
+.creative-option-shell.selected-end:not(.selected-start) [data-creative-endpoint="end"]{color:var(--orange)!important}
+.creative-option-shell.shared-option{
+  border-color:rgba(255,255,255,.78)!important;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.96),inset 0 -2px 0 rgba(255,255,255,.96),0 0 0 1px rgba(255,255,255,.06)!important;
+}
+.creative-option-shell.shared-option::before{
+  opacity:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.15) 0%,rgba(255,255,255,.025) 24%,transparent 50%,rgba(255,255,255,.025) 76%,rgba(255,255,255,.15) 100%);
+}
+.creative-pool-toggle{
+  right:4px;
+  top:4px;
+  width:17px;
+  height:17px;
+  opacity:.28;
+}
+.creative-option-shell:hover .creative-pool-toggle,
+.creative-option-shell:focus-within .creative-pool-toggle,
+.creative-option-shell.excluded-option .creative-pool-toggle{opacity:1}
+
+@media(max-width:1180px){
+  .creative-option-shell{flex-basis:144px;min-width:144px;height:66px}
+  .creative-option-label b{font-size:9.5px;letter-spacing:.17em}
+}
+@media(max-width:900px){
+  .creative-option-shell{flex-basis:132px;min-width:132px;height:62px}
+  .creative-option-label{padding-inline:25px}
+  .creative-option-label b{font-size:8.7px;letter-spacing:.15em}
+  .creative-axis-main b{font-size:7.5px!important}
+}
