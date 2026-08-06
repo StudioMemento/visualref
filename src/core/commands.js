@@ -1,4 +1,4 @@
-import {AXIS_MAP,AXES,TRACKS,createDefaultState,DEFAULT_TRANSFORM,correctionDefaultsForType} from "./default-state.js";
+import {AXIS_MAP,AXES,TRACKS,createDefaultState,DEFAULT_TRANSFORM,DEFAULT_TRANSFORM_LOCKS,correctionDefaultsForType} from "./default-state.js";
 import {PRESET_MAP} from "../shots/presets.js";
 import {SEQUENCE_PRESET_MAP} from "../shots/sequence-presets.js";
 import {CREATIVE_AXIS_MAP,CREATIVE_AXES,defaultCreativeChoices,optionFor} from "../shots/creative-axes.js";
@@ -59,45 +59,80 @@ function snapFrame(state,value,ignoreClipId=null){
 
 export function registerCommands(bus){
   const {store,history,persistence,sync,toast}=bus.context;
+  const validTool=tool=>["select","translate","rotate","scale","pivot"].includes(tool)?tool:"select";
+  const validSpace=space=>space==="local"?"local":"world";
+  const validMode=mode=>["scene","shot","calibrate"].includes(mode)?mode:"scene";
+  const finite3=(value,fallback=[0,0,0])=>Array.isArray(value)&&value.length>=3?value.slice(0,3).map((n,i)=>Number.isFinite(Number(n))?Number(n):fallback[i]):[...fallback];
+  const safeTransform=(value,fallback=DEFAULT_TRANSFORM)=>({position:finite3(value?.position,fallback.position),rotation:finite3(value?.rotation,fallback.rotation),scale:finite3(value?.scale,fallback.scale).map((n,i)=>Math.max(.000001,Math.abs(Number(n)||fallback.scale[i]||1)))});
+  const sessionTime=()=>new Date().toISOString();
+  const applyAssetMutable=(state,asset,node=null)=>{
+    if(!asset?.id||!asset.type)return;
+    const normalized={semanticType:asset.type,fileName:asset.name||null,bytes:Number(asset.size??asset.bytes)||0,diagnostics:[],status:"ready",source:"indexeddb",...asset};
+    normalized.size=Number(normalized.size??normalized.bytes)||0;normalized.bytes=Number(normalized.bytes??normalized.size)||0;normalized.diagnostics=Array.isArray(normalized.diagnostics)?normalized.diagnostics:[];
+    state.assets.byId[normalized.id]=normalized;
+    const defaults=createDefaultState();
+    if(normalized.type==="hero"){
+      const old=state.assets.heroId;state.assets.heroId=normalized.id;
+      state.scene.nodes["hero-proxy"]={...defaults.scene.nodes["hero-proxy"],assetId:normalized.id,name:`Hero · ${normalized.name}`,visible:true,locked:false,transformLocks:structuredClone(DEFAULT_TRANSFORM_LOCKS),baseTransform:structuredClone(DEFAULT_TRANSFORM),correction:correctionDefaultsForType("hero")};
+      if(old&&old!=="hero-proxy"&&old!==normalized.id)delete state.assets.byId[old];state.ui.selectedNodeId="hero-proxy";state.ui.viewportEditMode="calibrate";
+    }else if(normalized.type==="environment"){
+      const old=state.assets.environmentId;state.assets.environmentId=normalized.id;
+      state.scene.nodes["environment-proxy"]={...defaults.scene.nodes["environment-proxy"],assetId:normalized.id,name:`Environment · ${normalized.name}`,visible:true,locked:false,transformLocks:structuredClone(DEFAULT_TRANSFORM_LOCKS),baseTransform:structuredClone(DEFAULT_TRANSFORM),correction:correctionDefaultsForType("environment")};
+      if(old&&old!=="environment-proxy"&&old!==normalized.id)delete state.assets.byId[old];state.ui.selectedNodeId="environment-proxy";state.ui.viewportEditMode="scene";
+    }else if(normalized.type==="hdri"){
+      const old=state.assets.hdriId;state.assets.hdriId=normalized.id;if(old&&old!==normalized.id)delete state.assets.byId[old];
+    }else if(normalized.type==="prop"){
+      const nodeId=node?.id||normalized.nodeId||`prop-${normalized.id}`;normalized.nodeId=nodeId;state.assets.secondaryIds=[...new Set([...(state.assets.secondaryIds||[]),normalized.id])];
+      state.scene.nodes[nodeId]={id:nodeId,name:node?.name||`Prop · ${normalized.name}`,type:"prop",assetId:normalized.id,parentId:null,visible:node?.visible!==false,locked:false,transformLocks:{...DEFAULT_TRANSFORM_LOCKS,...(node?.transformLocks||{})},baseTransform:safeTransform(node?.baseTransform),correction:{...correctionDefaultsForType("prop"),...(node?.correction||{})},helpers:{bounds:true,pivot:false,...(node?.helpers||{})}};state.ui.selectedNodeId=nodeId;state.ui.viewportEditMode="scene";
+    }else if(normalized.type==="audio")state.assets.audioIds=[...new Set([...(state.assets.audioIds||[]),normalized.id])];
+  };
+
   bus.register("history.undo",()=>store.undo());bus.register("history.redo",()=>store.redo());
   bus.register("gesture.begin",({label})=>store.beginGesture(label));bus.register("gesture.end",()=>store.endGesture());bus.register("gesture.cancel",()=>store.cancelGesture());
   bus.register("ui.setScope",({scope})=>store.transient("Edit scope",state=>state.ui.editScope=["start","both","end"].includes(scope)?scope:"both",{persist:true,broadcast:true}));
   bus.register("ui.toggleAdvanced",({value})=>store.transient("Advanced mode",state=>state.ui.advanced=Boolean(value),{persist:true,broadcast:true}));
-  bus.register("ui.setViewportTool",({tool})=>store.transient("Viewport tool",state=>state.ui.viewportTool=tool,{persist:true,broadcast:false}));
+  bus.register("ui.setViewportTool",({tool})=>store.transient("Viewport tool",state=>{const next=validTool(tool),node=state.scene.nodes[state.ui.selectedNodeId];if(next==="pivot"&&node?.type==="hero"&&state.ui.viewportEditMode==="shot")state.ui.viewportEditMode="calibrate";state.ui.viewportTool=next;},{persist:true,broadcast:false}));
+  bus.register("ui.setViewportSpace",({space})=>store.transient("Viewport space",state=>state.ui.viewportSpace=validSpace(space),{persist:true,broadcast:false}));
+  bus.register("ui.setViewportEditMode",({mode})=>store.transient("Viewport edit mode",state=>{const node=state.scene.nodes[state.ui.selectedNodeId],next=validMode(mode);state.ui.viewportEditMode=node?.type==="hero"?(next==="shot"?"shot":"calibrate"):"scene";if(state.ui.viewportEditMode==="shot"&&state.ui.viewportTool==="pivot")state.ui.viewportTool="select";},{persist:true,broadcast:false}));
+  bus.register("ui.setViewportSnap",({enabled,field,value}={})=>store.transient("Viewport snap",state=>{if(enabled!=null)state.ui.viewportSnapEnabled=Boolean(enabled);state.ui.viewportSnap??={position:.1,rotationDeg:15,scale:.1,pivot:.1};if(field&&field in state.ui.viewportSnap&&Number.isFinite(Number(value)))state.ui.viewportSnap[field]=Math.max(.0001,Number(value));},{persist:true,broadcast:false}));
   bus.register("ui.setViewportCameraMode",({mode})=>store.transient("Viewport camera mode",state=>state.scene.viewportCameraMode=mode==="shot"?"shot":"editor",{persist:true,broadcast:false}));
   bus.register("ui.setTimelineMonitorMode",({mode})=>store.transient("Timeline monitor mode",state=>state.ui.timelineMonitorMode=mode==="viewport"?"viewport":"player",{persist:true,broadcast:false}));
   bus.register("ui.setAssetBusy",({value})=>store.transient("Asset busy",state=>state.ui.assetBusy=Boolean(value),{persist:false,broadcast:false}));
-  bus.register("ui.selectNode",({nodeId})=>store.transient("Select node",state=>state.ui.selectedNodeId=nodeId,{persist:true,broadcast:false}));
+  bus.register("ui.selectNode",({nodeId})=>store.transient("Select node",state=>{if(!state.scene.nodes[nodeId])return;state.ui.selectedNodeId=nodeId;const node=state.scene.nodes[nodeId];if(node.type!=="hero")state.ui.viewportEditMode="scene";},{persist:true,broadcast:false}));
   bus.register("ui.selectCreativeAxis",({axisId})=>store.transient("Select creative axis",state=>state.ui.selectedCreativeAxisId=axisId,{persist:true,broadcast:false}));
   bus.register("ui.openProject",({open=true})=>store.transient("Project dialog",state=>state.ui.projectDialogOpen=open));
   bus.register("ui.setTimelineTool",({tool})=>store.transient("Timeline tool",state=>state.ui.timelineTool=["select","blade","slip"].includes(tool)?tool:"select",{persist:true,broadcast:false}));
 
   bus.register("project.rename",({name})=>store.commit("Rename project",state=>state.meta.name=(name||"Untitled Project").trim()||"Untitled Project"));
-  bus.register("project.reset",async()=>{await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · CORE REBUILD");});
+  bus.register("project.reset",async()=>{await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V44");});
 
-  bus.register("asset.register",({asset,node})=>store.commit(`Register ${asset.type} asset`,state=>{
-    state.assets.byId[asset.id]=asset;
-    if(asset.type==="hero"){
-      const old=state.assets.heroId;state.assets.heroId=asset.id;state.scene.nodes["hero-proxy"]={...state.scene.nodes["hero-proxy"],assetId:asset.id,name:`Hero · ${asset.name}`,baseTransform:structuredClone(DEFAULT_TRANSFORM),correction:correctionDefaultsForType("hero")};if(old&&old!=="hero-proxy"&&old!==asset.id)delete state.assets.byId[old];state.ui.selectedNodeId="hero-proxy";
-    }else if(asset.type==="environment"){
-      const old=state.assets.environmentId;state.assets.environmentId=asset.id;state.scene.nodes["environment-proxy"]={...state.scene.nodes["environment-proxy"],assetId:asset.id,name:`Environment · ${asset.name}`,baseTransform:structuredClone(DEFAULT_TRANSFORM),correction:correctionDefaultsForType("environment")};if(old&&old!=="environment-proxy"&&old!==asset.id)delete state.assets.byId[old];state.ui.selectedNodeId="environment-proxy";
-    }else if(asset.type==="hdri"){const old=state.assets.hdriId;state.assets.hdriId=asset.id;if(old&&old!==asset.id)delete state.assets.byId[old];}
-    else if(asset.type==="prop"){state.assets.secondaryIds=[...new Set([...(state.assets.secondaryIds||[]),asset.id])];state.scene.nodes[node.id]=node;state.ui.selectedNodeId=node.id;}
-    else if(asset.type==="audio"){state.assets.audioIds=[...new Set([...(state.assets.audioIds||[]),asset.id])];}
-  }));
+  bus.register("asset.stageImport",({session})=>store.transient("Stage asset import",state=>{state.assets.importSession={id:session?.id||uid("import"),assetId:session?.assetId||null,type:session?.type||null,nodeId:session?.nodeId||null,name:session?.name||"Asset",status:"staging",previousAssetId:session?.previousAssetId||null,diagnostics:[],message:"Parsing in isolated scene",startedAt:sessionTime()};state.ui.assetBusy=true;},{persist:false,broadcast:false}));
+  bus.register("asset.validateStagedImport",({sessionId,diagnostics=[],meta={}})=>store.transient("Validate staged asset",state=>{const session=state.assets.importSession;if(!session||(sessionId&&session.id!==sessionId))return;session.status="validated";session.diagnostics=Array.isArray(diagnostics)?diagnostics:[];session.meta=meta;session.message="Validated · ready to commit";},{persist:false,broadcast:false}));
+  bus.register("asset.failImport",({sessionId,error,diagnostics=[]}={})=>store.transient("Asset import failed",state=>{const session=state.assets.importSession;if(session&&(!sessionId||session.id===sessionId)){session.status="error";session.message=String(error?.message||error||"Import failed");session.diagnostics=[...(session.diagnostics||[]),...(diagnostics||[])];}state.ui.assetBusy=false;},{persist:false,broadcast:false}));
+  bus.register("asset.cancelImport",({sessionId}={})=>store.transient("Cancel asset import",state=>{if(!sessionId||state.assets.importSession?.id===sessionId)state.assets.importSession=null;state.ui.assetBusy=false;},{persist:false,broadcast:false}));
+  bus.register("asset.commitImport",({asset,node,sessionId}={})=>{const session=store.get().assets.importSession;if(sessionId&&session?.id!==sessionId)return false;store.transient("Close asset staging",state=>{state.assets.importSession=null;state.ui.assetBusy=false;},{persist:false,broadcast:false});return store.commit(`Import ${asset?.type||"asset"}`,state=>applyAssetMutable(state,asset,node));});
+  bus.register("asset.register",({asset,node})=>store.commit(`Register ${asset?.type||"asset"} asset`,state=>applyAssetMutable(state,asset,node)));
+  bus.register("asset.markMissing",({assetId,nodeId,error,message}={})=>store.commit("Mark asset unavailable",state=>{const asset=state.assets.byId[assetId];if(asset){asset.status="missing";asset.diagnostics=[...(asset.diagnostics||[]),{level:"error",code:"BINARY_MISSING",message:String(message||error||"Binary data missing")}];asset.updatedAt=sessionTime();}if(nodeId&&state.scene.nodes[nodeId])state.scene.nodes[nodeId].missing=true;}));
   bus.register("asset.remove",({assetId,nodeId})=>store.commit("Remove scene asset",state=>{
-    const asset=state.assets.byId[assetId];if(!asset)return;
-    if(asset.type==="hero"){state.assets.heroId="hero-proxy";state.scene.nodes["hero-proxy"]={...createDefaultState().scene.nodes["hero-proxy"]};state.ui.selectedNodeId="hero-proxy";}
-    else if(asset.type==="environment"){state.assets.environmentId="environment-proxy";state.scene.nodes["environment-proxy"]={...createDefaultState().scene.nodes["environment-proxy"]};state.ui.selectedNodeId="environment-proxy";}
+    const asset=state.assets.byId[assetId];if(!asset)return;const defaults=createDefaultState();
+    if(asset.type==="hero"){state.assets.heroId="hero-proxy";state.scene.nodes["hero-proxy"]=structuredClone(defaults.scene.nodes["hero-proxy"]);state.ui.selectedNodeId="hero-proxy";state.ui.viewportEditMode="shot";}
+    else if(asset.type==="environment"){state.assets.environmentId="environment-proxy";state.scene.nodes["environment-proxy"]=structuredClone(defaults.scene.nodes["environment-proxy"]);state.ui.selectedNodeId="environment-proxy";state.ui.viewportEditMode="scene";}
     else if(asset.type==="hdri"){state.assets.hdriId=null;state.scene.environment.backgroundVisible=false;}
-    else if(asset.type==="prop"){state.assets.secondaryIds=(state.assets.secondaryIds||[]).filter(id=>id!==assetId);if(nodeId)delete state.scene.nodes[nodeId];if(state.ui.selectedNodeId===nodeId)state.ui.selectedNodeId="hero-proxy";}
+    else if(asset.type==="prop"){state.assets.secondaryIds=(state.assets.secondaryIds||[]).filter(id=>id!==assetId);const resolved=nodeId||asset.nodeId;if(resolved)delete state.scene.nodes[resolved];if(state.ui.selectedNodeId===resolved)state.ui.selectedNodeId="hero-proxy";}
     else if(asset.type==="audio"){state.assets.audioIds=(state.assets.audioIds||[]).filter(id=>id!==assetId);for(const [id,clip] of Object.entries(state.timeline.clips))if(clip.assetId===assetId)delete state.timeline.clips[id];}
     delete state.assets.byId[assetId];state.timeline.durationFrames=timelineDuration(state);
   }));
-  bus.register("scene.setNodeTransform",({nodeId,transform,gesture=false})=>{const mutate=state=>{const node=state.scene.nodes[nodeId];if(node)node.baseTransform={position:[...transform.position],rotation:[...transform.rotation],scale:[...transform.scale]};};return gesture?store.updateGesture("Transform scene node",mutate):store.commit("Transform scene node",mutate);});
-  bus.register("scene.setNodeCorrection",({nodeId,field,value,gesture=false})=>{const mutate=state=>{const node=state.scene.nodes[nodeId];if(!node)return;node.correction??=correctionDefaultsForType(node.type);if(["pivot","rotation","scale"].includes(field))node.correction[field]=value.slice(0,3).map(Number);else node.correction[field]=value;if(node.type==="hero"){node.correction.autoNormalize=true;node.correction.normalizeMode="camera";}if(node.type==="environment"){node.correction.autoNormalize=false;node.correction.normalizeMode="native";}};return gesture?store.updateGesture("Correct scene node",mutate):store.commit("Correct scene node",mutate);});
-  bus.register("scene.resetNodeCorrection",({nodeId})=>store.commit("Reset node correction",state=>{const node=state.scene.nodes[nodeId];if(node)node.correction=correctionDefaultsForType(node.type);}));
+
+  bus.register("scene.setNodeTransform",({nodeId,transform,gesture=false})=>{const mutate=state=>{const node=state.scene.nodes[nodeId];if(!node||node.locked)return;const current=safeTransform(node.baseTransform),next=safeTransform(transform,current),locks={...DEFAULT_TRANSFORM_LOCKS,...node.transformLocks};node.baseTransform={position:locks.position?current.position:next.position,rotation:locks.rotation?current.rotation:next.rotation,scale:locks.scale?current.scale:next.scale};};return gesture?store.updateGesture("Transform scene node",mutate):store.commit("Transform scene node",mutate);});
+  bus.register("scene.setNodeCorrection",({nodeId,field,value,gesture=false})=>{const mutate=state=>{const node=state.scene.nodes[nodeId];if(!node||node.locked)return;node.correction??=correctionDefaultsForType(node.type);node.transformLocks={...DEFAULT_TRANSFORM_LOCKS,...node.transformLocks};if(field==="pivot"&&(node.transformLocks.pivot||node.transformLocks.position))return;if(field==="rotation"&&node.transformLocks.rotation)return;if(field==="scale"&&node.transformLocks.scale)return;if(["pivot","rotation","scale"].includes(field))node.correction[field]=finite3(value,node.correction[field]||correctionDefaultsForType(node.type)[field]);else node.correction[field]=value;if(node.type==="hero"){node.correction.autoNormalize=true;node.correction.normalizeMode="camera";}if(node.type==="environment"){node.correction.autoNormalize=false;node.correction.normalizeMode="native";}};return gesture?store.updateGesture("Correct scene node",mutate):store.commit("Correct scene node",mutate);});
+  bus.register("scene.setNodePivotCompensated",({nodeId,pivot,baseTransform,gesture=false})=>{const mutate=state=>{const node=state.scene.nodes[nodeId];if(!node||node.locked)return;node.transformLocks={...DEFAULT_TRANSFORM_LOCKS,...node.transformLocks};if(node.transformLocks.pivot||node.transformLocks.position)return;node.correction??=correctionDefaultsForType(node.type);node.correction.pivot=finite3(pivot,node.correction.pivot);node.baseTransform=safeTransform(baseTransform,node.baseTransform);if(node.type==="hero"){node.correction.autoNormalize=true;node.correction.normalizeMode="camera";}if(node.type==="environment"){node.correction.autoNormalize=false;node.correction.normalizeMode="native";}};return gesture?store.updateGesture("Move pivot without moving geometry",mutate):store.commit("Move pivot without moving geometry",mutate);});
+  bus.register("scene.applyPivotPreset",({nodeId,preset,pivot,baseTransform})=>store.commit(`Pivot preset · ${preset||"custom"}`,state=>{const node=state.scene.nodes[nodeId];if(!node||node.locked||node.transformLocks?.pivot||node.transformLocks?.position)return;node.correction.pivot=finite3(pivot,node.correction.pivot);node.baseTransform=safeTransform(baseTransform,node.baseTransform);}));
+  bus.register("scene.groundNode",({nodeId,transform,positionY})=>store.commit("Ground scene node",state=>{const node=state.scene.nodes[nodeId];if(!node||node.locked||node.transformLocks?.position)return;const next=safeTransform(transform||node.baseTransform,node.baseTransform);if(Number.isFinite(Number(positionY)))next.position[1]=Number(positionY);node.baseTransform=next;}));
+  bus.register("scene.resetNodeTransform",({nodeId})=>store.commit("Reset node transform",state=>{const node=state.scene.nodes[nodeId];if(!node||node.locked)return;node.baseTransform=structuredClone(DEFAULT_TRANSFORM);}));
+  bus.register("scene.resetNodeCorrection",({nodeId})=>store.commit("Reset node correction",state=>{const node=state.scene.nodes[nodeId];if(node&&!node.locked)node.correction=correctionDefaultsForType(node.type);}));
   bus.register("scene.setNodeVisible",({nodeId,value})=>store.commit("Toggle node visibility",state=>{const node=state.scene.nodes[nodeId];if(node)node.visible=Boolean(value);}));
+  bus.register("scene.setNodeLocked",({nodeId,value})=>store.commit("Lock scene node",state=>{const node=state.scene.nodes[nodeId];if(node)node.locked=value==null?!node.locked:Boolean(value);}));
+  bus.register("scene.setTransformChannelLock",({nodeId,channel,value})=>store.commit(`Lock ${channel}`,state=>{const node=state.scene.nodes[nodeId];if(!node||!["position","rotation","scale","pivot"].includes(channel))return;node.transformLocks={...DEFAULT_TRANSFORM_LOCKS,...node.transformLocks,[channel]:value==null?!node.transformLocks?.[channel]:Boolean(value)};}));
   bus.register("scene.setEnvironment",({field,value})=>store.commit("Environment setting",state=>state.scene.environment[field]=value));
   bus.register("scene.setRenderer",({field,value})=>store.commit("Renderer setting",state=>state.scene.rendererSettings[field]=value));
   bus.register("scene.setEditorCamera",({camera})=>store.transient("Editor camera",state=>state.scene.editorCamera={...state.scene.editorCamera,...camera},{persist:true,broadcast:false}));

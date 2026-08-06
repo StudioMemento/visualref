@@ -3,8 +3,8 @@ import {CREATIVE_AXES,defaultCreativeChoices} from "../shots/creative-axes.js";
 import {correctionDefaultsForType,HERO_CAMERA_CONTRACT} from "./normalization-contract.js";
 
 export const SCHEMA_NAME="memento.visualref";
-export const SCHEMA_VERSION=43;
-export const RELEASE="V43C-R1";
+export const SCHEMA_VERSION=44;
+export const RELEASE="V44";
 
 export const AXES=[
   {id:"subject.positionX",group:"Subject",label:"Position X",hint:"Horizontal framing",min:-6,max:6,step:.01,unit:"",defaultStart:-.18,defaultEnd:.18},
@@ -37,6 +37,7 @@ export const DEFAULT_CORRECTION=correctionDefaultsForType("prop");
 export const HERO_NORMALIZATION=HERO_CAMERA_CONTRACT;
 export {correctionDefaultsForType};
 export const DEFAULT_TRANSFORM={position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]};
+export const DEFAULT_TRANSFORM_LOCKS={position:false,rotation:false,scale:false,pivot:false};
 export const DEFAULT_EDITOR_CAMERA={position:[5.8,3.5,7.4],target:[0,0,0],fov:45,near:.02,far:1000};
 
 function defaultValues(endpoint){return Object.fromEntries(AXES.map(axis=>[axis.id,endpoint==="start"?axis.defaultStart:axis.defaultEnd]));}
@@ -48,17 +49,17 @@ function shot(id="shot-001"){
     creativeExclusions:{},updatedAt:new Date().toISOString()};
 }
 function node({id,name,type,assetId=null,transform=DEFAULT_TRANSFORM,correction=null,visible=true,locked=false,parentId=null}){
-  return {id,name,type,assetId,parentId,visible,locked,baseTransform:structuredClone(transform),correction:structuredClone(correction||correctionDefaultsForType(type)),helpers:{bounds:true,pivot:false}};
+  return {id,name,type,assetId,parentId,visible,locked,transformLocks:structuredClone(DEFAULT_TRANSFORM_LOCKS),baseTransform:structuredClone(transform),correction:structuredClone(correction||correctionDefaultsForType(type)),helpers:{bounds:true,pivot:false}};
 }
 export function createDefaultState(){
   const projectId=uid("project"),activeShot=shot(),now=new Date().toISOString();
   return {
     schema:{name:SCHEMA_NAME,version:SCHEMA_VERSION,release:RELEASE,migratedFrom:null},
-    meta:{id:projectId,name:"MEMENTO CORE REBUILD",createdAt:now,updatedAt:now,language:"EN"},
+    meta:{id:projectId,name:"MEMENTO V44",createdAt:now,updatedAt:now,language:"EN"},
     settings:{aspectRatio:"16:9",fps:24,resolution:"1920×1080",playbackQuality:"preview",performanceTier:"auto"},
-    assets:{heroId:"hero-proxy",environmentId:"environment-proxy",hdriId:null,secondaryIds:[],audioIds:[],byId:{
-      "hero-proxy":{id:"hero-proxy",type:"hero",kind:"builtin",name:"CALIBRATED PROXY",status:"ready",source:"builtin",normalization:"camera",size:0},
-      "environment-proxy":{id:"environment-proxy",type:"environment",kind:"builtin",name:"DARK STUDIO",status:"ready",source:"builtin",normalization:"native",size:0}
+    assets:{heroId:"hero-proxy",environmentId:"environment-proxy",hdriId:null,secondaryIds:[],audioIds:[],importSession:null,byId:{
+      "hero-proxy":{id:"hero-proxy",type:"hero",semanticType:"hero",kind:"builtin",name:"CALIBRATED PROXY",fileName:null,bytes:0,status:"ready",source:"builtin",normalization:"camera",size:0,diagnostics:[]},
+      "environment-proxy":{id:"environment-proxy",type:"environment",semanticType:"environment",kind:"builtin",name:"DARK STUDIO",fileName:null,bytes:0,status:"ready",source:"builtin",normalization:"native",size:0,diagnostics:[]}
     }},
     scene:{activeCameraId:"camera-main",activeLightRigId:"light-default",editorCamera:structuredClone(DEFAULT_EDITOR_CAMERA),viewportCameraMode:"editor",showGrid:true,showHelpers:true,nodes:{
       "hero-proxy":node({id:"hero-proxy",name:"Hero · Calibrated Proxy",type:"hero",assetId:"hero-proxy"}),
@@ -71,7 +72,7 @@ export function createDefaultState(){
     playback:{mode:"shot",playing:false,frame:0,loop:true,lastTick:0},
     timeline:{durationFrames:180,playheadFrame:0,inFrame:0,outFrame:180,loop:true,snapEnabled:true,zoom:5,selectedClipId:null,selectedTrackId:"v1",sequencePresetId:"empty",markers:[],tracks:Object.fromEntries(TRACKS.map(track=>[track.id,{...track,locked:false,muted:false,visible:true}])),clips:{}},
     glossary:{preferences:{category:"all",query:""}},
-    ui:{activeWorkspace:"render",advanced:false,editScope:"both",splitter:.58,viewportTool:"translate",selectedNodeId:"hero-proxy",selectedAxisId:"subject.scale",selectedCreativeAxisId:"camera",projectDialogOpen:false,mobileMode:"shot",assetBusy:false,timelineMonitorMode:"player",timelineTool:"select"}
+    ui:{activeWorkspace:"render",advanced:false,editScope:"both",splitter:.58,viewportTool:"select",viewportSpace:"world",viewportEditMode:"shot",viewportSnapEnabled:false,viewportSnap:{position:.1,rotationDeg:15,scale:.1,pivot:.1},selectedNodeId:"hero-proxy",selectedAxisId:"subject.scale",selectedCreativeAxisId:"camera",projectDialogOpen:false,mobileMode:"shot",assetBusy:false,timelineMonitorMode:"player",timelineTool:"select"}
   };
 }
 function normalizeTransform(value){
@@ -86,24 +87,37 @@ function normalizeCorrection(value,type="prop"){
   const hasMode=typeof value.normalizeMode==="string";
   out.normalizeMode=hasMode?value.normalizeMode:defaults.normalizeMode;
   out.targetCoverage=Number.isFinite(Number(value.targetCoverage))?Number(value.targetCoverage):defaults.targetCoverage;
+  out.forwardAxis=typeof value.forwardAxis==="string"?value.forwardAxis:defaults.forwardAxis;
+  out.upAxis=typeof value.upAxis==="string"?value.upAxis:defaults.upAxis;
+  out.castShadow=value.castShadow!==false;
+  out.receiveShadow=value.receiveShadow!==false;
   if(type==="hero"){out.autoNormalize=true;out.normalizeMode="camera";out.autoGround=value.autoGround!==false;}
   else if(type==="environment"){out.autoNormalize=false;out.normalizeMode="native";out.autoGround=value.autoGround===true;}
   else{out.autoNormalize=value.autoNormalize!==false;out.autoGround=value.autoGround!==false;}
   return out;
 }
 export function normalizeState(input){
-  if(!input||input.schema?.name!==SCHEMA_NAME||Number(input.schema?.version)!==SCHEMA_VERSION)return createDefaultState();
+  const sourceVersion=Number(input?.schema?.version);
+  if(!input||input.schema?.name!==SCHEMA_NAME||![43,44].includes(sourceVersion))return createDefaultState();
   const defaults=createDefaultState(),state=input;
-  state.schema={...defaults.schema,...state.schema,release:RELEASE};
+  state.schema={...defaults.schema,...state.schema,version:SCHEMA_VERSION,release:RELEASE,migratedFrom:sourceVersion===43?(state.schema?.release||"V43"):state.schema?.migratedFrom||null};
   state.meta={...defaults.meta,...state.meta};
-  if(/^MEMENTO V43/.test(state.meta.name||""))state.meta.name="MEMENTO CORE REBUILD";
+  if(/^MEMENTO (V43|CORE)/.test(state.meta.name||""))state.meta.name="MEMENTO V44";
   state.settings={...defaults.settings,...state.settings};
-  state.assets={...defaults.assets,...state.assets,byId:{...defaults.assets.byId,...(state.assets?.byId||{})}};
-  for(const asset of Object.values(state.assets.byId)){asset.normalization??=asset.type==="hero"?"camera":asset.type==="environment"?"native":asset.type==="prop"?"scene":"none";}
+  state.assets={...defaults.assets,...state.assets,importSession:state.assets?.importSession||null,byId:{...defaults.assets.byId,...(state.assets?.byId||{})}};
+  for(const asset of Object.values(state.assets.byId)){
+    asset.semanticType??=asset.type||asset.kind||"asset";asset.fileName??=asset.source==="indexeddb"?(asset.name||null):null;asset.bytes=Number.isFinite(Number(asset.bytes))?Number(asset.bytes):Number(asset.size)||0;asset.size=Number.isFinite(Number(asset.size))?Number(asset.size):asset.bytes;asset.status??="ready";asset.diagnostics=Array.isArray(asset.diagnostics)?asset.diagnostics:[];
+    asset.normalization??=asset.type==="hero"?"camera":asset.type==="environment"?"native":asset.type==="prop"?"scene":"none";
+  }
   state.assets.secondaryIds=Array.isArray(state.assets.secondaryIds)?state.assets.secondaryIds:[];state.assets.audioIds=Array.isArray(state.assets.audioIds)?state.assets.audioIds:[];
   state.scene={...defaults.scene,...state.scene,environment:{...defaults.scene.environment,...(state.scene?.environment||{})},rendererSettings:{...defaults.scene.rendererSettings,...(state.scene?.rendererSettings||{})},editorCamera:{...DEFAULT_EDITOR_CAMERA,...(state.scene?.editorCamera||{})},nodes:{...defaults.scene.nodes,...(state.scene?.nodes||{})}};
-  for(const [id,n] of Object.entries(state.scene.nodes)){n.id??=id;n.baseTransform=normalizeTransform(n.baseTransform);n.correction=normalizeCorrection(n.correction,n.type);n.helpers={bounds:true,pivot:false,...(n.helpers||{})};}
-  state.ui={...defaults.ui,...(state.ui||{})};state.playback={...defaults.playback,...(state.playback||{})};state.timeline={...defaults.timeline,...(state.timeline||{})};state.timeline.clips??={};state.timeline.markers=Array.isArray(state.timeline.markers)?state.timeline.markers:[];state.timeline.tracks={...defaults.timeline.tracks,...(state.timeline.tracks||{})};
+  for(const [id,n] of Object.entries(state.scene.nodes)){n.id??=id;n.locked=Boolean(n.locked);n.transformLocks={...DEFAULT_TRANSFORM_LOCKS,...(n.transformLocks||{})};n.baseTransform=normalizeTransform(n.baseTransform);n.correction=normalizeCorrection(n.correction,n.type);n.helpers={bounds:true,pivot:false,...(n.helpers||{})};}
+  state.ui={...defaults.ui,...(state.ui||{})};
+  state.ui.viewportTool=["select","translate","rotate","scale","pivot"].includes(state.ui.viewportTool)?state.ui.viewportTool:"select";
+  state.ui.viewportSpace=state.ui.viewportSpace==="local"?"local":"world";
+  state.ui.viewportEditMode=["scene","shot","calibrate"].includes(state.ui.viewportEditMode)?state.ui.viewportEditMode:"shot";
+  state.ui.viewportSnapEnabled=Boolean(state.ui.viewportSnapEnabled);
+  state.ui.viewportSnap={...defaults.ui.viewportSnap,...(state.ui.viewportSnap||{})};state.playback={...defaults.playback,...(state.playback||{})};state.timeline={...defaults.timeline,...(state.timeline||{})};state.timeline.clips??={};state.timeline.markers=Array.isArray(state.timeline.markers)?state.timeline.markers:[];state.timeline.tracks={...defaults.timeline.tracks,...(state.timeline.tracks||{})};
   state.shots??=defaults.shots;state.shots.byId??=defaults.shots.byId;state.shots.order??=Object.keys(state.shots.byId);state.shots.activeShotId??=state.shots.order[0];
   for(const clip of Object.values(state.timeline.clips||{})){clip.type??="shot";clip.startFrame=Math.max(-10,Math.round(Number(clip.startFrame)||0));clip.durationFrames=Math.max(1,Math.round(Number(clip.durationFrames)||1));clip.sourceInFrame=Math.max(0,Math.round(Number(clip.sourceInFrame)||0));clip.sourceOutFrame=Math.max(clip.sourceInFrame+1,Math.round(Number(clip.sourceOutFrame)||clip.sourceInFrame+clip.durationFrames));clip.linked=clip.type==="shot"?clip.linked!==false:false;if(clip.type==="audio")clip.volume=Number.isFinite(Number(clip.volume))?Number(clip.volume):1;}
   for(const shot of Object.values(state.shots.byId||{})){shot.start??={values:defaultValues("start")};shot.end??={values:defaultValues("end")};shot.start.values={...defaultValues("start"),...(shot.start.values||{})};shot.end.values={...defaultValues("end"),...(shot.end.values||{})};shot.start.choices={...defaultCreativeChoices("start"),...(shot.start.choices||{})};shot.end.choices={...defaultCreativeChoices("end"),...(shot.end.choices||{})};shot.locks={...Object.fromEntries(AXES.map(axis=>[axis.id,false])),...(shot.locks||{})};shot.creativeLocks={...Object.fromEntries(CREATIVE_AXES.map(axis=>[axis.id,false])),...(shot.creativeLocks||{})};

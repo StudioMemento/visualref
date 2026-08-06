@@ -40,7 +40,11 @@ export function correctionDefaultsForType(type){
     autoNormalize:true,
     autoGround:true,
     normalizeMode:"scene",
-    targetCoverage:HERO_CAMERA_CONTRACT.targetCoverage
+    targetCoverage:HERO_CAMERA_CONTRACT.targetCoverage,
+    forwardAxis:"+Z",
+    upAxis:"+Y",
+    castShadow:true,
+    receiveShadow:true
   };
   if(type==="hero")return {...common,autoNormalize:true,autoGround:true,normalizeMode:"camera"};
   if(type==="environment")return {...common,autoNormalize:false,autoGround:false,normalizeMode:"native"};

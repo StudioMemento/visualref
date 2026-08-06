@@ -1,10 +1,11 @@
 {
-  "name": "memento-visualref-v43c",
-  "version": "43.11.0",
+  "name": "memento-visualref-v44",
+  "version": "44.0.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V43C-R1 core rebuild with V36C creative parity, timeline editing, audio and playblast",
+  "description": "MEMENTO VisualRef V44 — atomic GLB/HDRI import and World/Local transform gizmos",
   "scripts": {
-    "test": "node tests/core-smoke.mjs"
+    "test": "node tests/core-smoke.mjs",
+    "check": "node tests/structure-check.mjs && node tests/core-smoke.mjs"
   }
 }

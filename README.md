@@ -1,110 +1,135 @@
-# MEMENTO VisualRef V43C-R1 — Core Rebuild
+# MEMENTO VisualRef V44
 
-A deploy-ready rebuild of the V43C modular application that restores the useful creative and editing grammar proven in V36C without returning to the old monolithic UI.
+V44 keeps the functional Shot and Timeline core rebuilt from the V36C donor, then adds a physically controllable real-scene workflow: atomic GLB/HDRI import, direct object selection, World/Local gizmos and compensated pivot correction.
 
-## Rebuild principle
+## Workspaces
 
-The application is organized around three simple workspaces:
+- **RENDER** — create named shots with START / BOTH / END states, creative families, presets, generation pools and precise Details.
+- **VIEWPORT** — import and calibrate Hero, Environment, Prop and HDRI assets with large icon-led controls.
+- **TIMELINE** — assemble and edit V1–V3, FX and A1–A2 tracks, audio, markers, sequence recipes and Playblast.
 
-- **RENDER** — create a shot as two controllable states, START and END.
-- **VIEWPORT** — import and correct real GLB/HDRI assets in scene space.
-- **TIMELINE** — assemble, trim, split, slip, layer, hear and export a complete sequence.
+All three workspaces share one project state and one IndexedDB asset store.
 
-The interface is deliberately chip-driven, icon-first and game-like. Advanced controls are contextual **DETAILS**, not a second technical application hidden inside the first.
+## V44 scene controls
+
+The Viewport toolbar is deliberately simple and game-like:
+
+```text
+SELECT  MOVE  ROTATE  SCALE  PIVOT  |  WORLD / LOCAL  |  SNAP  FRAME  GROUND  RESET
+```
+
+Keyboard shortcuts:
+
+```text
+Q Select     W Move       E Rotate     R Scale
+P Pivot      X World/Local
+S Snap       F Frame       G Ground     Esc Cancel
+```
+
+### Hero: Shot versus Calibrate
+
+- **SHOT** edits the current shot's START / BOTH / END position, rotation and uniform subject scale.
+- **CALIBRATE** edits persistent project placement, import orientation, scale, ground and pivot.
+- Choosing **PIVOT** while the Hero is in Shot mode automatically enters Calibrate, preventing accidental START/END contamination.
+
+### World and Local
+
+- Move and Rotate use the selected **WORLD** or **LOCAL** coordinate system.
+- Scale uses object-local axes, matching Three.js TransformControls behavior rather than presenting a misleading world-scale mode.
+- Pivot supports World and Local movement, numeric XYZ values and Origin / Centre / Bottom / Top presets.
+
+## Atomic import pipeline
+
+V44 does not replace a working asset merely because a file was chosen.
+
+```text
+choose file
+→ stage import session
+→ parse in a detached scene
+→ remove embedded cameras/lights
+→ inspect meshes, triangles, nodes, materials, animation and bounds
+→ persist the new Blob
+→ mount and verify finite matrices/bounds
+→ commit scene state
+→ dispose the superseded asset
+```
+
+On failure, the previous Hero, Environment or HDRI remains active and its Blob remains stored. Staging resources are disposed and the Inspector reports the error.
+
+### Supported import roles
+
+- one primary Hero `.glb`;
+- one native-space Environment `.glb`;
+- persistent Prop `.glb` nodes;
+- one `.hdr` environment map.
+
+V44 intentionally accepts self-contained `.glb` rather than advertising incomplete multi-file `.gltf` support.
+
+## Non-destructive transform hierarchy
+
+Hero:
+
+```text
+Project Root
+└── Shot State Root
+    └── Pivot Compensation
+        └── Import Correction
+            └── Auto Fit
+                └── GLB Content
+```
+
+Environment and Props use the same structure without Hero Shot normalization. Environment geometry remains in native authoring units.
+
+## Compensated pivot
+
+Changing the pivot updates two state values in one history command:
+
+1. the requested local pivot offset;
+2. an equal world-space compensation on the project root.
+
+The transform origin moves, while visible geometry remains stationary. One Undo restores both values; one Redo reapplies both.
 
 ## Restored creative core
 
-### Shot system
+V44 retains the V43C-R1 core rebuild:
 
-- Multiple named shot slots: create, select, duplicate and delete.
-- Shot families and coherent visual presets.
-- START / BOTH / END editing scopes.
-- Eleven creative axes with visible renderer consequences:
-  - Lens
-  - Camera movement
-  - Composition
-  - Focus
-  - Light rig
-  - Subject size
-  - Subject rotation
-  - Subject view
-  - Environment
-  - Atmosphere
-  - Motion design
-- Per-axis locks, option exclusions and generation-pool reset.
-- Near / Balanced / Bold generation strength.
-- Delta target, live delta score and risk feedback.
-- Contextual numeric DETAILS for precise camera, subject, light and environment overrides.
-- Add a shot to the timeline or update its linked clip.
+- multiple named Shot slots;
+- shot families and visual presets;
+- eleven creative axes with renderer consequences;
+- per-axis locks and option exclusions;
+- Near / Balanced / Bold generation;
+- delta target and risk feedback;
+- V1–V3, FX and A1–A2 timeline tracks;
+- left/right trim, Blade, Slip and frame snapping;
+- linked Shots and Make Unique;
+- track lock, mute and visibility;
+- markers, FX clips, audio waveform and synchronized playback;
+- WebM Playblast where supported by the browser.
 
-### Real assets
+## Run locally
 
-- Camera-normalized Hero GLB import.
-- Native-space Environment GLB import.
-- Secondary props.
-- HDR/HDRI lighting and optional background.
-- Position, rotation, scale, pivot and correction controls in Viewport.
-- IndexedDB persistence for local binary assets.
-
-### Timeline system
-
-- V1–V3, FX and A1–A2 tracks.
-- Visible pre-roll and frame-based ruler.
-- Select, Blade and Slip tools.
-- Drag clips between compatible tracks.
-- Independent left/right trim handles.
-- Frame snapping.
-- Linked shots and **Make Unique**.
-- Track lock, mute and visibility controls.
-- Timeline markers.
-- FX clips: Flash, Vignette, Title and Grain.
-- Audio import, waveform display, volume and source offset.
-- Sequence recipe presets.
-- Player IN / OUT, loop and aspect-ratio controls.
-- WebM Playblast recording with browser-supported audio capture.
-
-## Asset contract
-
-### Hero GLB
-
-The Hero is normalized against a fixed Shot Camera reference:
-
-- reference FOV: 38°
-- reference distance: 5.5
-- target frame coverage: 58%
-- non-destructive source centering
-- optional automatic ground alignment
-- Subject Size applied after normalization
-
-### Environment GLB
-
-Environment assets remain in native scene space:
-
-- no Shot Camera normalization
-- no automatic scale conversion
-- editable position XYZ
-- editable rotation XYZ
-- editable scale XYZ
-- editable pivot XYZ
-- editable correction rotation and scale
-- optional ground alignment and ground offset
-
-## Entry points
-
-- `render.html` — Shot creation and START/END control.
-- `viewport.html` — Real-asset correction and scene editing.
-- `timeline.html` — Sequence editing, audio and Playblast.
-
-## Validation
-
-Run:
+The project is static and has no build step. Serve the repository over HTTP so browser modules and IndexedDB work correctly:
 
 ```bash
-npm test
+python3 -m http.server 8080
 ```
 
-The smoke suite validates state migration, creative choices, locks and exclusions, shot duplication, linked clips, left/right trim, blade, unique shots, track controls, markers, FX clips, audio clips, sequence recipes, real-asset transforms and undo/redo.
+Open:
+
+- `http://localhost:8080/render.html`
+- `http://localhost:8080/viewport.html`
+- `http://localhost:8080/timeline.html`
+
+Opening through `file://` intentionally uses the visible Canvas fallback.
+
+## Automated validation
+
+```bash
+npm run check
+```
+
+This runs local-reference and architecture checks followed by the functional smoke suite. See `VALIDATION.md` for coverage and the remaining deployed-browser acceptance pass.
 
 ## Deployment
 
-No build command is required. Upload the repository contents to GitHub and import it into Vercel as a static project. Binary GLB, HDR and audio files stay in the current browser's IndexedDB and are not committed to GitHub.
+Upload the repository contents to GitHub and deploy it as a static Vercel project. Uploaded GLB, HDR and audio binaries remain in that browser's IndexedDB and are not committed to GitHub.

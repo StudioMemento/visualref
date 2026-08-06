@@ -20,7 +20,7 @@ export class AppShell{
     this.root.innerHTML=`<div class="app-shell">
       <header class="app-header"><div class="brand-zone">${LOGO}</div><nav class="mode-zone">${modeLinks}</nav><div class="action-zone">
         <button class="header-button" data-shell-action="undo" title="Undo" aria-label="Undo">${ACTION_ICONS.undo}</button><button class="header-button" data-shell-action="redo" title="Redo" aria-label="Redo">${ACTION_ICONS.redo}</button>
-        <button class="project-button" data-shell-action="project"><span data-role="project-name">MEMENTO CORE</span></button>
+        <button class="project-button" data-shell-action="project"><span data-role="project-name">MEMENTO V44</span></button>
         <label class="advanced-switch"><input type="checkbox" data-role="advanced"><i></i><span>DETAILS</span></label>
         <button class="header-button" data-shell-action="focus" title="Fullscreen" aria-label="Fullscreen">${ACTION_ICONS.focus}</button>
       </div></header>
@@ -55,7 +55,7 @@ export class AppShell{
   }
   renderDialog(state){
     if(!state.ui.projectDialogOpen){this.dialogHost.innerHTML='';return;}
-    this.dialogHost.innerHTML=`<div class="project-dialog" data-project-close><section class="project-card" onclick="event.stopPropagation()"><header><div><small>PROJECT STATE</small><b>V43C-R1 CORE REBUILD</b></div><button data-project-close>×</button></header><div class="project-body"><label class="project-field"><span>PROJECT NAME</span><input data-project-name value="${escapeHtml(state.meta.name)}"></label><div class="project-meta"><span>AUTOSAVE</span><b>PROJECT + BINARY ASSETS</b><span>SCHEMA</span><b>${state.schema.name} · ${state.schema.version}</b><span>WORKSPACE</span><b>${state.ui.activeWorkspace.toUpperCase()}</b></div><div class="project-actions"><button data-project-save-name>SAVE NAME</button><button class="danger" data-project-reset>RESET PROJECT</button></div></div></section></div>`;
+    this.dialogHost.innerHTML=`<div class="project-dialog" data-project-close><section class="project-card" onclick="event.stopPropagation()"><header><div><small>PROJECT STATE</small><b>V44 · GLB + WORLD GIZMO</b></div><button data-project-close>×</button></header><div class="project-body"><label class="project-field"><span>PROJECT NAME</span><input data-project-name value="${escapeHtml(state.meta.name)}"></label><div class="project-meta"><span>AUTOSAVE</span><b>PROJECT + BINARY ASSETS</b><span>SCHEMA</span><b>${state.schema.name} · ${state.schema.version}</b><span>WORKSPACE</span><b>${state.ui.activeWorkspace.toUpperCase()}</b></div><div class="project-actions"><button data-project-save-name>SAVE NAME</button><button class="danger" data-project-reset>RESET PROJECT</button></div></div></section></div>`;
     const input=this.dialogHost.querySelector('[data-project-name]');this.dialogHost.querySelector('[data-project-save-name]').addEventListener('click',()=>{this.commands.dispatch('project.rename',{name:input.value});this.toast('PROJECT NAME SAVED');});
   }
   toast(message){
