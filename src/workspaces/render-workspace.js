@@ -147,11 +147,11 @@ function creativeAxisMarkup(axis){
 }
 function creativeOptionMarkup(axis,option){
   return `<div class="creative-option-shell" data-creative-option-shell data-creative-axis="${axis.id}" data-creative-option="${option.id}">
-    <button class="creative-option-main" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button"><b>${option.label}</b></button>
+    <div class="creative-option-main" aria-hidden="true"><b>${option.label}</b></div>
     <div class="creative-endpoint-zones">
-      <button data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start">${ICON.start}</button>
-      <button data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End">${ICON.both}</button>
-      <button data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End">${ICON.end}</button>
+      <button data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start"><span class="zone-icon">${ICON.start}</span></button>
+      <button data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End"><span class="zone-icon both-state-mark"></span></button>
+      <button data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End"><span class="zone-icon">${ICON.end}</span></button>
     </div>
     <button class="creative-pool-toggle" data-creative-exclusion data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Exclude ${option.label} from generation pool">${ICON.close}</button>
   </div>`;

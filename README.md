@@ -82,3 +82,7 @@ Render now restores the V36C generation grammar as explicit project state:
 
 ## V43B.5
 - Larger creative chips, larger labels, chevron Start/End controls, and Both implied by white top/bottom outlines instead of an equals glyph.
+
+
+## V43B.6
+- Full-chip 3-zone hover interaction with larger labels and no visible lower split.

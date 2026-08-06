@@ -85,3 +85,104 @@
 .creative-option-shell.selected-end:not(.selected-start){box-shadow:inset -2px 0 0 var(--orange)}
 @media(max-width:1180px){.creative-option-shell{flex-basis:124px;min-width:124px}}
 @media(max-width:900px){.creative-option-shell{flex-basis:116px;min-width:116px;height:60px}.creative-option-main b{font-size:7.8px}}
+
+/* V43B.6 — full-chip 3-zone hover grammar */
+.creative-option-shell{
+  flex:0 0 148px;
+  min-width:148px;
+  height:72px;
+  border-radius:9px;
+  overflow:hidden;
+}
+.creative-option-main{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  padding:10px 24px 12px;
+  pointer-events:none;
+  background:transparent;
+}
+.creative-option-main b{
+  font-size:9.8px;
+  line-height:1.08;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  text-align:center;
+  color:rgba(255,255,255,.92);
+  text-wrap:balance;
+  text-shadow:0 1px 0 rgba(0,0,0,.3);
+}
+.creative-endpoint-zones{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  height:auto;
+  display:grid;
+  grid-template-columns:3fr 4fr 3fr;
+  border-top:0;
+  background:none;
+  box-shadow:none;
+}
+.creative-endpoint-zones button{
+  position:relative;
+  padding:0;
+  background:transparent;
+  border:0;
+  color:rgba(255,255,255,.34);
+  display:grid;
+  place-items:end center;
+  padding-bottom:10px;
+  cursor:pointer;
+  transition:background .14s var(--ease),color .14s var(--ease),box-shadow .14s var(--ease);
+}
+.creative-endpoint-zones button .zone-icon{display:grid;place-items:center;min-width:14px;min-height:14px}
+.creative-endpoint-zones button svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.creative-endpoint-zones button[data-creative-endpoint="start"]{justify-items:start;padding-left:12px}
+.creative-endpoint-zones button[data-creative-endpoint="end"]{justify-items:end;padding-right:12px}
+.creative-endpoint-zones button[data-creative-endpoint="both"]{justify-items:center;color:rgba(255,255,255,.26)}
+.creative-endpoint-zones button[data-creative-endpoint="both"] .both-state-mark{width:100%;height:100%}
+.creative-endpoint-zones button[data-creative-endpoint="start"]:hover{
+  color:var(--teal);
+  background:linear-gradient(90deg,rgba(89,215,223,.24) 0%,rgba(89,215,223,.09) 48%,rgba(89,215,223,0) 100%);
+}
+.creative-endpoint-zones button[data-creative-endpoint="both"]:hover{
+  color:#fff;
+  background:linear-gradient(180deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.06) 18%,rgba(255,255,255,.03) 50%,rgba(255,255,255,.06) 82%,rgba(255,255,255,.22) 100%);
+}
+.creative-endpoint-zones button[data-creative-endpoint="end"]:hover{
+  color:var(--orange);
+  background:linear-gradient(270deg,rgba(255,121,80,.24) 0%,rgba(255,121,80,.09) 48%,rgba(255,121,80,0) 100%);
+}
+.creative-endpoint-zones button[aria-pressed="true"][data-creative-endpoint="start"]{
+  color:var(--teal);
+  background:linear-gradient(90deg,rgba(89,215,223,.28) 0%,rgba(89,215,223,.10) 46%,rgba(89,215,223,0) 100%);
+}
+.creative-endpoint-zones button[aria-pressed="true"][data-creative-endpoint="both"]{
+  color:#fff;
+  background:linear-gradient(180deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.08) 20%,rgba(255,255,255,.04) 50%,rgba(255,255,255,.08) 80%,rgba(255,255,255,.28) 100%);
+}
+.creative-endpoint-zones button[aria-pressed="true"][data-creative-endpoint="end"]{
+  color:var(--orange);
+  background:linear-gradient(270deg,rgba(255,121,80,.28) 0%,rgba(255,121,80,.10) 46%,rgba(255,121,80,0) 100%);
+}
+.creative-option-shell.shared-option{
+  border-color:rgba(255,255,255,.78);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 -2px 0 rgba(255,255,255,.95),0 0 0 1px rgba(255,255,255,.05);
+}
+.creative-option-shell.shared-option::after{
+  opacity:1;
+  background:linear-gradient(90deg,rgba(89,215,223,.09),rgba(255,255,255,.02) 43%,rgba(255,255,255,.02) 57%,rgba(255,121,80,.09));
+}
+.creative-option-shell.selected-start:not(.selected-end){box-shadow:inset 2px 0 0 var(--teal)}
+.creative-option-shell.selected-end:not(.selected-start){box-shadow:inset -2px 0 0 var(--orange)}
+.creative-pool-toggle{right:5px;top:5px;width:18px;height:18px;border-radius:5px}
+@media(max-width:1180px){
+  .creative-option-shell{flex-basis:138px;min-width:138px;height:68px}
+  .creative-option-main b{font-size:9.1px;letter-spacing:.16em}
+}
+@media(max-width:900px){
+  .creative-option-shell{flex-basis:126px;min-width:126px;height:64px}
+  .creative-option-main b{font-size:8.4px;letter-spacing:.14em}
+}
