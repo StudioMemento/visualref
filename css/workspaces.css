@@ -186,3 +186,20 @@
   .creative-option-shell{flex-basis:126px;min-width:126px;height:64px}
   .creative-option-main b{font-size:8.4px;letter-spacing:.14em}
 }
+
+/* V43B.7 — label-only visible chips */
+.creative-axis-main{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto;
+  justify-items:start;
+  padding:8px 24px 8px 10px;
+}
+.creative-axis-main i{display:none!important}
+.creative-axis-main b{font-size:7.8px;letter-spacing:.14em}
+.creative-axis-main small{margin-top:4px;font-size:5.9px;letter-spacing:.10em}
+.creative-endpoint-zones button .zone-icon,
+.creative-endpoint-zones button .both-state-mark{opacity:0!important;visibility:hidden!important}
+.creative-endpoint-zones button{color:transparent!important}
+.creative-option-main b{font-size:10.2px;letter-spacing:.20em}
+@media(max-width:1180px){.creative-option-main b{font-size:9.4px;letter-spacing:.18em}}
+@media(max-width:900px){.creative-option-main b{font-size:8.6px;letter-spacing:.16em}.creative-axis-main b{font-size:7.2px}}

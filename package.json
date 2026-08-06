@@ -1,9 +1,9 @@
 {
   "name": "memento-visualref-v43b4",
-  "version": "43.6.0",
+  "version": "43.7.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V43B.6 full-chip 3-zone hover interaction with larger labels",
+  "description": "MEMENTO VisualRef V43B.7 label-only visible chips and category tiles",
   "scripts": {
     "test": "node tests/core-smoke.mjs"
   }
