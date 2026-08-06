@@ -50,6 +50,14 @@ Every JavaScript module also passes `node --check`, and the four entry pages plu
 - compensated Pivot stores pivot and base compensation together;
 - one Undo/Redo restores/reapplies both values.
 
+### Restored editor chip contract
+
+- preserved V43B.9 isolated chip styles are present;
+- Render markup reconnects the V43B.9 component;
+- left / center / right zones map to Start / Both / End;
+- selection states remain teal-left, white top/bottom and orange-right;
+- generation-pool exclusion remains functional.
+
 ### Existing core regression
 
 - creative START/BOTH/END choices and numeric values;

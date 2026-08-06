@@ -106,6 +106,19 @@ V44 retains the V43C-R1 core rebuild:
 - markers, FX clips, audio waveform and synchronized playback;
 - WebM Playblast where supported by the browser.
 
+## V44.0.1 editor chip rollback
+
+The Render editor now reconnects the preserved **V43B.9 clean chip component**:
+
+- left chevron = START with a teal gradient;
+- center = BOTH with white top and bottom lines;
+- right chevron = END with an orange gradient;
+- text label only inside the option chip;
+- invisible 30 / 40 / 30 interaction zones;
+- quiet generation-pool exclusion control remains available.
+
+No GLB, Environment, gizmo, Pivot, Shot or Timeline behavior was removed.
+
 ## Run locally
 
 The project is static and has no build step. Serve the repository over HTTP so browser modules and IndexedDB work correctly:

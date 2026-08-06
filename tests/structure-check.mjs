@@ -27,6 +27,11 @@ for(const absolute of moduleFiles){
   }
 }
 
+const renderWorkspace=read('src/workspaces/render-workspace.js');
+for(const token of ['mvr-chip','mvr-chip-start','mvr-chip-both','mvr-chip-end','data-option-endpoint="both"','mvr-chip-label','chipStart','chipEnd'])assert(renderWorkspace.includes(token),`Render editor reconnects ${token}`);
+const workspaceCss=read('css/workspaces.css');
+for(const token of ['V43B.9 — isolated clean chip component','.mvr-chip.selected-start','.mvr-chip.shared-option','.mvr-chip.selected-end','grid-template-columns:3fr 4fr 3fr'])assert(workspaceCss.includes(token),`Preserved V43B.9 styles provide ${token}`);
+
 const viewport=read('src/workspaces/viewport-workspace.js');
 for(const token of ['toolButton("select"','toolButton("translate"','toolButton("rotate"','toolButton("scale"','toolButton("pivot"','data-space-toggle','asset.stageImport','asset.validateStagedImport','asset.commitImport','scene.setNodePivotCompensated','CALIBRATE','this.importQueue=this.importQueue.then(run,run)'])assert(viewport.includes(token),`Viewport implements ${token}`);
 

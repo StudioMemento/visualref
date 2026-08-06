@@ -18,7 +18,11 @@ const SVG={
   copy:'<svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 16H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
   timeline:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M8 4v4M15 10v4M11 16v4"/></svg>',
   play:'<svg viewBox="0 0 24 24"><path d="m9 6 9 6-9 6z"/></svg>',
-  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>'
+  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>',
+  chipStart:'<svg viewBox="0 0 16 16"><path d="M10.5 3.75 6 8l4.5 4.25"/></svg>',
+  chipEnd:'<svg viewBox="0 0 16 16"><path d="M5.5 3.75 10 8l-4.5 4.25"/></svg>',
+  chipClose:'<svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg>',
+  chipPlus:'<svg viewBox="0 0 12 12"><path d="M6 1.5v9M1.5 6h9"/></svg>'
 };
 
 export class RenderWorkspace{
@@ -104,12 +108,22 @@ function axisTile(axis,shot,selectedId){
 }
 function activeAxisPanel(axis,shot,scope){
   const locked=Boolean(shot.creativeLocks?.[axis.id]),excluded=shot.creativeExclusions||{},allowed=axis.options.filter(option=>!excluded[`${axis.id}:${option.id}`]);
-  return `<header class="active-axis-head"><div><i>${axisSvg(axis.id)}</i><span><small>ACTIVE CONTROL</small><b>${axis.label}</b><em>${axis.options.length} OPTIONS · ${allowed.length} IN GENERATION POOL</em></span></div><button class="axis-lock-button ${locked?"active":""}" data-creative-lock="${axis.id}">${locked?SVG.lock:SVG.unlock}<span>${locked?"LOCKED":"LOCK AXIS"}</span></button><button class="pool-reset" data-reset-pool="${axis.id}" ${allowed.length===axis.options.length?"disabled":""}>RESET POOL</button></header><div class="option-game-grid">${axis.options.map(option=>optionChip(axis,option,shot,scope)).join("")}</div>`;
+  return `<header class="active-axis-head"><div><i>${axisSvg(axis.id)}</i><span><small>ACTIVE CONTROL</small><b>${axis.label}</b><em>${axis.options.length} OPTIONS · ${allowed.length} IN GENERATION POOL</em></span></div><button class="axis-lock-button ${locked?"active":""}" data-creative-lock="${axis.id}">${locked?SVG.lock:SVG.unlock}<span>${locked?"LOCKED":"LOCK AXIS"}</span></button><button class="pool-reset" data-reset-pool="${axis.id}" ${allowed.length===axis.options.length?"disabled":""}>RESET POOL</button></header><div class="option-game-grid ${locked?"locked-axis":""}">${axis.options.map(option=>optionChip(axis,option,shot,scope)).join("")}</div>`;
 }
 function optionChip(axis,option,shot,scope){
-  const start=shot.start.choices?.[axis.id]===option.id,end=shot.end.choices?.[axis.id]===option.id,excluded=Boolean(shot.creativeExclusions?.[`${axis.id}:${option.id}`]),active=scope==="start"?start:scope==="end"?end:start&&end;
-  return `<article class="option-game-chip ${active?"active":""} ${start?"has-start":""} ${end?"has-end":""} ${excluded?"excluded":""}"><button class="option-main" data-creative-option="${option.id}" data-axis-id="${axis.id}"><i>${axisSvg(axis.id)}</i><span><b>${option.label}</b><small>${option.description||"Apply to the active edit scope"}</small></span></button><div class="endpoint-picks"><button class="start" data-option-endpoint="start" data-axis-id="${axis.id}" data-option-id="${option.id}" aria-pressed="${start}">S</button><button class="end" data-option-endpoint="end" data-axis-id="${axis.id}" data-option-id="${option.id}" aria-pressed="${end}">E</button></div><button class="exclude" data-exclude-option="${option.id}" data-axis-id="${axis.id}" title="${excluded?"Return to generation pool":"Remove from generation pool"}">${excluded?"+":"×"}</button></article>`;
+  const start=shot.start.choices?.[axis.id]===option.id,end=shot.end.choices?.[axis.id]===option.id,excluded=Boolean(shot.creativeExclusions?.[`${axis.id}:${option.id}`]);
+  const label=escapeHtml(option.label),axisLabel=escapeHtml(axis.label),classes=[start?"selected-start":"",end?"selected-end":"",start&&end?"shared-option":"",excluded?"excluded-option":""].filter(Boolean).join(" ");
+  return `<div class="mvr-chip ${classes}" role="group" aria-label="${axisLabel} · ${label}">
+    <div class="mvr-chip-label"><b>${label}</b></div>
+    <div class="mvr-chip-hitareas">
+      <button class="mvr-chip-zone mvr-chip-start" data-option-endpoint="start" data-axis-id="${axis.id}" data-option-id="${option.id}" type="button" aria-pressed="${start&&!end}" aria-label="Set ${label} as Start" title="START · ${label}">${SVG.chipStart}</button>
+      <button class="mvr-chip-zone mvr-chip-both" data-option-endpoint="both" data-axis-id="${axis.id}" data-option-id="${option.id}" type="button" aria-pressed="${start&&end}" aria-label="Set ${label} as both Start and End" title="BOTH · ${label}"></button>
+      <button class="mvr-chip-zone mvr-chip-end" data-option-endpoint="end" data-axis-id="${axis.id}" data-option-id="${option.id}" type="button" aria-pressed="${end&&!start}" aria-label="Set ${label} as End" title="END · ${label}">${SVG.chipEnd}</button>
+    </div>
+    <button class="mvr-chip-pool ${excluded?"include-action":""}" data-exclude-option="${option.id}" data-axis-id="${axis.id}" type="button" aria-pressed="${excluded}" aria-label="${excluded?"Include":"Exclude"} ${label} ${excluded?"in":"from"} generation pool" title="${excluded?"Include in generation pool":"Exclude from generation pool"}">${excluded?SVG.chipPlus:SVG.chipClose}</button>
+  </div>`;
 }
+
 function advancedPanel(axis,shot,scope){
   const axes=(axis.advancedAxes||[]).map(id=>AXIS_MAP.get(id)).filter(Boolean);if(!axes.length)return `<header><small>ADVANCED · ${axis.label}</small><b>NO NUMERIC OVERRIDES</b></header><p>This creative control is intentionally preset-driven.</p>`;
   return `<header><div><small>ADVANCED · CONTEXTUAL</small><b>${axis.label} PROPERTIES</b></div><span>EDITING ${scope.toUpperCase()}</span></header><div class="advanced-control-grid">${axes.map(item=>{const start=shot.start.values[item.id],end=shot.end.values[item.id],value=scope==="end"?end:scope==="start"?start:(start+end)/2;return `<label class="advanced-game-control"><span><b>${item.label}</b><small>${item.hint}</small></span><div><input data-axis-input="${item.id}" type="range" min="${item.min}" max="${item.max}" step="${item.step}" value="${value}"><output><i>${format(start,item)}</i><b>${start===end?"=":"→"}</b><em>${format(end,item)}</em></output></div></label>`;}).join("")}</div>`;
