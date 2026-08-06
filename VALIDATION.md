@@ -21,7 +21,9 @@ Every JavaScript module also passes `node --check`, and the four entry pages plu
 - the renderer hierarchy is Project → Shot → Pivot → Correction → Auto → Content;
 - TransformControls, local Pivot orientation, raycast selection, staging, mount, rollback, Frame and Ground methods exist;
 - atomic asset and transform commands are registered;
-- schema 44 and transform-channel locks are explicit.
+- schema 44 and transform-channel locks are explicit;
+- Render option chips expose left / centre / right Start-Both-End zones;
+- the chip state language contains teal-left, white top/bottom and orange-right treatments.
 
 ## Functional smoke coverage
 
@@ -49,14 +51,6 @@ Every JavaScript module also passes `node --check`, and the four entry pages plu
 - object lock and per-channel locks block writes;
 - compensated Pivot stores pivot and base compensation together;
 - one Undo/Redo restores/reapplies both values.
-
-### Restored editor chip contract
-
-- preserved V43B.9 isolated chip styles are present;
-- Render markup reconnects the V43B.9 component;
-- left / center / right zones map to Start / Both / End;
-- selection states remain teal-left, white top/bottom and orange-right;
-- generation-pool exclusion remains functional.
 
 ### Existing core regression
 
@@ -113,3 +107,13 @@ For each relevant asset:
 - attempt an invalid replacement and confirm the prior asset remains visible.
 
 The current execution environment did not complete a real Chromium/WebGL visual session, so this document does not claim that deployed-browser acceptance has already passed.
+
+
+## V43B.9 render editor acceptance
+
+- All eleven creative axes are mounted simultaneously in the Render editor.
+- Category tiles expose label only plus the functional upper-right lock.
+- Option chips expose label, left/right chevrons and quiet upper-right exclusion only.
+- Start/Both/End use invisible 30/40/30 hit zones.
+- Start uses a teal left gradient; shared Both uses full-width white top/bottom rules; End uses an orange right gradient.
+- The previous FRAME/SUBJECT/WORLD drill-down and ACTIVE CONTROL panel are absent from the Render runtime.

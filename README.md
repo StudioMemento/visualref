@@ -2,6 +2,10 @@
 
 V44 keeps the functional Shot and Timeline core rebuilt from the V36C donor, then adds a physically controllable real-scene workflow: atomic GLB/HDRI import, direct object selection, World/Local gizmos and compensated pivot correction.
 
+## V44.0.2 · Render editor acceptance UI
+
+The Render workspace now uses the full V43B.9 axis matrix rather than the interim category drill-down. Every creative axis is visible as one horizontal row. The sticky category tile contains only its text label and a small lock; every option uses one uninterrupted text-only chip with visible chevrons and invisible 30/40/30 Start/Both/End hit zones. Start enters as a teal left gradient, Both as white top and bottom rules, and End as an orange right gradient.
+
 ## Workspaces
 
 - **RENDER** — create named shots with START / BOTH / END states, creative families, presets, generation pools and precise Details.
@@ -9,6 +13,10 @@ V44 keeps the functional Shot and Timeline core rebuilt from the V36C donor, the
 - **TIMELINE** — assemble and edit V1–V3, FX and A1–A2 tracks, audio, markers, sequence recipes and Playblast.
 
 All three workspaces share one project state and one IndexedDB asset store.
+
+## Restored creative chip grammar
+
+The Render editor uses the agreed V43B.9 chip interaction again: one text-only chip with invisible 30 / 40 / 30 hit zones. The left chevron assigns `START`, the centre assigns `BOTH`, and the right chevron assigns `END`. START is shown with a teal gradient from the left, BOTH with white top and bottom lines, and END with an orange gradient from the right.
 
 ## V44 scene controls
 
@@ -105,19 +113,6 @@ V44 retains the V43C-R1 core rebuild:
 - track lock, mute and visibility;
 - markers, FX clips, audio waveform and synchronized playback;
 - WebM Playblast where supported by the browser.
-
-## V44.0.1 editor chip rollback
-
-The Render editor now reconnects the preserved **V43B.9 clean chip component**:
-
-- left chevron = START with a teal gradient;
-- center = BOTH with white top and bottom lines;
-- right chevron = END with an orange gradient;
-- text label only inside the option chip;
-- invisible 30 / 40 / 30 interaction zones;
-- quiet generation-pool exclusion control remains available.
-
-No GLB, Environment, gizmo, Pivot, Shot or Timeline behavior was removed.
 
 ## Run locally
 

@@ -1,9 +1,9 @@
 {
   "name": "memento-visualref-v44",
-  "version": "44.0.1",
+  "version": "44.0.2",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V44 \u2014 atomic GLB/HDRI import, World/Local gizmos, compensated pivot editing and restored three-zone editor chips",
+  "description": "MEMENTO VisualRef V44 \u2014 atomic GLB/HDRI import, World/Local gizmos and V43B.9 render-editor acceptance UI",
   "scripts": {
     "test": "node tests/core-smoke.mjs",
     "check": "node tests/structure-check.mjs && node tests/core-smoke.mjs"

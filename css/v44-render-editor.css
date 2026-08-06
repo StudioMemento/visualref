@@ -1,0 +1,349 @@
+/* MEMENTO VisualRef V44.0.2
+   Render editor acceptance rollback to the isolated V43B.9 component.
+   This file loads after every legacy/workspace stylesheet on render.html. */
+
+.v43b9-render-editor .v43b9-editor-section{overflow:hidden}
+.v43b9-render-editor .v43b9-editor-section>header{background:#0b0b0e}
+.v43b9-render-editor .v43b9-axis-matrix{
+  display:grid;
+  gap:5px;
+  padding:6px;
+  background:#070708;
+}
+.v43b9-render-editor .v43b9-axis-row{
+  min-width:0;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:9px;
+  background:#09090c;
+  overflow:hidden;
+  transition:border-color .14s var(--ease),background .14s var(--ease),box-shadow .14s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-row:hover{border-color:rgba(255,255,255,.12)}
+.v43b9-render-editor .v43b9-axis-row.selected-axis{border-color:rgba(255,255,255,.20);background:#0b0b0e}
+.v43b9-render-editor .v43b9-axis-row.locked-axis{border-color:rgba(255,121,80,.28);box-shadow:inset 2px 0 0 var(--orange)}
+.v43b9-render-editor .v43b9-axis-rail{
+  display:flex;
+  align-items:stretch;
+  gap:5px;
+  min-width:0;
+  min-height:74px;
+  padding:4px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.v43b9-render-editor .v43b9-axis-rail::-webkit-scrollbar{display:none}
+
+/* ------------------------------------------------------------------
+   CATEGORY TILE — label only, no icon, no generation-status copy.
+   ------------------------------------------------------------------ */
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-tile{
+  position:sticky;
+  left:0;
+  z-index:12;
+  flex:0 0 180px;
+  width:180px;
+  min-width:180px;
+  height:66px;
+  border:1px solid rgba(255,255,255,.17);
+  border-radius:8px;
+  background:linear-gradient(145deg,#17171b,#0c0c0f);
+  box-shadow:9px 0 20px rgba(0,0,0,.62);
+  overflow:hidden;
+  scroll-snap-align:start;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  padding:0 36px 0 14px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:#f0f0f3;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  text-align:left;
+  cursor:pointer;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label:hover{background:rgba(255,255,255,.035)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label b{
+  display:block;
+  max-width:100%;
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  white-space:normal;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label small,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label i,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label svg{display:none!important}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-lock{
+  position:absolute;
+  z-index:4;
+  right:6px;
+  top:6px;
+  width:22px;
+  height:22px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:6px;
+  background:rgba(8,8,10,.90);
+  color:rgba(255,255,255,.34);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  transition:border-color .12s var(--ease),color .12s var(--ease),background .12s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-lock svg{
+  display:block!important;
+  width:11px;
+  height:11px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-lock:hover{border-color:var(--orange);color:var(--orange);background:#17100e}
+.v43b9-render-editor .v43b9-axis-row.locked-axis .mvr-axis-tile{border-color:rgba(255,121,80,.50);background:linear-gradient(145deg,#1a110e,#0d0b0a)}
+.v43b9-render-editor .v43b9-axis-row.locked-axis .mvr-axis-lock{border-color:var(--orange);color:var(--orange);background:#17100e}
+
+/* ------------------------------------------------------------------
+   OPTION CHIP — one uninterrupted surface and invisible 30 / 40 / 30
+   interaction zones. The only permanent content is label + chevrons.
+   ------------------------------------------------------------------ */
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip{
+  --chip-start:rgba(89,215,223,.30);
+  --chip-end:rgba(255,121,80,.31);
+  position:relative;
+  isolation:isolate;
+  flex:0 0 188px;
+  min-width:188px;
+  width:188px;
+  height:66px;
+  padding:0;
+  border:1px solid #2b2b31;
+  border-radius:8px;
+  background:#0d0d10;
+  color:#f4f4f6;
+  overflow:hidden;
+  scroll-snap-align:start;
+  box-shadow:none;
+  transition:border-color .14s var(--ease),background .14s var(--ease),opacity .14s var(--ease),box-shadow .14s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .14s var(--ease),background .14s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  border-radius:inherit;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .14s var(--ease),box-shadow .14s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:hover{border-color:#4b4b54;background:#111115}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-label{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  padding:0 38px;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-label b{
+  display:block;
+  max-width:100%;
+  color:#f5f5f7;
+  font-size:10.5px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.19em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:center;
+  text-shadow:0 1px 3px rgba(0,0,0,.68);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.long-label .mvr-chip-label{padding-inline:31px}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.long-label .mvr-chip-label b{font-size:8.8px;letter-spacing:.10em}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-hitareas{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  display:grid;
+  grid-template-columns:30% 40% 30%;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-zone{
+  position:relative;
+  width:100%;
+  height:100%;
+  min-width:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:rgba(255,255,255,.38);
+  cursor:pointer;
+  box-shadow:none;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-zone::before,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-zone::after{display:none!important}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-zone svg{
+  position:absolute;
+  top:50%;
+  width:15px;
+  height:15px;
+  translate:0 -50%;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  transition:color .14s var(--ease),translate .14s var(--ease),opacity .14s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-start svg{left:13px}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-end svg{right:13px}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-start:hover{color:var(--teal)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-start:hover svg{translate:-2px -50%}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-end:hover{color:var(--orange)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-end:hover svg{translate:2px -50%}
+
+/* Start preview/selection: teal enters only from the left. */
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-start:hover)::before,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-start:focus-visible)::before,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.selected-start:not(.selected-end)::before{
+  opacity:1;
+  background:linear-gradient(90deg,rgba(89,215,223,.28) 0%,rgba(89,215,223,.09) 42%,rgba(89,215,223,0) 82%);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.selected-start:not(.selected-end){border-color:rgba(89,215,223,.62);box-shadow:inset 2px 0 0 var(--teal)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.selected-start .mvr-chip-start{color:var(--teal)}
+
+/* Both preview/selection: a white top and bottom line across the full chip. */
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-both:hover)::after,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-both:focus-visible)::after,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.shared-option::after{
+  opacity:1;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.96),inset 0 -2px 0 rgba(255,255,255,.96);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-both:hover)::before,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-both:focus-visible)::before{
+  opacity:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.012) 34%,rgba(255,255,255,.012) 66%,rgba(255,255,255,.10));
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.shared-option{
+  border-color:rgba(255,255,255,.78);
+  background:#0d0d10;
+  box-shadow:none;
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.shared-option::before{opacity:0;background:none}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.shared-option .mvr-chip-start{color:var(--teal)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.shared-option .mvr-chip-end{color:var(--orange)}
+
+/* End preview/selection: orange enters only from the right. */
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-end:hover)::before,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:has(.mvr-chip-end:focus-visible)::before,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.selected-end:not(.selected-start)::before{
+  opacity:1;
+  background:linear-gradient(270deg,rgba(255,121,80,.29) 0%,rgba(255,121,80,.09) 42%,rgba(255,121,80,0) 82%);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.selected-end:not(.selected-start){border-color:rgba(255,121,80,.64);box-shadow:inset -2px 0 0 var(--orange)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.selected-end .mvr-chip-end{color:var(--orange)}
+
+/* Quiet option exclusion control in the upper-right. */
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-pool{
+  position:absolute;
+  z-index:6;
+  right:5px;
+  top:5px;
+  width:18px;
+  height:18px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:5px;
+  background:rgba(8,8,10,.84);
+  color:rgba(255,255,255,.27);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  opacity:.40;
+  transition:opacity .12s var(--ease),border-color .12s var(--ease),color .12s var(--ease),background .12s var(--ease);
+}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-pool svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:hover .mvr-chip-pool,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip:focus-within .mvr-chip-pool,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.excluded-option .mvr-chip-pool{opacity:1}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-pool:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,121,80,.08)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-pool.include-action{border-color:rgba(89,215,223,.50);color:var(--teal)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.excluded-option{opacity:.34;background:#09090b}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.excluded-option .mvr-chip-label{filter:grayscale(1)}
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.excluded-option.selected-start,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip.excluded-option.selected-end{opacity:.58}
+.v43b9-render-editor .v43b9-axis-row.locked-axis .mvr-chip{opacity:.56}
+
+/* Pool reset remains functional but visually secondary and only exists when needed. */
+.v43b9-render-editor .v43b9-pool-reset{
+  flex:0 0 40px;
+  min-width:40px;
+  height:66px;
+  padding:0;
+  border:1px dashed rgba(255,255,255,.12);
+  border-radius:8px;
+  background:#0a0a0d;
+  color:rgba(255,255,255,.30);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  scroll-snap-align:end;
+}
+.v43b9-render-editor .v43b9-pool-reset svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.v43b9-render-editor .v43b9-pool-reset:hover{border-color:var(--teal);color:var(--teal);background:#0b1516}
+
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-zone:focus-visible,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label:focus-visible,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-axis-lock:focus-visible,
+.v43b9-render-editor .v43b9-axis-matrix .mvr-chip-pool:focus-visible,
+.v43b9-render-editor .v43b9-pool-reset:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+
+@media(max-width:1280px){
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-axis-tile{flex-basis:160px;width:160px;min-width:160px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label b{font-size:9px;letter-spacing:.16em}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip{flex-basis:172px;min-width:172px;width:172px;height:64px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip-label b{font-size:9.4px;letter-spacing:.17em}
+  .v43b9-render-editor .v43b9-pool-reset{height:64px}
+}
+@media(max-width:900px){
+  .v43b9-render-editor .v43b9-axis-matrix{padding:5px;gap:4px}
+  .v43b9-render-editor .v43b9-axis-rail{min-height:70px;padding:3px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-axis-tile{flex-basis:132px;width:132px;min-width:132px;height:62px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label{padding-left:10px;padding-right:31px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-axis-label b{font-size:8px;letter-spacing:.14em}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip{flex-basis:154px;min-width:154px;width:154px;height:62px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip-label{padding-inline:30px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip-label b{font-size:8.7px;letter-spacing:.15em}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip-start svg{left:9px}
+  .v43b9-render-editor .v43b9-axis-matrix .mvr-chip-end svg{right:9px}
+  .v43b9-render-editor .v43b9-pool-reset{height:62px}
+}

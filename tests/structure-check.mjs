@@ -14,7 +14,10 @@ for(const file of htmlFiles){
   }
   assert(source.includes('V44'),`${file} is visibly labelled V44`);
 }
-for(const file of ['render.html','viewport.html','timeline.html'])assert(read(file).includes('./css/v44.css'),`${file} loads V44 styles last`);
+for(const file of ['render.html','viewport.html','timeline.html'])assert(read(file).includes('./css/v44.css'),`${file} loads V44 styles`);
+const renderHtml=read('render.html');
+assert(renderHtml.includes('./css/v44-render-editor.css'),'Render loads the V43B.9 acceptance stylesheet');
+assert(renderHtml.indexOf('./css/v44-render-editor.css')>renderHtml.indexOf('./css/v44.css'),'Render acceptance stylesheet loads after V44 base styles');
 
 
 const moduleFiles=[];
@@ -27,10 +30,15 @@ for(const absolute of moduleFiles){
   }
 }
 
+
 const renderWorkspace=read('src/workspaces/render-workspace.js');
-for(const token of ['mvr-chip','mvr-chip-start','mvr-chip-both','mvr-chip-end','data-option-endpoint="both"','mvr-chip-label','chipStart','chipEnd'])assert(renderWorkspace.includes(token),`Render editor reconnects ${token}`);
-const workspaceCss=read('css/workspaces.css');
-for(const token of ['V43B.9 — isolated clean chip component','.mvr-chip.selected-start','.mvr-chip.shared-option','.mvr-chip.selected-end','grid-template-columns:3fr 4fr 3fr'])assert(workspaceCss.includes(token),`Preserved V43B.9 styles provide ${token}`);
+for(const token of ['v43b9-axis-matrix','CREATIVE_AXES.map(axis=>creativeAxisRow','mvr-axis-tile','mvr-axis-label','mvr-axis-lock','["mvr-chip"','mvr-chip-label','mvr-chip-start','mvr-chip-both','mvr-chip-end','data-option-endpoint="both"','shared-option','excluded-option'])assert(renderWorkspace.includes(token),`Render restores approved V43B.9 token ${token}`);
+for(const removed of ['data-role="axis-groups"','data-role="axis-tiles"','data-role="active-axis-panel"','function axisTile(','function activeAxisPanel('])assert(!renderWorkspace.includes(removed),`Render removes interim drill-down token ${removed}`);
+const renderStyles=read('css/v44-render-editor.css');
+for(const token of ['grid-template-columns:30% 40% 30%','mvr-axis-label small','mvr-axis-label svg{display:none!important}','linear-gradient(90deg,rgba(89,215,223,.28)','inset 0 2px 0 rgba(255,255,255,.96)','linear-gradient(270deg,rgba(255,121,80,.29)','mvr-chip-pool','mvr-axis-lock'])assert(renderStyles.includes(token),`Render acceptance styling includes ${token}`);
+assert(renderStyles.includes('shared-option::before{opacity:0;background:none}'),'Both state remains neutral except for white top/bottom rules');
+const v44Styles=read('css/v44.css');
+assert(!v44Styles.includes('.active-axis-panel .mvr-chip'),'Obsolete active-axis chip patch was removed');
 
 const viewport=read('src/workspaces/viewport-workspace.js');
 for(const token of ['toolButton("select"','toolButton("translate"','toolButton("rotate"','toolButton("scale"','toolButton("pivot"','data-space-toggle','asset.stageImport','asset.validateStagedImport','asset.commitImport','scene.setNodePivotCompensated','CALIBRATE','this.importQueue=this.importQueue.then(run,run)'])assert(viewport.includes(token),`Viewport implements ${token}`);
