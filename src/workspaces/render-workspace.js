@@ -8,9 +8,9 @@ const ICON={
   unlock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.8"/></svg>',
   close:'<svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg>',
   plus:'<svg viewBox="0 0 12 12"><path d="M6 1.5v9M1.5 6h9"/></svg>',
-  start:'<svg viewBox="0 0 16 16"><path d="M5 3v10M11 4.5 7.5 8 11 11.5"/></svg>',
-  end:'<svg viewBox="0 0 16 16"><path d="M11 3v10M5 4.5 8.5 8 5 11.5"/></svg>',
-  both:'<svg viewBox="0 0 16 16"><path d="M4 6.5h8M4 9.5h8"/></svg>'
+  start:'<svg viewBox="0 0 16 16"><path d="M10.25 4.25 6.25 8l4 3.75"/></svg>',
+  end:'<svg viewBox="0 0 16 16"><path d="M5.75 4.25 9.75 8l-4 3.75"/></svg>',
+  both:'<span class="both-state-mark" aria-hidden="true"></span>'
 };
 
 export class RenderWorkspace{

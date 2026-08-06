@@ -78,3 +78,7 @@ Render now restores the V36C generation grammar as explicit project state:
 ## V43B.4 premium polish
 - Premium density pass across Render, Viewport, Timeline, shared Player and navigation.
 - No workflow or state behavior removed.
+
+
+## V43B.5
+- Larger creative chips, larger labels, chevron Start/End controls, and Both implied by white top/bottom outlines instead of an equals glyph.
