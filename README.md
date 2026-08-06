@@ -78,19 +78,3 @@ Render now restores the V36C generation grammar as explicit project state:
 ## V43B.4 premium polish
 - Premium density pass across Render, Viewport, Timeline, shared Player and navigation.
 - No workflow or state behavior removed.
-
-
-## V43B.5
-- Larger creative chips, larger labels, chevron Start/End controls, and Both implied by white top/bottom outlines instead of an equals glyph.
-
-
-## V43B.6
-- Full-chip 3-zone hover interaction with larger labels and no visible lower split.
-
-
-## V43B.7
-- Label-only visible creative chips and category tiles, while preserving the invisible 3-zone hover interaction grammar.
-
-
-## V43B.8
-- Uninterrupted centered-label chips with visible edge chevrons and invisible 30/40/30 Start/Both/End hit zones.

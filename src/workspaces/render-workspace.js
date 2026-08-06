@@ -8,9 +8,8 @@ const ICON={
   unlock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.8"/></svg>',
   close:'<svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg>',
   plus:'<svg viewBox="0 0 12 12"><path d="M6 1.5v9M1.5 6h9"/></svg>',
-  start:'<svg viewBox="0 0 16 16"><path d="M10.25 4.25 6.25 8l4 3.75"/></svg>',
-  end:'<svg viewBox="0 0 16 16"><path d="M5.75 4.25 9.75 8l-4 3.75"/></svg>',
-  both:'<span class="both-state-mark" aria-hidden="true"></span>'
+  start:'<svg viewBox="0 0 16 16"><path d="M10.5 3.75 6 8l4.5 4.25"/></svg>',
+  end:'<svg viewBox="0 0 16 16"><path d="M5.5 3.75 10 8l-4.5 4.25"/></svg>'
 };
 
 export class RenderWorkspace{
@@ -105,7 +104,7 @@ export class RenderWorkspace{
       const allowed=axis.options.filter(option=>!shot.creativeExclusions[`${axis.id}:${option.id}`]);
       row.classList.toggle("selected-axis",selected);row.classList.toggle("locked-axis",locked);row.classList.toggle("empty-pool",allowed.length===0);
       const lockButton=row.querySelector("[data-creative-lock]");lockButton.innerHTML=locked?ICON.lock:ICON.unlock;lockButton.setAttribute("aria-pressed",String(locked));lockButton.title=locked?"Unlock category for generation":"Lock category for generation";
-      const lockState=row.querySelector('[data-role="axis-lock-state"]');if(lockState)lockState.textContent=locked?"LOCKED":"GEN ACTIVE";
+      row.querySelector('[data-role="axis-lock-state"]').textContent=locked?"LOCKED":"GEN ACTIVE";
       row.querySelector('[data-role="axis-pool-count"]').textContent=`POOL ${allowed.length}/${axis.options.length}`;
       row.querySelector('[data-creative-pool-reset]').disabled=allowed.length===axis.options.length;
       const current=row.querySelector('[data-role="axis-current"]');
@@ -113,7 +112,6 @@ export class RenderWorkspace{
       row.querySelectorAll("[data-creative-option-shell]").forEach(shell=>{
         const optionId=shell.dataset.creativeOption,start=optionId===startChoice,end=optionId===endChoice,excluded=Boolean(shot.creativeExclusions[`${axis.id}:${optionId}`]);
         shell.classList.toggle("selected-start",start);shell.classList.toggle("selected-end",end);shell.classList.toggle("shared-option",start&&end);shell.classList.toggle("excluded-option",excluded);
-        const main=shell.querySelector("[data-creative-option]");main.setAttribute("aria-pressed",String(start||end));main.setAttribute("aria-label",`${choiceLabel(axis.id,optionId)} · apply to ${state.ui.editScope.toUpperCase()}`);
         const startButton=shell.querySelector('[data-creative-endpoint="start"]'),bothButton=shell.querySelector('[data-creative-endpoint="both"]'),endButton=shell.querySelector('[data-creative-endpoint="end"]');
         startButton.setAttribute("aria-pressed",String(start&&!end));
         bothButton.setAttribute("aria-pressed",String(start&&end));
@@ -136,9 +134,9 @@ function creativeAxisMarkup(axis){
   return `<section class="creative-axis-row" data-creative-axis-row="${axis.id}">
     <header class="creative-axis-head"><span>${axis.label}</span><div class="creative-axis-meta"><button data-creative-pool-reset="${axis.id}" title="Restore the complete generation pool"><small data-role="axis-pool-count">POOL ${axis.options.length}/${axis.options.length}</small></button><div data-role="axis-current">—</div></div></header>
     <div class="creative-option-rail">
-      <div class="creative-axis-tile">
-        <button class="creative-axis-main" data-creative-axis-select="${axis.id}" type="button"><b>${axis.label}</b></button>
-        <button class="creative-axis-lock" data-creative-lock="${axis.id}" type="button" aria-label="Lock ${axis.label} for generation">${ICON.unlock}</button>
+      <div class="mvr-axis-tile">
+        <button class="mvr-axis-label" data-creative-axis-select="${axis.id}" type="button"><b>${axis.label}</b><small data-role="axis-lock-state" aria-hidden="true"></small></button>
+        <button class="mvr-axis-lock" data-creative-lock="${axis.id}" type="button" aria-label="Lock ${axis.label} for generation">${ICON.unlock}</button>
       </div>
       ${axis.options.map(option=>creativeOptionMarkup(axis,option)).join("")}
     </div>
@@ -146,14 +144,14 @@ function creativeAxisMarkup(axis){
   </section>`;
 }
 function creativeOptionMarkup(axis,option){
-  return `<div class="creative-option-shell" data-creative-option-shell data-creative-axis="${axis.id}" data-creative-option="${option.id}">
-    <div class="creative-option-label" aria-hidden="true"><b>${option.label}</b></div>
-    <div class="creative-endpoint-zones">
-      <button data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start"><span class="zone-icon">${ICON.start}</span></button>
-      <button data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End"><span class="zone-icon both-state-mark"></span></button>
-      <button data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End"><span class="zone-icon">${ICON.end}</span></button>
+  return `<div class="mvr-chip" data-creative-option-shell data-creative-axis="${axis.id}" data-creative-option="${option.id}">
+    <div class="mvr-chip-label"><b>${option.label}</b></div>
+    <div class="mvr-chip-hitareas">
+      <button class="mvr-chip-zone mvr-chip-start" data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start">${ICON.start}</button>
+      <button class="mvr-chip-zone mvr-chip-both" data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End"></button>
+      <button class="mvr-chip-zone mvr-chip-end" data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End">${ICON.end}</button>
     </div>
-    <button class="creative-pool-toggle" data-creative-exclusion data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Exclude ${option.label} from generation pool">${ICON.close}</button>
+    <button class="mvr-chip-pool" data-creative-exclusion data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Exclude ${option.label} from generation pool">${ICON.close}</button>
   </div>`;
 }
 function advancedAxisMarkup(axis){if(!axis)return"";return `<label class="advanced-axis-control" data-axis-control="${axis.id}"><span><b>${axis.label}</b><small>${axis.hint}</small></span><input data-axis-input="${axis.id}" type="range" min="${axis.min}" max="${axis.max}" step="${axis.step}" value="${axis.defaultStart}"><output>—</output></label>`;}
