@@ -1,33 +1,48 @@
-# Deploy V43B.4 to GitHub and Vercel
+# Deploy VisualRef V43C-R1 Core Rebuild
 
 1. Extract the ZIP.
-2. Delete the old repository contents, except `.git` when working locally.
-3. Upload **all files inside this folder** to the GitHub repository root.
-4. Commit the replacement.
-5. Vercel redeploys automatically.
+2. Open the extracted repository folder.
+3. Upload every file and folder inside it to the root of the GitHub repository.
+4. Commit the replacement as `V43C-R1 CORE REBUILD`.
+5. Let Vercel redeploy from the connected repository.
 
-No framework, package installation, build command or output directory is required.
+For a new Vercel project:
 
-After deployment, clear the browser cache once or open a private window. Existing V43A.1 project state is migrated in place. Binary GLB/HDRI assets are stored per browser in IndexedDB and therefore do not travel through GitHub.
+- Framework preset: **Other**
+- Build command: leave empty
+- Output directory: leave empty
+- Install command: leave empty
 
-## Deployment acceptance
+The root route redirects to `render.html` through `vercel.json`.
 
-- Render, Viewport and Timeline boot without a black screen.
-- Import a Hero GLB in Viewport.
-- Orbit without changing the Shot Camera.
-- Use Translate/Rotate/Scale gizmos.
-- Correct pivot/orientation in Inspector.
-- Import Environment GLB and HDRI.
-- Return to Render: Start and End stills show the real scene.
-- Add a Shot to Timeline: sequence Player shows the same scene.
-- Reload: assets and transforms recover from IndexedDB.
+## Runtime acceptance pass
 
-## Render editor acceptance
+### RENDER
 
-- The edit-scope control visibly exposes START, BOTH and END.
-- Click the left/right endpoint controls on option cards and confirm independent assignment.
-- Lock a creative category, generate a variant and confirm that category is unchanged.
-- Exclude an option with the pool control, generate repeatedly and confirm it is never rolled.
-- Manually select the excluded option and confirm explicit editing still works.
-- Exclude every option in one category and confirm generation treats that category as locked.
-- Restore the category pool and confirm every option becomes available again.
+1. Create and duplicate shots.
+2. Change a shot family and preset.
+3. Edit Lens, Camera, Light, Environment and Motion Design on START and END.
+4. Confirm the viewport changes visibly.
+5. Lock an axis, exclude an option and generate Near / Balanced / Bold variants.
+6. Add the shot to TIMELINE.
+
+### VIEWPORT
+
+1. Upload a Hero GLB and confirm predictable framing.
+2. Upload an Environment GLB.
+3. Edit position, rotation, scale and pivot.
+4. Add an HDRI and optionally show it as background.
+5. Reload and confirm the local binary assets and transforms return.
+
+### TIMELINE
+
+1. Apply a sequence recipe.
+2. Move a shot between V1–V3.
+3. Trim both clip edges, Blade it and Slip its source.
+4. Make one linked clip unique.
+5. Lock/hide a video track and mute an audio track.
+6. Add a marker and an FX clip.
+7. Import audio and verify waveform/playback.
+8. Set IN/OUT and export a WebM Playblast.
+
+Uploaded GLB, HDR and audio files live in that browser's IndexedDB and are not added to the Git repository.

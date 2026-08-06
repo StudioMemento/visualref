@@ -1,12 +1,25 @@
 import {RendererService} from "../engine/renderer-service.js";
-import {activeShot,deltaSummary,evaluateSequence,evaluateShot,sequenceDuration} from "./shot-interpolator.js";
+import {activeClipsAtFrame,activeShot,deltaSummary,evaluateSequence,evaluateShot,sequenceDuration} from "./shot-interpolator.js";
 import {aspectNumber,clamp,formatTimecode} from "../core/utils.js";
 
 const workspaceLabel=value=>value.toUpperCase();
+const ICON={
+  loop:'<svg viewBox="0 0 24 24"><path d="M20 8a8 8 0 0 0-14-3L3 8M4 16a8 8 0 0 0 14 3l3-3M3 3v5h5M21 21v-5h-5"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
+  start:'<svg viewBox="0 0 24 24"><path d="M6 5v14M18 6l-8 6 8 6z"/></svg>',
+  end:'<svg viewBox="0 0 24 24"><path d="M18 5v14M6 6l8 6-8 6z"/></svg>',
+  dice:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>',
+  add:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  grid:'<svg viewBox="0 0 24 24"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"/></svg>',
+  frame:'<svg viewBox="0 0 24 24"><path d="M8 4H4v4M16 4h4v4M20 16v4h-4M4 16v4h4"/></svg>',
+  cube:'<svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9"/></svg>'
+};
 
 export class PlayerController{
   constructor({root,store,commands,workspace,toast,persistence}){
     this.root=root;this.store=store;this.commands=commands;this.workspace=workspace;this.toast=toast;this.persistence=persistence;this.state=store.get();this.lastTick=performance.now();this.feedbackTimer=null;this.hasComparison=workspace==="render";this.hasTimelineMonitor=workspace==="timeline";this.timelineMonitorMode=this.state.ui.timelineMonitorMode||"player";this.lastTimelineMonitorKey="";
+    this.audioEntries=new Map();this.audioPromises=new Map();this.audioContext=null;this.audioDestination=null;this.exporting=false;
     this.build();this.bind();
     this.renderer=new RendererService({canvas:this.canvas,persistence:this.persistence,workspace:this.workspace,onStatus:status=>{this.rendererStatus=status;this.renderStatus();}});
     if(this.hasTimelineMonitor)this.renderer.ready.then(()=>this.configureTimelineMonitor(this.state));
@@ -15,69 +28,21 @@ export class PlayerController{
     this.raf=requestAnimationFrame(time=>this.tick(time));
   }
   build(){
-    const comparison=this.hasComparison?`
-      <div class="endpoint-comparison" data-role="comparison">
-        ${endpointMarkup("start","START FRAME")}
-        ${endpointMarkup("end","END FRAME")}
-      </div>`:"";
-    const timelineMonitor=this.hasTimelineMonitor?`
-      <nav class="timeline-monitor-bar" data-role="timeline-monitor-bar" data-mode="player" aria-label="Timeline monitor mode">
-        <button class="timeline-monitor-tab active" data-monitor-mode="player">PLAYER</button>
-        <button class="timeline-monitor-tab" data-monitor-mode="viewport">VIEWPORT</button>
-        <button class="timeline-monitor-tool" data-monitor-action="frame-selected" title="Frame selected">▣</button>
-        <button class="timeline-monitor-tool" data-monitor-action="frame-all" title="Frame all">⊞</button>
-        <button class="timeline-monitor-tool" data-monitor-action="grid" title="Grid">#</button>
-        <button class="timeline-monitor-tool" data-monitor-action="helpers" title="Helpers">◇</button>
-      </nav>`:"";
-    this.root.innerHTML=`
-      <section class="player-shell ${this.hasComparison?'shot-player-shell':'direct-player-shell'}" aria-label="Shared VisualRef Player">
-        <header class="player-statusbar">
-          <div class="player-status-left"><span class="workspace-label">${workspaceLabel(this.workspace)}</span><i>·</i><b class="renderer-badge fallback" data-role="renderer-status">BOOTING</b></div>
-          <div class="player-status-center"><b data-role="shot-name">—</b><span data-role="playback-mode">SHOT</span></div>
-          <div class="player-status-right"><b data-role="timecode">00:00:00:00</b><span data-role="format">16:9 · 24 FPS</span></div>
-        </header>
-        <div class="player-visuals ${this.hasComparison?'with-comparison':this.hasTimelineMonitor?'timeline-monitor':'direct-only'}">
-          ${comparison}${timelineMonitor}
-          <div class="stage-wrap live-stage" data-role="stage" tabindex="0" aria-label="3D player surface">
-            <div class="stage-placeholder"></div>
-            <canvas data-role="canvas"></canvas>
-            <div class="output-gate" data-role="gate"></div>
-            <div class="stage-overlay"><span class="stage-chip" data-role="stage-mode">SHOT PLAYER</span><span class="stage-chip" data-role="stage-note">CALIBRATED PROXY</span></div>
-            <div class="center-feedback" data-role="feedback">▶</div>
-          </div>
-        </div>
-        <div class="transport-primary">
-          <button class="transport-button" data-action="loop" title="Loop">↻</button>
-          <button class="transport-button play" data-action="play" title="Play/Pause">▶</button>
-          <button class="transport-button start" data-action="start">START</button>
-          <button class="transport-button end" data-action="end">END</button>
-          <div class="scrub-control">
-            <label>SHOT SCRUB</label>
-            <input data-role="scrub" type="range" min="0" max="72" value="0" step="1">
-            <output data-role="frame">000</output>
-            <output class="delta-output" data-role="delta">00 Δ</output>
-          </div>
-        </div>
-        <div class="transport-secondary">
-          <label class="transport-field"><span>SECONDS</span><input data-role="seconds" type="number" min=".5" max="20" step=".1"></label>
-          <label class="transport-field"><span>FPS</span><select data-role="fps"><option>24</option><option>25</option><option>30</option><option>60</option></select></label>
-          <label class="transport-field"><span>ASPECT</span><select data-role="aspect"><option>16:9</option><option>2.39:1</option><option>4:3</option><option>1:1</option><option>9:16</option></select></label>
-          <label class="transport-field variant-mode"><span>VARIANT</span><select data-role="variant-mode"><option value="near">NEAR</option><option value="balanced">BALANCED</option><option value="bold">BOLD</option></select></label>
-          <button class="transport-button text accent" data-action="generate">GENERATE</button>
-          <button class="transport-button text" data-role="variant-count" title="Variant number">V01</button>
-          <div class="transport-spacer"></div>
-          <button class="transport-button text add" data-action="add-timeline">ADD TO TIMELINE</button>
-        </div>
-      </section>`;
-    this.canvas=this.root.querySelector('[data-role="canvas"]');this.stage=this.root.querySelector('[data-role="stage"]');this.gate=this.root.querySelector('[data-role="gate"]');this.scrub=this.root.querySelector('[data-role="scrub"]');
+    const comparison=this.hasComparison?`<div class="endpoint-comparison" data-role="comparison">${endpointMarkup("start","START FRAME")}${endpointMarkup("end","END FRAME")}</div>`:"";
+    const timelineMonitor=this.hasTimelineMonitor?`<nav class="timeline-monitor-bar" data-role="timeline-monitor-bar" data-mode="player" aria-label="Timeline monitor mode"><button class="timeline-monitor-tab active" data-monitor-mode="player">PLAYER</button><button class="timeline-monitor-tab" data-monitor-mode="viewport">VIEWPORT</button><button class="timeline-monitor-tool" data-monitor-action="frame-selected" title="Frame selected">${ICON.frame}</button><button class="timeline-monitor-tool" data-monitor-action="frame-all" title="Frame all">${ICON.cube}</button><button class="timeline-monitor-tool" data-monitor-action="grid" title="Grid">${ICON.grid}</button><button class="timeline-monitor-tool" data-monitor-action="helpers" title="Helpers">◇</button></nav>`:"";
+    this.root.innerHTML=`<section class="player-shell ${this.hasComparison?'shot-player-shell':'direct-player-shell'}" aria-label="Shared VisualRef Player">
+      <header class="player-statusbar"><div class="player-status-left"><span class="workspace-label">${workspaceLabel(this.workspace)}</span><i>·</i><b class="renderer-badge fallback" data-role="renderer-status">BOOTING</b></div><div class="player-status-center"><b data-role="shot-name">—</b><span data-role="playback-mode">SHOT</span></div><div class="player-status-right"><b data-role="timecode">00:00:00:00</b><span data-role="format">16:9 · 24 FPS</span></div></header>
+      <div class="player-visuals ${this.hasComparison?'with-comparison':this.hasTimelineMonitor?'timeline-monitor':'direct-only'}">${comparison}${timelineMonitor}<div class="stage-wrap live-stage" data-role="stage" tabindex="0" aria-label="3D player surface"><div class="stage-placeholder"></div><canvas data-role="canvas"></canvas><div class="sequence-fx-overlay" data-role="fx-overlay"><span></span></div><div class="output-gate" data-role="gate"></div><div class="stage-overlay"><span class="stage-chip" data-role="stage-mode">SHOT PLAYER</span><span class="stage-chip" data-role="stage-note">CALIBRATED PROXY</span></div><div class="center-feedback" data-role="feedback">▶</div></div></div>
+      <div class="transport-primary game-transport"><button class="transport-button icon-action" data-action="loop" title="Loop">${ICON.loop}<span>LOOP</span></button><button class="transport-button play icon-action" data-action="play" title="Play/Pause">${ICON.play}<span>PLAY</span></button><button class="transport-button start icon-action" data-action="start">${ICON.start}<span>START</span></button><button class="transport-button end icon-action" data-action="end">${ICON.end}<span>END</span></button><div class="scrub-control"><label>SCRUB</label><input data-role="scrub" type="range" min="0" max="72" value="0" step="1"><output data-role="frame">000</output><output class="delta-output" data-role="delta">00 Δ</output></div></div>
+      <div class="transport-secondary game-settings"><label class="transport-field"><span>SECONDS</span><input data-role="seconds" type="number" min=".5" max="20" step=".1"></label><label class="transport-field"><span>FPS</span><select data-role="fps"><option>24</option><option>25</option><option>30</option><option>60</option></select></label><label class="transport-field"><span>ASPECT</span><select data-role="aspect"><option>16:9</option><option>2.39:1</option><option>4:3</option><option>1:1</option><option>9:16</option></select></label><label class="transport-field variant-mode"><span>GENERATE</span><select data-role="variant-mode"><option value="near">NEAR</option><option value="balanced">BALANCED</option><option value="bold">BOLD</option></select></label><button class="transport-button text accent icon-action" data-action="generate">${ICON.dice}<span>VARIANT</span></button><button class="transport-button text" data-role="variant-count" title="Variant number">V01</button><div class="transport-spacer"></div><button class="transport-button text add icon-action" data-action="add-timeline">${ICON.add}<span>ADD TO TIMELINE</span></button></div>
+    </section>`;
+    this.canvas=this.root.querySelector('[data-role="canvas"]');this.stage=this.root.querySelector('[data-role="stage"]');this.gate=this.root.querySelector('[data-role="gate"]');this.scrub=this.root.querySelector('[data-role="scrub"]');this.fxOverlay=this.root.querySelector('[data-role="fx-overlay"]');
     if(this.hasComparison){this.startCanvas=this.root.querySelector('[data-endpoint="start"] canvas');this.endCanvas=this.root.querySelector('[data-endpoint="end"] canvas');}
   }
   bind(){
     this.root.addEventListener("click",event=>{
-      const monitorMode=event.target.closest("[data-monitor-mode]")?.dataset.monitorMode;
-      if(monitorMode){this.commands.dispatch("ui.setTimelineMonitorMode",{mode:monitorMode});return;}
-      const monitorAction=event.target.closest("[data-monitor-action]")?.dataset.monitorAction;
-      if(monitorAction){this.handleTimelineMonitorAction(monitorAction);return;}
+      const monitorMode=event.target.closest("[data-monitor-mode]")?.dataset.monitorMode;if(monitorMode){this.commands.dispatch("ui.setTimelineMonitorMode",{mode:monitorMode});return;}
+      const monitorAction=event.target.closest("[data-monitor-action]")?.dataset.monitorAction;if(monitorAction){this.handleTimelineMonitorAction(monitorAction);return;}
       const action=event.target.closest("[data-action]")?.dataset.action;if(!action)return;
       if(action==="loop")this.commands.dispatch("playback.setLoop",{value:!this.state.playback.loop});
       if(action==="play")this.commands.dispatch("playback.toggle");
@@ -91,94 +56,65 @@ export class PlayerController{
     this.root.querySelector('[data-role="fps"]').addEventListener("change",event=>this.store.commit("Project FPS",state=>{state.settings.fps=Number(event.target.value);const shot=activeShot(state);state.playback.frame=Math.min(state.playback.frame,shot.durationFrames);}));
     this.root.querySelector('[data-role="aspect"]').addEventListener("change",event=>this.store.commit("Project aspect ratio",state=>state.settings.aspectRatio=event.target.value));
     this.root.querySelector('[data-role="variant-mode"]').addEventListener("change",event=>this.store.transient("Variant mode",state=>activeShot(state).variantMode=event.target.value,{persist:true,broadcast:true}));
-    let pointerDown=null;
-    this.stage.addEventListener("pointerdown",event=>{pointerDown={x:event.clientX,y:event.clientY,time:performance.now()};});
-    this.stage.addEventListener("pointerup",event=>{
-      if(!pointerDown)return;const moved=Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y),elapsed=performance.now()-pointerDown.time;pointerDown=null;
-      if(moved<7&&elapsed<450&&!this.isViewportInteraction()){this.commands.dispatch("playback.toggle");this.showFeedback(this.state.playback.playing?"Ⅱ":"▶");}
-    });
-    addEventListener("keydown",event=>{
-      if(event.code==="Space"&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||"")){event.preventDefault();this.commands.dispatch("playback.toggle");}
-      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="z"){event.preventDefault();event.shiftKey?this.commands.dispatch("history.redo"):this.commands.dispatch("history.undo");}
-      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="y"){event.preventDefault();this.commands.dispatch("history.redo");}
-    });
+    let pointerDown=null;this.stage.addEventListener("pointerdown",event=>{pointerDown={x:event.clientX,y:event.clientY,time:performance.now()};});this.stage.addEventListener("pointerup",event=>{if(!pointerDown)return;const moved=Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y),elapsed=performance.now()-pointerDown.time;pointerDown=null;if(moved<7&&elapsed<450&&!this.isViewportInteraction()){this.commands.dispatch("playback.toggle");this.showFeedback(this.state.playback.playing?"Ⅱ":"▶");}});
+    addEventListener("keydown",this.keyHandler=event=>{if(event.code==="Space"&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||"")){event.preventDefault();this.commands.dispatch("playback.toggle");}if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="z"){event.preventDefault();event.shiftKey?this.commands.dispatch("history.redo"):this.commands.dispatch("history.undo");}if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="y"){event.preventDefault();this.commands.dispatch("history.redo");}});
   }
   isViewportInteraction(){return this.workspace==="viewport"||(this.hasTimelineMonitor&&this.timelineMonitorMode==="viewport");}
-  handleTimelineMonitorAction(action){
-    if(!this.hasTimelineMonitor||this.timelineMonitorMode!=="viewport")return;
-    if(action==="frame-selected")this.renderer?.frameNode(this.state.ui.selectedNodeId,false);
-    if(action==="frame-all")this.renderer?.frameNode(null,true);
-    if(action==="grid")this.commands.dispatch("scene.toggleGrid");
-    if(action==="helpers")this.commands.dispatch("scene.toggleHelpers");
-  }
-  configureTimelineMonitor(state){
-    if(!this.hasTimelineMonitor||!this.renderer)return;
-    const mode=state.ui.timelineMonitorMode==="viewport"?"viewport":"player",camera=state.scene.editorCamera||{},key=[mode,state.ui.selectedNodeId,state.scene.showGrid,state.scene.showHelpers,...(camera.position||[]),...(camera.target||[]),camera.fov].join("|");
-    this.timelineMonitorMode=mode;
-    if(key===this.lastTimelineMonitorKey)return;
-    this.renderer.setEditorCamera(camera);
-    this.lastTimelineMonitorKey=key;
-    this.renderer.configureViewport({active:mode==="viewport",nodeId:state.ui.selectedNodeId,tool:state.ui.viewportTool,cameraMode:"editor",
-      onCameraChange:camera=>this.commands.dispatch("scene.setEditorCamera",{camera}),onCameraEnd:()=>{}});
-  }
+  handleTimelineMonitorAction(action){if(!this.hasTimelineMonitor||this.timelineMonitorMode!=="viewport")return;if(action==="frame-selected")this.renderer?.frameNode(this.state.ui.selectedNodeId,false);if(action==="frame-all")this.renderer?.frameNode(null,true);if(action==="grid")this.commands.dispatch("scene.toggleGrid");if(action==="helpers")this.commands.dispatch("scene.toggleHelpers");}
+  configureTimelineMonitor(state){if(!this.hasTimelineMonitor||!this.renderer)return;const mode=state.ui.timelineMonitorMode==="viewport"?"viewport":"player",camera=state.scene.editorCamera||{},key=[mode,state.ui.selectedNodeId,state.scene.showGrid,state.scene.showHelpers,...(camera.position||[]),...(camera.target||[]),camera.fov].join("|");this.timelineMonitorMode=mode;if(key===this.lastTimelineMonitorKey)return;this.renderer.setEditorCamera(camera);this.lastTimelineMonitorKey=key;this.renderer.configureViewport({active:mode==="viewport",nodeId:state.ui.selectedNodeId,tool:state.ui.viewportTool,cameraMode:"editor",onCameraChange:camera=>this.commands.dispatch("scene.setEditorCamera",{camera}),onCameraEnd:()=>{}});}
   showFeedback(symbol){const el=this.root.querySelector('[data-role="feedback"]');el.textContent=symbol;el.classList.add("on");clearTimeout(this.feedbackTimer);this.feedbackTimer=setTimeout(()=>el.classList.remove("on"),220);}
-  renderStatus(){
-    const el=this.root.querySelector('[data-role="renderer-status"]');if(!el)return;const status=this.rendererStatus||{label:"BOOTING",mode:"fallback"};el.textContent=status.label;el.className=`renderer-badge ${status.mode}`;
-  }
+  renderStatus(){const el=this.root.querySelector('[data-role="renderer-status"]');if(!el)return;const status=this.rendererStatus||{label:"BOOTING",mode:"fallback"};el.textContent=status.label;el.className=`renderer-badge ${status.mode}`;}
   renderUI(){
     const state=this.state,shot=activeShot(state),isTimeline=this.workspace==="timeline",duration=isTimeline?sequenceDuration(state):shot.durationFrames,frame=isTimeline?state.timeline.playheadFrame:state.playback.frame,delta=deltaSummary(state);
     if(this.hasTimelineMonitor){this.timelineMonitorMode=state.ui.timelineMonitorMode==="viewport"?"viewport":"player";this.configureTimelineMonitor(state);}
     this.root.querySelector('[data-role="shot-name"]').textContent=isTimeline?(state.timeline.selectedClipId?state.timeline.clips[state.timeline.selectedClipId]?.alias||"SEQUENCE":"SEQUENCE"):shot.name;
     this.root.querySelector('[data-role="playback-mode"]').textContent=isTimeline?(this.timelineMonitorMode==="viewport"?"TIMELINE VIEWPORT":"SEQUENCE"):this.workspace==="viewport"?"VIEWPORT":"SHOT";
-    this.root.querySelector('[data-role="timecode"]').textContent=formatTimecode(frame,state.settings.fps);
-    this.root.querySelector('[data-role="format"]').textContent=`${state.settings.aspectRatio} · ${state.settings.fps} FPS`;
-    this.root.querySelector('[data-role="stage-mode"]').textContent=isTimeline?(this.timelineMonitorMode==="viewport"?"SCENE VIEWPORT":"SEQUENCE PLAYER"):this.workspace==="viewport"?"DIRECT VIEWPORT":"LIVE INTERPOLATION";
-    this.root.querySelector('[data-role="stage-note"]').textContent=state.assets.byId[state.assets.heroId]?.name||"CALIBRATED PROXY";
-    this.scrub.max=String(duration);this.scrub.value=String(clamp(frame,0,duration));this.root.querySelector('[data-role="frame"]').textContent=String(Math.round(frame)).padStart(3,"0");this.root.querySelector('[data-role="delta"]').textContent=`${String(delta.count).padStart(2,"0")} Δ`;
-    const loop=this.root.querySelector('[data-action="loop"]');loop.classList.toggle("active",state.playback.loop);
-    const play=this.root.querySelector('[data-action="play"]');play.textContent=state.playback.playing?"Ⅱ":"▶";play.classList.toggle("active",state.playback.playing);
-    const seconds=this.root.querySelector('[data-role="seconds"]');if(document.activeElement!==seconds)seconds.value=(shot.durationFrames/state.settings.fps).toFixed(1);
-    this.root.querySelector('[data-role="fps"]').value=String(state.settings.fps);this.root.querySelector('[data-role="aspect"]').value=state.settings.aspectRatio;this.root.querySelector('[data-role="variant-mode"]').value=shot.variantMode||"balanced";this.root.querySelector('[data-role="variant-count"]').textContent=`V${String(shot.variant).padStart(2,"0")}`;
-    const add=this.root.querySelector('[data-action="add-timeline"]');add.textContent=isTimeline?"ADD ACTIVE SHOT":"ADD TO TIMELINE";
-    if(this.hasComparison){
-      const endpointShot=this.endpointShot(state);this.root.querySelector('[data-endpoint="start"] [data-role="endpoint-frame"]').textContent="FRAME 000";this.root.querySelector('[data-endpoint="end"] [data-role="endpoint-frame"]').textContent=`FRAME ${String(endpointShot.durationFrames).padStart(3,"0")}`;
-    }
-    if(this.hasTimelineMonitor){
-      const bar=this.root.querySelector('[data-role="timeline-monitor-bar"]');bar.dataset.mode=this.timelineMonitorMode;
-      bar.querySelectorAll('[data-monitor-mode]').forEach(button=>button.classList.toggle('active',button.dataset.monitorMode===this.timelineMonitorMode));
-      bar.querySelector('[data-monitor-action="grid"]')?.classList.toggle('active',state.scene.showGrid!==false);
-      bar.querySelector('[data-monitor-action="helpers"]')?.classList.toggle('active',state.scene.showHelpers!==false);
-    }
+    this.root.querySelector('[data-role="timecode"]').textContent=frame<0?`-${formatTimecode(Math.abs(frame),state.settings.fps)}`:formatTimecode(frame,state.settings.fps);this.root.querySelector('[data-role="format"]').textContent=`${state.settings.aspectRatio} · ${state.settings.fps} FPS`;
+    this.root.querySelector('[data-role="stage-mode"]').textContent=isTimeline?(this.timelineMonitorMode==="viewport"?"SCENE VIEWPORT":"SEQUENCE PLAYER"):this.workspace==="viewport"?"DIRECT VIEWPORT":"LIVE INTERPOLATION";this.root.querySelector('[data-role="stage-note"]').textContent=state.assets.byId[state.assets.heroId]?.name||"CALIBRATED PROXY";
+    this.scrub.min=String(isTimeline?-10:0);this.scrub.max=String(duration);this.scrub.value=String(clamp(frame,isTimeline?-10:0,duration));this.root.querySelector('[data-role="frame"]').textContent=String(Math.round(frame)).padStart(3,"0");this.root.querySelector('[data-role="delta"]').textContent=`${String(delta.count).padStart(2,"0")} Δ`;
+    const loop=this.root.querySelector('[data-action="loop"]');loop.classList.toggle("active",state.playback.loop);const play=this.root.querySelector('[data-action="play"]');play.innerHTML=`${state.playback.playing?ICON.pause:ICON.play}<span>${state.playback.playing?"PAUSE":"PLAY"}</span>`;play.classList.toggle("active",state.playback.playing);
+    const seconds=this.root.querySelector('[data-role="seconds"]');if(document.activeElement!==seconds)seconds.value=(shot.durationFrames/state.settings.fps).toFixed(1);this.root.querySelector('[data-role="fps"]').value=String(state.settings.fps);this.root.querySelector('[data-role="aspect"]').value=state.settings.aspectRatio;this.root.querySelector('[data-role="variant-mode"]').value=shot.variantMode||"balanced";this.root.querySelector('[data-role="variant-count"]').textContent=`V${String(shot.variant).padStart(2,"0")}`;
+    const add=this.root.querySelector('[data-action="add-timeline"] span');if(add)add.textContent=isTimeline?"UPDATE ACTIVE":"ADD TO TIMELINE";
+    if(this.hasComparison){const endpointShot=this.endpointShot(state);this.root.querySelector('[data-endpoint="start"] [data-role="endpoint-frame"]').textContent="FRAME 000";this.root.querySelector('[data-endpoint="end"] [data-role="endpoint-frame"]').textContent=`FRAME ${String(endpointShot.durationFrames).padStart(3,"0")}`;}
+    if(this.hasTimelineMonitor){const bar=this.root.querySelector('[data-role="timeline-monitor-bar"]');bar.dataset.mode=this.timelineMonitorMode;bar.querySelectorAll('[data-monitor-mode]').forEach(button=>button.classList.toggle("active",button.dataset.monitorMode===this.timelineMonitorMode));bar.querySelector('[data-monitor-action="grid"]')?.classList.toggle("active",state.scene.showGrid!==false);bar.querySelector('[data-monitor-action="helpers"]')?.classList.toggle("active",state.scene.showHelpers!==false);}
     this.updateAllGates();this.renderStatus();
   }
-  endpointShot(state){
-    if(this.workspace==="timeline"){const clip=state.timeline.clips[state.timeline.selectedClipId];if(clip?.shotId&&state.shots.byId[clip.shotId])return state.shots.byId[clip.shotId];}
-    return activeShot(state);
+  endpointShot(state){if(this.workspace==="timeline"){const clip=state.timeline.clips[state.timeline.selectedClipId];if(clip?.shotId&&state.shots.byId[clip.shotId])return state.shots.byId[clip.shotId];}return activeShot(state);}
+  scheduleEndpointStills(){if(!this.hasComparison)return;clearTimeout(this.stillTimer);this.stillTimer=setTimeout(()=>this.renderEndpointStills(),90);}
+  async renderEndpointStills(){if(!this.hasComparison||!this.renderer)return;const state=this.state,shot=this.endpointShot(state),start=evaluateShot(state,shot.id,0),end=evaluateShot(state,shot.id,shot.durationFrames);await this.renderer.captureToCanvas(start,state,this.startCanvas,0);await this.renderer.captureToCanvas(end,state,this.endCanvas,shot.durationFrames/state.settings.fps);}
+  updateAllGates(){const aspect=this.state.settings.aspectRatio;this.updateGate(this.stage,this.gate,aspect);if(this.hasComparison){for(const endpoint of ["start","end"]){const stage=this.root.querySelector(`[data-endpoint="${endpoint}"]`),gate=stage?.querySelector('[data-role="endpoint-gate"]');if(stage&&gate)this.updateGate(stage,gate,aspect,.94);}}}
+  updateGate(stage,gate,aspect,coverage=.9){const ratio=aspectNumber(aspect),rect=stage.getBoundingClientRect();if(!rect.width||!rect.height)return;const stageRatio=rect.width/rect.height;let width,height;if(stageRatio>ratio){height=rect.height*coverage;width=height*ratio;}else{width=rect.width*coverage;height=width/ratio;}gate.style.width=`${width}px`;gate.style.height=`${height}px`;gate.style.aspectRatio="auto";}
+  renderEffects(effects=[],frame=0){if(!this.fxOverlay)return;this.fxOverlay.className="sequence-fx-overlay";this.fxOverlay.style.opacity="0";this.fxOverlay.querySelector("span").textContent="";if(!this.renderer?.fallback)return;const active=effects.find(effect=>(effect.effect||"flash")==="title");if(!active)return;const local=clamp((frame-active.startFrame)/Math.max(1,active.durationFrames),0,1),pulse=Math.sin(local*Math.PI);this.fxOverlay.classList.add("fx-title");this.fxOverlay.style.opacity=String(Math.min(1,.25+pulse*.75));this.fxOverlay.querySelector("span").textContent=active.alias||"TITLE";}
+  async ensureAudioAsset(assetId){
+    if(this.audioEntries.has(assetId))return this.audioEntries.get(assetId);if(this.audioPromises.has(assetId))return this.audioPromises.get(assetId);
+    const promise=(async()=>{const record=await this.persistence.getAsset(assetId);if(!record?.blob)return null;const url=URL.createObjectURL(record.blob),audio=new Audio(url);audio.preload="auto";const entry={audio,url,source:null};this.audioEntries.set(assetId,entry);await new Promise(resolve=>{if(audio.readyState>=1)resolve();else{audio.addEventListener("loadedmetadata",resolve,{once:true});audio.addEventListener("error",resolve,{once:true});}});this.ensureAudioGraph(entry);return entry;})();this.audioPromises.set(assetId,promise);const result=await promise;this.audioPromises.delete(assetId);return result;
   }
-  scheduleEndpointStills(){
-    if(!this.hasComparison)return;clearTimeout(this.stillTimer);this.stillTimer=setTimeout(()=>this.renderEndpointStills(),90);
+  ensureAudioGraph(entry){
+    try{const Context=globalThis.AudioContext||globalThis.webkitAudioContext;if(!Context||entry.source)return;if(!this.audioContext)this.audioContext=new Context();if(!this.audioDestination)this.audioDestination=this.audioContext.createMediaStreamDestination();entry.source=this.audioContext.createMediaElementSource(entry.audio);entry.source.connect(this.audioContext.destination);entry.source.connect(this.audioDestination);}catch(error){console.warn("Audio graph unavailable",error);}
   }
-  async renderEndpointStills(){
-    if(!this.hasComparison||!this.renderer)return;const state=this.state,shot=this.endpointShot(state),start=evaluateShot(state,shot.id,0),end=evaluateShot(state,shot.id,shot.durationFrames);await this.renderer.captureToCanvas(start,state,this.startCanvas,0);await this.renderer.captureToCanvas(end,state,this.endCanvas,shot.durationFrames/state.settings.fps);
+  syncAudio(state,frame){
+    if(this.workspace!=="timeline")return;const active=activeClipsAtFrame(state,frame,{types:["audio"]}).filter(clip=>!state.timeline.tracks[clip.trackId]?.muted),activeIds=new Set(active.map(clip=>clip.assetId));
+    for(const [assetId,entry] of this.audioEntries){if(!activeIds.has(assetId))entry.audio.pause();}
+    for(const clip of active){this.ensureAudioAsset(clip.assetId).then(entry=>{if(!entry)return;const target=Math.max(0,(frame-clip.startFrame+(clip.sourceInFrame||0))/state.settings.fps);entry.audio.volume=clamp(clip.volume??1,0,1);if(Math.abs((entry.audio.currentTime||0)-target)>.18)try{entry.audio.currentTime=target;}catch{}if(state.playback.playing){this.audioContext?.resume?.().catch(()=>{});entry.audio.play().catch(()=>{});}else entry.audio.pause();});}
   }
-  updateAllGates(){
-    const aspect=this.state.settings.aspectRatio;this.updateGate(this.stage,this.gate,aspect);
-    if(this.hasComparison){for(const endpoint of ["start","end"]){const stage=this.root.querySelector(`[data-endpoint="${endpoint}"]`),gate=stage?.querySelector('[data-role="endpoint-gate"]');if(stage&&gate)this.updateGate(stage,gate,aspect,.94);}}
-  }
-  updateGate(stage,gate,aspect,coverage=.9){
-    const ratio=aspectNumber(aspect),rect=stage.getBoundingClientRect();if(!rect.width||!rect.height)return;
-    const stageRatio=rect.width/rect.height;let width,height;if(stageRatio>ratio){height=rect.height*coverage;width=height*ratio;}else{width=rect.width*coverage;height=width/ratio;}gate.style.width=`${width}px`;gate.style.height=`${height}px`;gate.style.aspectRatio="auto";
+  async exportPlayblast(){
+    if(this.workspace!=="timeline")throw new Error("Open TIMELINE to export a sequence");if(this.exporting)throw new Error("Recorder already active");if(!this.canvas.captureStream||!globalThis.MediaRecorder)throw new Error("Browser recording is unavailable");
+    this.exporting=true;const before={frame:this.state.timeline.playheadFrame,playing:this.state.playback.playing,loop:this.state.playback.loop},state=this.store.get(),fps=state.settings.fps,start=state.timeline.inFrame,end=Math.max(start+1,state.timeline.outFrame||sequenceDuration(state));
+    try{
+      await this.renderer.ready;await Promise.all((state.assets.audioIds||[]).map(id=>this.ensureAudioAsset(id)));this.audioContext?.resume?.().catch(()=>{});
+      const videoStream=this.canvas.captureStream(fps),tracks=[...videoStream.getVideoTracks(),...(this.audioDestination?.stream.getAudioTracks()||[])],stream=new MediaStream(tracks),types=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"],mimeType=types.find(type=>MediaRecorder.isTypeSupported(type))||"",recorder=new MediaRecorder(stream,mimeType?{mimeType,videoBitsPerSecond:8_000_000}:undefined),chunks=[];
+      recorder.ondataavailable=event=>{if(event.data?.size)chunks.push(event.data);};const stopped=new Promise((resolve,reject)=>{recorder.onstop=resolve;recorder.onerror=event=>reject(event.error||new Error("Recorder failed"));});
+      this.store.transient("Playblast start",draft=>{draft.timeline.playheadFrame=start;draft.playback.frame=start;draft.playback.loop=false;draft.playback.playing=true;},{persist:false,broadcast:false});recorder.start(250);
+      const timeout=(end-start)/fps*1000+3500;await Promise.race([new Promise(resolve=>{const check=()=>{const current=this.store.get();if(!current.playback.playing||current.timeline.playheadFrame>=end-.5)resolve();else requestAnimationFrame(check);};check();}),new Promise(resolve=>setTimeout(resolve,timeout))]);recorder.stop();await stopped;
+      const blob=new Blob(chunks,{type:recorder.mimeType||"video/webm"});if(!blob.size)throw new Error("Recorder produced an empty file");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${(state.meta.name||"memento-playblast").replace(/[^a-z0-9-_]+/gi,"-")}.webm`;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
+    }finally{this.store.transient("Playblast restore",draft=>{draft.timeline.playheadFrame=before.frame;draft.playback.frame=before.frame;draft.playback.loop=before.loop;draft.playback.playing=before.playing;},{persist:false,broadcast:false});this.exporting=false;}
   }
   tick(now){
-    const state=this.store.get(),fps=state.settings.fps,isTimeline=this.workspace==="timeline",duration=isTimeline?sequenceDuration(state):activeShot(state).durationFrames;
-    if(state.playback.playing){const dt=Math.min(.1,(now-this.lastTick)/1000),advance=dt*fps;let next=(isTimeline?state.timeline.playheadFrame:state.playback.frame)+advance;if(next>=duration){if(state.playback.loop)next=0;else{next=duration;state.playback.playing=false;}}
-      this.store.transient("Playback tick",draft=>{draft.playback.frame=next;if(isTimeline)draft.timeline.playheadFrame=next;});
-    }
-    this.lastTick=now;const current=this.store.get(),frame=isTimeline?current.timeline.playheadFrame:current.playback.frame,evaluated=isTimeline?evaluateSequence(current,frame):evaluateShot(current,current.shots.activeShotId,frame);this.renderer?.render(evaluated,current,now/1000);this.raf=requestAnimationFrame(time=>this.tick(time));
+    const state=this.store.get(),fps=state.settings.fps,isTimeline=this.workspace==="timeline",start=isTimeline?state.timeline.inFrame:0,end=isTimeline?Math.max(start+1,state.timeline.outFrame||sequenceDuration(state)):activeShot(state).durationFrames;
+    if(state.playback.playing){const dt=Math.min(.1,(now-this.lastTick)/1000),advance=dt*fps;let next=(isTimeline?state.timeline.playheadFrame:state.playback.frame)+advance,playing=true;if(next>=end){if(state.playback.loop)next=start;else{next=end;playing=false;}}this.store.transient("Playback tick",draft=>{draft.playback.frame=next;draft.playback.playing=playing;if(isTimeline)draft.timeline.playheadFrame=next;});}
+    this.lastTick=now;const current=this.store.get(),frame=isTimeline?current.timeline.playheadFrame:current.playback.frame,evaluated=isTimeline?evaluateSequence(current,frame):evaluateShot(current,current.shots.activeShotId,frame);this.renderer?.render(evaluated,current,now/1000);if(isTimeline){this.renderEffects(evaluated?.effects||[],frame);this.syncAudio(current,frame);}this.raf=requestAnimationFrame(time=>this.tick(time));
   }
-  dispose(){cancelAnimationFrame(this.raf);this.unsubscribe?.();this.layoutObserver?.disconnect();clearTimeout(this.stillTimer);this.renderer?.dispose();}
+  dispose(){cancelAnimationFrame(this.raf);this.unsubscribe?.();this.layoutObserver?.disconnect();clearTimeout(this.stillTimer);removeEventListener("keydown",this.keyHandler);for(const entry of this.audioEntries.values()){entry.audio.pause();URL.revokeObjectURL(entry.url);}this.audioContext?.close?.().catch(()=>{});this.renderer?.dispose();}
 }
 
-function endpointMarkup(endpoint,label){
-  return `<div class="endpoint-stage ${endpoint}" data-endpoint="${endpoint}"><div class="stage-placeholder"></div><canvas></canvas><div class="endpoint-gate" data-role="endpoint-gate"></div><div class="endpoint-label"><b>${label}</b><span data-role="endpoint-frame">FRAME 000</span></div></div>`;
-}
+function endpointMarkup(endpoint,label){return `<div class="endpoint-stage ${endpoint}" data-endpoint="${endpoint}"><div class="stage-placeholder"></div><canvas></canvas><div class="endpoint-gate" data-role="endpoint-gate"></div><div class="endpoint-label"><b>${label}</b><span data-role="endpoint-frame">FRAME 000</span></div></div>`;}

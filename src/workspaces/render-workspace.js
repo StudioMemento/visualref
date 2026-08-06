@@ -1,158 +1,120 @@
 import {AXIS_MAP} from "../core/default-state.js";
 import {FAMILIES,presetsForFamily} from "../shots/presets.js";
-import {CREATIVE_AXES,choiceLabel} from "../shots/creative-axes.js";
+import {CREATIVE_AXES,CREATIVE_AXIS_MAP,choiceLabel} from "../shots/creative-axes.js";
 import {activeShot,deltaSummary} from "../player/shot-interpolator.js";
 
-const ICON={
+const GROUPS=[
+  {id:"frame",label:"FRAME",axes:["camera","lens","focus","composition","view"],icon:"frame"},
+  {id:"subject",label:"SUBJECT",axes:["subject-size","subject-rotation","motion-design"],icon:"subject"},
+  {id:"world",label:"WORLD",axes:["light","environment","atmosphere"],icon:"world"}
+];
+const FAMILY_ICON={hero:"hero",reveal:"reveal",motion:"motion",detail:"detail",tech:"tech",graphic:"graphic",closing:"closing"};
+const SVG={
   lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
-  unlock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.8"/></svg>',
-  close:'<svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg>',
-  plus:'<svg viewBox="0 0 12 12"><path d="M6 1.5v9M1.5 6h9"/></svg>',
-  start:'<svg viewBox="0 0 16 16"><path d="M10.5 3.75 6 8l4.5 4.25"/></svg>',
-  end:'<svg viewBox="0 0 16 16"><path d="M5.5 3.75 10 8l-4.5 4.25"/></svg>'
+  unlock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>',
+  dice:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/></svg>',
+  reset:'<svg viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M5.5 15a7 7 0 1 0 .5-7L4 10"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  copy:'<svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 16H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  timeline:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M8 4v4M15 10v4M11 16v4"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><path d="m9 6 9 6-9 6z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>'
 };
 
 export class RenderWorkspace{
-  constructor({root,store,commands,toast}){
-    this.root=root;this.store=store;this.commands=commands;this.toast=toast;
-    this.build();this.bind();
-    this.unsubscribe=store.subscribe((state,meta)=>{if(meta?.label==="Playback tick")return;this.render(state);});
-  }
+  constructor({root,store,commands,toast}){this.root=root;this.store=store;this.commands=commands;this.toast=toast;this.gestureAxis=null;this.build();this.bind();this.unsubscribe=store.subscribe((state,meta)=>{if(meta?.label==="Playback tick"||meta?.type==="gesture")return;this.render(state);});}
   build(){
-    this.root.innerHTML=`<div class="render-editor">
-      <div class="render-editor-scroll">
-        <header class="render-editor-head">
-          <div class="shot-identity"><small>SHOT CREATION</small><b data-role="active-shot">—</b><span>V36C AXIS GRAMMAR · LOCK + POOL AWARE</span></div>
-          <div class="shot-assets"><article><span>HERO</span><b data-role="hero-name">CALIBRATED PROXY</b></article><article><span>WORLD</span><b data-role="environment-name">DARK STUDIO</b></article><em data-role="shot-status">UNLINKED</em></div>
-        </header>
-        <section class="creation-rails">
-          <div class="compact-rail-row"><header><span>SHOT FAMILY</span><b>01</b></header><div class="family-rail compact" data-role="families">${FAMILIES.map(f=>`<button class="family-button" data-family="${f.id}"><b>${f.label}</b><small>${f.description}</small></button>`).join("")}</div></div>
-          <div class="compact-rail-row"><header><span>PRESETS</span><b data-role="preset-count">00</b></header><div class="preset-grid compact" data-role="presets"></div></div>
-          <div class="creation-command-bar">
-            <div class="generation-buttons"><button data-command="near">NEAR</button><button class="primary" data-command="balanced">BALANCED</button><button data-command="bold">BOLD</button><button data-command="reset">RESET</button></div>
-            <div class="scope-control"><span>EDIT SCOPE</span><div class="scope-row editor-scope"><button data-scope="start">START</button><button data-scope="both">BOTH</button><button data-scope="end">END</button></div></div>
-            <div class="delta-readout"><span>CONTROLLED DELTA</span><b data-role="delta-score">00</b><em data-role="delta-risk">STABLE</em></div>
-          </div>
+    this.root.innerHTML=`<div class="render-editor rebuild-editor">
+      <header class="rebuild-shotbar">
+        <label class="shot-picker"><span>ACTIVE SHOT</span><select data-role="shot-picker"></select></label>
+        <div class="shotbar-actions"><button data-shot-action="new" title="New shot">${SVG.plus}<span>NEW</span></button><button data-shot-action="duplicate" title="Duplicate shot">${SVG.copy}<span>DUPLICATE</span></button><button data-shot-action="delete" class="danger" title="Delete shot">${SVG.trash}</button></div>
+        <div class="asset-mini"><article><span>HERO</span><b data-role="hero-name">PROXY</b></article><article><span>WORLD</span><b data-role="environment-name">STUDIO</b></article><em data-role="shot-status">UNLINKED</em></div>
+      </header>
+      <div class="rebuild-scroll">
+        <section class="game-section family-section"><header><div><small>STEP 01</small><b>CHOOSE THE SHOT ROLE</b></div><span>ONE TAP CHANGES THE CREATIVE INTENT</span></header><div class="game-chip-rail family-game-rail" data-role="families"></div></section>
+        <section class="game-section preset-section"><header><div><small>STEP 02</small><b>PICK A CINEMATIC MOVE</b></div><span data-role="preset-count">00 PRESETS</span></header><div class="game-chip-rail preset-game-rail" data-role="presets"></div></section>
+        <section class="game-command-console">
+          <div class="generate-console"><div class="console-label"><small>STEP 03</small><b>GENERATE</b></div><div class="mode-segment"><button data-command="near">NEAR</button><button class="active" data-command="balanced">BALANCED</button><button data-command="bold">BOLD</button></div><button class="big-action" data-command="generate">${SVG.dice}<span>NEW VARIANT</span></button><button class="icon-action" data-command="reset" title="Reset">${SVG.reset}</button></div>
+          <div class="scope-console"><span>EDIT</span><div class="scope-segment"><button data-scope="start">START</button><button data-scope="both">BOTH</button><button data-scope="end">END</button></div></div>
+          <label class="delta-target"><span>DELTA TARGET <b data-role="delta-target-value">42%</b></span><input data-role="delta-target" type="range" min="5" max="95" step="1"></label>
+          <div class="delta-console"><span>LIVE DELTA</span><b data-role="delta-score">00</b><em data-role="delta-risk">STABLE</em><i><u data-role="delta-meter"></u></i></div>
         </section>
-        <div class="creative-axis-matrix" data-role="creative-axis-matrix">${CREATIVE_AXES.map(axis=>creativeAxisMarkup(axis)).join("")}</div>
+        <section class="game-section axis-section"><header><div><small>STEP 04</small><b>BUILD THE SHOT</b></div><span>SELECT A CATEGORY, THEN A CHIP</span></header><div class="axis-group-rail" data-role="axis-groups"></div><div class="axis-tile-grid" data-role="axis-tiles"></div></section>
+        <section class="active-axis-panel" data-role="active-axis-panel"></section>
+        <section class="advanced-context-panel" data-role="advanced-panel"></section>
       </div>
-      <footer class="editor-delta-dock">
-        <div class="delta-track"><i data-role="delta-meter"></i><b></b></div>
-        <div class="delta-dock-actions scope-four"><button data-dock-scope="start"><span>▣</span> START</button><button data-dock-scope="both">BOTH</button><button data-dock-play>▷ PLAY</button><button data-dock-scope="end">END <span>▣</span></button></div>
-      </footer>
+      <footer class="rebuild-action-dock"><div class="dock-summary"><small data-role="dock-family">HERO</small><b data-role="dock-shot">—</b><span data-role="dock-delta">0 CHANGES</span></div><button data-dock-play>${SVG.play}<span>PLAY SHOT</span></button><button class="primary" data-add-timeline>${SVG.timeline}<span data-role="add-label">ADD TO TIMELINE</span></button></footer>
     </div>`;
   }
   bind(){
     this.root.addEventListener("click",event=>{
-      const family=event.target.closest("[data-family]")?.dataset.family;
-      if(family){this.commands.dispatch("shot.setFamily",{family});return;}
-      const presetId=event.target.closest("[data-preset]")?.dataset.preset;
-      if(presetId){this.commands.dispatch("shot.applyPreset",{presetId});this.toast?.(`PRESET APPLIED · ${presetId.toUpperCase()}`);return;}
-      const scope=event.target.closest("[data-scope]")?.dataset.scope||event.target.closest("[data-dock-scope]")?.dataset.dockScope;
-      if(scope){this.commands.dispatch("ui.setScope",{scope});return;}
+      const shotAction=event.target.closest("[data-shot-action]")?.dataset.shotAction;if(shotAction){this.commands.dispatch(`shot.${shotAction}`);return;}
+      const family=event.target.closest("[data-family]")?.dataset.family;if(family){this.commands.dispatch("shot.setFamily",{family});return;}
+      const presetId=event.target.closest("[data-preset]")?.dataset.preset;if(presetId){this.commands.dispatch("shot.applyPreset",{presetId});this.toast?.("PRESET APPLIED");return;}
+      const scope=event.target.closest("[data-scope]")?.dataset.scope;if(scope){this.commands.dispatch("ui.setScope",{scope});return;}
       const command=event.target.closest("[data-command]")?.dataset.command;
-      if(["near","balanced","bold"].includes(command)){this.commands.dispatch("shot.generateVariant",{mode:command});return;}
+      if(["near","balanced","bold"].includes(command)){this.root.querySelectorAll("[data-command=near],[data-command=balanced],[data-command=bold]").forEach(button=>button.classList.toggle("active",button.dataset.command===command));this.variantMode=command;return;}
+      if(command==="generate"){this.commands.dispatch("shot.generateVariant",{mode:this.variantMode||"balanced"});return;}
       if(command==="reset"){this.commands.dispatch("shot.reset");return;}
+      const group=event.target.closest("[data-axis-group]")?.dataset.axisGroup;if(group){this.activeGroup=group;this.render(this.store.get());return;}
+      const axisSelect=event.target.closest("[data-creative-axis-select]")?.dataset.creativeAxisSelect;if(axisSelect){this.commands.dispatch("ui.selectCreativeAxis",{axisId:axisSelect});return;}
+      const lock=event.target.closest("[data-creative-lock]")?.dataset.creativeLock;if(lock){this.commands.dispatch("shot.toggleCreativeLock",{axisId:lock});return;}
+      const resetPool=event.target.closest("[data-reset-pool]")?.dataset.resetPool;if(resetPool){this.commands.dispatch("shot.resetCreativePool",{axisId:resetPool});return;}
+      const exclude=event.target.closest("[data-exclude-option]");if(exclude){this.commands.dispatch("shot.toggleCreativeExclusion",{axisId:exclude.dataset.axisId,optionId:exclude.dataset.excludeOption});return;}
+      const endpoint=event.target.closest("[data-option-endpoint]");if(endpoint){this.commands.dispatch("shot.setCreativeChoice",{axisId:endpoint.dataset.axisId,optionId:endpoint.dataset.optionId,scope:endpoint.dataset.optionEndpoint});return;}
+      const option=event.target.closest("[data-creative-option]");if(option){this.commands.dispatch("shot.setCreativeChoice",{axisId:option.dataset.axisId,optionId:option.dataset.creativeOption});return;}
       if(event.target.closest("[data-dock-play]")){this.commands.dispatch("playback.toggle");return;}
-
-      const endpoint=event.target.closest("[data-creative-endpoint]");
-      if(endpoint){this.commands.dispatch("shot.setCreativeChoice",{axisId:endpoint.dataset.creativeAxis,optionId:endpoint.dataset.creativeOption,scope:endpoint.dataset.creativeEndpoint});return;}
-      const exclusion=event.target.closest("[data-creative-exclusion]");
-      if(exclusion){this.commands.dispatch("shot.toggleCreativeExclusion",{axisId:exclusion.dataset.creativeAxis,optionId:exclusion.dataset.creativeOption});return;}
-      const poolReset=event.target.closest("[data-creative-pool-reset]");
-      if(poolReset){this.commands.dispatch("shot.resetCreativePool",{axisId:poolReset.dataset.creativePoolReset});return;}
-      const lock=event.target.closest("[data-creative-lock]");
-      if(lock){this.commands.dispatch("shot.toggleCreativeLock",{axisId:lock.dataset.creativeLock});return;}
-      const option=event.target.closest("[data-creative-option]");
-      if(option){this.commands.dispatch("shot.setCreativeChoice",{axisId:option.dataset.creativeAxis,optionId:option.dataset.creativeOption});return;}
-      const axisSelect=event.target.closest("[data-creative-axis-select]");
-      if(axisSelect){this.commands.dispatch("ui.selectCreativeAxis",{axisId:axisSelect.dataset.creativeAxisSelect});return;}
-      const row=event.target.closest("[data-creative-axis-row]");
-      if(row)this.commands.dispatch("ui.selectCreativeAxis",{axisId:row.dataset.creativeAxisRow});
+      if(event.target.closest("[data-add-timeline]")){this.commands.dispatch("shot.addToTimeline",{trackId:"v1"});return;}
     });
-    this.root.querySelectorAll("[data-axis-input]").forEach(input=>{
-      const axisId=input.dataset.axisInput;
-      input.addEventListener("pointerdown",()=>this.commands.dispatch("gesture.begin",{label:`Advanced ${axisId}`}));
-      input.addEventListener("input",event=>this.commands.dispatch("shot.setAxis",{axisId,value:Number(event.target.value),gesture:true}));
-      input.addEventListener("change",()=>this.commands.dispatch("gesture.end"));
-      input.addEventListener("pointerup",()=>this.commands.dispatch("gesture.end"));
-      input.addEventListener("pointercancel",()=>this.commands.dispatch("gesture.cancel"));
+    this.root.addEventListener("change",event=>{if(event.target.matches('[data-role="shot-picker"]'))this.commands.dispatch("shot.select",{shotId:event.target.value});});
+    this.root.addEventListener("input",event=>{
+      if(event.target.matches('[data-role="delta-target"]')){this.commands.dispatch("shot.setDeltaTarget",{value:Number(event.target.value)/100});return;}
+      if(event.target.matches("[data-axis-input]")){const axisId=event.target.dataset.axisInput;if(this.gestureAxis!==axisId){this.gestureAxis=axisId;this.commands.dispatch("gesture.begin",{label:`Advanced ${axisId}`});}this.commands.dispatch("shot.setAxis",{axisId,value:Number(event.target.value),gesture:true});}
     });
+    this.root.addEventListener("pointerup",event=>{if(event.target.matches("[data-axis-input]")&&this.gestureAxis){this.commands.dispatch("gesture.end");this.gestureAxis=null;}});
+    this.root.addEventListener("pointercancel",event=>{if(event.target.matches("[data-axis-input]")&&this.gestureAxis){this.commands.dispatch("gesture.cancel");this.gestureAxis=null;}});
   }
   render(state){
-    const shot=activeShot(state),delta=deltaSummary(state),familyPresets=presetsForFamily(shot.family);
-    shot.creativeExclusions??={};shot.creativeLocks??={};
-    this.root.querySelector('[data-role="active-shot"]').textContent=shot.name;
-    this.root.querySelector('[data-role="hero-name"]').textContent=state.assets.byId[state.assets.heroId]?.name||"HERO";
-    this.root.querySelector('[data-role="environment-name"]').textContent=state.assets.byId[state.assets.environmentId]?.name||"ENVIRONMENT";
-    this.root.querySelectorAll("[data-family]").forEach(button=>button.classList.toggle("active",button.dataset.family===shot.family));
-    const presetHost=this.root.querySelector('[data-role="presets"]');
-    presetHost.innerHTML=familyPresets.map(preset=>`<button class="preset-card compact ${shot.presetId===preset.id?"active":""}" data-preset="${preset.id}"><b>${preset.title}</b><small>${preset.duration}F</small></button>`).join("");
-    this.root.querySelector('[data-role="preset-count"]').textContent=String(familyPresets.length).padStart(2,"0");
-    this.root.querySelectorAll("[data-scope],[data-dock-scope]").forEach(button=>{
-      const active=(button.dataset.scope||button.dataset.dockScope)===state.ui.editScope;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));
-    });
-    const risk=delta.score<.26?"STABLE":delta.score<.56?"ACTIVE":"AGGRESSIVE";
-    this.root.querySelector('[data-role="delta-score"]').textContent=String(delta.count).padStart(2,"0");
-    this.root.querySelector('[data-role="delta-risk"]').textContent=risk;
-    this.root.querySelector('[data-role="delta-meter"]').style.width=`${Math.max(2,Math.round(delta.score*100))}%`;
-    this.root.querySelector('[data-role="shot-status"]').textContent=Object.values(state.timeline.clips).some(clip=>clip.shotId===shot.id)?"TIMELINE LINKED":"SHOT UNLINKED";
-    this.root.classList.toggle("advanced-visible",Boolean(state.ui.advanced));
-
-    for(const axis of CREATIVE_AXES){
-      const row=this.root.querySelector(`[data-creative-axis-row="${axis.id}"]`),startChoice=shot.start.choices[axis.id],endChoice=shot.end.choices[axis.id],locked=Boolean(shot.creativeLocks[axis.id]),selected=state.ui.selectedCreativeAxisId===axis.id;
-      const allowed=axis.options.filter(option=>!shot.creativeExclusions[`${axis.id}:${option.id}`]);
-      row.classList.toggle("selected-axis",selected);row.classList.toggle("locked-axis",locked);row.classList.toggle("empty-pool",allowed.length===0);
-      const lockButton=row.querySelector("[data-creative-lock]");lockButton.innerHTML=locked?ICON.lock:ICON.unlock;lockButton.setAttribute("aria-pressed",String(locked));lockButton.title=locked?"Unlock category for generation":"Lock category for generation";
-      row.querySelector('[data-role="axis-lock-state"]').textContent=locked?"LOCKED":"GEN ACTIVE";
-      row.querySelector('[data-role="axis-pool-count"]').textContent=`POOL ${allowed.length}/${axis.options.length}`;
-      row.querySelector('[data-creative-pool-reset]').disabled=allowed.length===axis.options.length;
-      const current=row.querySelector('[data-role="axis-current"]');
-      current.innerHTML=startChoice===endChoice?`<span>${choiceLabel(axis.id,startChoice)}</span>`:`<i>${choiceLabel(axis.id,startChoice)}</i><b>→</b><em>${choiceLabel(axis.id,endChoice)}</em>`;
-      row.querySelectorAll("[data-creative-option-shell]").forEach(shell=>{
-        const optionId=shell.dataset.creativeOption,start=optionId===startChoice,end=optionId===endChoice,excluded=Boolean(shot.creativeExclusions[`${axis.id}:${optionId}`]);
-        shell.classList.toggle("selected-start",start);shell.classList.toggle("selected-end",end);shell.classList.toggle("shared-option",start&&end);shell.classList.toggle("excluded-option",excluded);
-        const startButton=shell.querySelector('[data-creative-endpoint="start"]'),bothButton=shell.querySelector('[data-creative-endpoint="both"]'),endButton=shell.querySelector('[data-creative-endpoint="end"]');
-        startButton.setAttribute("aria-pressed",String(start&&!end));
-        bothButton.setAttribute("aria-pressed",String(start&&end));
-        endButton.setAttribute("aria-pressed",String(end&&!start));
-        const poolButton=shell.querySelector("[data-creative-exclusion]");poolButton.innerHTML=excluded?ICON.plus:ICON.close;poolButton.classList.toggle("include-action",excluded);poolButton.setAttribute("aria-pressed",String(excluded));poolButton.title=excluded?"Include in generation pool":"Exclude from generation pool";
-      });
-      const advanced=row.querySelector(".axis-advanced");advanced?.classList.toggle("active",selected&&state.ui.advanced);
-      for(const axisId of axis.advancedAxes||[]){
-        const numeric=AXIS_MAP.get(axisId),control=row.querySelector(`[data-axis-control="${axisId}"]`);if(!numeric||!control)continue;
-        const input=control.querySelector("input"),output=control.querySelector("output"),start=shot.start.values[axisId],end=shot.end.values[axisId],mixed=state.ui.editScope==="both"&&Math.abs(start-end)>.0001,value=state.ui.editScope==="start"?start:state.ui.editScope==="end"?end:(start+end)/2;
-        control.classList.toggle("mixed",mixed);if(document.activeElement!==input)input.value=String(value);output.textContent=mixed?`${formatValue(start,numeric)} → ${formatValue(end,numeric)}`:formatValue(value,numeric);
-      }
-    }
-    const play=this.root.querySelector("[data-dock-play]");play.textContent=state.playback.playing?"Ⅱ PAUSE":"▷ PLAY";play.classList.toggle("active",state.playback.playing);
+    const shot=activeShot(state),delta=deltaSummary(state),familyPresets=presetsForFamily(shot.family),activeAxis=CREATIVE_AXIS_MAP.get(state.ui.selectedCreativeAxisId)||CREATIVE_AXES[0];
+    this.variantMode=shot.variantMode||this.variantMode||"balanced";this.activeGroup=this.activeGroup||GROUPS.find(group=>group.axes.includes(activeAxis.id))?.id||"frame";
+    const shotPicker=this.root.querySelector('[data-role="shot-picker"]');shotPicker.innerHTML=state.shots.order.map((id,index)=>`<option value="${id}" ${id===shot.id?"selected":""}>${String(index+1).padStart(2,"0")} · ${escapeHtml(state.shots.byId[id]?.name||"SHOT")}</option>`).join("");
+    this.root.querySelector('[data-role="hero-name"]').textContent=state.assets.byId[state.assets.heroId]?.name||"HERO";this.root.querySelector('[data-role="environment-name"]').textContent=state.assets.byId[state.assets.environmentId]?.name||"WORLD";
+    const linked=Object.values(state.timeline.clips).some(clip=>clip.type==="shot"&&clip.shotId===shot.id);this.root.querySelector('[data-role="shot-status"]').textContent=linked?"TIMELINE LINKED":"READY TO ADD";
+    this.root.querySelector('[data-role="families"]').innerHTML=FAMILIES.map(f=>`<button class="game-family ${f.id===shot.family?"active":""}" data-family="${f.id}"><i>${familySvg(FAMILY_ICON[f.id])}</i><span><b>${f.label}</b><small>${f.description}</small></span></button>`).join("");
+    this.root.querySelector('[data-role="presets"]').innerHTML=familyPresets.map((preset,index)=>`<button class="game-preset ${preset.id===shot.presetId?"active":""}" data-preset="${preset.id}"><i>${String(index+1).padStart(2,"0")}</i><span><b>${preset.title}</b><small>${preset.duration}F · ${preset.description}</small></span><em>PLAY</em></button>`).join("");
+    this.root.querySelector('[data-role="preset-count"]').textContent=`${String(familyPresets.length).padStart(2,"0")} PRESETS`;
+    this.root.querySelectorAll("[data-scope]").forEach(button=>{const active=button.dataset.scope===state.ui.editScope;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
+    this.root.querySelectorAll("[data-command=near],[data-command=balanced],[data-command=bold]").forEach(button=>button.classList.toggle("active",button.dataset.command===this.variantMode));
+    this.root.querySelector('[data-role="delta-score"]').textContent=String(delta.count).padStart(2,"0");this.root.querySelector('[data-role="delta-risk"]').textContent=delta.risk.toUpperCase();this.root.querySelector('[data-role="delta-meter"]').style.width=`${Math.max(2,Math.round(delta.score*100))}%`;
+    const target=Math.round((shot.deltaTarget??.42)*100),targetInput=this.root.querySelector('[data-role="delta-target"]');if(document.activeElement!==targetInput)targetInput.value=String(target);this.root.querySelector('[data-role="delta-target-value"]').textContent=`${target}%`;
+    this.root.querySelector('[data-role="axis-groups"]').innerHTML=GROUPS.map(group=>`<button class="axis-group-chip ${group.id===this.activeGroup?"active":""}" data-axis-group="${group.id}"><i>${familySvg(group.icon)}</i><span>${group.label}</span><b>${group.axes.length}</b></button>`).join("");
+    const visibleAxes=GROUPS.find(group=>group.id===this.activeGroup)?.axes||GROUPS[0].axes;
+    this.root.querySelector('[data-role="axis-tiles"]').innerHTML=visibleAxes.map(id=>axisTile(CREATIVE_AXIS_MAP.get(id),shot,state.ui.selectedCreativeAxisId)).join("");
+    this.root.querySelector('[data-role="active-axis-panel"]').innerHTML=activeAxisPanel(activeAxis,shot,state.ui.editScope);
+    const advancedHost=this.root.querySelector('[data-role="advanced-panel"]');advancedHost.hidden=!state.ui.advanced;advancedHost.innerHTML=state.ui.advanced?advancedPanel(activeAxis,shot,state.ui.editScope):"";
+    this.root.querySelector('[data-role="dock-family"]').textContent=shot.family.toUpperCase();this.root.querySelector('[data-role="dock-shot"]').textContent=shot.name;this.root.querySelector('[data-role="dock-delta"]').textContent=`${delta.count} CHANGES · ${Math.round(delta.score*100)}%`;
+    this.root.querySelector('[data-role="add-label"]').textContent=linked?"UPDATE LINKED SHOT":"ADD TO TIMELINE";
   }
   dispose(){this.unsubscribe?.();}
 }
 
-function creativeAxisMarkup(axis){
-  return `<section class="creative-axis-row" data-creative-axis-row="${axis.id}">
-    <header class="creative-axis-head"><span>${axis.label}</span><div class="creative-axis-meta"><button data-creative-pool-reset="${axis.id}" title="Restore the complete generation pool"><small data-role="axis-pool-count">POOL ${axis.options.length}/${axis.options.length}</small></button><div data-role="axis-current">—</div></div></header>
-    <div class="creative-option-rail">
-      <div class="mvr-axis-tile">
-        <button class="mvr-axis-label" data-creative-axis-select="${axis.id}" type="button"><b>${axis.label}</b><small data-role="axis-lock-state" aria-hidden="true"></small></button>
-        <button class="mvr-axis-lock" data-creative-lock="${axis.id}" type="button" aria-label="Lock ${axis.label} for generation">${ICON.unlock}</button>
-      </div>
-      ${axis.options.map(option=>creativeOptionMarkup(axis,option)).join("")}
-    </div>
-    <div class="axis-advanced">${axis.advancedAxes.length?axis.advancedAxes.map(axisId=>advancedAxisMarkup(AXIS_MAP.get(axisId))).join(""):'<p>This creative axis has no numerical override in the current renderer.</p>'}</div>
-  </section>`;
+function axisTile(axis,shot,selectedId){
+  const start=shot.start.choices?.[axis.id],end=shot.end.choices?.[axis.id],mixed=start!==end,locked=Boolean(shot.creativeLocks?.[axis.id]);
+  return `<button class="axis-game-tile ${selectedId===axis.id?"active":""} ${mixed?"mixed":""}" data-creative-axis-select="${axis.id}"><i>${axisSvg(axis.id)}</i><span><small>${axis.label}</small><b>${mixed?`${choiceLabel(axis.id,start)} → ${choiceLabel(axis.id,end)}`:choiceLabel(axis.id,start)}</b></span><em>${locked?SVG.lock:mixed?"Δ":"="}</em></button>`;
 }
-function creativeOptionMarkup(axis,option){
-  return `<div class="mvr-chip" data-creative-option-shell data-creative-axis="${axis.id}" data-creative-option="${option.id}">
-    <div class="mvr-chip-label"><b>${option.label}</b></div>
-    <div class="mvr-chip-hitareas">
-      <button class="mvr-chip-zone mvr-chip-start" data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start">${ICON.start}</button>
-      <button class="mvr-chip-zone mvr-chip-both" data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End"></button>
-      <button class="mvr-chip-zone mvr-chip-end" data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End">${ICON.end}</button>
-    </div>
-    <button class="mvr-chip-pool" data-creative-exclusion data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Exclude ${option.label} from generation pool">${ICON.close}</button>
-  </div>`;
+function activeAxisPanel(axis,shot,scope){
+  const locked=Boolean(shot.creativeLocks?.[axis.id]),excluded=shot.creativeExclusions||{},allowed=axis.options.filter(option=>!excluded[`${axis.id}:${option.id}`]);
+  return `<header class="active-axis-head"><div><i>${axisSvg(axis.id)}</i><span><small>ACTIVE CONTROL</small><b>${axis.label}</b><em>${axis.options.length} OPTIONS · ${allowed.length} IN GENERATION POOL</em></span></div><button class="axis-lock-button ${locked?"active":""}" data-creative-lock="${axis.id}">${locked?SVG.lock:SVG.unlock}<span>${locked?"LOCKED":"LOCK AXIS"}</span></button><button class="pool-reset" data-reset-pool="${axis.id}" ${allowed.length===axis.options.length?"disabled":""}>RESET POOL</button></header><div class="option-game-grid">${axis.options.map(option=>optionChip(axis,option,shot,scope)).join("")}</div>`;
 }
-function advancedAxisMarkup(axis){if(!axis)return"";return `<label class="advanced-axis-control" data-axis-control="${axis.id}"><span><b>${axis.label}</b><small>${axis.hint}</small></span><input data-axis-input="${axis.id}" type="range" min="${axis.min}" max="${axis.max}" step="${axis.step}" value="${axis.defaultStart}"><output>—</output></label>`;}
-function formatValue(value,axis){const decimals=axis.step<.1?2:axis.step<1?1:0;return `${Number(value).toFixed(decimals)}${axis.unit||""}`;}
+function optionChip(axis,option,shot,scope){
+  const start=shot.start.choices?.[axis.id]===option.id,end=shot.end.choices?.[axis.id]===option.id,excluded=Boolean(shot.creativeExclusions?.[`${axis.id}:${option.id}`]),active=scope==="start"?start:scope==="end"?end:start&&end;
+  return `<article class="option-game-chip ${active?"active":""} ${start?"has-start":""} ${end?"has-end":""} ${excluded?"excluded":""}"><button class="option-main" data-creative-option="${option.id}" data-axis-id="${axis.id}"><i>${axisSvg(axis.id)}</i><span><b>${option.label}</b><small>${option.description||"Apply to the active edit scope"}</small></span></button><div class="endpoint-picks"><button class="start" data-option-endpoint="start" data-axis-id="${axis.id}" data-option-id="${option.id}" aria-pressed="${start}">S</button><button class="end" data-option-endpoint="end" data-axis-id="${axis.id}" data-option-id="${option.id}" aria-pressed="${end}">E</button></div><button class="exclude" data-exclude-option="${option.id}" data-axis-id="${axis.id}" title="${excluded?"Return to generation pool":"Remove from generation pool"}">${excluded?"+":"×"}</button></article>`;
+}
+function advancedPanel(axis,shot,scope){
+  const axes=(axis.advancedAxes||[]).map(id=>AXIS_MAP.get(id)).filter(Boolean);if(!axes.length)return `<header><small>ADVANCED · ${axis.label}</small><b>NO NUMERIC OVERRIDES</b></header><p>This creative control is intentionally preset-driven.</p>`;
+  return `<header><div><small>ADVANCED · CONTEXTUAL</small><b>${axis.label} PROPERTIES</b></div><span>EDITING ${scope.toUpperCase()}</span></header><div class="advanced-control-grid">${axes.map(item=>{const start=shot.start.values[item.id],end=shot.end.values[item.id],value=scope==="end"?end:scope==="start"?start:(start+end)/2;return `<label class="advanced-game-control"><span><b>${item.label}</b><small>${item.hint}</small></span><div><input data-axis-input="${item.id}" type="range" min="${item.min}" max="${item.max}" step="${item.step}" value="${value}"><output><i>${format(start,item)}</i><b>${start===end?"=":"→"}</b><em>${format(end,item)}</em></output></div></label>`;}).join("")}</div>`;
+}
+function format(value,axis){const decimals=axis.step<.1?2:axis.step<1?1:0;return `${Number(value).toFixed(decimals)}${axis.unit||""}`;}
+function familySvg(type){const shapes={hero:'<path d="M12 3 20 8v8l-8 5-8-5V8z"/><path d="m4 8 8 5 8-5"/>',reveal:'<path d="M4 18 18 4M7 4h11v11"/><path d="M4 10v10h10"/>',motion:'<path d="M4 12h12"/><path d="m12 7 5 5-5 5"/><path d="M4 6h5M4 18h5"/>',detail:'<circle cx="10" cy="10" r="5"/><path d="m14 14 6 6M10 7v6M7 10h6"/>',tech:'<path d="M4 7h16M4 12h16M4 17h16"/><path d="M8 4v6M15 9v6M11 14v6"/>',graphic:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 17h6"/>',closing:'<path d="M5 5h14v14H5z"/><path d="m9 9 6 6M15 9l-6 6"/>',frame:'<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>',subject:'<circle cx="12" cy="9" r="4"/><path d="M5 21c1-5 3.5-7 7-7s6 2 7 7"/>',world:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4 6 4 9s-1 6-4 9M12 3c-3 3-4 6-4 9s1 6 4 9"/>'};return `<svg viewBox="0 0 24 24">${shapes[type]||shapes.hero}</svg>`;}
+function axisSvg(id){const map={light:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',camera:'<path d="M4 7h11v10H4z"/><path d="m15 10 5-3v10l-5-3z"/>',lens:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',focus:'<path d="M8 4H4v4M16 4h4v4M20 16v4h-4M4 16v4h4"/><circle cx="12" cy="12" r="2"/>',composition:'<rect x="4" y="4" width="16" height="16"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/>','subject-size':'<rect x="6" y="6" width="12" height="12"/><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/>','subject-rotation':'<path d="M18 8a7 7 0 1 0 1 7"/><path d="M18 3v5h-5"/>',view:'<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>','motion-design':'<path d="M3 12c3-6 6 6 9 0s6 6 9 0"/>',environment:'<path d="m3 18 6-7 4 4 3-3 5 6"/><path d="M3 20h18"/>',atmosphere:'<circle cx="7" cy="8" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="18" cy="14" r="1"/><circle cx="9" cy="17" r="1"/>',world:'<circle cx="12" cy="12" r="9"/>'};return `<svg viewBox="0 0 24 24">${map[id]||map.world}</svg>`;}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));}
