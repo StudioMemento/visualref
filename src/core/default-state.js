@@ -3,7 +3,7 @@ import {CREATIVE_AXES,defaultCreativeChoices} from "../shots/creative-axes.js";
 
 export const SCHEMA_NAME="memento.visualref";
 export const SCHEMA_VERSION=43;
-export const RELEASE="V43B.2";
+export const RELEASE="V43B.4";
 
 export const AXES=[
   {id:"subject.positionX",group:"Subject",label:"Position X",hint:"Horizontal framing",min:-6,max:6,step:.01,unit:"",defaultStart:-.18,defaultEnd:.18},
@@ -51,7 +51,7 @@ export function createDefaultState(){
   const projectId=uid("project"),activeShot=shot(),now=new Date().toISOString();
   return {
     schema:{name:SCHEMA_NAME,version:SCHEMA_VERSION,release:RELEASE,migratedFrom:null},
-    meta:{id:projectId,name:"MEMENTO V43B.2",createdAt:now,updatedAt:now,language:"EN"},
+    meta:{id:projectId,name:"MEMENTO V43B.4",createdAt:now,updatedAt:now,language:"EN"},
     settings:{aspectRatio:"16:9",fps:24,resolution:"1920×1080",playbackQuality:"preview",performanceTier:"auto"},
     assets:{heroId:"hero-proxy",environmentId:"environment-proxy",hdriId:null,secondaryIds:[],audioIds:[],byId:{
       "hero-proxy":{id:"hero-proxy",type:"hero",kind:"builtin",name:"CALIBRATED PROXY",status:"ready",source:"builtin",size:0},
@@ -82,7 +82,7 @@ export function normalizeState(input){
   const defaults=createDefaultState(),state=input;
   state.schema={...defaults.schema,...state.schema,release:RELEASE};
   state.meta={...defaults.meta,...state.meta};
-  if(/^MEMENTO V43(?:A|B(?:\.1)?)/.test(state.meta.name||""))state.meta.name="MEMENTO V43B.2";
+  if(/^MEMENTO V43(?:A|B(?:\.1)?)/.test(state.meta.name||""))state.meta.name="MEMENTO V43B.4";
   state.settings={...defaults.settings,...state.settings};
   state.assets={...defaults.assets,...state.assets,byId:{...defaults.assets.byId,...(state.assets?.byId||{})}};
   state.assets.secondaryIds=Array.isArray(state.assets.secondaryIds)?state.assets.secondaryIds:[];

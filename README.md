@@ -1,6 +1,6 @@
-# MEMENTO VisualRef V43B.2 — Real Scene
+# MEMENTO VisualRef V43B.4 — Premium Real Scene
 
-GitHub/Vercel-ready static application. V43B.2 preserves the V43A.1 shared workflow and adds the first real scene layer:
+GitHub/Vercel-ready static application. V43B.4 preserves the V43A.1 shared workflow and adds the first real scene layer:
 
 - Hero `.glb` upload and replacement
 - Environment `.glb` upload
@@ -34,7 +34,7 @@ Open:
 5. Correct imported orientation or pivot without modifying the creative Start/End transform.
 6. Return to Render or Timeline. The same scene is restored from IndexedDB.
 
-V43B.2 accepts self-contained `.glb` files. External-resource `.gltf` packages are deliberately excluded from this checkpoint.
+V43B.4 accepts self-contained `.glb` files. External-resource `.gltf` packages are deliberately excluded from this checkpoint.
 
 ## External runtime modules
 
@@ -69,3 +69,12 @@ Render now restores the V36C generation grammar as explicit project state:
 - Near, Balanced and Bold generation use only non-excluded options;
 - an empty pool behaves as a generation lock;
 - locks and exclusions survive autosave, reload, workspace navigation and undo/redo.
+
+
+## V43B.3
+- 3-zone option chips with Start / Both / End inline controls and hover teaching colors.
+
+
+## V43B.4 premium polish
+- Premium density pass across Render, Viewport, Timeline, shared Player and navigation.
+- No workflow or state behavior removed.

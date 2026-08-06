@@ -36,3 +36,28 @@
 @media(max-width:900px){.scope-control{min-width:270px}.creative-axis-head{padding-left:8px}.creative-axis-meta>[data-role="axis-current"]{max-width:190px}.creative-axis-tile{flex-basis:82px!important;width:82px!important}.creative-option-shell{flex-basis:92px;min-width:92px}.creative-pool-toggle{opacity:1;transform:scale(1)}.creative-endpoint-zones button span{display:none}.delta-dock-actions.scope-four{grid-template-columns:repeat(4,1fr)}}
 /* Make generation-pool controls discoverable without requiring hover. */
 .creative-pool-toggle{opacity:.42;transform:scale(1)}.creative-option-shell:hover .creative-pool-toggle,.creative-option-shell:focus-within .creative-pool-toggle,.creative-option-shell.excluded-option .creative-pool-toggle{opacity:1}
+
+/* V43B.3 — three-zone chip interaction polish */
+.creative-option-shell{flex:0 0 112px;min-width:112px;height:58px;border-radius:7px;background:#0d0d10}
+.creative-option-main{bottom:21px;padding:6px 20px 4px 8px}
+.creative-option-main b{font-size:7.9px;line-height:1.12;letter-spacing:.11em;text-transform:uppercase}
+.creative-endpoint-zones{height:21px;grid-template-columns:3fr 4fr 3fr;border-top:1px solid rgba(255,255,255,.07);background:rgba(6,6,8,.72)}
+.creative-endpoint-zones button{position:relative;padding:0;border-right:1px solid rgba(255,255,255,.05);background:transparent;color:var(--text-4);display:grid;place-items:center;cursor:pointer;transition:background .12s var(--ease),color .12s var(--ease)}
+.creative-endpoint-zones button:last-child{border-right:0}
+.creative-endpoint-zones button svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.creative-endpoint-zones button[data-creative-endpoint="both"] svg{width:11px}
+.creative-endpoint-zones button[data-creative-endpoint="start"]:hover{color:var(--teal);background:rgba(89,215,223,.12)}
+.creative-endpoint-zones button[data-creative-endpoint="both"]:hover{color:#fff;background:rgba(255,255,255,.12)}
+.creative-endpoint-zones button[data-creative-endpoint="end"]:hover{color:var(--orange);background:rgba(255,121,80,.12)}
+.creative-endpoint-zones button[aria-pressed="true"][data-creative-endpoint="start"]{color:var(--teal);background:rgba(89,215,223,.16)}
+.creative-endpoint-zones button[aria-pressed="true"][data-creative-endpoint="both"]{color:#fff;background:linear-gradient(90deg,rgba(89,215,223,.14),rgba(255,255,255,.10) 50%,rgba(255,121,80,.14));box-shadow:inset 0 1px 0 rgba(255,255,255,.24)}
+.creative-endpoint-zones button[aria-pressed="true"][data-creative-endpoint="end"]{color:var(--orange);background:rgba(255,121,80,.16)}
+.creative-endpoint-zones button::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .12s var(--ease)}
+.creative-endpoint-zones button[data-creative-endpoint="start"]:hover::before{opacity:1;box-shadow:inset 0 -2px 0 var(--teal)}
+.creative-endpoint-zones button[data-creative-endpoint="both"]:hover::before{opacity:1;box-shadow:inset 0 -2px 0 rgba(255,255,255,.85)}
+.creative-endpoint-zones button[data-creative-endpoint="end"]:hover::before{opacity:1;box-shadow:inset 0 -2px 0 var(--orange)}
+.creative-option-shell.shared-option::after{opacity:1;background:linear-gradient(90deg,rgba(89,215,223,.20),rgba(255,255,255,.03) 42%,rgba(255,255,255,.03) 58%,rgba(255,121,80,.20))}
+.creative-option-shell.selected-start:not(.selected-end)::after{opacity:1;background:linear-gradient(90deg,rgba(89,215,223,.24),rgba(89,215,223,.05) 40%,transparent 74%)}
+.creative-option-shell.selected-end:not(.selected-start)::after{opacity:1;background:linear-gradient(90deg,transparent 26%,rgba(255,121,80,.05) 60%,rgba(255,121,80,.24))}
+@media(max-width:1180px){.creative-option-shell{flex-basis:106px;min-width:106px}}
+@media(max-width:900px){.creative-option-shell{flex-basis:100px;min-width:100px}.creative-endpoint-zones{height:20px}.creative-option-main b{font-size:7.2px}}

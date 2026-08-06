@@ -1,4 +1,4 @@
-# Deploy V43B.2 to GitHub and Vercel
+# Deploy V43B.4 to GitHub and Vercel
 
 1. Extract the ZIP.
 2. Delete the old repository contents, except `.git` when working locally.

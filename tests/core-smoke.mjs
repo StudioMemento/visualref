@@ -37,8 +37,8 @@ commands.dispatch('shot.generateVariant',{mode:'near'});assert(clip.shotId===sho
 assert(Boolean(evaluateShot(store.get(),shot().id,0)),'Shot evaluates at Start');assert(Boolean(evaluateShot(store.get(),shot().id,shot().durationFrames)),'Shot evaluates at End');assert(Boolean(evaluateSequence(store.get(),clip.startFrame+4)),'Sequence evaluates linked clip');assert(deltaSummary(store.get()).count>0,'Delta is computed');
 const generatedName=shot().name;commands.dispatch('history.undo');assert(shot().name!==generatedName,'Undo restores previous Shot');commands.dispatch('history.redo');assert(shot().name===generatedName,'Redo restores generated Shot');
 
-assert('subject.positionZ' in shot().start.values&&'subject.rotationX' in shot().end.values,'V43B.2 3D transform axes are present');
-const migrated=normalizeState(structuredClone(store.get()));assert(migrated.schema.release==='V43B.2','Earlier state normalizes into V43B.2 release');
+assert('subject.positionZ' in shot().start.values&&'subject.rotationX' in shot().end.values,'V43B.4 3D transform axes are present');
+const migrated=normalizeState(structuredClone(store.get()));assert(migrated.schema.release==='V43B.4','Earlier state normalizes into V43B.4 release');
 commands.dispatch('asset.register',{asset:{id:'hero-test',type:'hero',name:'test.glb',source:'indexeddb',status:'ready',size:100},node:null});
 assert(store.get().assets.heroId==='hero-test'&&store.get().scene.nodes['hero-proxy'].assetId==='hero-test','Hero asset registration updates shared scene');
 const propNode={id:'prop-test',name:'Prop · test.glb',type:'prop',assetId:'prop-asset',visible:true,locked:false,baseTransform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]},correction:{pivot:[0,0,0],rotation:[0,0,0],scale:[1,1,1],groundOffset:0,autoNormalize:true,autoGround:true},helpers:{bounds:true,pivot:false}};
@@ -57,5 +57,5 @@ assert(poolShot().end.choices.lens==='85mm','Variant generation chooses only fro
 const lockedCameraDistance=poolShot().end.values['camera.distance'];poolCommands.dispatch('shot.toggleCreativeExclusion',{axisId:'lens',optionId:'85mm'});poolCommands.dispatch('shot.generateVariant',{mode:'bold'});
 assert(poolShot().end.choices.lens==='85mm'&&poolShot().end.values['camera.distance']===lockedCameraDistance,'An empty option pool behaves as a generation lock');
 poolCommands.dispatch('shot.resetCreativePool',{axisId:'lens'});assert(Object.keys(poolShot().creativeExclusions).filter(key=>key.startsWith('lens:')).length===0,'Axis pool reset restores all options');
-console.log('V43B.2 CORE + LOCKS + EXCLUSION POOLS + TIMELINE MONITOR SMOKE · PASS');
+console.log('V43B.4 PREMIUM POLISH + CORE + LOCKS + EXCLUSION POOLS + TIMELINE MONITOR SMOKE · PASS');
 function assert(condition,label){if(!condition)throw new Error(`FAIL · ${label}`);console.log(`PASS · ${label}`)}

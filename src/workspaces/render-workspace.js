@@ -9,7 +9,8 @@ const ICON={
   close:'<svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg>',
   plus:'<svg viewBox="0 0 12 12"><path d="M6 1.5v9M1.5 6h9"/></svg>',
   start:'<svg viewBox="0 0 16 16"><path d="M5 3v10M11 4.5 7.5 8 11 11.5"/></svg>',
-  end:'<svg viewBox="0 0 16 16"><path d="M11 3v10M5 4.5 8.5 8 5 11.5"/></svg>'
+  end:'<svg viewBox="0 0 16 16"><path d="M11 3v10M5 4.5 8.5 8 5 11.5"/></svg>',
+  both:'<svg viewBox="0 0 16 16"><path d="M4 6.5h8M4 9.5h8"/></svg>'
 };
 
 export class RenderWorkspace{
@@ -113,8 +114,10 @@ export class RenderWorkspace{
         const optionId=shell.dataset.creativeOption,start=optionId===startChoice,end=optionId===endChoice,excluded=Boolean(shot.creativeExclusions[`${axis.id}:${optionId}`]);
         shell.classList.toggle("selected-start",start);shell.classList.toggle("selected-end",end);shell.classList.toggle("shared-option",start&&end);shell.classList.toggle("excluded-option",excluded);
         const main=shell.querySelector("[data-creative-option]");main.setAttribute("aria-pressed",String(start||end));main.setAttribute("aria-label",`${choiceLabel(axis.id,optionId)} · apply to ${state.ui.editScope.toUpperCase()}`);
-        const startButton=shell.querySelector('[data-creative-endpoint="start"]'),endButton=shell.querySelector('[data-creative-endpoint="end"]');
-        startButton.setAttribute("aria-pressed",String(start));endButton.setAttribute("aria-pressed",String(end));
+        const startButton=shell.querySelector('[data-creative-endpoint="start"]'),bothButton=shell.querySelector('[data-creative-endpoint="both"]'),endButton=shell.querySelector('[data-creative-endpoint="end"]');
+        startButton.setAttribute("aria-pressed",String(start&&!end));
+        bothButton.setAttribute("aria-pressed",String(start&&end));
+        endButton.setAttribute("aria-pressed",String(end&&!start));
         const poolButton=shell.querySelector("[data-creative-exclusion]");poolButton.innerHTML=excluded?ICON.plus:ICON.close;poolButton.classList.toggle("include-action",excluded);poolButton.setAttribute("aria-pressed",String(excluded));poolButton.title=excluded?"Include in generation pool":"Exclude from generation pool";
       });
       const advanced=row.querySelector(".axis-advanced");advanced?.classList.toggle("active",selected&&state.ui.advanced);
@@ -146,8 +149,9 @@ function creativeOptionMarkup(axis,option){
   return `<div class="creative-option-shell" data-creative-option-shell data-creative-axis="${axis.id}" data-creative-option="${option.id}">
     <button class="creative-option-main" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button"><b>${option.label}</b></button>
     <div class="creative-endpoint-zones">
-      <button data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start">${ICON.start}<span>START</span></button>
-      <button data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End"><span>END</span>${ICON.end}</button>
+      <button data-creative-endpoint="start" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as Start">${ICON.start}</button>
+      <button data-creative-endpoint="both" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as both Start and End">${ICON.both}</button>
+      <button data-creative-endpoint="end" data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Set ${option.label} as End">${ICON.end}</button>
     </div>
     <button class="creative-pool-toggle" data-creative-exclusion data-creative-axis="${axis.id}" data-creative-option="${option.id}" type="button" aria-label="Exclude ${option.label} from generation pool">${ICON.close}</button>
   </div>`;

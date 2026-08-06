@@ -61,7 +61,7 @@ export function registerCommands(bus){
   bus.register("ui.openProject",({open=true})=>store.transient("Project dialog",state=>state.ui.projectDialogOpen=open));
   bus.register("project.rename",({name})=>store.commit("Rename project",state=>state.meta.name=(name||"Untitled Project").trim()||"Untitled Project"));
   bus.register("project.reset",async()=>{
-    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B.2");
+    await persistence.clear({assets:true});const next=createDefaultState();history.clear();store.replace("Reset project",next,{history:false,persist:true,broadcast:true});toast?.("PROJECT RESET · V43B.4");
   });
 
   bus.register("asset.register",({asset,node})=>store.commit(`Register ${asset.type} asset`,state=>{
