@@ -5,8 +5,8 @@ const DB_NAME="memento-visualref-v43";
 const DB_VERSION=3;
 const PROJECT_STORE="projects";
 const ASSET_STORE="assets";
-const SNAPSHOT_KEY="memento-v44-project-snapshot";
-const LEGACY_SNAPSHOT_KEY="memento-v43-project-snapshot";
+const SNAPSHOT_KEY="memento-v45-project-snapshot";
+const LEGACY_SNAPSHOT_KEYS=["memento-v44-project-snapshot","memento-v43-project-snapshot"];
 
 export class PersistenceService{
   constructor(){this.dbPromise=null;this.saveDebounced=debounce(state=>this.saveNow(state),160);}
@@ -26,7 +26,7 @@ export class PersistenceService{
     return this.dbPromise;
   }
   async load(){
-    const rawLocal=safeParse(localStorage.getItem(SNAPSHOT_KEY),safeParse(localStorage.getItem(LEGACY_SNAPSHOT_KEY),null));
+    const rawLocal=safeParse(localStorage.getItem(SNAPSHOT_KEY),LEGACY_SNAPSHOT_KEYS.map(key=>safeParse(localStorage.getItem(key),null)).find(Boolean)||null);
     const local=normalizeState(rawLocal);
     const db=await this.open();
     if(!db)return rawLocal?local:null;
@@ -63,7 +63,7 @@ export class PersistenceService{
     await new Promise(resolve=>{try{const tx=db.transaction(ASSET_STORE,"readwrite"),request=tx.objectStore(ASSET_STORE).clear();request.onsuccess=()=>resolve();request.onerror=()=>resolve();}catch{resolve()}});
   }
   async clear({assets=false}={}){
-    try{localStorage.removeItem(SNAPSHOT_KEY);localStorage.removeItem(LEGACY_SNAPSHOT_KEY);}catch{}
+    try{localStorage.removeItem(SNAPSHOT_KEY);for(const key of LEGACY_SNAPSHOT_KEYS)localStorage.removeItem(key);}catch{}
     const db=await this.open();if(!db)return;
     await new Promise(resolve=>{try{const tx=db.transaction(PROJECT_STORE,"readwrite"),request=tx.objectStore(PROJECT_STORE).delete("active");request.onsuccess=()=>resolve();request.onerror=()=>resolve();}catch{resolve()}});
     if(assets)await this.clearAssets();

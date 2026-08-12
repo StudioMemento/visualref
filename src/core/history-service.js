@@ -3,10 +3,10 @@ import {deepClone,safeParse} from "./utils.js";
 export class HistoryService{
   constructor(projectId,limit=48){
     this.projectId=projectId;this.limit=limit;this.past=[];this.future=[];
-    this.key=`memento-v44-history:${projectId}`;this.restore();
+    this.key=`memento-v45-history:${projectId}`;this.legacyKey=`memento-v44-history:${projectId}`;this.restore();
   }
   restore(){
-    const data=safeParse(sessionStorage.getItem(this.key),null);
+    const data=safeParse(sessionStorage.getItem(this.key),safeParse(sessionStorage.getItem(this.legacyKey),null));
     if(data&&Array.isArray(data.past)&&Array.isArray(data.future)){this.past=data.past;this.future=data.future;}
   }
   persist(){

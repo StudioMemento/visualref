@@ -6,6 +6,12 @@ export const HERO_CAMERA_CONTRACT=Object.freeze({
   targetCoverage:.58
 });
 
+export const PHYSICAL_UNITS=Object.freeze({m:1,cm:.01,mm:.001,in:.0254,ft:.3048});
+
+export function unitScaleToMeters(unit="m"){
+  return PHYSICAL_UNITS[unit]??1;
+}
+
 export function cameraTargetRadius({
   referenceFov=HERO_CAMERA_CONTRACT.referenceFov,
   referenceDistance=HERO_CAMERA_CONTRACT.referenceDistance,
@@ -41,6 +47,9 @@ export function correctionDefaultsForType(type){
     autoGround:true,
     normalizeMode:"scene",
     targetCoverage:HERO_CAMERA_CONTRACT.targetCoverage,
+    referenceDimension:null,
+    referenceAxis:"x",
+    unit:"m",
     forwardAxis:"+Z",
     upAxis:"+Y",
     castShadow:true,

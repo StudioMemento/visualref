@@ -33,7 +33,7 @@ export class TimelineWorkspace{
   }
   build(){
     this.root.innerHTML=`
-      <div class="timeline-rebuild">
+      <div class="timeline-rebuild v45-timeline">
         <header class="timeline-game-toolbar">
           <div class="timeline-tool-group" role="group" aria-label="Timeline tools">
             ${["select","blade","slip"].map(tool=>`<button class="timeline-icon-button" data-tool="${tool}" title="${tool.toUpperCase()}">${TOOL_ICONS[tool]}<span>${tool}</span></button>`).join("")}
@@ -42,22 +42,13 @@ export class TimelineWorkspace{
           <button class="timeline-icon-button" data-timeline-action="snap" title="Snap"><span class="snap-dot"></span><span>SNAP</span></button>
           <button class="timeline-icon-button" data-timeline-action="marker" title="Add marker">${TOOL_ICONS.marker}<span>MARK</span></button>
           <button class="timeline-icon-button" data-timeline-action="fit" title="Fit timeline">${TOOL_ICONS.fit}<span>FIT</span></button>
+          <button class="timeline-icon-button" data-timeline-action="recipes" title="Sequence recipes">${TOOL_ICONS.shot}<span>RECIPES</span></button>
+          <button class="timeline-icon-button" data-timeline-action="library" title="Open library">${TOOL_ICONS.plus}<span>LIBRARY</span></button>
           <button class="timeline-icon-button playblast" data-timeline-action="playblast" title="Export playblast">${TOOL_ICONS.export}<span>PLAYBLAST</span></button>
           <label class="timeline-zoom-control"><span>ZOOM</span><input data-role="timeline-zoom" type="range" min="2" max="14" step=".5" value="5"></label>
         </header>
-        <section class="sequence-preset-strip" data-role="sequence-presets" aria-label="Sequence presets"></section>
+        <section class="sequence-preset-strip" data-role="sequence-presets" aria-label="Sequence recipes"></section>
         <div class="timeline-body-game">
-          <aside class="timeline-library-game">
-            <div class="timeline-library-title"><span>BUILD</span><b>SEQUENCE</b></div>
-            <button class="timeline-library-action primary" data-library-add>${TOOL_ICONS.shot}<span><b data-role="library-shot-name">ACTIVE SHOT</b><small>ADD / UPDATE V1</small></span></button>
-            <div class="timeline-library-label">FX</div>
-            <div class="timeline-fx-grid">
-              <button data-fx="flash">FLASH</button><button data-fx="vignette">VIGNETTE</button><button data-fx="title">TITLE</button><button data-fx="grain">GRAIN</button>
-            </div>
-            <div class="timeline-library-label">AUDIO</div>
-            <label class="timeline-library-action audio-upload" data-role="audio-upload-label">${TOOL_ICONS.audio}<span><b>IMPORT AUDIO</b><small>WAVEFORM + PLAYBACK</small></span><input data-role="audio-upload" type="file" accept="audio/*" hidden></label>
-            <div class="timeline-library-tip"><b>GAME CONTROLS</b><span>Drag clips · trim both edges · B blade · S slip · M marker</span></div>
-          </aside>
           <section class="timeline-board-game">
             <div class="timeline-scroll" data-role="timeline-scroll">
               <div class="timeline-inner" data-role="timeline-inner">
@@ -67,8 +58,17 @@ export class TimelineWorkspace{
               </div>
             </div>
           </section>
+          <aside class="timeline-library-game" data-role="timeline-library">
+            <div class="timeline-library-title"><span>BUILD</span><b>SEQUENCE</b></div>
+            <button class="timeline-library-action primary" data-library-add>${TOOL_ICONS.shot}<span><b data-role="library-shot-name">ACTIVE SHOT</b><small>ADD / UPDATE V1</small></span></button>
+            <div class="timeline-library-label">FX</div>
+            <div class="timeline-fx-grid"><button data-fx="flash">FLASH</button><button data-fx="vignette">VIGNETTE</button><button data-fx="title">TITLE</button><button data-fx="grain">GRAIN</button></div>
+            <div class="timeline-library-label">AUDIO</div>
+            <label class="timeline-library-action audio-upload" data-role="audio-upload-label">${TOOL_ICONS.audio}<span><b>IMPORT AUDIO</b><small>WAVEFORM + PLAYBACK</small></span><input data-role="audio-upload" type="file" accept="audio/*" hidden></label>
+            <div class="timeline-library-tip"><b>DIRECT EDITING</b><span>Drag · trim · B blade · S slip · M marker</span></div>
+          </aside>
         </div>
-        <section class="clip-inspector-game" data-role="clip-inspector"></section>
+        <section class="clip-inspector-game" data-role="clip-inspector" hidden></section>
       </div>`;
   }
   bind(){
@@ -95,6 +95,8 @@ export class TimelineWorkspace{
     if(action==="fit")this.fitTimeline();
     if(action==="marker")this.commands.dispatch("timeline.addMarker",{});
     if(action==="playblast")this.exportPlayblast();
+    if(action==="recipes")this.commands.dispatch("ui.setTimelineRecipesOpen",{});
+    if(action==="library")this.commands.dispatch("ui.setTimelineLibraryOpen",{});
     if(event.target.closest("[data-library-add]"))this.commands.dispatch("shot.addToTimeline",{trackId:"v1"});
     const fx=event.target.closest("[data-fx]")?.dataset.fx;if(fx)this.commands.dispatch("timeline.addFx",{effect:fx,startFrame:this.latestState.timeline.playheadFrame});
     const presetId=event.target.closest("[data-sequence-preset]")?.dataset.sequencePreset;if(presetId)this.commands.dispatch("timeline.applySequencePreset",{presetId});
@@ -175,8 +177,9 @@ export class TimelineWorkspace{
     const ppf=state.timeline.zoom,end=this.timelineEnd(state),totalWidth=Math.max(520,(end+PRE_ROLL*2)*ppf),inner=this.root.querySelector('[data-role="timeline-inner"]');inner.style.width=`${totalWidth+TRACK_HEAD}px`;
     this.root.querySelector('[data-role="timeline-zoom"]').value=String(ppf);this.renderPresets(state);this.renderRuler(state,end,ppf);this.renderTracks(state,ppf,totalWidth);this.renderInspector(state);this.renderTransportState(state);
     this.root.querySelector('[data-role="library-shot-name"]').textContent=activeShot(state).name;
+    const recipes=this.root.querySelector('[data-role="sequence-presets"]'),library=this.root.querySelector('[data-role="timeline-library"]'),body=this.root.querySelector('.timeline-body-game');recipes.hidden=!state.ui.timelineRecipesOpen;library.hidden=!state.ui.timelineLibraryOpen;body.classList.toggle("library-open",state.ui.timelineLibraryOpen);
     this.root.querySelectorAll("[data-tool]").forEach(button=>button.classList.toggle("active",button.dataset.tool===(state.ui.timelineTool||"select")));
-    this.root.querySelector('[data-timeline-action="snap"]')?.classList.toggle("active",state.timeline.snapEnabled);
+    this.root.querySelector('[data-timeline-action="snap"]')?.classList.toggle("active",state.timeline.snapEnabled);this.root.querySelector('[data-timeline-action="recipes"]')?.classList.toggle("active",state.ui.timelineRecipesOpen);this.root.querySelector('[data-timeline-action="library"]')?.classList.toggle("active",state.ui.timelineLibraryOpen);
   }
   renderPresets(state){
     this.root.querySelector('[data-role="sequence-presets"]').innerHTML=`<div class="sequence-preset-caption"><span>READY-MADE</span><b>SEQUENCE RECIPES</b></div><div class="sequence-preset-rail">${SEQUENCE_PRESETS.filter(p=>p.id!=="empty").map((preset,index)=>`<button class="sequence-preset-chip ${state.timeline.sequencePresetId===preset.id?"active":""}" data-sequence-preset="${preset.id}"><i>${String(index+1).padStart(2,"0")}</i><span><b>${esc(preset.label)}</b><small>${esc(preset.description)}</small></span></button>`).join("")}<button class="sequence-preset-chip clear" data-clear-sequence>${TOOL_ICONS.plus}<span><b>EMPTY</b><small>CLEAR SHOT TRACKS</small></span></button></div>`;
@@ -200,7 +203,7 @@ export class TimelineWorkspace{
   }
   waveformMarkup(values){if(!values.length)return '<div class="audio-wave empty"></div>';const bars=values.slice(0,80).map((value,index)=>`<i style="height:${Math.max(8,value*94)}%;left:${index/(Math.min(80,values.length)-1||1)*100}%"></i>`).join("");return `<div class="audio-wave">${bars}</div>`;}
   renderInspector(state){
-    const host=this.root.querySelector('[data-role="clip-inspector"]'),clip=state.timeline.clips[state.timeline.selectedClipId];if(!clip){host.innerHTML='<div class="inspector-empty"><b>SELECT A CLIP</b><span>Every object exposes only the controls that matter.</span></div>';return;}
+    const host=this.root.querySelector('[data-role="clip-inspector"]'),clip=state.timeline.clips[state.timeline.selectedClipId];if(!clip){host.hidden=true;host.innerHTML="";return;}host.hidden=false;
     const compatible=TRACKS.filter(track=>track.type===(clip.type==="shot"?"video":clip.type));
     host.innerHTML=`<div class="clip-inspector-head"><span>${clip.type.toUpperCase()} CLIP</span><b>${esc(clip.alias)}</b><small>${clip.linked?"LINKED MASTER":"INDEPENDENT"}</small></div>
       <div class="clip-inspector-fields">

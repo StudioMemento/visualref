@@ -2,6 +2,10 @@ const option=(id,label,{start={},end=start,description=""}={})=>({id,label,start
 
 export const CREATIVE_AXES=[
   {
+    id:"subject-presence",label:"SUBJECT",icon:"◇",defaultStart:"present",defaultEnd:"present",advancedAxes:[],
+    options:[option("present","PRESENT"),option("hidden","HIDDEN")]
+  },
+  {
     id:"light",label:"LIGHT",icon:"☼",defaultStart:"studio",defaultEnd:"studio",advancedAxes:["light.key"],
     options:[
       option("rim-side","RIM SIDE",{start:{"light.key":.72},end:{"light.key":.95}}),
@@ -99,7 +103,7 @@ export const CREATIVE_AXES=[
     ]
   },
   {
-    id:"motion-design",label:"MOTION DESIGN",icon:"∿",defaultStart:"none",defaultEnd:"none",advancedAxes:["subject.positionX","subject.positionY","subject.rotationY","environment.depth"],
+    id:"motion-design",label:"MOTION DESIGN",icon:"∿",defaultStart:"none",defaultEnd:"none",advancedAxes:["motion.energy","subject.positionX","subject.positionY","subject.rotationY","environment.depth"],
     options:[
       option("none","NONE"),
       option("hero-clones","HERO + CLONES",{start:{"environment.depth":.42},end:{"environment.depth":.7}}),

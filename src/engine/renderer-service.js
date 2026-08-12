@@ -1,10 +1,10 @@
 import {clamp} from "../core/utils.js";
-import {HERO_CAMERA_CONTRACT,normalizationScaleForAsset,cameraTargetRadius} from "../core/normalization-contract.js";
+import {HERO_CAMERA_CONTRACT,normalizationScaleForAsset,cameraTargetRadius,unitScaleToMeters} from "../core/normalization-contract.js";
 
 class CanvasFallback{
   constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext("2d");this.resizeObserver=null;this.mount();}
   mount(){const resize=()=>{const rect=this.canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.ctx.setTransform(dpr,0,0,dpr,0,0);};this.resizeObserver=new ResizeObserver(resize);this.resizeObserver.observe(this.canvas);resize();}
-  render(frame,state){const {ctx,canvas}=this,w=canvas.clientWidth,h=canvas.clientHeight,v=frame?.values||{};ctx.clearRect(0,0,w,h);const depth=clamp(v["environment.depth"]??.3,0,1),gradient=ctx.createRadialGradient(w*.52,h*.43,0,w*.52,h*.43,Math.max(w,h)*.7);gradient.addColorStop(0,`rgba(${26+Math.round(depth*20)},${27+Math.round(depth*10)},${34+Math.round(depth*12)},1)`);gradient.addColorStop(1,"#030304");ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(w*.5+(v["subject.positionX"]??0)*w*.12,h*.53-(v["subject.positionY"]??0)*h*.12);const scale=(v["subject.scale"]??1)*Math.min(w,h)*.20,rot=(v["subject.rotationY"]??0)*Math.PI/180;ctx.rotate(rot*.22);ctx.shadowColor="rgba(255,121,80,.2)";ctx.shadowBlur=30;const g=ctx.createLinearGradient(-scale,0,scale,0);g.addColorStop(0,"#0c0d10");g.addColorStop(.42,"#d4d7dc");g.addColorStop(.56,"#5d626a");g.addColorStop(1,"#111216");ctx.fillStyle=g;roundRect(ctx,-scale*.85,-scale*.14,scale*1.7,scale*.28,scale*.14);ctx.fill();ctx.restore();}
+  render(frame,state){const {ctx,canvas}=this,w=canvas.clientWidth,h=canvas.clientHeight,v=frame?.values||{};ctx.clearRect(0,0,w,h);const depth=clamp(v["environment.depth"]??.3,0,1),gradient=ctx.createRadialGradient(w*.52,h*.43,0,w*.52,h*.43,Math.max(w,h)*.7);gradient.addColorStop(0,`rgba(${26+Math.round(depth*20)},${27+Math.round(depth*10)},${34+Math.round(depth*12)},1)`);gradient.addColorStop(1,"#030304");ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);const start=frame?.choices?.start?.["subject-presence"],end=frame?.choices?.end?.["subject-presence"],presence=(frame?.t??0)<.5?(start||"present"):(end||start||"present");if(presence==="hidden")return;ctx.save();ctx.translate(w*.5+(v["subject.positionX"]??0)*w*.12,h*.53-(v["subject.positionY"]??0)*h*.12);const scale=(v["subject.scale"]??1)*Math.min(w,h)*.20,rot=(v["subject.rotationY"]??0)*Math.PI/180;ctx.rotate(rot*.22);ctx.shadowColor="rgba(255,121,80,.2)";ctx.shadowBlur=30;const g=ctx.createLinearGradient(-scale,0,scale,0);g.addColorStop(0,"#0c0d10");g.addColorStop(.42,"#d4d7dc");g.addColorStop(.56,"#5d626a");g.addColorStop(1,"#111216");ctx.fillStyle=g;roundRect(ctx,-scale*.85,-scale*.14,scale*1.7,scale*.28,scale*.14);ctx.fill();ctx.restore();}
   dispose(){this.resizeObserver?.disconnect();}
 }
 function roundRect(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();}
@@ -13,7 +13,7 @@ const vec=(value,fallback=[0,0,0])=>Array.isArray(value)?value:fallback;
 
 export class RendererService{
   constructor({canvas,onStatus,persistence,workspace="render",forceFallback=false,onAssetProblem}={}){
-    this.canvas=canvas;this.onStatus=onStatus;this.onAssetProblem=onAssetProblem;this.persistence=persistence;this.workspace=workspace;this.forceFallback=forceFallback;this.mode="booting";this.resizeObserver=null;this.fallback=null;this.assetRevision="";this.loadedAssets=new Map();this.loadingAssets=new Map();this.stagedAssets=new Map();this.viewportCallbacks={};this.viewportCameraMode="editor";this.viewportEditMode="scene";this.viewportTool="select";this.viewportSpace="world";this.viewportActive=workspace==="viewport";this.transformDragging=false;this.lastState=null;this.activeNodeId="hero-proxy";this.pointerState=null;this.pivotDragSnapshot=null;this.assetSwapInProgress=false;this.ready=this.init();
+    this.canvas=canvas;this.onStatus=onStatus;this.onAssetProblem=onAssetProblem;this.persistence=persistence;this.workspace=workspace;this.forceFallback=forceFallback;this.mode="booting";this.resizeObserver=null;this.fallback=null;this.assetRevision="";this.loadedAssets=new Map();this.loadingAssets=new Map();this.stagedAssets=new Map();this.viewportCallbacks={};this.viewportCameraMode="editor";this.viewportEditMode="calibrate";this.viewportTool="select";this.viewportSpace="world";this.viewportActive=workspace==="viewport";this.transformDragging=false;this.lastState=null;this.activeNodeId="hero-proxy";this.pointerState=null;this.pivotDragSnapshot=null;this.assetSwapInProgress=false;this.ready=this.init();
   }
   status(label,mode="ready",detail=""){this.mode=mode;this.onStatus?.({label,mode,detail});}
   async init(){
@@ -24,8 +24,8 @@ export class RendererService{
         Promise.all([import("three"),import("three/addons/loaders/GLTFLoader.js"),import("three/addons/loaders/RGBELoader.js"),import("three/addons/controls/OrbitControls.js"),import("three/addons/controls/TransformControls.js"),import("three/addons/loaders/DRACOLoader.js"),import("three/addons/libs/meshopt_decoder.module.js")]),
         new Promise((_,reject)=>setTimeout(()=>reject(new Error("Three.js modules timed out")),9000))
       ]);
-      this.T=T;this.GLTFLoader=gltfModule.GLTFLoader;this.RGBELoader=rgbeModule.RGBELoader;this.OrbitControls=orbitModule.OrbitControls;this.TransformControls=transformModule.TransformControls;this.DRACOLoader=dracoModule.DRACOLoader;this.MeshoptDecoder=meshoptModule.MeshoptDecoder;this.initThree();this.status("THREE · V44 WORLD GIZMO READY","ready");
-    }catch(error){console.warn("V44 Three.js unavailable, using visible fallback",error);this.fallback=new CanvasFallback(this.canvas);this.status("PROXY · FALLBACK","fallback",String(error?.message||error));}
+      this.T=T;this.GLTFLoader=gltfModule.GLTFLoader;this.RGBELoader=rgbeModule.RGBELoader;this.OrbitControls=orbitModule.OrbitControls;this.TransformControls=transformModule.TransformControls;this.DRACOLoader=dracoModule.DRACOLoader;this.MeshoptDecoder=meshoptModule.MeshoptDecoder;this.initThree();this.status("THREE · V45 SCENE READY","ready");
+    }catch(error){console.warn("V45 Three.js unavailable, using visible fallback",error);this.fallback=new CanvasFallback(this.canvas);this.status("PROXY · FALLBACK","fallback",String(error?.message||error));}
   }
   initThree(){
     const T=this.T;
@@ -99,20 +99,20 @@ export class RendererService{
     };return rigs[choice]||base;
   }
   mixObject(a,b,t){const out={};for(const key of new Set([...Object.keys(a||{}),...Object.keys(b||{})]))out[key]=this.T.MathUtils.lerp(Number(a?.[key])||0,Number(b?.[key])||0,t);return out;}
-  applyMotionDesign(choice,u,scale){
-    const clones=this.motionClones?.children||[];for(const clone of clones)clone.visible=false;if(!choice||choice==="none")return;
-    const n=Math.min(clones.length,choice==="hero-clones"?2:choice==="pattern"?8:10);for(let i=0;i<n;i++){const clone=clones[i];clone.visible=true;const a=(i/Math.max(1,n))*Math.PI*2,phase=a+u*Math.PI*2,base=.32*scale;clone.scale.setScalar(base);clone.rotation.set(0,phase*.45,0);clone.position.set(0,0,-3.2);
-      if(choice==="hero-clones")clone.position.set(i?2.4:-2.4,0,-3.4);
-      else if(choice==="pattern")clone.position.set((i%4-1.5)*2.0,(Math.floor(i/4)-.5)*1.7,-3.8);
-      else if(choice==="spiral")clone.position.set(Math.cos(phase)*(1.3+i*.22),Math.sin(phase)*.8,-3.2-i*.12);
-      else if(choice==="vortex")clone.position.set(Math.cos(phase)*(2.1+.35*Math.sin(i)),Math.sin(phase*1.4)*1.2,-3.1+Math.sin(phase)*.55);
-      else if(choice==="kaleidoscope"){clone.position.set(Math.cos(a)*2.7,Math.sin(a)*2.7,-4);clone.rotation.z=-a;}
-      else if(choice==="multiaxis")clone.position.set(Math.sin(phase)*2.6,Math.cos(phase*1.35)*1.5,-3.5+Math.sin(phase*.6));
-      else if(choice==="exploded")clone.position.set(Math.cos(a)*(1.1+u*2.2),Math.sin(a)*(1.1+u*1.4),-3.3);
-      else if(choice==="stack")clone.position.set(0,(i-(n-1)/2)*.48,-3.2-i*.18);
-      else if(choice==="satellite")clone.position.set(Math.cos(phase)*2.8,Math.sin(phase*.7)*.65,-3.4+Math.sin(phase)*1.1);
-      else if(choice==="wave")clone.position.set((i-(n-1)/2)*.7,Math.sin(i*.75+u*Math.PI*2)*.85,-3.6);
-      else if(choice==="dispersion")clone.position.set(Math.cos(a)*(1.0+u*3.0),Math.sin(a)*(1.0+u*2.0),-3.4-i*.08);
+  applyMotionDesign(choice,u,scale,energy=0){
+    const clones=this.motionClones?.children||[];for(const clone of clones)clone.visible=false;const e=clamp(Number(energy)||0,0,1);if(!choice||choice==="none"||e<=.001)return;
+    const n=Math.min(clones.length,Math.max(1,Math.round((choice==="hero-clones"?2:choice==="pattern"?8:10)*(.32+e*.68))));for(let i=0;i<n;i++){const clone=clones[i];clone.visible=true;const a=(i/Math.max(1,n))*Math.PI*2,phase=a+u*Math.PI*2*(.35+e*.65),base=(.18+.18*e)*scale;clone.scale.setScalar(base);clone.rotation.set(0,phase*.45*e,0);clone.position.set(0,0,-3.2);
+      if(choice==="hero-clones")clone.position.set((i?2.4:-2.4)*e,0,-3.4);
+      else if(choice==="pattern")clone.position.set((i%4-1.5)*2.0*e,(Math.floor(i/4)-.5)*1.7*e,-3.8);
+      else if(choice==="spiral")clone.position.set(Math.cos(phase)*(1.3+i*.22)*e,Math.sin(phase)*.8*e,-3.2-i*.12*e);
+      else if(choice==="vortex")clone.position.set(Math.cos(phase)*(2.1+.35*Math.sin(i))*e,Math.sin(phase*1.4)*1.2*e,-3.1+Math.sin(phase)*.55*e);
+      else if(choice==="kaleidoscope"){clone.position.set(Math.cos(a)*2.7*e,Math.sin(a)*2.7*e,-4);clone.rotation.z=-a*e;}
+      else if(choice==="multiaxis")clone.position.set(Math.sin(phase)*2.6*e,Math.cos(phase*1.35)*1.5*e,-3.5+Math.sin(phase*.6)*e);
+      else if(choice==="exploded")clone.position.set(Math.cos(a)*(1.1+u*2.2)*e,Math.sin(a)*(1.1+u*1.4)*e,-3.3);
+      else if(choice==="stack")clone.position.set(0,(i-(n-1)/2)*.48*e,-3.2-i*.18*e);
+      else if(choice==="satellite")clone.position.set(Math.cos(phase)*2.8*e,Math.sin(phase*.7)*.65*e,-3.4+Math.sin(phase)*1.1*e);
+      else if(choice==="wave")clone.position.set((i-(n-1)/2)*.7*e,Math.sin(i*.75+u*Math.PI*2)*.85*e,-3.6);
+      else if(choice==="dispersion")clone.position.set(Math.cos(a)*(1.0+u*3.0)*e,Math.sin(a)*(1.0+u*2.0)*e,-3.4-i*.08*e);
     }
   }
   applyAtmosphere(choice,u,depth){
@@ -142,7 +142,7 @@ export class RendererService{
     this.canvas.addEventListener("pointerdown",this.pointerHandlers.down);this.canvas.addEventListener("pointerup",this.pointerHandlers.up);this.canvas.addEventListener("dblclick",this.pointerHandlers.dblclick);
     if(this.workspace!=="viewport")return;
     const T=this.T;
-    this.pivotHandle=new T.Group();this.pivotHandle.name="V44_PIVOT_HANDLE";this.pivotHandle.userData={transformKind:"pivot",nodeId:null};
+    this.pivotHandle=new T.Group();this.pivotHandle.name="V45_PIVOT_HANDLE";this.pivotHandle.userData={transformKind:"pivot",nodeId:null};
     const sphere=new T.Mesh(new T.SphereGeometry(.085,18,12),new T.MeshBasicMaterial({color:0xff7950,depthTest:false,transparent:true,opacity:.96,toneMapped:false}));sphere.renderOrder=1002;this.pivotHandle.add(sphere);this.scene.add(this.pivotHandle);this.pivotHandle.visible=false;
     const positions=new Float32Array(6);const guideGeometry=new T.BufferGeometry();guideGeometry.setAttribute("position",new T.BufferAttribute(positions,3));this.pivotGuide=new T.Line(guideGeometry,new T.LineDashedMaterial({color:0xff7950,dashSize:.09,gapSize:.055,transparent:true,opacity:.68,depthTest:false}));this.pivotGuide.computeLineDistances();this.pivotGuide.renderOrder=1001;this.pivotGuide.visible=false;this.scene.add(this.pivotGuide);
     this.transformControl=new this.TransformControls(this.editorCamera,this.canvas);this.transformControl.setSize(.85);this.transformHelper=this.transformControl.getHelper?this.transformControl.getHelper():this.transformControl;this.scene.add(this.transformHelper);
@@ -152,8 +152,8 @@ export class RendererService{
   raycastNode(event){
     if(!this.raycaster||!this.editorCamera||!this.canvas)return null;const rect=this.canvas.getBoundingClientRect();if(!rect.width||!rect.height)return null;this.pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);this.raycaster.setFromCamera(this.pointer,this.editorCamera);const roots=[...this.contentGroups.values()].filter(root=>root.visible);for(const hit of this.raycaster.intersectObjects(roots,true)){let object=hit.object;while(object){const id=object.userData?.semanticNodeId||object.userData?.nodeId;if(id&&this.lastState?.scene?.nodes?.[id]?.visible!==false)return id;object=object.parent;}}return null;
   }
-  configureViewport({nodeId,tool="select",space="world",editMode="scene",snapEnabled=false,snap={},nodeLocked=false,transformLocks={},cameraMode,active=true,onTransformStart,onTransformChange,onTransformEnd,onCameraStart,onCameraChange,onCameraEnd,onSelectNode}={}){
-    this.viewportCallbacks={onTransformStart,onTransformChange,onTransformEnd,onCameraStart,onCameraChange,onCameraEnd,onSelectNode};this.viewportCameraMode=cameraMode==="shot"?"shot":"editor";this.viewportEditMode=["shot","calibrate","scene"].includes(editMode)?editMode:"scene";this.viewportTool=["select","translate","rotate","scale","pivot"].includes(tool)?tool:"select";this.viewportSpace=space==="local"?"local":"world";this.viewportActive=active!==false;this.activeNodeId=nodeId||this.activeNodeId;
+  configureViewport({nodeId,tool="select",space="world",editMode="calibrate",snapEnabled=false,snap={},nodeLocked=false,transformLocks={},cameraMode,active=true,onTransformStart,onTransformChange,onTransformEnd,onCameraStart,onCameraChange,onCameraEnd,onSelectNode}={}){
+    this.viewportCallbacks={onTransformStart,onTransformChange,onTransformEnd,onCameraStart,onCameraChange,onCameraEnd,onSelectNode};this.viewportCameraMode=cameraMode==="shot"?"shot":"editor";this.viewportEditMode=["shot","calibrate","scene"].includes(editMode)?editMode:"calibrate";this.viewportTool=["select","translate","rotate","scale","pivot"].includes(tool)?tool:"select";this.viewportSpace=space==="local"?"local":"world";this.viewportActive=active!==false;this.activeNodeId=nodeId||this.activeNodeId;
     if(this.orbit)this.orbit.enabled=this.viewportActive&&this.viewportCameraMode!=="shot"&&!this.transformDragging;
     this.syncPivotHandle(this.lastState);
     if(!this.transformControl)return;
@@ -231,7 +231,7 @@ export class RendererService{
       finally{URL.revokeObjectURL(url);}
     }
 
-    if(!String(name||"").toLowerCase().endsWith(".glb")&&blob.type&&blob.type!=="model/gltf-binary")throw new Error("V44 accepts self-contained .glb files");
+    if(!String(name||"").toLowerCase().endsWith(".glb")&&blob.type&&blob.type!=="model/gltf-binary")throw new Error("V45 accepts self-contained .glb files");
     let root=null;
     try{
       const buffer=await blob.arrayBuffer(),extensions=this.parseGLBExtensions(buffer),{loader,draco}=this.createGLTFLoader();let gltf;
@@ -264,10 +264,11 @@ export class RendererService{
   getNodeMetrics(nodeId){const value=this.autoTransforms?.get?.(nodeId),loaded=[...this.loadedAssets.values()].find(entry=>entry.nodeId===nodeId);return value?structuredClone({...value,import:loaded?.metadata||null}):null;}
   applyAutoTransform(nodeId,node){
     const group=this.nodeGroups.get(nodeId),auto=this.autoTransforms.get(nodeId);if(!group||!auto)return;
-    const correction=node?.correction||{},type=node?.type||group.userData.nodeType,mode=type==="hero"?"camera":type==="environment"?"native":correction.normalizeMode||auto.mode;
-    if(mode==="native"||correction.autoNormalize===false){group.auto.scale.setScalar(1);group.auto.position.set(0,correction.autoGround===true?auto.nativeGround:0,0);return;}
-    group.auto.scale.setScalar(auto.scale);
-    const ground=correction.autoGround!==false?auto.ground:0;group.auto.position.set(-auto.center[0]*auto.scale,ground-auto.center[1]*auto.scale,-auto.center[2]*auto.scale);
+    const correction=node?.correction||{},type=node?.type||group.userData.nodeType,mode=type==="hero"?"camera":type==="environment"?"native":correction.normalizeMode||auto.mode,axis={x:0,y:1,z:2}[correction.referenceAxis]??0,reference=Number(correction.referenceDimension),sourceDimension=Math.max(.000001,Number(auto.sourceSize?.[axis])||0),physicalScale=Number.isFinite(reference)&&reference>0?reference*unitScaleToMeters(correction.unit||"m")/sourceDimension:null,normalized=mode!=="native"&&correction.autoNormalize!==false,appliedScale=physicalScale|| (normalized?auto.scale:1);
+    group.auto.scale.setScalar(appliedScale);auto.appliedScale=appliedScale;auto.physicalScale=physicalScale;auto.referenceDimension=physicalScale?reference:null;auto.referenceAxis=correction.referenceAxis||"x";auto.unit=correction.unit||"m";auto.appliedSize=(auto.sourceSize||[0,0,0]).map(value=>value*appliedScale);auto.radius=auto.sourceRadius*appliedScale;
+    if(mode==="native"&&!physicalScale){group.auto.position.set(0,correction.autoGround===true?-auto.sourceBox.min[1]:0,0);return;}
+    if(mode==="native"){group.auto.position.set(0,correction.autoGround===true?-auto.sourceBox.min[1]*appliedScale:0,0);return;}
+    const y=correction.autoGround!==false?-auto.sourceBox.min[1]*appliedScale:-auto.center[1]*appliedScale;group.auto.position.set(-auto.center[0]*appliedScale,y,-auto.center[2]*appliedScale);
   }
   async loadHDRI(id,record,meta){const staged=await this.stageAsset({id,kind:"hdri",blob:record.blob,name:meta?.name||record.name}),transaction=await this.mountStagedAsset({stageId:staged.id,id});transaction.commit();}
   unloadAsset(id){
@@ -289,13 +290,13 @@ export class RendererService{
     const hero=this.nodeGroups.get("hero-proxy"),heroNode=state.scene.nodes?.["hero-proxy"],bounds=this.autoTransforms.get("hero-proxy")||{radius:cameraTargetRadius(),normalizedCenter:[0,1,0]};
     hero?.updateMatrixWorld(true);
     const sourceCenter=new T.Vector3(...(bounds.center||[0,0,0])),localCenter=hero?.auto?sourceCenter.multiplyScalar(hero.auto.scale.x).add(hero.auto.position):sourceCenter,worldCenter=hero?.correction?.localToWorld(localCenter.clone())||hero?.position?.clone()||new T.Vector3();
-    const baseScale=Math.max(...vec(heroNode?.baseTransform?.scale,[1,1,1]).map(value=>Math.abs(Number(value)||1))),correctionScale=Math.max(...vec(heroNode?.correction?.scale,[1,1,1]).map(value=>Math.abs(Number(value)||1))),subjectScale=Math.abs(Number(v["subject.scale"]??1)),u=clamp(frame?.linear??0,0,1),blend=clamp(frame?.t??u,0,1),startChoices=frame?.choices?.start||{},endChoices=frame?.choices?.end||{};
-    const lensStart=this.lensFov(startChoices.lens),lensEnd=this.lensFov(endChoices.lens),creativeFov=T.MathUtils.lerp(lensStart,lensEnd,blend),numericFov=clamp(v["camera.fov"]??38,8,100),fov=clamp(frame?.choices?creativeFov:numericFov,8,100),safeRadius=Math.max(.05,bounds.radius*baseScale*correctionScale*subjectScale),fit=safeRadius/Math.tan(rad(fov*.5))*1.12,distance=Math.max(v["camera.distance"]??HERO_CAMERA_CONTRACT.referenceDistance,fit),height=v["camera.height"]??.1,target=new T.Vector3(worldCenter.x+(v["camera.targetX"]||0),worldCenter.y+(v["camera.targetY"]||0),worldCenter.z);
+    const baseScale=Math.max(...vec(heroNode?.baseTransform?.scale,[1,1,1]).map(value=>Math.abs(Number(value)||1))),correctionScale=Math.max(...vec(heroNode?.correction?.scale,[1,1,1]).map(value=>Math.abs(Number(value)||1))),subjectScale=Math.abs(Number(v["subject.scale"]??1)),u=clamp(frame?.linear??0,0,1),blend=clamp(frame?.t??u,0,1),startChoices=frame?.choices?.start||{},endChoices=frame?.choices?.end||{},presence=blend<.5?(startChoices["subject-presence"]||"present"):(endChoices["subject-presence"]||startChoices["subject-presence"]||"present");if(hero)hero.visible=heroNode?.visible!==false&&presence!=="hidden";
+    const lensStart=this.lensFov(startChoices.lens),lensEnd=this.lensFov(endChoices.lens),creativeFov=T.MathUtils.lerp(lensStart,lensEnd,blend),numericFov=clamp(v["camera.fov"]??38,8,100),fov=clamp(frame?.choices?creativeFov:numericFov,8,100),safeRadius=Math.max(.005,bounds.radius*baseScale*correctionScale*subjectScale),fit=safeRadius/Math.max(.02,Math.tan(rad(fov*.5))*HERO_CAMERA_CONTRACT.targetCoverage),distanceFactor=Math.max(.12,Number(v["camera.distance"]??HERO_CAMERA_CONTRACT.referenceDistance)/HERO_CAMERA_CONTRACT.referenceDistance),distance=Math.max(safeRadius*1.25,fit*distanceFactor),height=(v["camera.height"]??.1)*Math.max(.2,safeRadius/cameraTargetRadius()),target=new T.Vector3(worldCenter.x+(v["camera.targetX"]||0)*safeRadius,worldCenter.y+(v["camera.targetY"]||0)*safeRadius,worldCenter.z);
     const cameraMod=this.mixObject(this.cameraModifier(startChoices.camera,u,distance),this.cameraModifier(endChoices.camera,u,distance),blend),az=cameraMod.az||0,camDistance=Math.max(fit,distance+(cameraMod.z||0));target.x+=cameraMod.targetX||0;target.y+=cameraMod.targetY||0;
     this.shotCamera.fov=clamp(fov*(cameraMod.fov||1),8,100);this.shotCamera.position.set(target.x+Math.sin(az)*camDistance+(cameraMod.x||0),target.y+height+(cameraMod.y||0),target.z+Math.cos(az)*camDistance);this.shotCamera.up.set(0,1,0);this.shotCamera.near=Math.max(.01,(camDistance-safeRadius)*.08);this.shotCamera.far=Math.max(100,camDistance+safeRadius*20);this.shotCamera.lookAt(target);if(cameraMod.roll)this.shotCamera.rotateZ(cameraMod.roll);this.shotCamera.updateProjectionMatrix();
     const keyValue=v["light.key"]??.8,light=this.mixObject(this.lightRig(startChoices.light,u,keyValue),this.lightRig(endChoices.light,u,keyValue),blend);this.key.intensity=light.key;this.rim.intensity=light.rim;this.fill.intensity=light.fill;this.ambient.intensity=light.ambient;const rimAngle=light.angle??(light.side<0?-1.1:1.1);this.rim.position.set(Math.sin(rimAngle)*3.6,light.top||1.2,Math.cos(rimAngle)*3.6);this.fill.position.set(-this.rim.position.x*.75,-.25,2.2);
     const depth=clamp(v["environment.depth"]??.3,0,1),environmentChoice=blend<.5?startChoices.environment:endChoices.environment,focusChoice=blend<.5?startChoices.focus:endChoices.focus,atmosphereChoice=blend<.5?startChoices.atmosphere:endChoices.atmosphere,motionChoice=blend<.5?startChoices["motion-design"]:endChoices["motion-design"];
-    const builtinEnvironment=state.assets.environmentId==="environment-proxy";if(this.floor)this.floor.visible=builtinEnvironment&&(environmentChoice==="plane"||environmentChoice==="limbo");if(this.cove)this.cove.visible=builtinEnvironment&&environmentChoice==="limbo";let focusFog=focusChoice==="all"?.45:focusChoice==="macro"?1.55:focusChoice==="rack"?.65+u*.75:focusChoice==="foreground"?1.3:1;this.scene.fog.density=(.004+depth*.032)*focusFog;this.grid.material.opacity=.12+depth*.22;this.scene.background?.setRGB?.(.018+depth*.012,.018+depth*.010,.024+depth*.015);this.applyAtmosphere(atmosphereChoice,u,depth);this.applyMotionDesign(motionChoice,u,subjectScale);
+    const builtinEnvironment=state.assets.environmentId==="environment-proxy";if(this.floor)this.floor.visible=builtinEnvironment&&(environmentChoice==="plane"||environmentChoice==="limbo");if(this.cove)this.cove.visible=builtinEnvironment&&environmentChoice==="limbo";let focusFog=focusChoice==="all"?.45:focusChoice==="macro"?1.55:focusChoice==="rack"?.65+u*.75:focusChoice==="foreground"?1.3:1;this.scene.fog.density=(.004+depth*.032)*focusFog;this.grid.material.opacity=.12+depth*.22;this.scene.background?.setRGB?.(.018+depth*.012,.018+depth*.010,.024+depth*.015);this.applyAtmosphere(atmosphereChoice,u,depth);this.applyMotionDesign(motionChoice,u,subjectScale,v["motion.energy"]??0);if(this.motionClones)this.motionClones.visible=presence!=="hidden";
     const env=state.scene.environment||{};if(this.hdriTexture){this.scene.environment=this.hdriTarget?.texture||null;this.scene.background=env.backgroundVisible?this.hdriTexture:new T.Color(0x050506);if("environmentIntensity" in this.scene)this.scene.environmentIntensity=Number(env.intensity)||1;if("environmentRotation" in this.scene)this.scene.environmentRotation.set(0,rad(env.rotation||0),0);if("backgroundRotation" in this.scene)this.scene.backgroundRotation.set(0,rad(env.rotation||0),0);if("backgroundBlurriness" in this.scene)this.scene.backgroundBlurriness=clamp(Number(env.blur)||0,0,1);}else if(!(this.scene.background?.isColor))this.scene.background=new T.Color(0x050506);
     const viewport=(this.workspace==="viewport"||(this.workspace==="timeline"&&this.viewportActive))&&!forceShotCamera,camera=viewport&&this.viewportCameraMode!=="shot"?this.editorCamera:this.shotCamera,baseExposure=Number(state.scene.rendererSettings?.exposure)||1;this.renderer.toneMappingExposure=this.applyTimelineEffects(frame?.effects||[],frame?.sequenceFrame??frame?.frame??0,baseExposure,camera);this.grid.visible=viewport&&state.scene.showGrid!==false;const helpers=viewport&&state.scene.showHelpers!==false&&this.viewportCameraMode!=="shot";this.shotCameraHelper.visible=helpers;this.keyHelper.visible=helpers;this.selectionHelper.visible=helpers;this.transformHelper&&(this.transformHelper.visible=helpers&&!!this.transformControl?.object);this.updatePivotVisual(state,helpers);if(this.orbit){this.orbit.enabled=viewport&&this.viewportCameraMode!=="shot"&&!this.transformDragging;this.orbit.update();}
     if(this.selectionHelper.visible){const selected=this.nodeGroups.get(state.ui.selectedNodeId)||hero;this.selectionHelper.setFromObject(selected);this.selectionHelper.material.color.set(state.ui.selectedNodeId==="hero-proxy"?0x59d7df:0xff7950);}

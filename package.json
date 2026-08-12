@@ -1,9 +1,9 @@
 {
-  "name": "memento-visualref-v44",
-  "version": "44.0.2",
+  "name": "memento-visualref-v45",
+  "version": "45.0.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V44 \u2014 atomic GLB/HDRI import, World/Local gizmos and V43B.9 render-editor acceptance UI",
+  "description": "MEMENTO VisualRef V45 — V36C clarity, V44 capability, one scene/player/history ownership model.",
   "scripts": {
     "test": "node tests/core-smoke.mjs",
     "check": "node tests/structure-check.mjs && node tests/core-smoke.mjs"

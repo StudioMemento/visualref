@@ -1,83 +1,116 @@
-# Deploy MEMENTO VisualRef V44
+# Deploy MEMENTO VisualRef V45
 
-## GitHub / Vercel
+## Replace the GitHub repository cleanly
 
-1. Extract `MEMENTO_VISUALREF_V44.zip`.
-2. Upload every file and folder inside `MEMENTO_VISUALREF_V44` to the repository root.
-3. Commit the replacement as `V44 · GLB + WORLD/LOCAL GIZMO`.
-4. Let Vercel redeploy from the connected repository.
+1. Download and extract `MEMENTO_VISUALREF_V45.zip`.
+2. Open the existing GitHub repository.
+3. Remove the old application files from the repository root, while retaining repository settings and any intentional legal files.
+4. Upload every file and folder **inside** `MEMENTO_VISUALREF_V45` to the repository root.
+5. Commit the replacement as:
 
-For a new Vercel project:
+```text
+V45 · Product Vis reset
+```
 
-- Framework preset: **Other**
-- Build command: empty
-- Output directory: empty
-- Install command: empty
+The V45 package contains fewer than 100 files, so GitHub's web uploader should accept the full root in one pass. A local Git clone remains safer because it preserves deletions and folder structure exactly.
 
-`vercel.json` redirects the root route to `render.html`; `index.html` keeps a browser fallback redirect.
+## Local Git method
 
-## Important storage behavior
+From a clean clone of the correct repository:
 
-GLB, HDR and audio files are persisted in the current browser's IndexedDB. They are not uploaded to GitHub or Vercel and do not automatically travel to another browser or device.
+```bash
+git checkout -b v45
+```
 
-## V44 runtime acceptance
+Delete the old tracked application files, copy the contents of the extracted V45 folder into the repository root, then run:
 
-### Atomic Hero import
+```bash
+npm run check
+git add -A
+git commit -m "V45 · Product Vis reset"
+git push -u origin v45
+```
 
-1. Open VIEWPORT and import a valid Hero GLB.
-2. Confirm `STAGING` / `VALIDATED` / ready feedback.
-3. Confirm the Hero is framed and enters **CALIBRATE**.
-4. Attempt to replace it with a malformed file.
-5. Confirm the valid Hero stays active and reload still restores it.
+Open a pull request or merge the branch only after the deployed acceptance pass.
 
-### Environment import
+## Vercel settings
 
-1. Import a real Environment GLB.
-2. Confirm its native scale and origin are retained.
-3. Use Frame Selected before judging a very large or distant asset.
-4. Test Move, Rotate, XYZ Scale, Ground and Reset.
-5. Reload and navigate between all workspaces.
+Use a static deployment:
 
-### Gizmo grammar
+```text
+Framework preset: Other
+Root directory: repository root
+Build command: none
+Output directory: none
+Install command: none required
+```
 
-1. Select Hero, Environment and Prop by clicking them in the canvas and in the Outliner.
-2. Test Select, Move, Rotate, Scale and Pivot.
-3. Test World and Local for Move, Rotate and Pivot.
-4. Confirm Scale follows local object axes.
-5. Enable Snap and test each configured increment.
-6. Lock Position, Rotation, Scale and Pivot separately.
-7. Lock the entire node and confirm selection/frame still work but mutation does not.
+`vercel.json` supplies the clean routes and static headers.
 
-### Pivot invariance
+Primary URLs:
 
-1. Import an asset with a bad origin.
-2. Enter Pivot and move the handle.
-3. Confirm the visible model does not jump.
-4. Test Origin, Centre, Bottom and Top presets.
-5. Confirm one Undo restores both pivot and compensated transform.
-6. Confirm one Redo reapplies both.
+```text
+/render.html
+/viewport.html
+/timeline.html
+```
 
-### Hero Shot / Calibrate separation
+The root redirects to Render.
 
-1. In **SHOT**, edit START, BOTH and END through Move/Rotate/Scale.
-2. Enter **CALIBRATE** and correct the persistent asset placement.
-3. Confirm Calibrate does not rewrite START/END.
-4. Press Pivot while in Shot and confirm V44 switches to Calibrate automatically.
+## Important runtime requirement
 
-### Shared scene
+Three.js and its official loaders are imported from jsDelivr. The deployed browser must have network access to that CDN. Add `?fallback=1` to a workspace URL only for layout/state review; it intentionally disables real WebGL asset work.
 
-1. Create or update a Shot in RENDER.
-2. Confirm the corrected Hero and Environment appear in RENDER.
-3. Add the Shot to TIMELINE.
-4. Confirm TIMELINE uses the same corrected scene.
-5. Reload and repeat the route changes.
+## V45 deployment acceptance
 
-### Timeline regression
+### Shell and ownership
 
-1. Apply a sequence recipe.
-2. Move a Shot between V1–V3.
-3. Trim both edges, Blade and Slip.
-4. Make one linked clip unique.
-5. Lock/hide video and mute audio tracks.
-6. Add marker, FX and audio.
-7. Set IN/OUT and export WebM Playblast where supported.
+- V45 appears in the header and boot screen.
+- Render, Viewport and Timeline are the only primary workspace destinations.
+- Undo/Redo use one shared history.
+- only one Player and one WebGL renderer are created.
+- workspace splitter positions survive reload.
+
+### Viewport
+
+- valid Hero GLB imports atomically;
+- invalid replacement leaves the current Hero active;
+- reference dimension, reference axis and unit calibrate the Hero;
+- Environment retains native authoring scale;
+- Move/Rotate obey World and Local;
+- Scale remains object-local;
+- Pivot does not move visible geometry;
+- Frame and Ground work;
+- CALIBRATE remains the default Hero mode;
+- EDIT SHOT STATE changes Shot state only when deliberately enabled.
+
+### Render
+
+- Player remains visually dominant;
+- all nine macros remain visible;
+- selecting a macro opens precision inline;
+- Start, Both and End chip assignments are readable;
+- Live, Start, End and Compare work;
+- Motion starts Off and Energy at zero;
+- Variation changes unlocked creative decisions;
+- Add to Timeline creates a linked Shot clip.
+
+### Timeline
+
+- GFX/FX, V3, V2, V1, A1 and A2 are present;
+- Shot clips remain linked until Make Unique;
+- move, trim, split, snap and Slip do not alter the scene;
+- audio waveform is visible;
+- markers persist;
+- Recipes and Library remain secondary drawers;
+- Player and playhead remain synchronized;
+- mobile pan does not accidentally move the playhead.
+
+### Persistence
+
+- reload preserves the project, semantic nodes, Shots and clips;
+- uploaded binaries are restored from IndexedDB;
+- route switching does not duplicate assets or renderers;
+- an unavailable binary is reported rather than silently replaced.
+
+Do not mark the deployment production-ready until the real asset matrix in `VALIDATION.md` has passed.

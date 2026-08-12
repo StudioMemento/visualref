@@ -36,5 +36,5 @@ export class ProjectStore{
     const remoteTime=Date.parse(state?.meta?.updatedAt||0),localTime=Date.parse(this.state?.meta?.updatedAt||0);
     if(remoteTime<localTime)return;this.state=deepClone(state);this.notify({type:"remote"});this.persistence?.save(this.state);
   }
-  setSplitter(value){this.transient("Resize workspace",state=>state.ui.splitter=clamp(value,.36,.74),{persist:true,broadcast:false});}
+  setSplitter(value,workspace=null){this.transient("Resize workspace",state=>{const safe=clamp(value,.28,.76);state.ui.splitter=safe;if(workspace){state.ui.workspaceSplitters??={};state.ui.workspaceSplitters[workspace]=safe;}},{persist:true,broadcast:false});}
 }

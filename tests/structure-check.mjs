@@ -12,52 +12,59 @@ for(const file of htmlFiles){
     const target=path.join(root,match[1].replace(/^\.\//,''));
     assert(fs.existsSync(target),`${file} resolves ${match[1]}`);
   }
-  assert(source.includes('V44'),`${file} is visibly labelled V44`);
+  assert(source.includes('V45'),`${file} is visibly labelled V45`);
 }
-for(const file of ['render.html','viewport.html','timeline.html'])assert(read(file).includes('./css/v44.css'),`${file} loads V44 styles`);
-const renderHtml=read('render.html');
-assert(renderHtml.includes('./css/v44-render-editor.css'),'Render loads the V43B.9 acceptance stylesheet');
-assert(renderHtml.indexOf('./css/v44-render-editor.css')>renderHtml.indexOf('./css/v44.css'),'Render acceptance stylesheet loads after V44 base styles');
+for(const file of ['render.html','viewport.html','timeline.html']){
+  const source=read(file);
+  assert(source.includes('./css/v45.css'),`${file} loads the V45 product layer`);
+  assert(source.indexOf('./css/v45.css')>source.indexOf('./css/v44.css'),`${file} loads V45 after the inherited donor styles`);
+}
 
-
-const moduleFiles=[];
-for(const directory of ['src','tests'])walk(path.join(root,directory),moduleFiles);
-for(const absolute of moduleFiles){
+const modules=[];
+for(const directory of ['src','tests'])walk(path.join(root,directory),modules);
+for(const absolute of modules){
   const source=fs.readFileSync(absolute,'utf8');
   for(const match of source.matchAll(/(?:from\s*|import\s*\()(["'])(\.[^"']+)\1/g)){
-    const specifier=match[2],candidate=path.resolve(path.dirname(absolute),specifier);
-    assert(fs.existsSync(candidate),`${path.relative(root,absolute)} resolves ${specifier}`);
+    const candidate=path.resolve(path.dirname(absolute),match[2]);
+    assert(fs.existsSync(candidate),`${path.relative(root,absolute)} resolves ${match[2]}`);
   }
 }
 
+const pkg=JSON.parse(read('package.json'));
+assert(pkg.name==='memento-visualref-v45'&&pkg.version==='45.0.0','Package identifies V45');
 
-const renderWorkspace=read('src/workspaces/render-workspace.js');
-for(const token of ['v43b9-axis-matrix','CREATIVE_AXES.map(axis=>creativeAxisRow','mvr-axis-tile','mvr-axis-label','mvr-axis-lock','["mvr-chip"','mvr-chip-label','mvr-chip-start','mvr-chip-both','mvr-chip-end','data-option-endpoint="both"','shared-option','excluded-option'])assert(renderWorkspace.includes(token),`Render restores approved V43B.9 token ${token}`);
-for(const removed of ['data-role="axis-groups"','data-role="axis-tiles"','data-role="active-axis-panel"','function axisTile(','function activeAxisPanel('])assert(!renderWorkspace.includes(removed),`Render removes interim drill-down token ${removed}`);
-const renderStyles=read('css/v44-render-editor.css');
-for(const token of ['grid-template-columns:30% 40% 30%','mvr-axis-label small','mvr-axis-label svg{display:none!important}','linear-gradient(90deg,rgba(89,215,223,.28)','inset 0 2px 0 rgba(255,255,255,.96)','linear-gradient(270deg,rgba(255,121,80,.29)','mvr-chip-pool','mvr-axis-lock'])assert(renderStyles.includes(token),`Render acceptance styling includes ${token}`);
-assert(renderStyles.includes('shared-option::before{opacity:0;background:none}'),'Both state remains neutral except for white top/bottom rules');
-const v44Styles=read('css/v44.css');
-assert(!v44Styles.includes('.active-axis-panel .mvr-chip'),'Obsolete active-axis chip patch was removed');
-
-const viewport=read('src/workspaces/viewport-workspace.js');
-for(const token of ['toolButton("select"','toolButton("translate"','toolButton("rotate"','toolButton("scale"','toolButton("pivot"','data-space-toggle','asset.stageImport','asset.validateStagedImport','asset.commitImport','scene.setNodePivotCompensated','CALIBRATE','this.importQueue=this.importQueue.then(run,run)'])assert(viewport.includes(token),`Viewport implements ${token}`);
-
-const renderer=read('src/engine/renderer-service.js');
-for(const token of ['project.add(shot)','shot.add(pivot)','pivot.add(correction)','correction.add(auto)','auto.add(content)','new this.TransformControls','setSpace(mode==="scale"?"local":this.viewportSpace)','stageAsset({','mountStagedAsset({','discardStagedAsset(','resolvePivotValue(','getPivotPreset(','getGroundedTransform(','raycastNode(event)','if(this.viewportSpace==="local")group.getWorldQuaternion(this.pivotHandle.quaternion)'])assert(renderer.includes(token),`Renderer implements ${token}`);
-assert(renderer.indexOf('content.add(staged.root)')<renderer.indexOf('return {nodeId:resolvedNodeId'),'Staged GLB is finite-validated before transaction return');
-
-const commands=read('src/core/commands.js');
-for(const token of ['asset.stageImport','asset.validateStagedImport','asset.failImport','asset.commitImport','ui.setViewportSpace','ui.setViewportEditMode','ui.setViewportSnap','scene.setNodePivotCompensated','scene.setTransformChannelLock'])assert(commands.includes(token),`Command bus exposes ${token}`);
+const shell=read('src/ui/app-shell.js');
+for(const token of ['v45-shell','release-mark">V45','RENDER','VIEWPORT','TIMELINE','language-switch','workspaceSplitters'])assert(shell.includes(token),`Application shell includes ${token}`);
+assert(!shell.includes('advanced-switch'),'No detached global Advanced switch remains in the V45 shell');
 
 const defaults=read('src/core/default-state.js');
-assert(defaults.includes('SCHEMA_VERSION=44')&&defaults.includes('RELEASE="V44"'),'State schema and release are V44');
-assert(defaults.includes('viewportTool:"select"')&&defaults.includes('viewportSpace:"world"'),'Select/World defaults are explicit');
-assert(defaults.includes('transformLocks:structuredClone(DEFAULT_TRANSFORM_LOCKS)'),'Every scene node receives transform channel locks');
+for(const token of ['SCHEMA_VERSION=45','RELEASE="V45"','name:"MEMENTO V45"','viewportEditMode:"calibrate"','renderMonitorMode:"live"','timelineLibraryOpen:false','timelineRecipesOpen:false'])assert(defaults.includes(token),`V45 state contract includes ${token}`);
+assert((defaults.match(/id:"(?:gfx|v3|v2|v1|a1|a2)"/g)||[]).length===6,'Default state exposes the canonical six tracks');
+assert(defaults.includes('presetId:null'),'Active project state is preset-free by default');
 
-const visible=[...htmlFiles.map(read),read('src/ui/app-shell.js'),read('src/app/bootstrap.js'),read('package.json')].join('\n');
-assert(!visible.includes('V43C-R1 CORE REBUILD'),'Visible runtime labels no longer identify the product as V43C-R1');
+const render=read('src/workspaces/render-workspace.js');
+for(const macro of ['subject','camera','composition','lens-focus','light','environment','motion','image','timing'])assert(render.includes(`id:"${macro}"`),`Render exposes the ${macro} macro`);
+for(const token of ['v45-render-monitor','v45-macro-stack','v45-inline-precision','v45-starting-points','mvr-chip-start','mvr-chip-both','mvr-chip-end','data-option-endpoint="both"'])assert(render.includes(token)||read('src/player/player-controller.js').includes(token),`Render interaction includes ${token}`);
+assert(render.includes('<details class="v45-starting-points"'),'Curated presets are demoted to optional starting points');
 
-console.log('\nV44 · STATIC STRUCTURE CHECK · PASS');
+const viewport=read('src/workspaces/viewport-workspace.js');
+for(const token of ['v45-viewport','CALIBRATE','EDIT SHOT STATE','PHYSICAL CALIBRATION','correction:referenceDimension','correction:referenceAxis','correction:unit','scene.setNodePivotCompensated','asset.stageImport','asset.commitImport'])assert(viewport.includes(token),`Viewport implements ${token}`);
+
+const timeline=read('src/workspaces/timeline-workspace.js');
+for(const token of ['v45-timeline','data-timeline-action="recipes"','data-timeline-action="library"','timeline-board-game','timeline-library-game','clip-inspector-game','TRACKS.map'])assert(timeline.includes(token),`Timeline implements ${token}`);
+
+const renderer=read('src/engine/renderer-service.js');
+for(const token of ['unitScaleToMeters','referenceDimension','referenceAxis','motion.energy','subject-presence','applyMotionDesign'])assert(renderer.includes(token),`Renderer consumes the V45 ${token} contract`);
+const player=read('src/player/player-controller.js');
+for(const token of ['RendererAuthority.acquire','data-render-monitor-mode="live"','data-render-monitor-mode="compare"','renderMonitorMode'])assert(player.includes(token),`Player enforces ${token}`);
+assert(fs.existsSync(path.join(root,'src/v45/runtime-instrumentation.js')),'V45 runtime instrumentation exists');
+
+const css=read('css/v45.css');
+for(const token of ['.v45-render-editor','.v45-macro-stack','.mvr-chip.selected-start','.mvr-chip.shared-option','.v45-physical-calibration','.v45-timeline .timeline-body-game.library-open','.workspace-splitter:hover'])assert(css.includes(token),`V45 stylesheet owns ${token}`);
+
+const visible=[...htmlFiles.map(read),shell,read('src/app/bootstrap.js'),read('package.json')].join('\n');
+assert(!visible.includes('V44 · WORLD GIZMO'),'No visible V44 boot label remains');
+
+console.log('\nV45 · STATIC STRUCTURE CHECK · PASS');
 function walk(directory,out){for(const entry of fs.readdirSync(directory,{withFileTypes:true})){const absolute=path.join(directory,entry.name);if(entry.isDirectory())walk(absolute,out);else if(/\.(?:js|mjs)$/.test(entry.name))out.push(absolute);}}
 function assert(condition,label){if(!condition)throw new Error(`FAIL · ${label}`);console.log(`PASS · ${label}`);}
