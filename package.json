@@ -1,11 +1,10 @@
 {
-  "name": "memento-visualref-v45",
-  "version": "45.0.0",
+  "name": "memento-visualref-v46-polish",
+  "version": "46.0.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V45 — V36C clarity, V44 capability, one scene/player/history ownership model.",
+  "description": "MEMENTO VisualRef V46 — viewport-first guided world building, render control polish and usable timeline creation.",
   "scripts": {
-    "test": "node tests/core-smoke.mjs",
-    "check": "node tests/structure-check.mjs && node tests/core-smoke.mjs"
+    "check": "node --check src/v46/bootstrap.js && node --check src/v46/local-bootstrap.js && node --check src/v46/polish-controller.js && node --check scripts/install-v46.mjs"
   }
 }
