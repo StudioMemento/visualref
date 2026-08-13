@@ -9,14 +9,14 @@ const ICON='<svg viewBox="0 0 24 24"><path d="M2 2h20v20H2z"/></svg>';
 const shellMarkup=`<header class="app-header"><nav class="mode-zone"><a href="render.html">RENDER</a><a href="viewport.html">VIEWPORT</a><a href="timeline.html">TIMELINE</a></nav><button class="project-button"><span>MEMENTO V45</span><small>PROJECT</small></button><i class="release-mark">V45</i></header>`;
 const playerMarkup=`<section class="player-shell"><header class="player-statusbar"><span class="release-mark">V45</span></header><div class="player-visuals"><div class="stage-wrap" data-role="stage"><canvas></canvas><span data-role="stage-note">CALIBRATED PROXY</span></div><div class="endpoint-comparison"><div class="endpoint-stage"><canvas></canvas></div></div></div><div class="transport-primary"><button class="transport-button" title="Play">PLAY</button></div><div class="transport-secondary"><label class="transport-field variant-mode"><span>GENERATE</span><select><option>balanced</option></select></label></div></section>`;
 const viewportMarkup=`<div class="v45-viewport"><nav class="v45-gizmo-toolbar"><span class="viewport-toolbar-spacer"></span></nav><div class="viewport-content"><aside class="v45-outliner v44-outliner"><header>WORLD <button data-import="hero">+ HERO</button><button data-import="environment">+ ENV</button></header><div></div></aside><section class="v45-inspector v44-inspector"><header>CONTEXT</header><div class="section"><header class="section-header"><span>SELECTED</span></header></div><div class="section"><header class="section-header"><span>WORLD / HDRI</span></header></div></section></div></div>`;
-const renderMarkup=`<div class="v45-render-editor"><section class="v45-variation-console"></section><div class="v45-macro-stack"><section class="v45-macro open" data-macro-section="subject"><div class="v45-macro-body"><article class="mvr-chip selected-start selected-end shared-option"></article><details class="v45-inline-precision"><summary>PRECISION</summary><div class="v45-precision-grid"><label><input data-axis-input="subject.rotationY"></label></div></details></div></section><section class="v45-macro open" data-macro-section="camera"><div class="v45-macro-body"><details class="v45-inline-precision"><summary>PRECISION</summary><div class="v45-precision-grid"><label><input data-axis-input="subject.rotationY"></label><label><input data-axis-input="camera.distance"></label></div></details></div></section></div></div>`;
+const renderMarkup=`<div class="v45-render-editor"><header class="v45-shot-commandbar"><div class="v45-scope-control"><button>START</button><button>BOTH</button><button>END</button></div></header><section class="v45-variation-console"><label><span>VARIATION</span><select data-role="variant-mode"><option value="near">NEAR</option><option value="balanced">BALANCED</option><option value="bold">BOLD</option></select></label></section><div class="v45-macro-stack"><section class="v45-macro open" data-macro-section="subject"><button class="v45-macro-head"><span><small>Presence and angle</small><b>SUBJECT</b></span></button><div class="v45-macro-body"><article class="mvr-chip selected-start selected-end shared-option"><div class="mvr-chip-label"><b>PRESENT</b></div><div class="mvr-chip-hitareas"><button class="mvr-chip-zone mvr-chip-start" aria-pressed="true"></button><button class="mvr-chip-zone mvr-chip-both" aria-pressed="true"></button><button class="mvr-chip-zone mvr-chip-end" aria-pressed="true"></button></div></article><details class="v45-inline-precision"><summary>PRECISION</summary><div class="v45-precision-grid"><label><input data-axis-input="subject.rotationY"></label><label><input data-axis-input="subject.scale"></label></div></details></div></section><section class="v45-macro open" data-macro-section="camera"><button class="v45-macro-head"><span><small>Camera motion</small><b>CAMERA</b></span></button><div class="v45-macro-body"><details class="v45-inline-precision"><summary>PRECISION</summary><div class="v45-precision-grid"><label><input data-axis-input="subject.rotationY"></label><label><input data-axis-input="subject.positionX"></label><label><input data-axis-input="camera.distance"></label></div></details></div></section></div><footer class="v45-render-dock"></footer></div>`;
 const timelineMarkup=`<div class="v45-timeline"><header class="timeline-game-toolbar"></header><div class="timeline-board-game"></div><aside class="timeline-library-game"></aside><input data-role="audio-upload" type="file"></div>`;
 document.getElementById("app").innerHTML=shellMarkup+playerMarkup+(workspace==="viewport"?viewportMarkup:workspace==="render"?renderMarkup:timelineMarkup);
 
 const rotationMap={"0":0,"45":45,"90":90,"135":135,"180":180,"in-rotation":-72};
-const shot={id:"shot-001",name:"Mock Shot",variantMode:"balanced",durationFrames:72,deltaTarget:.42,start:{choices:{"subject-rotation":"45",view:"centered","subject-presence":"present","subject-size":"medium",camera:"static",composition:"centered",lens:"35mm",focus:"all",light:"studio",environment:"void","motion-design":"none",atmosphere:"clean"},values:{"subject.rotationY":45}},end:{choices:{"subject-rotation":"45",view:"centered","subject-presence":"present","subject-size":"medium",camera:"static",composition:"centered",lens:"35mm",focus:"all",light:"studio",environment:"void","motion-design":"none",atmosphere:"clean"},values:{"subject.rotationY":45}}};
+const shot={id:"shot-001",name:"Mock Shot",variant:1,variantMode:"bold",durationFrames:72,deltaTarget:.42,start:{choices:{"subject-rotation":"45",view:"centered","subject-presence":"present","subject-size":"medium",camera:"static",composition:"centered",lens:"35mm",focus:"all",light:"studio",environment:"void","motion-design":"none",atmosphere:"clean"},values:{"subject.positionX":.4,"subject.positionY":.2,"subject.positionZ":.1,"subject.scale":1.4,"subject.rotationX":12,"subject.rotationY":45,"subject.rotationZ":7}},end:{choices:{"subject-rotation":"45",view:"centered","subject-presence":"present","subject-size":"medium",camera:"static",composition:"centered",lens:"35mm",focus:"all",light:"studio",environment:"void","motion-design":"none",atmosphere:"clean"},values:{"subject.positionX":-.4,"subject.positionY":.1,"subject.positionZ":0,"subject.scale":1.2,"subject.rotationX":-8,"subject.rotationY":45,"subject.rotationZ":-4}}};
 const heroId=custom?"hero-custom":"hero-proxy";
-const state={meta:{id:"mock-project",name:"MEMENTO V45"},assets:{heroId,environmentId:"environment-proxy",hdriId:null,importSession:null,byId:{"hero-proxy":{name:"CALIBRATED PROXY"},"hero-custom":{name:"CUSTOM CAR"}}},scene:{showGrid:true,viewportCameraMode:"editor",nodes:{"hero-proxy":{id:"hero-proxy",name:"Hero · Calibrated Proxy",correction:{autoNormalize:true}}}},shots:{activeShotId:"shot-001",order:["shot-001"],byId:{"shot-001":shot}},timeline:{clips:{}},ui:{viewportTool:"select",viewportSpace:"world",selectedNodeId:"hero-proxy",selectedMacroId:"subject",selectedCreativeAxisId:"subject-rotation",timelineLibraryOpen:false}};
+const state={meta:{id:"mock-project",name:"MEMENTO V45"},settings:{fps:24,aspectRatio:"16:9"},assets:{heroId,environmentId:"environment-proxy",hdriId:null,importSession:null,byId:{"hero-proxy":{name:"CALIBRATED PROXY"},"hero-custom":{name:"CUSTOM CAR"}}},scene:{showGrid:true,showHelpers:true,viewportCameraMode:"editor",editorCamera:{position:[5,3,7],target:[0,0,0],fov:45},nodes:{"hero-proxy":{id:"hero-proxy",type:"hero",name:"Hero · Calibrated Proxy",baseTransform:{position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]},correction:{pivot:[0,0,0],autoNormalize:true},helpers:{}}}},shots:{activeShotId:"shot-001",order:["shot-001"],byId:{"shot-001":shot}},timeline:{clips:{}},ui:{editScope:"both",viewportTool:"select",viewportSpace:"world",viewportSnapEnabled:false,selectedNodeId:"hero-proxy",selectedMacroId:"subject",selectedCreativeAxisId:"subject-rotation",timelineLibraryOpen:false}};
 class Store{
  constructor(state){this.state=state;this.listeners=new Set();this.gesture=null;}
  get(){return this.state}
@@ -34,45 +34,57 @@ const register=(name,fn)=>handlers.set(name,fn);
 register("ui.setMacro",({macroId})=>store.transient("macro",s=>s.ui.selectedMacroId=macroId));
 register("ui.selectCreativeAxis",({axisId})=>store.transient("axis",s=>s.ui.selectedCreativeAxisId=axisId));
 register("ui.setViewportTool",({tool})=>store.transient("tool",s=>s.ui.viewportTool=tool));
+register("ui.setViewportSpace",({space})=>store.transient("space",s=>s.ui.viewportSpace=space));
+register("ui.setViewportSnap",({enabled})=>store.transient("snap",s=>s.ui.viewportSnapEnabled=enabled));
+register("ui.setScope",({scope})=>store.transient("scope",s=>s.ui.editScope=scope));
 register("ui.selectNode",()=>{});register("scene.toggleGrid",()=>store.transient("grid",s=>s.scene.showGrid=!s.scene.showGrid));
+register("scene.setNodePivotCompensated",()=>{});register("scene.groundNode",()=>{});register("scene.resetNodeTransform",()=>{});register("scene.setEditorCamera",()=>{});
 register("ui.setTimelineLibraryOpen",({open})=>store.transient("library",s=>s.ui.timelineLibraryOpen=open));
 register("shot.setDeltaTarget",({value})=>store.commit("delta",s=>s.shots.byId[s.shots.activeShotId].deltaTarget=value));
-register("shot.setCreativeChoice",({axisId,optionId,scope="both"})=>store.commit("choice",s=>{const x=s.shots.byId[s.shots.activeShotId];for(const side of scope==="both"?["start","end"]:[scope]){x[side].choices[axisId]=optionId;if(axisId==="subject-rotation")x[side].values["subject.rotationY"]=rotationMap[optionId]??0;else if(axisId==="view")x[side].values["subject.rotationY"]=77;}}));
+register("shot.setCreativeChoice",({axisId,optionId,scope="both"})=>store.commit("choice",s=>{const x=s.shots.byId[s.shots.activeShotId];for(const side of scope==="both"?["start","end"]:[scope]){x[side].choices[axisId]=optionId;if(axisId==="subject-rotation")x[side].values["subject.rotationY"]=rotationMap[optionId]??0;else if(axisId==="view"){x[side].values["subject.rotationY"]=77;x[side].values["subject.positionX"]=.8;x[side].values["subject.scale"]=1.8;}}}));
 register("shot.setAxis",({axisId,value,gesture=false})=>{const fn=s=>{const x=s.shots.byId[s.shots.activeShotId];x.start.values[axisId]=value;x.end.values[axisId]=value;};return gesture?store.updateGesture("axis",fn):store.commit("axis",fn)});
-register("shot.generateVariant",({mode})=>store.commit("variant",s=>{const x=s.shots.byId[s.shots.activeShotId];x.variantMode=mode;x.start.values["subject.rotationY"]=99;x.end.values["subject.rotationY"]=-99;}));
+register("shot.generateVariant",({mode})=>store.commit("variant",s=>{const x=s.shots.byId[s.shots.activeShotId];x.variantMode=mode;x.start.values["subject.rotationY"]=99;x.end.values["subject.rotationY"]=-99;x.start.values["subject.positionX"]=2;x.end.values["subject.scale"]=3;}));
 for(const name of ["shot.applyPreset","shot.reset","shot.setFamily","shot.new"])register(name,()=>store.commit(name,()=>{}));
 register("shot.duplicate",()=>store.commit("duplicate",s=>{const old=s.shots.byId[s.shots.activeShotId],id=`shot-${s.shots.order.length+1}`,copy=structuredClone(old);copy.id=id;s.shots.byId[id]=copy;s.shots.order.push(id);s.shots.activeShotId=id;}));
 register("shot.addToTimeline",({trackId})=>store.commit("add",s=>{s.timeline.clips[`clip-${Object.keys(s.timeline.clips).length+1}`]={trackId,shotId:s.shots.activeShotId};}));
 const commands={handlers,dispatch(type,payload={}){const fn=handlers.get(type);if(!fn)throw new Error(`missing ${type}`);return fn(payload,{store})}};
-const renderer={mode:"ready",loadedAssets:new Map(custom?[[heroId,{}]]:[]),assetObjects:new Map(),frameNode(){renderer.framed=true}};
+const renderer={mode:"ready",workspace,loadedAssets:new Map(custom?[[heroId,{}]]:[]),assetObjects:new Map(),frameNode(){renderer.framed=true},configureViewport(){},setEditorCamera(){}};
 const toasts=[];const api={workspace,store,commands,player:{renderer},shell:{toast:m=>toasts.push(m)}};
 installV46Polish(api);
 
 setTimeout(()=>{
  const tests={
-   installed:globalThis.__MEMENTO_V46__?.version==="46",
+   installed:globalThis.__MEMENTO_V46__?.version==="46A",
    nav:[...document.querySelectorAll('.mode-zone a')].map(a=>a.textContent.trim()).join(",")==="VIEWPORT,RENDER,TIMELINE",
    noProxy:custom?document.body.classList.contains("v46-hero-ready"):document.body.classList.contains("v46-awaiting-hero"),
    emptyState:custom?document.querySelector('.v46-asset-empty')?.hidden===true:document.querySelector('.v46-asset-empty')?.hidden===false
  };
  if(workspace==="viewport"){
-   tests.tabs=document.querySelectorAll('[data-v46-editor-tab]').length===3;
-   tests.hud=document.querySelectorAll('[data-v46-tool]').length===4;
+   const dock=[...document.querySelectorAll('.v46a-viewport-dock button')].map(b=>b.textContent.trim().replace(/\s+/g," "));
+   tests.dockButtons=dock.length===11;
+   tests.dockLabels=["SELECT","MOVE","ROTATE","SCALE","PIVOT","LOCAL","SNAP","FRAME","GROUND","RESET","GUIDE"].every(label=>dock.some(text=>text.includes(label)));
+   tests.outlinerAlways=Boolean(document.querySelector('.v46a-outliner'));
+   tests.propertiesAlways=Boolean(document.querySelector('.v46a-property-panel [data-v46a-property-search]'));
    tests.guide=!document.querySelector('.v46-world-guide')?.hidden;
  }
  if(workspace==="render"){
-   tests.delta=Boolean(document.querySelector('[data-v46-delta]'));
-   tests.axisRail=document.querySelectorAll('[data-v46-axis-open]').length===13;
-   tests.chipFlags=Boolean(document.querySelector('.v46-chip-endpoints'));
+   tests.delta=Boolean(document.querySelector('[data-v46-delta]')&&document.querySelector('[data-v46-delta-number]'));
+   tests.monitorTabs=document.querySelectorAll('.v46a-render-monitor [data-v46a-render-monitor]').length===3;
+   tests.propertyNav=Boolean(document.querySelector('.v46a-render-property-nav [data-v46a-render-search]'));
+   tests.stickyScope=document.querySelectorAll('.v46a-scope-sticky [data-scope]').length===3;
+   tests.endpointZones=[...document.querySelectorAll('.mvr-chip-zone')].map(x=>x.dataset.endpointLabel).join(',')==='START,BOTH,END';
    tests.duplicateRotationRemoved=!document.querySelector('[data-macro-section="camera"] [data-axis-input="subject.rotationY"]');
+   tests.subjectScalePrecisionRemoved=!document.querySelector('[data-axis-input="subject.scale"]');
    commands.dispatch("shot.setCreativeChoice",{axisId:"view",optionId:"three-quarter",scope:"both"});
    const x=state.shots.byId[state.shots.activeShotId];tests.viewPreservesRotation=x.start.values["subject.rotationY"]===45&&x.end.values["subject.rotationY"]===45;
+   tests.cameraOwnsFraming=x.start.values["subject.positionX"]===0&&x.end.values["subject.positionX"]===0&&x.start.values["subject.scale"]===1&&x.end.values["subject.scale"]===1;
    state.ui.selectedMacroId="camera";commands.dispatch("shot.setAxis",{axisId:"subject.rotationY",value:88,gesture:true});store.endGesture();state.ui.selectedMacroId="subject";
    tests.nonSubjectPrecisionPreserves=x.start.values["subject.rotationY"]===45&&x.end.values["subject.rotationY"]===45;
    commands.dispatch("shot.setCreativeChoice",{axisId:"subject-rotation",optionId:"90",scope:"both"});
    tests.subjectRotationWorks=x.start.values["subject.rotationY"]===90&&x.end.values["subject.rotationY"]===90;
    commands.dispatch("shot.generateVariant",{mode:"bold"});
    tests.generationResolvesRotation=x.start.values["subject.rotationY"]===90&&x.end.values["subject.rotationY"]===90;
+   tests.generationKeepsGrounded=x.start.values["subject.positionX"]===0&&x.end.values["subject.scale"]===1;
  }
  if(workspace==="timeline"){
    tests.createbar=Boolean(document.querySelector('.v46-timeline-createbar'));

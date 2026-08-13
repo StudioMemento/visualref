@@ -1,72 +1,124 @@
-# MEMENTO VisualRef V46
+# MEMENTO VisualRef V46A — Working Workflow Build
 
-V46 is a viewport-first polish layer over the frozen V45 VisualRef foundation.
+V46A is the stabilization pass for the basic **Viewport → Render** workflow. It keeps the frozen V45 scene/store/import engine, but changes runtime ownership and the visible UI so the app can be tested without the current rotation/framing/reload chaos.
 
-## Direct Vercel deployment
+## What changed
 
-Upload the contents of this folder to a clean GitHub repository or directly to Vercel.
+### One persistent runtime
 
-The root route opens `viewport.html`. The renderer canvas stays guarded until a custom Hero has actually mounted, so a persisted GLB never flashes back to the built-in proxy while it is restoring.
+V36C felt fast because workspace changes happened inside one document and one live renderer. The V45/V46 page architecture recreated the AppShell, PlayerController and RendererService whenever a page URL loaded.
 
-The standalone package loads the frozen V45 runtime from the commit-pinned jsDelivr URL documented in `docs/V46_POLISH_IMPLEMENTATION.md`. The V46 controller and stylesheet are included locally.
+V46A restores the important behavior without going back to the old monolithic HTML:
 
-## Apply V46 to a full local V45 repository
+- one Project Store;
+- one PlayerController;
+- one WebGL RendererService;
+- one mounted Hero scene;
+- Viewport / Render / Timeline swap only their workspace controller and panel DOM;
+- navigation uses `history.pushState()` instead of a document reload;
+- all three route documents load the same workspace CSS superset, so switching in-place never loses Render-specific styling;
+- the renderer's `loadedAssets` map survives the switch, so the same GLB is reused rather than parsed/mounted again.
+
+### Grounded Hero and clear transform ownership
+
+- Hero translation, pitch, roll and apparent scale are no longer authored by Render categories.
+- **Subject Rotation** is the only creative control allowed to rotate the Hero.
+- Subject Size, Composition and View are evaluated as camera reframing instead of moving/scaling the Hero.
+- the real Hero is auto-grounded after mount;
+- the Hero pivot is normalized to zero with compensated geometry placement;
+- an XYZ origin helper is visible in Viewport;
+- Ground and Reset return the selected object to a predictable usable state.
+
+### Viewport player
+
+The stage dock is now the requested tool set:
+
+`Select · Move · Rotate · Scale · Pivot · Local · Snap · Frame · Ground · Reset · Guide`
+
+### Viewport editor
+
+- Outliner is always visible in its own panel.
+- Properties are always visible beside it.
+- Properties have one persistent search field (`Ctrl/Cmd + K`).
+- existing V45 categories remain underneath instead of being split into Scene / Properties / World tabs.
+
+### Render player
+
+- Near / Balanced / Bold is removed from the visible generation workflow.
+- **Delta is numeric** and can be typed or dragged.
+- generation internally uses the balanced solver, with Delta controlling how far the result can travel.
+- top monitor modes are:
+  - `LIVE`
+  - `LIVE + START / END`
+  - `VIEWPORT`
+- endpoint stills reuse the same renderer and are cached by shot signature.
+
+### Render editor
+
+- sticky/fixed Start · Both · End scope above the scrollable properties;
+- search field plus icon-led category navigation;
+- larger typography and stronger grouping;
+- every option chip exposes persistent `START · BOTH · END` hit zones;
+- Subject transform precision fields that conflict with physical scene calibration are removed from Render;
+- precision panels keep their open state;
+- the property list scrolls independently while the scope/navigation and bottom actions remain reachable.
+
+Timeline is intentionally not redesigned in this pass.
+
+## Deploy directly to Vercel
+
+Upload the **contents of this folder** to a repository or Vercel. `/` opens `viewport.html`.
+
+The standalone build loads the frozen V45 source from commit:
+
+`48ff1e50424da0a0546ade9039f00368073f56f2`
+
+The V46A overlay itself is local.
+
+## Apply to a full local V45 repository
 
 ```bash
 node scripts/install-v46.mjs /absolute/path/to/visualref-v45
 ```
 
-The installer:
-
-- verifies the target repository;
-- creates `_v45_backup_before_v46/`;
-- copies the V46 stylesheet and controller;
-- changes all page entry modules to the local V46 bootstrap;
-- makes Viewport the root entry;
-- copies the V46 implementation report and V47 goals;
-- updates `package.json` to V46.
+The installer creates `_v45_backup_before_v46a/`, adds the V46A layer, switches the page entry modules to the local single-runtime bootstrap and changes `/` to Viewport.
 
 Then run:
 
 ```bash
 npm run check
-npm run check:v46
+npm run check:v46a
 ```
-
-## Main files
-
-- `viewport.html` — first page and World Builder entry
-- `render.html` — Start/End shot creation
-- `timeline.html` — sequence assembly
-- `css/v46.css` — global polish system
-- `src/v46/polish-controller.js` — V46 behavior and control ownership
-- `docs/V46_POLISH_IMPLEMENTATION.md` — implementation and acceptance contract
-- `docs/V46_VALIDATION_REPORT.md` — automated checks and remaining browser QA
-- `V47_GOALS.md` — next development target
-
-## V46 priorities
-
-- no visible proxy hero;
-- optional guided Viewport setup;
-- Maya-inspired essential Viewport controls;
-- icon-tab Outliner/Properties/World editor;
-- deterministic Subject Rotation ownership;
-- Delta control in the Render player;
-- persistent Start/End shot-state rail;
-- precision panels that remain open;
-- visible Timeline shot, variant and audio creation;
-- shared Render/Timeline player styling.
 
 ## Validation
 
-```bash
-npm run check
-```
-
-The included browser mock covers all three workspaces in both empty/proxy and custom-Hero states. With Python Playwright and Chromium available:
+Run the full included validation with:
 
 ```bash
-python tests/run_browser_mock.py
+npm run check:all
 ```
 
-The automated suite passes in this package. Real GLB, Environment, HDRI, audio, IndexedDB reload and deployed WebGL still require the networked acceptance matrix in `docs/V46_VALIDATION_REPORT.md`.
+It includes:
+
+- `npm run check` — JavaScript syntax + **21/21 static workflow contracts**
+- `npm run check:runtime` — real V46A bootstrap in a browser fixture; Viewport → Render → Viewport keeps the **same PlayerController, RendererService, loaded-assets Map and Hero record**
+- `npm run check:browser` — Viewport / Render / Timeline DOM-controller matrix in empty-Hero and custom-Hero states
+
+Current included results:
+
+- JavaScript syntax: PASS
+- static workflow contracts: **21/21 PASS**
+- single-runtime bootstrap fixture: **PASS**
+- browser DOM/controller matrix: **6/6 PASS**, zero console/page errors
+- local V45 overlay installer fixture: **PASS**
+
+The execution sandbox cannot resolve the external jsDelivr/Three.js CDN inside Chromium, so a production WebGL + real GLB/HDRI acceptance pass still has to be run after deployment. See `docs/V46A_VALIDATION_REPORT.md`.
+
+## Main files
+
+- `src/v46/bootstrap.js` — standalone single-runtime bootstrap
+- `src/v46/local-bootstrap.js` — same architecture for a full local repository
+- `src/v46/polish-controller.js` — control ownership, camera framing and UI behavior
+- `css/v46.css` — V46A visible workflow layer
+- `docs/V46A_WORKFLOW_IMPLEMENTATION.md` — implementation detail
+- `docs/V46A_VALIDATION_REPORT.md` — validation and remaining real-browser gate

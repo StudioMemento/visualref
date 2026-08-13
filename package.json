@@ -1,10 +1,13 @@
 {
-  "name": "memento-visualref-v46-polish",
-  "version": "46.0.0",
+  "name": "memento-visualref-v46a-workflow",
+  "version": "46.1.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V46 — viewport-first guided world building, render control polish and usable timeline creation.",
+  "description": "MEMENTO VisualRef V46A \u2014 single-runtime Viewport \u2192 Render workflow stabilization and readable editor pass.",
   "scripts": {
-    "check": "node --check src/v46/bootstrap.js && node --check src/v46/local-bootstrap.js && node --check src/v46/polish-controller.js && node --check scripts/install-v46.mjs"
+    "check": "node --check src/v46/bootstrap.js && node --check src/v46/local-bootstrap.js && node --check src/v46/polish-controller.js && node --check scripts/install-v46.mjs && node tests/v46a-static-check.mjs",
+    "check:browser": "python tests/run_browser_mock.py",
+    "check:runtime": "python tests/run_single_runtime_mock.py",
+    "check:all": "npm run check && npm run check:runtime && npm run check:browser"
   }
 }

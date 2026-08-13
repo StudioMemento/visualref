@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the V46 DOM/controller acceptance fixture without network access."""
+"""Run the V46A DOM/controller acceptance fixture without network access."""
 
 from __future__ import annotations
 
@@ -24,7 +24,9 @@ CONTROLLER = ROOT / "src" / "v46" / "polish-controller.js"
 def build_fixture() -> str:
     fixture = FIXTURE.read_text(encoding="utf-8")
     css = CSS.read_text(encoding="utf-8")
-    controller = CONTROLLER.read_text(encoding="utf-8").replace(
+    controller = CONTROLLER.read_text(encoding="utf-8")
+    controller = re.sub(r"^\s*import\s+.*?;\s*$", "", controller, flags=re.M)
+    controller = controller.replace(
         "export function installV46Polish", "function installV46Polish"
     )
     controller = (
@@ -122,7 +124,7 @@ async def run() -> int:
     print(json.dumps({"cases": cases, "errors": errors}, indent=2))
     if errors or any(case["status"] != "PASS" for case in cases):
         return 1
-    print("\nV46 browser mock: 6/6 PASS")
+    print("\nV46A browser mock: 6/6 PASS")
     return 0
 
 
