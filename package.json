@@ -1,13 +1,14 @@
 {
-  "name": "memento-visualref-v46a-workflow",
-  "version": "46.1.0",
+  "name": "memento-visualref-v47a-delta-limbo",
+  "version": "47.1.0",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V46A \u2014 single-runtime Viewport \u2192 Render workflow stabilization and readable editor pass.",
+  "description": "MEMENTO VisualRef V47A — deterministic candidate Delta generation, procedural limbo world recipes and a V36C-inspired workspace hierarchy.",
   "scripts": {
-    "check": "node --check src/v46/bootstrap.js && node --check src/v46/local-bootstrap.js && node --check src/v46/polish-controller.js && node --check scripts/install-v46.mjs && node tests/v46a-static-check.mjs",
-    "check:browser": "python tests/run_browser_mock.py",
-    "check:runtime": "python tests/run_single_runtime_mock.py",
-    "check:all": "npm run check && npm run check:runtime && npm run check:browser"
+    "check": "node --check src/v46/bootstrap.js && node --check src/v46/local-bootstrap.js && node --check src/v46/polish-controller.js && node --check src/v47/bootstrap.js && node --check src/v47/local-bootstrap.js && node --check src/v47/delta-engine.js && node --check src/v47/foundation-controller.js && node --check scripts/install-v47a.mjs && node tests/unit/delta-engine.mjs",
+    "test:static": "python tests/validate_package.py",
+    "test:browser-mock": "python tests/run_browser_mock.py",
+    "check:browser": "npm run test:browser-mock",
+    "validate": "npm run check && npm run test:static && npm run test:browser-mock"
   }
 }

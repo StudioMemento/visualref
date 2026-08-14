@@ -1,124 +1,147 @@
-# MEMENTO VisualRef V46A — Working Workflow Build
+# MEMENTO VisualRef V47A — Delta + Limbo Foundation
 
-V46A is the stabilization pass for the basic **Viewport → Render** workflow. It keeps the frozen V45 scene/store/import engine, but changes runtime ownership and the visible UI so the app can be tested without the current rotation/framing/reload chaos.
+V47A restores the product grammar that made VisualRef understandable:
+
+- **Viewport = State** — establish the Hero and its world.
+- **Render = Delta** — generate controlled alternatives without destroying the current shot.
+- **Timeline = Curve** — accept shots and assemble a sequence.
+
+This release is intentionally narrow. It does not add another broad layer of features; it makes the core generation loop visible, reversible and visually credible.
 
 ## What changed
 
-### One persistent runtime
+### 1. Numeric Delta is authoritative
 
-V36C felt fast because workspace changes happened inside one document and one live renderer. The V45/V46 page architecture recreated the AppShell, PlayerController and RendererService whenever a page URL loaded.
+Render now exposes one visible **Target Δ** value from `05` to `95`.
 
-V46A restores the important behavior without going back to the old monolithic HTML:
+Near, Balanced and Bold still exist internally as generation profiles, but they are derived from the requested number rather than competing with it:
 
-- one Project Store;
-- one PlayerController;
-- one WebGL RendererService;
-- one mounted Hero scene;
-- Viewport / Render / Timeline swap only their workspace controller and panel DOM;
-- navigation uses `history.pushState()` instead of a document reload;
-- all three route documents load the same workspace CSS superset, so switching in-place never loses Render-specific styling;
-- the renderer's `loadedAssets` map survives the switch, so the same GLB is reused rather than parsed/mounted again.
+- `05–27` → Near
+- `28–68` → Balanced
+- `69–95` → Bold
 
-### Grounded Hero and clear transform ownership
+The same Target Delta is shown in the Render editor, the Player and the Timeline creation bar.
 
-- Hero translation, pitch, roll and apparent scale are no longer authored by Render categories.
-- **Subject Rotation** is the only creative control allowed to rotate the Hero.
-- Subject Size, Composition and View are evaluated as camera reframing instead of moving/scaling the Hero.
-- the real Hero is auto-grounded after mount;
-- the Hero pivot is normalized to zero with compensated geometry placement;
-- an XYZ origin helper is visible in Viewport;
-- Ground and Reset return the selected object to a predictable usable state.
+### 2. Current / Previous / Candidate workflow
 
-### Viewport player
+Generating a variant no longer mutates the active shot.
 
-The stage dock is now the requested tool set:
+V47A:
 
-`Select · Move · Rotate · Scale · Pivot · Local · Snap · Frame · Ground · Reset · Guide`
+1. snapshots the current shot;
+2. runs seeded, lock-aware generation on a private clone;
+3. measures the resulting distance;
+4. keeps Current untouched;
+5. exposes Current, Previous and Candidate review;
+6. applies Candidate only after **Accept**.
 
-### Viewport editor
+The review console reports:
 
-- Outliner is always visible in its own panel.
-- Properties are always visible beside it.
-- Properties have one persistent search field (`Ctrl/Cmd + K`).
-- existing V45 categories remain underneath instead of being split into Scene / Properties / World tabs.
+- Target Delta;
+- Actual Delta;
+- requested/resolved seed;
+- derived profile;
+- changed categories;
+- locked categories.
 
-### Render player
+Accept replaces the current shot in one committed history action. Regenerate advances the seed. Discard removes only the pending candidate.
 
-- Near / Balanced / Bold is removed from the visible generation workflow.
-- **Delta is numeric** and can be typed or dragged.
-- generation internally uses the balanced solver, with Delta controlling how far the result can travel.
-- top monitor modes are:
-  - `LIVE`
-  - `LIVE + START / END`
-  - `VIEWPORT`
-- endpoint stills reuse the same renderer and are cached by shot signature.
+### 3. Real procedural cyclorama
 
-### Render editor
+The built-in black void / flat plane presentation is replaced by a seamless curved stage:
 
-- sticky/fixed Start · Both · End scope above the scrollable properties;
-- search field plus icon-led category navigation;
-- larger typography and stronger grouping;
-- every option chip exposes persistent `START · BOTH · END` hit zones;
-- Subject transform precision fields that conflict with physical scene calibration are removed from Render;
-- precision panels keep their open state;
-- the property list scrolls independently while the scope/navigation and bottom actions remain reachable.
+- Grey Limbo — default neutral baseline;
+- White Limbo — catalogue / bright product baseline;
+- Black Limbo — premium silhouette / rim-light baseline;
+- Void — explicit empty-world choice.
 
-Timeline is intentionally not redesigned in this pass.
+The recipe coordinates surface colour, background, exposure and conservative light multipliers without moving the Hero or Camera. A procedural contact shadow follows the Hero bounds. Imported custom environments remain authoritative and disable built-in recipe switching.
 
-## Deploy directly to Vercel
+### 4. Cleaner workspace hierarchy
 
-Upload the **contents of this folder** to a repository or Vercel. `/` opens `viewport.html`.
+The V47A stylesheet retains the existing architecture and functions, but restores a quieter V36C-inspired hierarchy:
 
-The standalone build loads the frozen V45 source from commit:
+- the image is the dominant surface;
+- Render starts with Delta, then the persistent Start / End matrix;
+- Viewport keeps World Stack and Properties available together on desktop;
+- the Viewport dock contains the everyday transform and framing actions;
+- property search filters the current inspector;
+- Timeline uses the same candidate transaction before adding a shot.
 
-`48ff1e50424da0a0546ade9039f00368073f56f2`
+## Direct Vercel deployment
 
-The V46A overlay itself is local.
+Upload the contents of this folder to a clean repository or directly to Vercel. The root route opens `viewport.html`.
 
-## Apply to a full local V45 repository
+The standalone package loads the frozen V45 runtime from commit:
 
-```bash
-node scripts/install-v46.mjs /absolute/path/to/visualref-v45
+```text
+48ff1e50424da0a0546ade9039f00368073f56f2
 ```
 
-The installer creates `_v45_backup_before_v46a/`, adds the V46A layer, switches the page entry modules to the local single-runtime bootstrap and changes `/` to Viewport.
+It then installs the local V46 ownership corrections and the local V47A foundation. A network connection is required for the pinned base runtime and Three.js modules.
+
+## Install into a complete local VisualRef repository
+
+```bash
+node scripts/install-v47a.mjs /absolute/path/to/visualref
+```
+
+The installer:
+
+- validates the target repository;
+- creates `_backup_before_v47a/`;
+- copies the V46 compatibility and V47A source modules;
+- adds V47A styles and documentation;
+- changes workspace pages to the local V47A bootstrap;
+- preserves Viewport as the root route.
 
 Then run:
 
 ```bash
 npm run check
-npm run check:v46a
+npm run check:v47a
 ```
 
 ## Validation
 
-Run the full included validation with:
+Run the complete offline release gate:
 
 ```bash
-npm run check:all
+npm run validate
 ```
 
-It includes:
+The release gate includes:
 
-- `npm run check` — JavaScript syntax + **21/21 static workflow contracts**
-- `npm run check:runtime` — real V46A bootstrap in a browser fixture; Viewport → Render → Viewport keeps the **same PlayerController, RendererService, loaded-assets Map and Hero record**
-- `npm run check:browser` — Viewport / Render / Timeline DOM-controller matrix in empty-Hero and custom-Hero states
+- JavaScript syntax checks;
+- package and manifest integrity;
+- deterministic Delta tests;
+- Target Δ 10 / 45 / 82 progression;
+- lock and exclusion tests;
+- six browser-controller scenarios: Viewport, Render and Timeline with both empty/proxy and custom-Hero states.
 
-Current included results:
-
-- JavaScript syntax: PASS
-- static workflow contracts: **21/21 PASS**
-- single-runtime bootstrap fixture: **PASS**
-- browser DOM/controller matrix: **6/6 PASS**, zero console/page errors
-- local V45 overlay installer fixture: **PASS**
-
-The execution sandbox cannot resolve the external jsDelivr/Three.js CDN inside Chromium, so a production WebGL + real GLB/HDRI acceptance pass still has to be run after deployment. See `docs/V46A_VALIDATION_REPORT.md`.
+The final offline result is **6 / 6 browser scenarios passing** with no console or page errors.
 
 ## Main files
 
-- `src/v46/bootstrap.js` — standalone single-runtime bootstrap
-- `src/v46/local-bootstrap.js` — same architecture for a full local repository
-- `src/v46/polish-controller.js` — control ownership, camera framing and UI behavior
-- `css/v46.css` — V46A visible workflow layer
-- `docs/V46A_WORKFLOW_IMPLEMENTATION.md` — implementation detail
-- `docs/V46A_VALIDATION_REPORT.md` — validation and remaining real-browser gate
+- `src/v47/delta-engine.js` — deterministic, source-safe candidate engine
+- `src/v47/foundation-controller.js` — Delta UI, World Recipes and workspace hierarchy
+- `css/v47.css` — V47A interface system
+- `scripts/install-v47a.mjs` — local repository installer
+- `docs/V47A_IMPLEMENTATION.md` — implementation contract
+- `docs/V47A_VALIDATION_REPORT.md` — passed and pending acceptance
+- `docs/V36C_V47A_DONOR_MAP.md` — what was retained from V36C and what was rejected
+- `V47_GOALS.md` — full V47 roadmap
+
+## Scope boundary
+
+This is the first runnable V47 vertical slice, not the entire V47 roadmap.
+
+Still outside this package:
+
+- formal schema version 47 and migrations from every legacy project;
+- full native absorption of the V46 overlay into workspace classes;
+- production visual QA with real GLB, HDRI and audio assets;
+- final GPU/performance budgets;
+- complete Variant Bin and sequence-recipe workflow.
+
+Those remain subsequent V47 milestones rather than being hidden behind a misleading “complete” label.
