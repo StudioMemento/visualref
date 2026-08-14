@@ -1,0 +1,21 @@
+{
+  "release": "V47R",
+  "packageVersion": "47.0.2",
+  "nativeCore": {
+    "repository": "StudioMemento/visualref",
+    "commit": "48ff1e50424da0a0546ade9039f00368073f56f2",
+    "delivery": "pinned jsDelivr ES modules and CSS"
+  },
+  "three": {
+    "version": "0.160.0",
+    "delivery": "pinned jsDelivr import map"
+  },
+  "runtime": {
+    "persistentShell": true,
+    "rendererConstructionSites": 1,
+    "v46Overlay": false,
+    "v47Overlay": false,
+    "mutationObserverUiPatching": false,
+    "rendererMonkeyPatching": false
+  }
+}

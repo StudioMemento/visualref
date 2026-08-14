@@ -1,147 +1,52 @@
-# MEMENTO VisualRef V47A — Delta + Limbo Foundation
+# MEMENTO VisualRef V47R — Core Recovery
 
-V47A restores the product grammar that made VisualRef understandable:
+V47R restores VisualRef around one continuous creative loop:
 
-- **Viewport = State** — establish the Hero and its world.
-- **Render = Delta** — generate controlled alternatives without destroying the current shot.
-- **Timeline = Curve** — accept shots and assemble a sequence.
+**Build the World → Create the Shot → Generate through Delta → Direct the Curve**
 
-This release is intentionally narrow. It does not add another broad layer of features; it makes the core generation loop visible, reversible and visually credible.
+This package is ready to upload to Vercel with `index.html` at the archive root.
 
 ## What changed
 
-### 1. Numeric Delta is authoritative
+- One persistent application shell for Viewport, Render and Timeline.
+- One Project Store, one Command Bus, one History Service and one Renderer instance.
+- Workspace switching changes context without reloading the application or the Hero.
+- V47 Candidate generation is now a native command transaction: Current remains untouched until Accept.
+- Grey, White, Black and Void world recipes share one fixed world-zero ground.
+- The cyclorama no longer follows a floating Hero; one-time visual-truth recovery grounds the Hero and reframes the editor camera per imported asset.
+- Viewport exposes a guided Import → Ground → Scale → Orient → World path without blocking direct editing.
+- Render puts Target Delta, Current/Candidate/Previous review and Accept/Discard next to the image.
+- Timeline remains the owner of time and opens selected shots back in Render instead of duplicating the shot editor.
+- Existing `/viewport.html`, `/render.html` and `/timeline.html` links redirect into the persistent shell.
 
-Render now exposes one visible **Target Δ** value from `05` to `95`.
+## Deploy
 
-Near, Balanced and Bold still exist internally as generation profiles, but they are derived from the requested number rather than competing with it:
-
-- `05–27` → Near
-- `28–68` → Balanced
-- `69–95` → Bold
-
-The same Target Delta is shown in the Render editor, the Player and the Timeline creation bar.
-
-### 2. Current / Previous / Candidate workflow
-
-Generating a variant no longer mutates the active shot.
-
-V47A:
-
-1. snapshots the current shot;
-2. runs seeded, lock-aware generation on a private clone;
-3. measures the resulting distance;
-4. keeps Current untouched;
-5. exposes Current, Previous and Candidate review;
-6. applies Candidate only after **Accept**.
-
-The review console reports:
-
-- Target Delta;
-- Actual Delta;
-- requested/resolved seed;
-- derived profile;
-- changed categories;
-- locked categories.
-
-Accept replaces the current shot in one committed history action. Regenerate advances the seed. Discard removes only the pending candidate.
-
-### 3. Real procedural cyclorama
-
-The built-in black void / flat plane presentation is replaced by a seamless curved stage:
-
-- Grey Limbo — default neutral baseline;
-- White Limbo — catalogue / bright product baseline;
-- Black Limbo — premium silhouette / rim-light baseline;
-- Void — explicit empty-world choice.
-
-The recipe coordinates surface colour, background, exposure and conservative light multipliers without moving the Hero or Camera. A procedural contact shadow follows the Hero bounds. Imported custom environments remain authoritative and disable built-in recipe switching.
-
-### 4. Cleaner workspace hierarchy
-
-The V47A stylesheet retains the existing architecture and functions, but restores a quieter V36C-inspired hierarchy:
-
-- the image is the dominant surface;
-- Render starts with Delta, then the persistent Start / End matrix;
-- Viewport keeps World Stack and Properties available together on desktop;
-- the Viewport dock contains the everyday transform and framing actions;
-- property search filters the current inspector;
-- Timeline uses the same candidate transaction before adding a shot.
-
-## Direct Vercel deployment
-
-Upload the contents of this folder to a clean repository or directly to Vercel. The root route opens `viewport.html`.
-
-The standalone package loads the frozen V45 runtime from commit:
-
-```text
-48ff1e50424da0a0546ade9039f00368073f56f2
-```
-
-It then installs the local V46 ownership corrections and the local V47A foundation. A network connection is required for the pinned base runtime and Three.js modules.
-
-## Install into a complete local VisualRef repository
-
-```bash
-node scripts/install-v47a.mjs /absolute/path/to/visualref
-```
-
-The installer:
-
-- validates the target repository;
-- creates `_backup_before_v47a/`;
-- copies the V46 compatibility and V47A source modules;
-- adds V47A styles and documentation;
-- changes workspace pages to the local V47A bootstrap;
-- preserves Viewport as the root route.
-
-Then run:
-
-```bash
-npm run check
-npm run check:v47a
-```
+1. Upload the contents of this package to a Vercel project.
+2. Use the default static deployment settings. No build command is required.
+3. Open `/`, `/viewport`, `/render` or `/timeline`.
 
 ## Validation
 
-Run the complete offline release gate:
+Run locally from the project root:
 
 ```bash
 npm run validate
 ```
 
-The release gate includes:
+The validation suite checks syntax, deterministic Delta behavior, Current-safe Candidate acceptance, fixed world-zero ground, one Renderer construction site, absence of MutationObserver UI patching, absence of prototype monkey-patching, workspace continuity, ultrawide containment and mobile layout.
 
-- JavaScript syntax checks;
-- package and manifest integrity;
-- deterministic Delta tests;
-- Target Δ 10 / 45 / 82 progression;
-- lock and exclusion tests;
-- six browser-controller scenarios: Viewport, Render and Timeline with both empty/proxy and custom-Hero states.
+See `docs/V47R_VALIDATION_REPORT.md` for the exact results and remaining live-environment checks.
 
-The final offline result is **6 / 6 browser scenarios passing** with no console or page errors.
+## Source strategy
 
-## Main files
+V47R uses:
 
-- `src/v47/delta-engine.js` — deterministic, source-safe candidate engine
-- `src/v47/foundation-controller.js` — Delta UI, World Recipes and workspace hierarchy
-- `css/v47.css` — V47A interface system
-- `scripts/install-v47a.mjs` — local repository installer
-- `docs/V47A_IMPLEMENTATION.md` — implementation contract
-- `docs/V47A_VALIDATION_REPORT.md` — passed and pending acceptance
-- `docs/V36C_V47A_DONOR_MAP.md` — what was retained from V36C and what was rejected
-- `V47_GOALS.md` — full V47 roadmap
+- the frozen V45 native architecture as the runtime foundation;
+- the V47A Delta transaction as a logic donor;
+- V30 only as the behavioral reference for Start/End, Delta and sequence clarity.
 
-## Scope boundary
+Production loads the frozen V45 modules and native V45 CSS from commit `48ff1e50424da0a0546ade9039f00368073f56f2`, plus Three.js `0.160.0`, through pinned CDN URLs. V46 and V47 overlay controllers are not loaded.
 
-This is the first runnable V47 vertical slice, not the entire V47 roadmap.
+## Acceptance mode
 
-Still outside this package:
-
-- formal schema version 47 and migrations from every legacy project;
-- full native absorption of the V46 overlay into workspace classes;
-- production visual QA with real GLB, HDRI and audio assets;
-- final GPU/performance budgets;
-- complete Variant Bin and sequence-recipe workflow.
-
-Those remain subsequent V47 milestones rather than being hidden behind a misleading “complete” label.
+Appending `?mock=1` starts the dependency-free acceptance fixture used by the automated browser suite. It is a testing mode, not the production renderer.

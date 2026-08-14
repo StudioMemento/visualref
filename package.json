@@ -1,14 +1,14 @@
 {
-  "name": "memento-visualref-v47a-delta-limbo",
-  "version": "47.1.0",
+  "name": "memento-visualref-v47r-core-recovery",
+  "version": "47.0.2",
   "private": true,
   "type": "module",
-  "description": "MEMENTO VisualRef V47A — deterministic candidate Delta generation, procedural limbo world recipes and a V36C-inspired workspace hierarchy.",
+  "description": "VisualRef V47R — persistent native V45 core, recovered World → Shot → Delta → Curve workflow.",
   "scripts": {
-    "check": "node --check src/v46/bootstrap.js && node --check src/v46/local-bootstrap.js && node --check src/v46/polish-controller.js && node --check src/v47/bootstrap.js && node --check src/v47/local-bootstrap.js && node --check src/v47/delta-engine.js && node --check src/v47/foundation-controller.js && node --check scripts/install-v47a.mjs && node tests/unit/delta-engine.mjs",
-    "test:static": "python tests/validate_package.py",
-    "test:browser-mock": "python tests/run_browser_mock.py",
-    "check:browser": "npm run test:browser-mock",
-    "validate": "npm run check && npm run test:static && npm run test:browser-mock"
+    "check": "node tests/check-syntax.mjs",
+    "test:delta": "node tests/delta-engine.mjs",
+    "test:static": "python3 tests/validate_package.py",
+    "test:browser": "python3 tests/browser_recovery.py",
+    "validate": "npm run check && npm run test:delta && npm run test:static && npm run test:browser"
   }
 }
