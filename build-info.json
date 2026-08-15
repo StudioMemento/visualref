@@ -1,44 +1,59 @@
 {
   "product": "MEMENTO VisualRef",
-  "release": "V48A Slash Flavor",
-  "schemaVersion": 48,
-  "builtAt": "2026-08-15T10:55:56+00:00",
+  "release": "V49 Cinematic Workspace",
+  "schemaVersion": 49,
+  "builtAt": "2026-08-15T15:34:54+00:00",
   "runtime": "browser ES modules + WebGL2",
   "files": [
     {
       "path": "assets/memento-obsidian-fixture.glb",
-      "bytes": 161084,
-      "sha256": "08ef1a10b9cfbbd567b5d51c9999d8c33f663c4a31a4cb16cafd5adb4faaf36f"
+      "bytes": 161080,
+      "sha256": "e317c0eb0c6b9bd692006f0b3b23ab789ff740ec988e334e52a394f94fa71495"
     },
     {
       "path": "index.html",
-      "bytes": 7053,
-      "sha256": "22284dbe437d5487a03e7c16cc08c28971fdee4feececadfc3473bd8722dc068"
+      "bytes": 8322,
+      "sha256": "bb6cd257b399529531562c98b98975a0f0fcd892c57e851ae662c91441cc74a8"
     },
     {
       "path": "src/app/main.js",
-      "bytes": 40191,
-      "sha256": "5b509a02bfcc3e8b10ada5f22790d2dff104af58904b88a6ff8c6a68fac2d46b"
+      "bytes": 102796,
+      "sha256": "59cf7129825985ccfdaa5ad97ef73ef2f2aebdd3cdae04ea3bd5be2829fab85e"
     },
     {
       "path": "src/core/asset-store.js",
-      "bytes": 5342,
-      "sha256": "c308277192b3afa07dadafd30cbe9448f827fc002f894d83219a01ae19494824"
+      "bytes": 6750,
+      "sha256": "3d1364a045e26818c66a6bf9067eeb3dbd6de8469e75e7316bafc8ca456b9c72"
     },
     {
       "path": "src/core/project-store.js",
-      "bytes": 3007,
-      "sha256": "cab33db3d139878a952b33151408525a000bc975b15df2533fbe890f02b1044c"
+      "bytes": 4843,
+      "sha256": "469a711d8c3bdf6d8641cf7755936092daf673e3841d6200aeb13d2ea6943c6c"
     },
     {
       "path": "src/core/schema.js",
-      "bytes": 3691,
-      "sha256": "0afedf031390050c9b067001f993666dbacc5b5792352915f36a1bcadf533508"
+      "bytes": 18783,
+      "sha256": "769c8fe52430e3597d928fcbda1c6adb2ea947dc416c2e8e255ac29329bfde00"
+    },
+    {
+      "path": "src/core/workspace-preferences.js",
+      "bytes": 1532,
+      "sha256": "aada7b097128001f706a9610ae4bd4a3c3814d7bd3e821df73c6e2f00e337605"
     },
     {
       "path": "src/engine/glb-loader.js",
-      "bytes": 14654,
-      "sha256": "fa157c760153c312ffd52f05ba0d23548201ed1361ae533201c9b6c6f70a997d"
+      "bytes": 14728,
+      "sha256": "de0a8f5ce13843e1694a8221d5f0435dcd987a8b926728c54401660ca789d976"
+    },
+    {
+      "path": "src/engine/hdri-loader.js",
+      "bytes": 6202,
+      "sha256": "1925dc6b415e3426e192a778e3cc031c800dfb80446faf968421a1e5f4a31966"
+    },
+    {
+      "path": "src/engine/lighting.js",
+      "bytes": 6728,
+      "sha256": "b3ab2fc915b287d8c9eb7451922ba2357a8feab40aef415bb1768f16761474cc"
     },
     {
       "path": "src/engine/math.js",
@@ -47,18 +62,38 @@
     },
     {
       "path": "src/engine/renderer.js",
-      "bytes": 23261,
-      "sha256": "3a7ae462090adda4652cc43b196fe7a8bc9b15b777c0b86de09ac206e37b6ffa"
+      "bytes": 55423,
+      "sha256": "5ef85205397417b9696d2ad79ce0355d6cc9f44fad3045e804dee8675bf8742d"
+    },
+    {
+      "path": "src/scene/transforms.js",
+      "bytes": 3106,
+      "sha256": "4d17543dd6ee0e9b4e461c068c21e294ba7518470a7b56f9dcc32b0e01b51ee0"
     },
     {
       "path": "src/sequence/player.js",
-      "bytes": 4472,
-      "sha256": "ec8b3a0a07a6fa79cc1ddfe14eaf4e090271e13d10e4ee98123dde18b13d24c6"
+      "bytes": 5693,
+      "sha256": "54a13a219f325daec7e449565f02eeb58a8024d12337924e5becca1c5e7bccf6"
+    },
+    {
+      "path": "src/sequence/presets.js",
+      "bytes": 11441,
+      "sha256": "759f154339e0efd7b7cbdb2a334402caad3137a516ec3a8b7b6218d300050728"
+    },
+    {
+      "path": "src/sequence/timeline-model.js",
+      "bytes": 8566,
+      "sha256": "cdb443a5fd72f6bdfd438b3b88a334296255ed86db9e60fc7624b6e413cc7d18"
     },
     {
       "path": "src/shot/axes.js",
-      "bytes": 3737,
-      "sha256": "806652e276ba6caefaed72c70bf63f50a6eed0709955f80736e6759cd75fd2e2"
+      "bytes": 8679,
+      "sha256": "52a6cc0588832977f8e3745b995ce3934254418fde07f434ca04e36f94e0ec15"
+    },
+    {
+      "path": "src/shot/capabilities.js",
+      "bytes": 415,
+      "sha256": "23809216c109306bc0bba558c58105d8c562ac5afb937f83ca7f3e4a01651a2a"
     },
     {
       "path": "src/shot/delta-engine.js",
@@ -67,28 +102,28 @@
     },
     {
       "path": "src/shot/evaluator.js",
-      "bytes": 7391,
-      "sha256": "f10a5e77dd2a599689f4dc747376c40898e852dbb8a441544d7c18154a7bd335"
+      "bytes": 18245,
+      "sha256": "284301328ae3688d6ea08b2c413b7d0ee8e93416139b50fd7e5a646127478290"
     },
     {
       "path": "src/shot/presets.js",
-      "bytes": 9053,
-      "sha256": "40440150b45c39f4561cfd152ba69d8a8f3b5043f4313bd499e967c29d9b6ad5"
+      "bytes": 16248,
+      "sha256": "48a6c8af773bf038f4a34b195b353b5d185ff6e6f7da5dc5a01505ef5b2e2dc0"
     },
     {
       "path": "src/styles/app.css",
-      "bytes": 33140,
-      "sha256": "d242e9ece6121072476f0adbd923b9aa4b45c7c78c1efe4aac246999870f2697"
+      "bytes": 56623,
+      "sha256": "4485c9011d05fddec2d3426fcc91b358b0b8b0230d0b818c67ea53528d3aba89"
     },
     {
       "path": "src/styles/mobile.css",
-      "bytes": 5252,
-      "sha256": "8524149367221ac8e2bca66eab21693ac8c4cbd63249957292660e02df36726c"
+      "bytes": 9068,
+      "sha256": "3fedc94673494d00ba332f1d15edf8f6b9966e2c274b869fd1cc809c1b21fd23"
     },
     {
       "path": "src/styles/tokens.css",
-      "bytes": 1651,
-      "sha256": "4c98d415cd9d596c0ba274ba78a9a63711a2bbacfacb1a4c1f597ad66e5eec6a"
+      "bytes": 2517,
+      "sha256": "d60e74f480bccad3587cde02d450ae95b4b3965140b02b605cc1ac34c5949200"
     },
     {
       "path": "src/ui/icons.js",

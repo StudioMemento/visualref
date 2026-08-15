@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#08080a">
-  <meta name="description" content="Memento VisualRef V48A — game-like cinematic shot direction for real 3D products.">
-  <title>MEMENTO — VisualRef V48A</title>
+  <meta name="theme-color" content="#08090b">
+  <meta name="description" content="Memento VisualRef V49 — build the world, direct the shot, cut the sequence.">
+  <title>MEMENTO — VisualRef V49</title>
   <link rel="stylesheet" href="/src/styles/tokens.css">
   <link rel="stylesheet" href="/src/styles/app.css">
   <link rel="stylesheet" href="/src/styles/mobile.css">
 </head>
 <body>
-  <div id="app" class="app" data-mode="shot">
+  <div id="app" class="app" data-mode="shot" data-display="render" data-shot-view="director" data-sequence-view="simple">
     <header class="topbar">
       <button class="brand" type="button" data-action="mode" data-mode="shot" aria-label="Memento VisualRef home">
         <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
@@ -19,94 +19,99 @@
           <path class="brand-m" d="M10 23V12l8 7 8-7v11"/>
           <path class="brand-slash" d="M26.5 6.5 9.5 29.5"/>
         </svg>
-        <span class="brand-copy"><strong>MEMENTO</strong><small>VISUALREF · V48A</small></span>
+        <span class="brand-copy"><strong>MEMENTO</strong><small>VISUALREF · V49</small></span>
       </button>
 
-      <nav class="mode-nav" role="tablist" aria-label="VisualRef mode">
-        <button class="mode-button" type="button" role="tab" data-action="mode" data-mode="world">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4a12 12 0 0 1 0 16M12 4a12 12 0 0 0 0 16"/></svg><span>World</span>
-        </button>
-        <button class="mode-button is-active" type="button" role="tab" data-action="mode" data-mode="shot">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M7 5l1.2-2h7.6L17 5"/></svg><span>Shot</span>
-        </button>
-        <button class="mode-button" type="button" role="tab" data-action="mode" data-mode="sequence">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><rect x="6" y="4" width="6" height="4" rx="1"/><rect x="10" y="10" width="8" height="4" rx="1"/><rect x="5" y="16" width="10" height="4" rx="1"/></svg><span>Sequence</span>
-        </button>
+      <nav class="mode-nav" role="tablist" aria-label="VisualRef workspace">
+        <button class="mode-button" type="button" role="tab" data-action="mode" data-mode="world" aria-selected="false"><span>World</span></button>
+        <button class="mode-button is-active" type="button" role="tab" data-action="mode" data-mode="shot" aria-selected="true"><span>Shot</span></button>
+        <button class="mode-button" type="button" role="tab" data-action="mode" data-mode="sequence" aria-selected="false"><span>Sequence</span></button>
       </nav>
 
+      <div class="display-switch" role="group" aria-label="Player display mode">
+        <button type="button" data-action="display" data-display="render" class="display-button is-active">Render</button>
+        <button type="button" data-action="display" data-display="viewport" class="display-button">Viewport</button>
+        <button type="button" data-action="display" data-display="split" class="display-button">Split</button>
+      </div>
+
       <div class="top-actions">
-        <span id="workspaceMode" class="workspace-mode">SHOT</span>
         <button id="undoButton" class="icon-button" type="button" data-action="undo" aria-label="Undo" title="Undo (Ctrl/Cmd Z)">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8H4V3"/><path d="M4 8c2.8-3.4 8.1-4.5 12.1-2.1A8 8 0 0 1 19 17"/></svg>
         </button>
         <button id="redoButton" class="icon-button" type="button" data-action="redo" aria-label="Redo" title="Redo (Shift Ctrl/Cmd Z)">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 8h5V3"/><path d="M20 8c-2.8-3.4-8.1-4.5-12.1-2.1A8 8 0 0 0 5 17"/></svg>
         </button>
-        <button class="version-badge" type="button" data-action="mode" data-mode="world" title="Open World setup"><span></span>V48A</button>
+        <button id="projectStatusButton" class="project-status" type="button" data-action="preferences" title="Workspace preferences">
+          <span class="status-dot"></span><span id="projectStatusText">Opening Hero</span><b>V49</b>
+        </button>
       </div>
     </header>
 
-    <main class="workspace">
-      <section class="stage-column">
+    <main id="workspace" class="workspace">
+      <aside id="leftPanel" class="left-panel workspace-panel" aria-label="Outliner and library"></aside>
+
+      <section id="centerWorkspace" class="center-workspace">
         <div id="playerCard" class="player-card">
-          <canvas id="heroCanvas" aria-label="Interactive 3D Hero Player"></canvas>
+          <canvas id="heroCanvas" aria-label="VisualRef cinematic 3D Player"></canvas>
           <div class="player-grade" aria-hidden="true"></div>
-          <div class="player-grid" aria-hidden="true"></div>
           <div class="player-topline">
             <div class="player-caption">
-              <span id="playerModeLabel">HERO</span>
-              <strong id="playerShotTitle">Copper Ledger</strong>
+              <span id="playerContextLabel">SHOT · RENDER</span>
+              <strong id="playerShotTitle">Hero Authority</strong>
             </div>
-            <div id="assetStatus" class="asset-status is-busy"><span class="status-dot"></span><span>Opening Hero</span></div>
+            <div id="playerAssetStatus" class="player-asset-status is-busy"><span class="status-dot"></span><span>Opening Hero</span></div>
           </div>
+          <div id="viewLabels" class="view-labels" aria-hidden="true"></div>
+          <button id="splitDivider" class="split-divider" type="button" aria-label="Resize Render and Viewport split" hidden></button>
+          <div id="playerGuides" class="player-guides" aria-hidden="true"></div>
+          <div id="focusHelper" class="focus-helper" hidden aria-hidden="true"><span></span></div>
           <div class="player-bottomline">
             <span id="playerFrameReadout">0000 / 0095 · 00:00.00</span>
-            <span class="player-hint">DRAG TO ORBIT · SCROLL TO DOLLY · DOUBLE CLICK TO FIT</span>
+            <span id="playerHint">DRAG TO ORBIT · SCROLL TO DOLLY · DOUBLE CLICK TO FIT</span>
           </div>
-          <div class="frame-corner corner-tl" aria-hidden="true"></div>
-          <div class="frame-corner corner-tr" aria-hidden="true"></div>
-          <div class="frame-corner corner-bl" aria-hidden="true"></div>
-          <div class="frame-corner corner-br" aria-hidden="true"></div>
           <div id="assetOverlay" class="asset-overlay" aria-live="polite"></div>
+          <div id="mobileActions" class="mobile-actions" aria-label="Mobile workspace controls">
+            <button type="button" data-action="mobile-library" aria-label="Open Library or Scene" title="Library / Scene">☰</button>
+            <button type="button" data-action="mobile-inspector" aria-label="Open Inspector" title="Inspector">⌘</button>
+            <button id="mobileUndoButton" type="button" data-action="undo" aria-label="Undo" title="Undo">↶</button>
+            <button id="mobileRedoButton" type="button" data-action="redo" aria-label="Redo" title="Redo">↷</button>
+          </div>
+          <div id="viewportDock" class="viewport-dock" aria-label="Viewport tools"></div>
         </div>
+
 
         <div id="playerTransport" class="player-transport">
           <span id="transportContext" class="transport-context">SHOT</span>
           <button id="transportLoop" class="transport-button is-active" type="button" data-action="transport-loop" aria-label="Loop" aria-pressed="true" title="Loop">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>
           </button>
-          <button class="transport-button" type="button" data-action="transport-start" aria-label="Start" title="Start">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 7l-8 5 8 5z"/></svg>
-          </button>
-          <button id="transportPlay" class="transport-button transport-play" type="button" data-action="transport-play" aria-label="Play" title="Play">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6z"/></svg>
-          </button>
+          <button class="transport-button" type="button" data-action="transport-start" aria-label="Start" title="Start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 7l-8 5 8 5z"/></svg></button>
+          <button id="transportPlay" class="transport-button transport-play" type="button" data-action="transport-play" aria-label="Play" title="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6z"/></svg></button>
           <div id="transportProgress" class="scrub-shell">
             <span class="scrub-track"></span>
             <input id="transportScrub" type="range" min="0" max="1000" step="1" value="0" aria-label="Player scrub">
             <span class="scrub-start">START</span><span class="scrub-end">END</span>
           </div>
-          <button class="transport-button" type="button" data-action="transport-end" aria-label="End" title="End">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 7l8 5-8 5z"/></svg>
-          </button>
+          <button class="transport-button" type="button" data-action="transport-end" aria-label="End" title="End"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 7l8 5-8 5z"/></svg></button>
           <span class="transport-divider"></span>
-          <button class="transport-button utility" type="button" data-action="reset-orbit" aria-label="Frame Hero" title="Frame Hero">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><path d="M7 12h10"/></svg>
-          </button>
-          <button class="transport-button utility" type="button" data-action="fullscreen" aria-label="Fullscreen" title="Fullscreen (F)">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
-          </button>
+          <button class="transport-button utility" type="button" data-action="frame-selected" aria-label="Frame selected" title="Frame selected"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><path d="M7 12h10"/></svg></button>
+          <button class="transport-button utility" type="button" data-action="fullscreen" aria-label="Fullscreen" title="Fullscreen (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
         </div>
 
-        <section id="axisDeck" class="axis-deck"></section>
+        <section id="lowerWorkspace" class="lower-workspace" aria-live="polite"></section>
       </section>
 
-      <aside id="contextPanel" class="context-panel" aria-live="polite"></aside>
+      <aside id="inspectorPanel" class="inspector-panel workspace-panel" aria-label="Inspector"></aside>
     </main>
   </div>
 
-  <section id="axisEditor" class="axis-editor" hidden aria-label="Axis options"></section>
+  <section id="mobileSheet" class="mobile-sheet" hidden aria-label="VisualRef controls"></section>
+  <section id="preferencesSheet" class="preferences-sheet" hidden aria-label="Workspace preferences"></section>
+
   <input id="heroFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
+  <input id="assetFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
+  <input id="backgroundFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
+  <input id="hdriFileInput" type="file" accept=".hdr,.exr,image/vnd.radiance" hidden>
   <div id="toast" class="toast" hidden role="status"></div>
 
   <script type="module" src="/src/app/main.js"></script>

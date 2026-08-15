@@ -73,7 +73,7 @@ function normalizedValue(value, componentType) {
 function readAccessorRaw(gltf, binChunk, accessorIndex, forceFloat = false) {
   const accessor = gltf.accessors?.[accessorIndex];
   if (!accessor) throw new GLBError(`Missing accessor ${accessorIndex}.`, 'MISSING_ACCESSOR');
-  if (accessor.sparse) throw new GLBError('Sparse accessors are not supported in V48A yet.', 'SPARSE_ACCESSOR');
+  if (accessor.sparse) throw new GLBError('Sparse accessors are not supported in the V49 self-contained decoder.', 'SPARSE_ACCESSOR');
   const component = COMPONENTS[accessor.componentType];
   const componentCount = TYPE_COMPONENTS[accessor.type];
   if (!component || !componentCount) throw new GLBError(`Unsupported accessor format ${accessor.componentType}/${accessor.type}.`, 'ACCESSOR_FORMAT');
@@ -183,8 +183,8 @@ export async function decodeGLB(arrayBuffer, { name = 'Hero.glb', onProgress = (
   onProgress({ phase: 'decoding', progress: 0.05, label: 'Reading glTF container' });
   const { json: gltf, binChunk } = parseGLB(arrayBuffer);
   const used = new Set(gltf.extensionsUsed || []);
-  if (used.has('KHR_draco_mesh_compression')) throw new GLBError('This GLB uses Draco compression. The V48A decoder pack is not included in this checkpoint.', 'DRACO_REQUIRED');
-  if (used.has('EXT_meshopt_compression')) throw new GLBError('This GLB uses Meshopt compression. The V48A decoder pack is not included in this checkpoint.', 'MESHOPT_REQUIRED');
+  if (used.has('KHR_draco_mesh_compression')) throw new GLBError('This GLB uses Draco compression. The optional Draco decoder pack is not bundled in this self-contained V49 release.', 'DRACO_REQUIRED');
+  if (used.has('EXT_meshopt_compression')) throw new GLBError('This GLB uses Meshopt compression. The optional Meshopt decoder pack is not bundled in this self-contained V49 release.', 'MESHOPT_REQUIRED');
 
   const materials = parseMaterials(gltf);
   const images = await decodeImages(gltf, binChunk);

@@ -1,115 +1,195 @@
-@media (max-width: 1100px) {
-  :root { --panel-w: 330px; }
-  .topbar { grid-template-columns: minmax(170px,1fr) auto minmax(170px,1fr); gap: 10px; }
-  .mode-button { min-width: 92px; padding-inline: 11px; }
-  .stage-column { padding: 9px 9px 8px; }
-  .context-panel { padding-inline: 16px; }
+/* Responsive recomposition — panels collapse before the image becomes unusable. */
+@media (max-width: 1399px) {
+  :root { --left-w: clamp(210px, 17vw, 270px); --inspector-w: clamp(300px, 25vw, 380px); }
+  .topbar { grid-template-columns: minmax(160px, 1fr) auto auto minmax(160px, 1fr); }
+  .brand-copy small { display: none; }
+  .world-status-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .world-status-strip > div:nth-child(5) { display: none; }
+  .matrix-options { grid-template-columns: 1fr; }
+  .player-bottomline #playerHint { display: none; }
 }
 
-@media (max-width: 860px) {
-  :root { --topbar-h: 58px; }
-  body { overflow-y: auto; overflow-x: hidden; }
-  .app { height: auto; min-height: 100dvh; display: block; padding-top: var(--topbar-h); }
-  .topbar {
-    position: fixed;
-    inset: 0 0 auto;
-    height: var(--topbar-h);
-    grid-template-columns: auto 1fr auto;
-    padding: 0 10px;
-  }
+@media (max-width: 1199px) {
+  :root { --left-w: 0px; --inspector-w: clamp(300px, 32vw, 370px); }
+  .workspace { grid-template-columns: 0 minmax(0, 1fr) var(--inspector-w); }
+  .left-panel { display: none; }
+  .app[data-mode="shot"][data-shot-view="matrix"] { --inspector-w: min(60vw, 700px); }
+  .topbar { grid-template-columns: 130px auto auto 130px; gap: 7px; }
   .brand-copy { display: none; }
-  .brand-mark { width: 31px; height: 31px; }
-  .mode-nav { justify-self: center; gap: 1px; padding: 3px; }
-  .mode-button { min-width: 72px; height: 34px; gap: 5px; padding-inline: 9px; font-size: 9px; }
-  .mode-button svg { width: 14px; height: 14px; }
-  .workspace-mode, #undoButton, #redoButton { display: none; }
-  .version-badge { width: 33px; height: 33px; justify-content: center; padding: 0; font-size: 0; }
-  .version-badge span { width: 6px; height: 6px; }
-  .workspace { display: block; }
-  .stage-column { display: block; padding: 8px; overflow: visible; }
-  .player-card { height: min(58dvh, 560px); min-height: 360px; }
-  .player-transport { height: 57px; grid-template-columns: 32px 38px 38px 44px minmax(90px,1fr) 38px 38px; padding-top: 8px; }
-  .transport-context, .transport-divider, .transport-button.utility:first-of-type { display: none; }
-  .transport-button.utility { display: grid; }
-  .player-transport.is-world { grid-template-columns: 1fr 42px 42px; }
-  .player-transport.is-world::after { grid-column: 1; font-size: 7px; }
-  .axis-deck { min-height: 126px; padding-top: 5px; }
-  .axis-rail { grid-auto-columns: 122px; }
-  .axis-deck-heading { padding-inline: 2px; }
-  .context-panel {
-    min-height: 480px;
-    overflow: visible;
-    border-top: var(--hairline);
-    border-left: 0;
-    padding: 24px 16px calc(40px + env(safe-area-inset-bottom));
-  }
-  .panel-heading h1 { font-size: clamp(43px, 13vw, 64px); }
-  .preset-rail { grid-auto-columns: minmax(160px, 43vw); }
-  .axis-editor {
-    left: 8px;
-    right: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
-    max-height: min(72dvh, 620px);
-    overflow: auto;
-  }
-  .axis-editor-shell { padding: 14px 12px; }
-  .axis-editor-head { position: sticky; top: -14px; z-index: 2; padding-top: 14px; background: rgba(4,4,6,.98); }
-  .axis-editor-head p { max-width: 200px; }
-  .option-rail { grid-auto-columns: minmax(190px, 70vw); }
-  .toast { bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .mode-button { padding-inline: 10px; }
+  .project-status span:not(.status-dot), .project-status b { display: none; }
+  .project-status { width: 32px; justify-content: center; padding: 0; }
+  .axis-summary-rail { grid-template-columns: repeat(11, minmax(88px, 1fr)); }
+  .viewport-dock { max-width: calc(100% - 24px); overflow-x: auto; }
+  .sequence-preset-list { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 560px) {
-  .topbar { grid-template-columns: 36px 1fr 36px; }
-  .mode-nav { width: 100%; max-width: 278px; }
-  .mode-button { flex: 1 1 0; min-width: 0; padding-inline: 7px; }
-  .mode-button.is-active::after { left: 13px; right: 13px; }
-  .player-card { height: 52dvh; min-height: 330px; }
-  .player-topline { left: 14px; right: 14px; top: 14px; }
-  .player-bottomline { left: 14px; right: 14px; bottom: 13px; }
-  .player-hint { display: none; }
-  .asset-status { max-width: 52%; min-height: 26px; font-size: 7px; }
-  .player-caption strong { font-size: 11px; }
-  .player-transport { grid-template-columns: 34px 34px 42px minmax(70px,1fr) 34px 34px; gap: 3px; }
-  #transportLoop { display: none; }
-  .transport-button { width: 34px; height: 34px; }
-  .transport-button.transport-play { width: 40px; height: 40px; }
+@media (max-width: 899px) {
+  :root { --header-h: 50px; --inspector-w: 0px; --timeline-h: clamp(230px, 36vh, 390px); }
+  body { overflow: hidden; }
+  .topbar {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 6px;
+    padding-inline: 7px;
+  }
+  .brand { width: 34px; }
+  .brand-mark { width: 25px; height: 25px; }
+  .mode-nav { justify-self: center; }
+  .display-switch { grid-column: 3; }
+  .top-actions { display: none; }
+  .display-button { padding-inline: 8px; }
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .left-panel, .inspector-panel { display: none; }
+  .center-workspace { grid-template-rows: minmax(240px, 1fr) auto auto; }
+  .app[data-mode="sequence"] .center-workspace { grid-template-rows: minmax(210px, 1fr) auto var(--timeline-h); }
+  .player-caption strong { max-width: 68vw; font-size: clamp(19px, 4vw, 29px); }
+  .player-asset-status { display: none; }
+  .player-transport { grid-template-columns: 28px repeat(3, 32px) minmax(90px, 1fr) 32px auto 32px; padding-inline: 6px; }
+  .player-transport .transport-button:last-child { display: none; }
+  .transport-divider { display: none; }
+  .transport-context { padding-right: 0; font-size: 7px; }
+  .viewport-dock { bottom: 9px; max-width: calc(100% - 16px); padding: 4px; }
+  .dock-tool { min-width: 36px; height: 36px; }
+  .world-status-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .world-status-strip > div:nth-child(4) { display: none; }
+  .axis-summary-rail { min-height: 84px; grid-template-columns: repeat(11, 96px); }
+  .matrix-status { grid-template-columns: 1fr; gap: 3px; }
+  .matrix-status small { display: none; }
+  .simple-sequence-strip { padding: 8px; }
+  .sequence-clip { min-width: 210px; }
+  .timeline-shell { grid-template-columns: 74px minmax(0, 1fr); }
+  .track-label { padding-inline: 5px; }.track-label strong { font-size: 7px; }
+  .sequence-toolbar { grid-template-columns: auto 1fr; }
+  .sequence-toolbar > .button { display: none; }
+  .timeline-toolbar { grid-template-columns: auto 1fr; }
+  .zoom-control { display: none; }
+  .preferences-sheet { grid-template-columns: 1fr minmax(320px, 76vw); }
+}
+
+@media (max-width: 599px) {
+  :root { --header-h: 52px; --transport-h: 48px; --timeline-h: 242px; }
+  .topbar { grid-template-columns: 30px minmax(0, 1fr) auto; padding: 0 6px; }
+  .brand-mark { width: 24px; height: 24px; }
+  .mode-nav { min-width: 0; width: 100%; }
+  .mode-button { min-width: 0; flex: 1; padding-inline: 7px; font-size: 8px; }
+  .display-switch { min-width: 0; }
+  .display-button { padding-inline: 7px; font-size: 7px; }
+  .display-button[data-display="split"] { display: none; }
+  .center-workspace { grid-template-rows: minmax(230px, 1fr) auto auto; }
+  .app[data-mode="sequence"] .center-workspace { grid-template-rows: minmax(210px, 1fr) auto var(--timeline-h); }
+  .player-topline { left: 9px; right: 9px; top: 8px; }
+  .player-bottomline { left: 9px; right: 9px; bottom: 7px; }
+  .player-caption span { font-size: 7px; }
+  .player-caption strong { max-width: 76vw; font-size: 20px; }
+  .view-label { top: 8px; font-size: 6px; }
+  .player-bottomline { font-size: 7px; }
+  .player-transport {
+    grid-template-columns: 24px 30px 34px minmax(68px, 1fr) 30px 30px;
+    gap: 2px;
+    min-height: var(--transport-h);
+    padding: 6px 5px;
+  }
+  .transport-button { width: 30px; height: 32px; }
+  .transport-button.transport-play { width: 34px; }
+  .player-transport > button:nth-of-type(2) { display: none; }
+  .scrub-shell { margin: 0 3px; }
   .scrub-start, .scrub-end { display: none; }
-  .axis-deck-heading small { display: none; }
-  .axis-rail { grid-auto-columns: 116px; }
-  .axis-chip { min-height: 78px; }
-  .context-panel { padding-inline: 14px; }
-  .panel-heading { padding-bottom: 17px; }
-  .panel-heading h1 { margin-top: 11px; font-size: clamp(42px, 14vw, 58px); }
-  .panel-heading p { max-width: 94%; }
-  .preset-rail { grid-auto-columns: 155px; }
-  .preset-card { min-height: 142px; }
-  .delta-stepper { grid-template-columns: 30px 50px 30px; }
-  .delta-stepper strong { font-size: 43px; }
-  .button { min-height: 46px; }
-  .primary-actions { gap: 6px; }
-  .hero-asset-card { grid-template-columns: 44px minmax(0,1fr) 24px; }
-  .asset-monogram { width: 44px; height: 44px; }
-  .world-proof-grid { grid-template-columns: 1fr; }
-  .world-proof-grid > div { border-right: 0; border-bottom: var(--hairline); }
-  .world-proof-grid > div:last-child { border-bottom: 0; }
-  .orientation-grid, .world-theme-grid { gap: 6px; }
-  .axis-editor-head h2 { font-size: 27px; }
-  .lock-button span { display: none; }
-  .lock-button { width: 36px; padding: 0; justify-content: center; }
-  .option-rail { grid-auto-columns: minmax(185px, 78vw); }
-  .sequence-summary { grid-template-columns: repeat(3,minmax(0,1fr)); }
-  .sequence-stat strong { font-size: 18px; }
-  .asset-overlay { padding: 18px; }
-  .asset-overlay-card h2 { font-size: 42px; }
+  .transport-context { font-size: 6px; }
+  .viewport-dock { left: 8px; right: 8px; width: auto; transform: none; justify-content: flex-start; overflow-x: auto; }
+  .dock-tool { min-width: 37px; }
+  .dock-separator { flex: 0 0 auto; }
+  .axis-summary-rail { min-height: 78px; grid-template-columns: repeat(11, 92px); }
+  .axis-summary { padding: 7px; }
+  .axis-summary > small { min-height: 18px; font-size: 7px; }
+  .world-status-strip { min-height: 56px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .world-status-strip > div:nth-child(3) { display: none; }
+  .world-status-strip > div { padding: 7px 9px; }
+  .matrix-status { min-height: 52px; padding: 8px 10px; }
+  .sequence-toolbar { min-height: 44px; padding: 6px; }
+  .sequence-facts { justify-content: flex-end; gap: 8px; font-size: 7px; }
+  .simple-sequence-strip { height: calc(100% - 44px); }
+  .sequence-clip { min-width: 188px; }
+  .clip-main { grid-template-columns: 23px minmax(0, 1fr); padding: 8px; }
+  .clip-delta { display: none; }
+  .clip-copy strong { font-size: 14px; }
+  .add-shot-tile { min-width: 120px; }
+  .timeline-toolbar { grid-template-columns: auto minmax(0, 1fr); }
+  .timeline-tools { justify-content: flex-end; overflow-x: auto; }
+  .timeline-tools button { padding-inline: 6px; }.timeline-tools button span { display: none; }
+  .timeline-shell { height: calc(100% - 44px); grid-template-columns: 57px minmax(0, 1fr); }
+  .track-label { height: 42px; }.track-label span { display: none; }
+  .timeline-track { height: 42px; }
+  .timeline-clip { height: 34px; }
+  .preferences-sheet { grid-template-columns: 1fr; }
+  .preferences-backdrop { display: none; }
+  .preferences-card { grid-column: 1; border-left: 0; }
+  .runtime-diagnostics dl { grid-template-columns: 1fr; }
+  .toast { bottom: 10px; }
 }
 
-@media (max-height: 720px) and (min-width: 861px) {
-  .stage-column { grid-template-rows: minmax(240px,1fr) 50px auto; }
-  .axis-deck { min-height: 110px; }
-  .axis-chip { min-height: 70px; }
-  .axis-deck-heading { height: 20px; }
-  .context-panel { padding-top: 18px; }
-  .panel-heading h1 { font-size: 40px; }
-  .preset-card { min-height: 130px; }
+@media (max-height: 700px) and (min-width: 900px) {
+  :root { --timeline-h: 230px; }
+  .panel-header { min-height: 52px; }
+  .player-caption strong { font-size: clamp(18px, 2vw, 28px); }
+  .axis-summary-rail { min-height: 78px; }
+}
+
+@media (max-width: 899px) {
+  .mobile-actions {
+    position: absolute;
+    z-index: 16;
+    top: 47px;
+    right: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 44px);
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 5px;
+    background: rgba(8, 9, 11, .72);
+    box-shadow: 0 9px 26px rgba(0, 0, 0, .23);
+    backdrop-filter: blur(12px);
+  }
+  .mobile-actions button {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--fog);
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .mobile-actions button:hover:not(:disabled),
+  .mobile-actions button:focus-visible { color: var(--paper); background: var(--graphite-2); }
+  .mobile-actions button:disabled { opacity: .28; }
+  .player-caption strong { max-width: 62vw; }
+  .mobile-sheet .matrix-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mobile-sheet .semantic-matrix { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 599px) {
+  .mobile-actions { top: 43px; right: 6px; grid-template-columns: repeat(2, 44px); }
+  .player-caption strong { max-width: 57vw; }
+  .mobile-sheet-card { top: 0; height: 100%; min-height: 0; }
+  .mobile-sheet-header { min-height: 56px; padding-left: 10px; }
+  .mobile-sheet-header h2 { font-size: 20px; }
+  .mobile-sheet-history button { width: 44px; height: 44px; }
+  .mobile-sheet .semantic-matrix { grid-template-columns: 1fr; }
+  .mobile-sheet .matrix-options { grid-template-columns: 1fr; }
+  .mobile-sheet .matrix-option { min-height: 45px; }
+  .mobile-sheet .side-actions button { width: 30px; height: 36px; }
+  .mobile-sheet .side-actions .exclude-option { width: 28px; }
+  .mobile-sheet .outliner-row,
+  .mobile-sheet .button,
+  .mobile-sheet .inline-actions button,
+  .mobile-sheet .segmented-control button,
+  .mobile-sheet .world-tabs button,
+  .mobile-sheet input,
+  .mobile-sheet select { min-height: 44px; }
+}
+
+@media (max-width: 899px) and (orientation: portrait) {
+  .display-button[data-display="split"] { display: none; }
 }

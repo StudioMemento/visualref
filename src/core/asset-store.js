@@ -1,7 +1,6 @@
-const DB_NAME = 'memento-visualref-v48';
+const DB_NAME = 'memento-visualref-v49';
 const DB_VERSION = 1;
 const STORE = 'assets';
-const HERO_KEY = 'hero';
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -15,37 +14,68 @@ function openDB() {
   });
 }
 
-export async function saveHeroAsset(blob, metadata) {
+export async function saveAssetBinary(assetId, blob, metadata = {}) {
+  if (!assetId) throw new Error('An asset ID is required.');
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE, 'readwrite');
-    transaction.objectStore(STORE).put({ key: HERO_KEY, blob, metadata, savedAt: Date.now() });
+    transaction.objectStore(STORE).put({ key: assetId, blob, metadata, savedAt: Date.now() });
     transaction.oncomplete = () => { db.close(); resolve(); };
-    transaction.onerror = () => { const error = transaction.error; db.close(); reject(error || new Error('Hero asset could not be saved.')); };
+    transaction.onerror = () => { const error = transaction.error; db.close(); reject(error || new Error('Asset could not be saved.')); };
     transaction.onabort = transaction.onerror;
   });
 }
 
-export async function loadHeroAsset() {
+export async function loadAssetBinary(assetId) {
+  if (!assetId) return null;
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE, 'readonly');
-    const request = transaction.objectStore(STORE).get(HERO_KEY);
+    const request = transaction.objectStore(STORE).get(assetId);
     request.onsuccess = () => resolve(request.result || null);
-    request.onerror = () => reject(request.error || new Error('Hero asset could not be restored.'));
+    request.onerror = () => reject(request.error || new Error('Asset could not be restored.'));
     transaction.oncomplete = () => db.close();
   });
 }
 
-export async function clearHeroAsset() {
+export async function deleteAssetBinary(assetId) {
+  if (!assetId) return;
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE, 'readwrite');
-    transaction.objectStore(STORE).delete(HERO_KEY);
+    transaction.objectStore(STORE).delete(assetId);
     transaction.oncomplete = () => { db.close(); resolve(); };
-    transaction.onerror = () => { const error = transaction.error; db.close(); reject(error || new Error('Hero asset could not be removed.')); };
+    transaction.onerror = () => { const error = transaction.error; db.close(); reject(error || new Error('Asset could not be removed.')); };
   });
 }
+
+export async function listAssetBinaries() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE, 'readonly');
+    const request = transaction.objectStore(STORE).getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error || new Error('Assets could not be listed.'));
+    transaction.oncomplete = () => db.close();
+  });
+}
+
+export async function clearAllAssetBinaries() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE, 'readwrite');
+    transaction.objectStore(STORE).clear();
+    transaction.oncomplete = () => { db.close(); resolve(); };
+    transaction.onerror = () => { const error = transaction.error; db.close(); reject(error || new Error('Assets could not be cleared.')); };
+  });
+}
+
+// V48-compatible helpers retained only for regression tooling. Production V49
+// stores every binary by its stable asset ID.
+const LEGACY_HERO_KEY = 'asset-hero-imported';
+export const saveHeroAsset = (blob, metadata) => saveAssetBinary(LEGACY_HERO_KEY, blob, metadata);
+export const loadHeroAsset = () => loadAssetBinary(LEGACY_HERO_KEY);
+export const clearHeroAsset = () => deleteAssetBinary(LEGACY_HERO_KEY);
 
 const SHA256_K = new Uint32Array([
   0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
