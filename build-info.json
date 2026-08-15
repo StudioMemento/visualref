@@ -1,0 +1,104 @@
+{
+  "product": "MEMENTO VisualRef",
+  "release": "V48A Slash Flavor",
+  "schemaVersion": 48,
+  "builtAt": "2026-08-15T10:55:56+00:00",
+  "runtime": "browser ES modules + WebGL2",
+  "files": [
+    {
+      "path": "assets/memento-obsidian-fixture.glb",
+      "bytes": 161084,
+      "sha256": "08ef1a10b9cfbbd567b5d51c9999d8c33f663c4a31a4cb16cafd5adb4faaf36f"
+    },
+    {
+      "path": "index.html",
+      "bytes": 7053,
+      "sha256": "22284dbe437d5487a03e7c16cc08c28971fdee4feececadfc3473bd8722dc068"
+    },
+    {
+      "path": "src/app/main.js",
+      "bytes": 40191,
+      "sha256": "5b509a02bfcc3e8b10ada5f22790d2dff104af58904b88a6ff8c6a68fac2d46b"
+    },
+    {
+      "path": "src/core/asset-store.js",
+      "bytes": 5342,
+      "sha256": "c308277192b3afa07dadafd30cbe9448f827fc002f894d83219a01ae19494824"
+    },
+    {
+      "path": "src/core/project-store.js",
+      "bytes": 3007,
+      "sha256": "cab33db3d139878a952b33151408525a000bc975b15df2533fbe890f02b1044c"
+    },
+    {
+      "path": "src/core/schema.js",
+      "bytes": 3691,
+      "sha256": "0afedf031390050c9b067001f993666dbacc5b5792352915f36a1bcadf533508"
+    },
+    {
+      "path": "src/engine/glb-loader.js",
+      "bytes": 14654,
+      "sha256": "fa157c760153c312ffd52f05ba0d23548201ed1361ae533201c9b6c6f70a997d"
+    },
+    {
+      "path": "src/engine/math.js",
+      "bytes": 7094,
+      "sha256": "126405f9b99ea8de139fc8df32378a158028e31a73e86b281ef66b0810ff9661"
+    },
+    {
+      "path": "src/engine/renderer.js",
+      "bytes": 23261,
+      "sha256": "3a7ae462090adda4652cc43b196fe7a8bc9b15b777c0b86de09ac206e37b6ffa"
+    },
+    {
+      "path": "src/sequence/player.js",
+      "bytes": 4472,
+      "sha256": "ec8b3a0a07a6fa79cc1ddfe14eaf4e090271e13d10e4ee98123dde18b13d24c6"
+    },
+    {
+      "path": "src/shot/axes.js",
+      "bytes": 3737,
+      "sha256": "806652e276ba6caefaed72c70bf63f50a6eed0709955f80736e6759cd75fd2e2"
+    },
+    {
+      "path": "src/shot/delta-engine.js",
+      "bytes": 5888,
+      "sha256": "d26993f0faa50864435ad3849c1a3b30ed3316ef8b469d981f88c8a39bc32b5e"
+    },
+    {
+      "path": "src/shot/evaluator.js",
+      "bytes": 7391,
+      "sha256": "f10a5e77dd2a599689f4dc747376c40898e852dbb8a441544d7c18154a7bd335"
+    },
+    {
+      "path": "src/shot/presets.js",
+      "bytes": 9053,
+      "sha256": "40440150b45c39f4561cfd152ba69d8a8f3b5043f4313bd499e967c29d9b6ad5"
+    },
+    {
+      "path": "src/styles/app.css",
+      "bytes": 33140,
+      "sha256": "d242e9ece6121072476f0adbd923b9aa4b45c7c78c1efe4aac246999870f2697"
+    },
+    {
+      "path": "src/styles/mobile.css",
+      "bytes": 5252,
+      "sha256": "8524149367221ac8e2bca66eab21693ac8c4cbd63249957292660e02df36726c"
+    },
+    {
+      "path": "src/styles/tokens.css",
+      "bytes": 1651,
+      "sha256": "4c98d415cd9d596c0ba274ba78a9a63711a2bbacfacb1a4c1f597ad66e5eec6a"
+    },
+    {
+      "path": "src/ui/icons.js",
+      "bytes": 2818,
+      "sha256": "701d21905725eb468645c11ea627b5760de6670330eded2c40f77481082fd1af"
+    },
+    {
+      "path": "vercel.json",
+      "bytes": 391,
+      "sha256": "e39f240aca1cdfe71a4da7decb500101c1298e5bf2d3d47203c5813bfd2787cc"
+    }
+  ]
+}

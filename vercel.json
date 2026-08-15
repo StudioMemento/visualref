@@ -1,13 +1,23 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    {"source": "/", "destination": "/index.html"},
-    {"source": "/viewport", "destination": "/index.html?workspace=viewport"},
-    {"source": "/render", "destination": "/index.html?workspace=render"},
-    {"source": "/timeline", "destination": "/index.html?workspace=timeline"}
-  ],
   "headers": [
-    {"source": "/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=0, must-revalidate"}]}
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/src/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
   ]
 }

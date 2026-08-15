@@ -1,39 +1,114 @@
 <!doctype html>
-<html lang="en" class="is-booting">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#070708">
-  <meta name="description" content="MEMENTO VisualRef V47R — one persistent world, one renderer, controlled Delta, one cinematic curve.">
-  <title>MEMENTO VisualRef · V47R Core Recovery</title>
-
-  <!-- Frozen native V45 visual primitives only. V46/V47 overlay styles are intentionally absent. -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/StudioMemento/visualref@48ff1e50424da0a0546ade9039f00368073f56f2/css/tokens.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/StudioMemento/visualref@48ff1e50424da0a0546ade9039f00368073f56f2/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/StudioMemento/visualref@48ff1e50424da0a0546ade9039f00368073f56f2/css/player.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/StudioMemento/visualref@48ff1e50424da0a0546ade9039f00368073f56f2/css/workspaces.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/StudioMemento/visualref@48ff1e50424da0a0546ade9039f00368073f56f2/css/v45.css">
-  <link rel="stylesheet" href="./css/v47r.css">
-
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
+  <meta name="theme-color" content="#08080a">
+  <meta name="description" content="Memento VisualRef V48A — game-like cinematic shot direction for real 3D products.">
+  <title>MEMENTO — VisualRef V48A</title>
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/app.css">
+  <link rel="stylesheet" href="/src/styles/mobile.css">
 </head>
-<body data-memento-build="v47r" data-workspace="viewport">
-  <div id="app" aria-live="polite">
-    <div class="vr-boot" role="status">
-      <div class="vr-boot-orbit" aria-hidden="true"><i></i><b></b></div>
-      <svg class="vr-boot-logo" viewBox="0 0 1600 100" aria-label="MEMENTO"><polygon points="109.14,10.45 109.14,89.55 101.23,81.64 101.23,28.91 69.58,60.55 37.94,28.91 37.94,81.64 30.03,89.55 30.03,10.45 69.58,50"/><polygon points="596.08,10.45 596.08,89.55 588.17,81.64 588.17,28.91 556.52,60.55 524.88,28.91 524.88,81.64 516.97,89.55 516.97,10.45 556.52,50"/><polygon points="1077.74,10.45 1077.74,89.55 1017.09,28.91 1017.09,81.65 1009.18,89.55 1009.18,10.45 1069.84,71.09 1069.84,18.36"/><polygon points="344.7,81.64 352.61,89.55 273.5,89.55 281.41,81.64"/><rect x="297.23" y="46.05" width="31.64" height="7.91"/><polygon points="352.61,10.45 344.7,18.36 281.41,18.36 273.5,10.45"/><polygon points="831.64,81.64 839.55,89.55 760.44,89.55 768.35,81.64"/><rect x="784.17" y="46.05" width="31.64" height="7.91"/><polygon points="839.55,10.45 831.64,18.36 768.35,18.36 760.44,10.45"/><polygon points="1247.38,10.45 1326.49,10.45 1318.57,18.36 1290.88,18.36 1290.88,89.55 1282.98,81.64 1282.98,18.36 1255.29,18.36"/><path d="M1530.42,10.45c-21.85,0-39.56,17.71-39.56,39.55 0,21.85,17.71,39.55,39.55,39.55 21.85,0,39.55-17.7,39.55-39.55 0-21.84-17.7-39.55-39.55-39.55zm0,71.2c-17.47,0-31.64-14.17-31.64-31.65 0-17.47,14.17-31.64,31.64-31.64 17.48,0,31.64,14.17,31.64,31.64 0,17.48-14.16,31.64-31.64,31.65z"/></svg>
-      <strong>V47R · CORE RECOVERY</strong>
-      <span>ONE WORLD · ONE SHOT · ONE DELTA · ONE CURVE</span>
-    </div>
+<body>
+  <div id="app" class="app" data-mode="shot">
+    <header class="topbar">
+      <button class="brand" type="button" data-action="mode" data-mode="shot" aria-label="Memento VisualRef home">
+        <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+          <path class="brand-ring" d="M18 3.5A14.5 14.5 0 1 1 3.5 18 14.5 14.5 0 0 1 18 3.5Z"/>
+          <path class="brand-m" d="M10 23V12l8 7 8-7v11"/>
+          <path class="brand-slash" d="M26.5 6.5 9.5 29.5"/>
+        </svg>
+        <span class="brand-copy"><strong>MEMENTO</strong><small>VISUALREF · V48A</small></span>
+      </button>
+
+      <nav class="mode-nav" role="tablist" aria-label="VisualRef mode">
+        <button class="mode-button" type="button" role="tab" data-action="mode" data-mode="world">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4a12 12 0 0 1 0 16M12 4a12 12 0 0 0 0 16"/></svg><span>World</span>
+        </button>
+        <button class="mode-button is-active" type="button" role="tab" data-action="mode" data-mode="shot">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M7 5l1.2-2h7.6L17 5"/></svg><span>Shot</span>
+        </button>
+        <button class="mode-button" type="button" role="tab" data-action="mode" data-mode="sequence">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><rect x="6" y="4" width="6" height="4" rx="1"/><rect x="10" y="10" width="8" height="4" rx="1"/><rect x="5" y="16" width="10" height="4" rx="1"/></svg><span>Sequence</span>
+        </button>
+      </nav>
+
+      <div class="top-actions">
+        <span id="workspaceMode" class="workspace-mode">SHOT</span>
+        <button id="undoButton" class="icon-button" type="button" data-action="undo" aria-label="Undo" title="Undo (Ctrl/Cmd Z)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8H4V3"/><path d="M4 8c2.8-3.4 8.1-4.5 12.1-2.1A8 8 0 0 1 19 17"/></svg>
+        </button>
+        <button id="redoButton" class="icon-button" type="button" data-action="redo" aria-label="Redo" title="Redo (Shift Ctrl/Cmd Z)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 8h5V3"/><path d="M20 8c-2.8-3.4-8.1-4.5-12.1-2.1A8 8 0 0 0 5 17"/></svg>
+        </button>
+        <button class="version-badge" type="button" data-action="mode" data-mode="world" title="Open World setup"><span></span>V48A</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="stage-column">
+        <div id="playerCard" class="player-card">
+          <canvas id="heroCanvas" aria-label="Interactive 3D Hero Player"></canvas>
+          <div class="player-grade" aria-hidden="true"></div>
+          <div class="player-grid" aria-hidden="true"></div>
+          <div class="player-topline">
+            <div class="player-caption">
+              <span id="playerModeLabel">HERO</span>
+              <strong id="playerShotTitle">Copper Ledger</strong>
+            </div>
+            <div id="assetStatus" class="asset-status is-busy"><span class="status-dot"></span><span>Opening Hero</span></div>
+          </div>
+          <div class="player-bottomline">
+            <span id="playerFrameReadout">0000 / 0095 · 00:00.00</span>
+            <span class="player-hint">DRAG TO ORBIT · SCROLL TO DOLLY · DOUBLE CLICK TO FIT</span>
+          </div>
+          <div class="frame-corner corner-tl" aria-hidden="true"></div>
+          <div class="frame-corner corner-tr" aria-hidden="true"></div>
+          <div class="frame-corner corner-bl" aria-hidden="true"></div>
+          <div class="frame-corner corner-br" aria-hidden="true"></div>
+          <div id="assetOverlay" class="asset-overlay" aria-live="polite"></div>
+        </div>
+
+        <div id="playerTransport" class="player-transport">
+          <span id="transportContext" class="transport-context">SHOT</span>
+          <button id="transportLoop" class="transport-button is-active" type="button" data-action="transport-loop" aria-label="Loop" aria-pressed="true" title="Loop">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>
+          </button>
+          <button class="transport-button" type="button" data-action="transport-start" aria-label="Start" title="Start">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 7l-8 5 8 5z"/></svg>
+          </button>
+          <button id="transportPlay" class="transport-button transport-play" type="button" data-action="transport-play" aria-label="Play" title="Play">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6z"/></svg>
+          </button>
+          <div id="transportProgress" class="scrub-shell">
+            <span class="scrub-track"></span>
+            <input id="transportScrub" type="range" min="0" max="1000" step="1" value="0" aria-label="Player scrub">
+            <span class="scrub-start">START</span><span class="scrub-end">END</span>
+          </div>
+          <button class="transport-button" type="button" data-action="transport-end" aria-label="End" title="End">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 7l8 5-8 5z"/></svg>
+          </button>
+          <span class="transport-divider"></span>
+          <button class="transport-button utility" type="button" data-action="reset-orbit" aria-label="Frame Hero" title="Frame Hero">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><path d="M7 12h10"/></svg>
+          </button>
+          <button class="transport-button utility" type="button" data-action="fullscreen" aria-label="Fullscreen" title="Fullscreen (F)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+          </button>
+        </div>
+
+        <section id="axisDeck" class="axis-deck"></section>
+      </section>
+
+      <aside id="contextPanel" class="context-panel" aria-live="polite"></aside>
+    </main>
   </div>
-  <noscript>VisualRef requires JavaScript.</noscript>
-  <script type="module" src="./src/v47r/bootstrap.js"></script>
+
+  <section id="axisEditor" class="axis-editor" hidden aria-label="Axis options"></section>
+  <input id="heroFileInput" type="file" accept=".glb,model/gltf-binary" hidden>
+  <div id="toast" class="toast" hidden role="status"></div>
+
+  <script type="module" src="/src/app/main.js"></script>
 </body>
 </html>

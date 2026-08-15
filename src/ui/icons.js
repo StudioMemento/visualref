@@ -1,0 +1,35 @@
+const paths = {
+  world: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4a12 12 0 0 1 0 16M12 4a12 12 0 0 0 0 16"/>',
+  shot: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M7 5l1.2-2h7.6L17 5"/>',
+  sequence: '<path d="M4 6h16M4 12h16M4 18h16"/><rect x="6" y="4" width="6" height="4" rx="1"/><rect x="10" y="10" width="8" height="4" rx="1"/><rect x="5" y="16" width="10" height="4" rx="1"/>',
+  undo: '<path d="M9 8H4V3"/><path d="M4 8c2.8-3.4 8.1-4.5 12.1-2.1A8 8 0 0 1 19 17"/>',
+  redo: '<path d="M15 8h5V3"/><path d="M20 8c-2.8-3.4-8.1-4.5-12.1-2.1A8 8 0 0 0 5 17"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L14.5 3h-5l-.4 3.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L5.1 11a7 7 0 0 0 0 2L3 14.5l2 3.4 2.4-1a8 8 0 0 0 1.7 1l.4 3.1h5l.4-3.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5a7 7 0 0 0 .1-1z"/>',
+  loop: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
+  play: '<path d="m9 6 9 6-9 6z"/>',
+  pause: '<path d="M9 6v12M15 6v12"/>',
+  start: '<path d="M6 5v14M18 7l-8 5 8 5z"/>',
+  end: '<path d="M18 5v14M6 7l8 5-8 5z"/>',
+  fullscreen: '<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>',
+  fit: '<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><path d="M7 12h10"/>',
+  upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 14v6h16v-6"/>',
+  random: '<path d="M4 7h3c4 0 5 10 9 10h4"/><path d="m17 14 3 3-3 3M4 17h3c1.4 0 2.5-1.2 3.5-2.8M14 7.8C15 7.3 15.8 7 17 7h3"/><path d="m17 4 3 3-3 3"/>',
+  variant: '<path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  lock: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  unlock: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 7-2.5"/>',
+  close: '<path d="m6 6 12 12M18 6 6 18"/>',
+  chevronLeft: '<path d="m15 5-7 7 7 7"/>',
+  chevronRight: '<path d="m9 5 7 7-7 7"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/>',
+  edit: '<path d="m4 20 4.5-1 10-10-3.5-3.5-10 10z"/><path d="m13.5 6.5 3.5 3.5"/>',
+  reset: '<path d="M4 4v6h6M20 20v-6h-6"/><path d="M5.5 15a7 7 0 0 0 11.7 2.6L20 14M4 10l2.8-3.6A7 7 0 0 1 18.5 9"/>',
+  check: '<path d="m5 12 4 4L19 6"/>',
+  alert: '<path d="M12 3 2.5 20h19z"/><path d="M12 9v4M12 17h.01"/>',
+  dots: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+};
+
+export function icon(name, className = '') {
+  return `<svg class="icon ${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[name] || paths.dots}</svg>`;
+}
